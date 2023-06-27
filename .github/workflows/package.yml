@@ -13,7 +13,7 @@ jobs:
           love_version: "11.4"
           source_dir: "src/"
       - name: control
-        run: ls built-applications/
+        run: ls -lR
       - uses: actions/upload-artifact@v1
         with:
           name: built-applications
