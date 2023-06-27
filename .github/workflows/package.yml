@@ -3,7 +3,7 @@ name: Package
 on: [push, pull_request]
 
 env:
-  PRODUCT_NAME: LÖVEputer
+  PRODUCT_NAME: LOVEputer
   BUNDLE_ID: com.example.loveputer
   BUILD_TYPE: ${{ fromJSON('["dev", "release"]')[startsWith(github.ref, 'refs/tags/v')] }}
   OUTPUT_FOLDER: dist
