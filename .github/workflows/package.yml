@@ -53,6 +53,7 @@ jobs:
           # love-package: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
           product-name: ${{ env.PRODUCT_NAME }}
           output-folder: ${{ env.OUTPUT_FOLDER }}
+          icon-path: ./assets/example_icon.png
 
   release:
     permissions:
