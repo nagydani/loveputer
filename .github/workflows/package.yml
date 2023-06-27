@@ -3,12 +3,12 @@ name: Package
 on: [push, pull_request]
 
 env:
-  BUILD_TYPE: ${{ fromJSON('["dev", "release"]')[startsWith(github.ref, 'refs/tags/v')] }}
-  OUTPUT_FOLDER: ./dist
-  LOVE_PACKAGE_PATH: ./dist/loveputer.love
-  LOVE_ARTIFACT_NAME: loveputer.love
   PRODUCT_NAME: LÖVEputer
   BUNDLE_ID: com.example.loveputer
+  BUILD_TYPE: ${{ fromJSON('["dev", "release"]')[startsWith(github.ref, 'refs/tags/v')] }}
+  OUTPUT_FOLDER: dist
+  ARTIFACT_FOLDER: artifact
+  LOVE_ARTIFACT_NAME: loveputer.love
 
 jobs:
   build-love:
@@ -19,12 +19,12 @@ jobs:
         uses: love-actions/love-actions-core@v1
         with:
           build-list: "./src/*"
-          package-path: ${{ env.LOVE_PACKAGE_PATH }}
+          package-path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
       - name: upload
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.LOVE_ARTIFACT_NAME }}
-          path: ${{ env.LOVE_PACKAGE_PATH }}
+          path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
 
   # build-android:
   #   runs-on: ubuntu-latest
@@ -40,14 +40,17 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{ env.LOVE_ARTIFACT_NAME }}
-          path: ${{ env.LOVE_PACKAGE_PATH }}
+          # path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
       - name: Build Linux packages
+        env:
+          ACTIONS_STEP_DEBUG: true
         id: build-packages
         uses: love-actions/love-actions-linux@v1
         with:
           app-name: ${{ env.PRODUCT_NAME }}
           bundle-id: ${{ env.BUNDLE_ID }}
-          love-package: ${{ env.LOVE_PACKAGE_PATH }}
+          love-package: ${{ env.LOVE_ARTIFACT_NAME }}
+          # love-package: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
           product-name: ${{ env.PRODUCT_NAME }}
           output-folder: ${{ env.OUTPUT_FOLDER }}
 
@@ -62,16 +65,16 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          path: artifacts/
+          path: ${{ env.ARTIFACT_FOLDER }}
       - name: Checksums
         run: |
           cd artifacts
           sha256sum * > SHA256SUMS.txt
       - uses: sigstore/gh-action-sigstore-python@v1.2.3
         with:
-          inputs: artifacts/*
+          inputs: ${{ env.ARTIFACT_FOLDER }}/*
       - name: control
-        run: ls artifacts/
+        run: ls ${{ env.ARTIFACT_FOLDER }}/
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
