@@ -39,8 +39,8 @@ jobs:
       - name: Download love package
         uses: actions/download-artifact@v3
         with:
-          name: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
-          path: ${{ env.ARTIFACT_FOLDER }}/
+          name: ${{ env.LOVE_ARTIFACT_NAME }}
+          # path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
       - name: Build Linux packages
         env:
           ACTIONS_STEP_DEBUG: true
@@ -49,7 +49,8 @@ jobs:
         with:
           app-name: ${{ env.PRODUCT_NAME }}
           bundle-id: ${{ env.BUNDLE_ID }}
-          love-package: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
+          love-package: ${{ env.LOVE_ARTIFACT_NAME }}
+          # love-package: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
           product-name: ${{ env.PRODUCT_NAME }}
           output-folder: ${{ env.OUTPUT_FOLDER }}
 
