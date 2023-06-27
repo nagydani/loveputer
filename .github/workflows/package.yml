@@ -2,27 +2,14 @@ name: Package
 
 on: [push, pull_request]
 
-jobs:
-  # build-package:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: nhartland/love-build@master
-  #       with:
-  #         app_name: "hello_world"
-  #         love_version: "11.4"
-  #         source_dir: "src/"
-  #         love-filename: loveputer.love
-  #         win32-filename: loveputer-win32.zip
-  #         win64-filename: loveputer-win64.zip
-  #         macos-filename: loveputer-macos.zip
-  #     - name: control
-  #       run: ls -lR
-  #     - uses: actions/upload-artifact@v1
-  #       with:
-  #         name: artifacts
-  #         path: "release/"
+env:
+  BUILD_TYPE: ${{ fromJSON('["dev", "release"]')[startsWith(github.ref, 'refs/tags/v')] }}
+  LOVE_PACKAGE_PATH: ./dist/loveputer.love
+  LOVE_ARTIFACT_NAME: loveputer.love
+  PRODUCT_NAME: LÖVEputer
+  BUNDLE_ID: com.example.loveputer
 
+jobs:
   build-love:
     runs-on: ubuntu-latest
     steps:
@@ -31,7 +18,12 @@ jobs:
         uses: love-actions/love-actions-core@v1
         with:
           build-list: "./src/*"
-          package-path: ./dist/loveputer.love
+          package-path: ${{ env.LOVE_PACKAGE_PATH }}
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.LOVE_ARTIFACT_NAME }}
+          path: ${{ env.LOVE_PACKAGE_PATH }}
 
   # build-android:
   #   runs-on: ubuntu-latest
