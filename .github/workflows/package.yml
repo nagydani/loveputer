@@ -53,6 +53,10 @@ jobs:
           product-name: ${{ env.PRODUCT_NAME }}
           output-folder: ${{ env.OUTPUT_FOLDER }}
           icon-path: ./assets/example_icon.png
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          path: ${{ env.OUTPUT_FOLDER }}
 
   release:
     permissions:
