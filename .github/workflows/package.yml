@@ -53,10 +53,16 @@ jobs:
           product-name: ${{ env.PRODUCT_NAME }}
           output-folder: ${{ env.OUTPUT_FOLDER }}
           icon-path: ./assets/example_icon.png
-      - name: upload
+      - name: upload .deb
         uses: actions/upload-artifact@v3
         with:
-          path: ${{ env.OUTPUT_FOLDER }}
+          name: LOVEputer.deb
+          path: ${{ env.OUTPUT_FOLDER }}/LOVEputer.deb
+      - name: upload AppImage
+        uses: actions/upload-artifact@v3
+        with:
+          name: LOVEputer.AppImage
+          path: ${{ env.OUTPUT_FOLDER }}/LOVEputer.AppImage
 
   release:
     permissions:
