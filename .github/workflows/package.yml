@@ -42,8 +42,6 @@ jobs:
           name: ${{ env.LOVE_ARTIFACT_NAME }}
           path: ${{ env.ARTIFACT_FOLDER }}/
       - name: Build Linux packages
-        env:
-          ACTIONS_STEP_DEBUG: true
         id: build-packages
         uses: love-actions/love-actions-linux@v1
         with:
@@ -67,6 +65,8 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     needs: build-love
+    env:
+      ACTIONS_STEP_DEBUG: true
     steps:
       - uses: actions/checkout@v3
       - name: Download love package
@@ -76,6 +76,7 @@ jobs:
           path: ./game.love
       - name: Package for android
         uses: love-actions/love-actions-android@v1
+        continue-on-error: true
         with:
           app-name: ${{ env.PRODUCT_NAME }}
           resource-path: "./src"
@@ -84,6 +85,9 @@ jobs:
           version-string: "0.0.1"
           version-code: 001
           output-folder: ${{ env.OUTPUT_FOLDER }}
+
+      - name: control
+        run: ls -lR
 
   release:
     permissions:
