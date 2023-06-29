@@ -64,6 +64,27 @@ jobs:
           name: LOVEputer.AppImage
           path: ${{ env.OUTPUT_FOLDER }}/LOVEputer.AppImage
 
+  build-android:
+    runs-on: ubuntu-latest
+    needs: build-love
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download love package
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.LOVE_ARTIFACT_NAME }}
+          path: ./game.love
+      - name: Package for android
+        uses: love-actions/love-actions-android@v1
+        with:
+          app-name: ${{ env.PRODUCT_NAME }}
+          resource-path: "./src"
+          bundle-id: ${{ env.BUNDLE_ID }}
+          product-name: ${{ env.PRODUCT_NAME }}
+          version-string: "0.0.1"
+          version-code: 001
+          output-folder: ${{ env.OUTPUT_FOLDER }}
+
   release:
     permissions:
       id-token: write
