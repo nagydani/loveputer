@@ -25,11 +25,6 @@ jobs:
         with:
           name: ${{ env.LOVE_ARTIFACT_NAME }}
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
-      - name: upload
-        uses: actions/upload-artifact@v3
-        with:
-          name: game.love
-          path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
 
   # build-android:
   #   runs-on: ubuntu-latest
@@ -77,7 +72,7 @@ jobs:
       - name: Download love package
         uses: actions/download-artifact@v3
         with:
-          name: game.love
+          name: ${{ env.LOVE_ARTIFACT_NAME }}
           path: ./
       - name: Package for android
         uses: love-actions/love-actions-android@v1
@@ -90,6 +85,7 @@ jobs:
           version-string: "0.0.1"
           version-code: 001
           output-folder: ${{ env.OUTPUT_FOLDER }}
+          love-package: ${{ env.LOVE_ARTIFACT_NAME }}
 
       - name: control
         run: ls -lR
