@@ -73,7 +73,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{ env.LOVE_ARTIFACT_NAME }}
-          path: ./game.love
+          path: ./
       - name: Package for android
         uses: love-actions/love-actions-android@v1
         continue-on-error: true
