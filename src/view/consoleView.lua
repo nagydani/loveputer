@@ -77,12 +77,22 @@ function ConsoleView:draw(x, y, w, h)
         G.print(text, cx, cy)
       end
 
-      for i = 1, (linesN) do
-        writeLine(i, '#' .. i .. ' ' .. self.model.n)
+      local function testCanvas()
+        for i = 1, (linesN) do
+          writeLine(i, '#' .. i .. ' ' .. self.model.n)
+        end
       end
+    end
+  }
+
+  local input = {
+    draw = function()
+      G.setColor(self.cfg.colors.fg)
+      G.print(self.model.entered, border, h - border - z)
     end
   }
 
   background.draw()
   canvas.draw()
+  input.draw()
 end
