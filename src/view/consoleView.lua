@@ -9,8 +9,9 @@ function ConsoleView:new(m, cfg)
   local conf = {
     fontSize = 18,
     colors = {
-      bg = 0,
-      fg = 1,
+      bg = Color[Color.white],
+      border = Color[Color.black + Color.bright],
+      fg = Color[Color.blue + Color.bright],
     }
   }
   for k, v in pairs(cfg) do
@@ -32,22 +33,56 @@ end
 
 function ConsoleView:draw(x, y, w, h)
   local G = love.graphics
-  if _G.hiDPI then G.scale(2, 2) end
-
+  local fac = 1
+  if _G.hiDPI then fac = 2 end
+  G.scale(fac, fac)
 
   G.setFont(self.font_ps)
   local z = G.getFont():getHeight()
 
   w = w or G.getWidth()
   h = h or G.getHeight()
+  w = w / fac
+  h = h / fac
   x = x or 0
   y = y or 0
+  local border = 4 * (2 / fac)
+  local canvasDrawableHeight =
+      h - border -- top border
+      - z        -- separator
+      - z        -- input line
+      - border   -- bottom border
+  local linesN = math.floor(canvasDrawableHeight / z)
 
-  G.setColor(Color['black'])
-  G.rectangle("fill", x, y, w, h)
-  G.setColor(Color['white'])
-  G.print(self.model.n)
-  G.setFont(self.font_8bit)
-  local offset = z * 1.2
-  G.print(self.model.n, 0, offset)
+  local background = {
+    draw = function()
+      G.setColor(self.cfg.colors.border)
+      G.rectangle("fill", 0, 0, w, h)
+      G.setColor(self.cfg.colors.bg)
+      G.rectangle("fill", border, border, w - 2 * border, h - 2 * border)
+      -- separator
+      G.setColor(self.cfg.colors.border)
+      G.rectangle("fill", 0, h - border - 2 * z - border, w, z)
+    end,
+  }
+
+  local canvas = {
+    draw = function()
+      local function writeLine(l, text)
+        if l < 0 or l > canvasDrawableHeight then return end
+        local cx = border + 1
+        local lineOffset = (l - 1) * z
+        local cy = border + 1 + lineOffset
+        G.setColor(self.cfg.colors.fg)
+        G.print(text, cx, cy)
+      end
+
+      for i = 1, (linesN) do
+        writeLine(i, '#' .. i .. ' ' .. self.model.n)
+      end
+    end
+  }
+
+  background.draw()
+  canvas.draw()
 end
