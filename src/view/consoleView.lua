@@ -69,7 +69,7 @@ function ConsoleView:draw(x, y, w, h)
   local canvas = {
     draw = function()
       local function writeLine(l, text)
-        if l < 0 or l > canvasDrawableHeight then return end
+        if l < 0 or l > linesN then return end
         local cx = border + 1
         local lineOffset = (l - 1) * z
         local cy = border + 1 + lineOffset
@@ -78,9 +78,14 @@ function ConsoleView:draw(x, y, w, h)
       end
 
       local function testCanvas()
-        for i = 1, (linesN) do
+        for i = 1, linesN do
           writeLine(i, '#' .. i .. ' ' .. self.model.n)
         end
+      end
+
+      local output = self.model.result
+      for i = 1, #output do
+        writeLine(i, output[i])
       end
     end
   }

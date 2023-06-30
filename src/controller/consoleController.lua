@@ -15,7 +15,7 @@ end
 
 function ConsoleController:keypressed(k)
   if k == "return" then
-    self.model.message = 'enter'
+    self.model:evaluate()
   end
   if k == "backspace" then
     self.model:backspace()
