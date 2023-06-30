@@ -87,15 +87,15 @@ jobs:
         continue-on-error: true
         with:
           app-name: ${{ env.PRODUCT_NAME }}
-          resource-path: "./src"
           bundle-id: ${{ env.BUNDLE_ID }}
+          resource-path: "./assets/android"
           product-name: ${{ env.PRODUCT_NAME }}
           version-string: "0.0.1"
           version-code: 001
           output-folder: ${{ env.OUTPUT_FOLDER }}
 
       - name: control
-        run: ls -lR
+        run: cat ./love-actions-android/love-android/app/src/main/AndroidManifest.xml
 
   release:
     permissions:
