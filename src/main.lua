@@ -1,6 +1,6 @@
-local _ = require("model/counter")
+local _ = require("model/console")
 local _ = require("view/consoleView")
-local _ = require("controller/counterController")
+local _ = require("controller/consoleController")
 
 function love.load()
   local hidpi = os.getenv("HIDPI")
@@ -8,11 +8,19 @@ function love.load()
     _G.hiDPI = true
   end
 
-  M = Counter:new()
-  C = CounterController:new(M)
+  M = Console:new()
+  C = ConsoleController:new(M)
   V = ConsoleView:new(M, {
     fontSize = 24
   })
+end
+
+function love.textinput(t)
+  C:textinput(t)
+end
+
+function love.keypressed(k)
+  C:keypressed(k)
 end
 
 function love.update(dt)
