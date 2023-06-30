@@ -8,10 +8,12 @@ function love.load()
     _G.hiDPI = true
   end
 
+  love.keyboard.setKeyRepeat(true)
+
   M = Console:new()
   C = ConsoleController:new(M)
   V = ConsoleView:new(M, {
-    fontSize = 24
+    fontSize = 18
   })
 end
 
