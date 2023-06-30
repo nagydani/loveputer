@@ -17,9 +17,12 @@ function ConsoleController:keypressed(k)
   if k == "return" then
     self.model.message = 'enter'
   end
+  if k == "backspace" then
+    self.model:backspace()
+  end
 end
 
 function ConsoleController:textinput(t)
-  local cur = self.model.entered
-  self.model.entered = cur .. t
+  local ent = self.model.entered .. t
+  self.model.entered = ent
 end
