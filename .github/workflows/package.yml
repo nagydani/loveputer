@@ -31,11 +31,6 @@ jobs:
           name: game.love
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
 
-  # build-android:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: love-actions/love-actions-android@v1
-
   build-linux:
     runs-on: ubuntu-latest
     needs: build-love
@@ -58,7 +53,7 @@ jobs:
           # love-package: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
           product-name: ${{ env.PRODUCT_NAME }}
           output-folder: ${{ env.OUTPUT_FOLDER }}
-          icon-path: ./assets/example_icon.png
+          icon-path: ./src/assets/example_icon.png
       - name: upload .deb
         uses: actions/upload-artifact@v3
         with:
@@ -88,7 +83,7 @@ jobs:
         with:
           app-name: ${{ env.PRODUCT_NAME }}
           bundle-id: ${{ env.BUNDLE_ID }}
-          resource-path: "./assets/android"
+          resource-path: "./res/android"
           product-name: ${{ env.PRODUCT_NAME }}
           version-string: "0.0.1"
           version-code: 001
