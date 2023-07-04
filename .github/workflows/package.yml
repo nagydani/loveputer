@@ -3,11 +3,13 @@ name: Package
 on: [push, pull_request]
 
 env:
-  PRODUCT_NAME: LÖVEputer
+  PRODUCT_NAME: LOVEputer
+  PRODUCT_NAME_SC: loveputer
   BUNDLE_ID: com.example.loveputer
   BUILD_TYPE: ${{ fromJSON('["dev", "release"]')[startsWith(github.ref, 'refs/tags/v')] }}
   OUTPUT_FOLDER: dist
   ARTIFACT_FOLDER: artifact
+  LOVE_ARTIFACT_NAME: ${{ env.PRODUCT_NAME_SC }}.love
   LOVE_DEBUG_APK_NAME: ${{ env.PRODUCT_NAME }}-debug.apk
   LOVE_APK_NAME: ${{ env.PRODUCT_NAME }}.apk
   LOVE_APPIMAGE: ${{ env.PRODUCT_NAME }}.AppImage
@@ -118,7 +120,7 @@ jobs:
           version-code: ${{ env.VER_CODE }}
           output-folder: ${{ env.OUTPUT_FOLDER }}
           love-package: ${{ env.LOVE_ARTIFACT_NAME }}
-          icon-specifier: "@drawable/LOVEputer"
+          icon-specifier: "@drawable/${{ env.PRODUCT_NAME_SC }}"
       # - name: upload
       #   uses: actions/upload-artifact@v3
       #   with:
