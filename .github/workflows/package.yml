@@ -5,16 +5,15 @@ on: [push, pull_request]
 env:
   PRODUCT_NAME: LOVEputer
   PRODUCT_NAME_SC: loveputer
-  BUNDLE_ID: com.example.${{ env.PRODUCT_NAME_SC }}.love
+  BUNDLE_ID: com.example.loveputer.love
   BUILD_TYPE: ${{ fromJSON('["dev", "release"]')[startsWith(github.ref, 'refs/tags/v')] }}
   OUTPUT_FOLDER: dist
   ARTIFACT_FOLDER: artifact
-  LOVE_ARTIFACT_NAME: ${{ env.PRODUCT_NAME_SC }}.love
-  LOVE_DEBUG_APK_NAME: ${{ env.PRODUCT_NAME }}-debug.apk
-  LOVE_APK_NAME: ${{ env.PRODUCT_NAME }}.apk
-  LOVE_APPIMAGE: ${{ env.PRODUCT_NAME }}.AppImage
-  LOVE_DEB: ${{ env.PRODUCT_NAME }}.deb
-  LOVE_JS: ${{ env.PRODUCT_NAME }}.js
+  LOVE_ARTIFACT_NAME: loveputer.love
+  LOVE_DEBUG_APK_NAME: LOVEputer-debug.apk
+  LOVE_APK_NAME: LOVEputer.apk
+  LOVE_APPIMAGE: LOVEputer.AppImage
+  LOVE_DEB: LOVEputer.deb
 
 jobs:
   build-love:
