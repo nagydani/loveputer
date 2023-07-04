@@ -52,6 +52,8 @@ jobs:
           product-name: ${{ env.PRODUCT_NAME }}
           output-folder: ${{ env.OUTPUT_FOLDER }}
           icon-path: ./src/assets/example_icon.png
+      - name: control
+        run: ls -lR ${{ env.OUTPUT_FOLDER }}
       - name: upload .deb
         uses: actions/upload-artifact@v3
         with:
@@ -118,6 +120,8 @@ jobs:
       #   with:
       #     name: ${{ env.LOVE_APK_NAME }}
       #     path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_APK_NAME }}
+      - name: control
+        run: ls -lR ${{ env.OUTPUT_FOLDER }}
       - name: upload
         uses: actions/upload-artifact@v3
         with:
@@ -134,12 +138,12 @@ jobs:
       - build-love
       - build-linux
       - build-web
-      - build-android
+      # - build-android
     steps:
       - uses: actions/download-artifact@v3
         with:
           name: ${{ env.LOVE_ARTIFACT_NAME }}
-          path: ${{ env.ARTIFACT_FOLDER }}
+          path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
       - uses: actions/download-artifact@v3
         with:
           name: ${{ env.LOVE_APPIMAGE }}
@@ -151,18 +155,25 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: ${{ env.LOVE_JS }}
-          path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_JS }}.zip
       - uses: actions/download-artifact@v3
         with:
           name: ${{ env.LOVE_DEBUG_APK_NAME }}
           path: ${{ env.ARTIFACT_FOLDER }}
+      - name: control
+        run: |
+          ls -lR ${{ env.ARTIFACT_FOLDER }}
+          ls -lR ${{ env.LOVE_JS }} || true
+          ls -lR ${{ env.LOVE_DEB }} || true
       # - name: Checksums
       #   run: |
       #     cd ${{ env.ARTIFACT_FOLDER }}
       #     sha256sum * > SHA256SUMS.txt
       - uses: sigstore/gh-action-sigstore-python@v1.2.3
         with:
-          inputs: ${{ env.ARTIFACT_FOLDER }}/*
+          inputs: |
+            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
+            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_APPIMAGE }}
+        # ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_DEBUG_APK_NAME }}
       - name: control
         run: ls ${{ env.ARTIFACT_FOLDER }}/
       - name: Release
