@@ -144,6 +144,10 @@ jobs:
       - build-linux
       - build-web
       - build-android
+<<<<<<< HEAD
+=======
+    continue-on-error: true
+>>>>>>> 1f95737 (chore(ci): full release)
     steps:
       - uses: actions/download-artifact@v3
         with:
@@ -160,11 +164,16 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: ${{ env.LOVE_JS }}
+<<<<<<< HEAD
           path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_JS }}.zip
+=======
+          path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_JS }}
+>>>>>>> 1f95737 (chore(ci): full release)
       - uses: actions/download-artifact@v3
         with:
           name: ${{ env.LOVE_DEBUG_APK_NAME }}
           path: ${{ env.ARTIFACT_FOLDER }}
+<<<<<<< HEAD
       - name: Checksums
         run: |
           cd ${{ env.ARTIFACT_FOLDER }}
@@ -174,7 +183,15 @@ jobs:
           inputs: ${{ env.ARTIFACT_FOLDER }}/*
       - name: control
         run: ls ${{ env.ARTIFACT_FOLDER }}/
+=======
+      - name: control
+        run: ls ${{ env.ARTIFACT_FOLDER }}/
+      # - name: Checksums
+      #   run: |
+      #     cd ${{ env.ARTIFACT_FOLDER }}
+      #     sha256sum * > SHA256SUMS.txt
+>>>>>>> 1f95737 (chore(ci): full release)
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{ env.ARTIFACT_FOLDER }}/
+          files: ${{ env.ARTIFACT_FOLDER }}/*
