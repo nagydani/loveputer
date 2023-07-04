@@ -145,35 +145,30 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: ${{ env.LOVE_ARTIFACT_NAME }}
-          path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
+          path: ${{ env.ARTIFACT_FOLDER }}
       - uses: actions/download-artifact@v3
         with:
           name: ${{ env.LOVE_APPIMAGE }}
-          path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_APPIMAGE }}
+          path: ${{ env.ARTIFACT_FOLDER }}
       - uses: actions/download-artifact@v3
         with:
           name: ${{ env.LOVE_DEB }}
-          path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_DEB }}
+          path: ${{ env.ARTIFACT_FOLDER }}
       - uses: actions/download-artifact@v3
         with:
           name: ${{ env.LOVE_JS }}
-          path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_JS }}
+          path: ${{ env.ARTIFACT_FOLDER }}
       - uses: actions/download-artifact@v3
         with:
           name: ${{ env.LOVE_DEBUG_APK_NAME }}
           path: ${{ env.ARTIFACT_FOLDER }}
       - name: control
-        run: ls ${{ env.ARTIFACT_FOLDER }}/
-      # - name: Checksums
-      #   run: |
-      #     cd ${{ env.ARTIFACT_FOLDER }}
-      #     sha256sum * > SHA256SUMS.txt
+        run: ls -lR ${{ env.ARTIFACT_FOLDER }}/
+      - name: Checksums
+        run: |
+          cd ${{ env.ARTIFACT_FOLDER }}
+          sha256sum * > SHA256SUMS.txt
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_DEBUG_APK_NAME }}
-            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_APPIMAGE }}
-            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_DEB }}
-            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_JS }}
-            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
+          files: ${{ env.ARTIFACT_FOLDER }}/*
