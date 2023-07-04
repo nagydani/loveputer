@@ -8,9 +8,11 @@ env:
   BUILD_TYPE: ${{ fromJSON('["dev", "release"]')[startsWith(github.ref, 'refs/tags/v')] }}
   OUTPUT_FOLDER: dist
   ARTIFACT_FOLDER: artifact
-  LOVE_ARTIFACT_NAME: loveputer.love
-  LOVE_DEBUG_APK_NAME: LOVEputer-debug.apk
-  LOVE_APK_NAME: LOVEputer.apk
+  LOVE_DEBUG_APK_NAME: ${{ env.PRODUCT_NAME }}-debug.apk
+  LOVE_APK_NAME: ${{ env.PRODUCT_NAME }}.apk
+  LOVE_APPIMAGE: ${{ env.PRODUCT_NAME }}.AppImage
+  LOVE_DEB: ${{ env.PRODUCT_NAME }}.deb
+  LOVE_JS: ${{ env.PRODUCT_NAME }}.js
 
 jobs:
   build-love:
@@ -52,12 +54,12 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: LOVEputer.deb
-          path: ${{ env.OUTPUT_FOLDER }}/LOVEputer.deb
+          path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_DEB }}
       - name: upload AppImage
         uses: actions/upload-artifact@v3
         with:
           name: LOVEputer.AppImage
-          path: ${{ env.OUTPUT_FOLDER }}/LOVEputer.AppImage
+          path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_APPIMAGE }}
 
   build-html:
     runs-on: ubuntu-latest
@@ -75,7 +77,7 @@ jobs:
       - name: upload
         uses: actions/upload-artifact@v3
         with:
-          name: love.js
+          name: ${{ env.LOVE_JS }}
           path: ${{ env.OUTPUT_FOLDER }}
 
   build-android:
@@ -98,7 +100,7 @@ jobs:
         run: echo VER_CODE="$(echo $VERSION | sed -e 's/^v//' -e 's/\.//g')" >> $GITHUB_ENV
       - name: Package for android
         uses: love-actions/love-actions-android@v1
-        continue-on-error: true
+        # continue-on-error: true
         with:
           app-name: ${{ env.PRODUCT_NAME }}
           bundle-id: ${{ env.BUNDLE_ID }}
@@ -109,11 +111,11 @@ jobs:
           output-folder: ${{ env.OUTPUT_FOLDER }}
           love-package: ${{ env.LOVE_ARTIFACT_NAME }}
           icon-specifier: "@drawable/LOVEputer"
-      - name: upload
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.LOVE_APK_NAME }}
-          path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_APK_NAME }}
+      # - name: upload
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: ${{ env.LOVE_APK_NAME }}
+      #     path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_APK_NAME }}
       - name: upload
         uses: actions/upload-artifact@v3
         with:
@@ -128,9 +130,29 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     needs:
       - build-love
+      - build-linux
+      - build-web
+      - build-android
     steps:
       - uses: actions/download-artifact@v3
         with:
+          name: ${{ env.LOVE_ARTIFACT_NAME }}
+          path: ${{ env.ARTIFACT_FOLDER }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.LOVE_APPIMAGE }}
+          path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_APPIMAGE }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.LOVE_DEB }}
+          path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_DEB }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.LOVE_JS }}
+          path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_JS }}.zip
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.LOVE_DEBUG_APK_NAME }}
           path: ${{ env.ARTIFACT_FOLDER }}
       - name: Checksums
         run: |
@@ -144,4 +166,4 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: artifacts/*
+          files: ${{ env.ARTIFACT_FOLDER }}/
