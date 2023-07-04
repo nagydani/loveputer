@@ -112,6 +112,7 @@ jobs:
           version-code: 001
           output-folder: ${{ env.OUTPUT_FOLDER }}
           love-package: ${{ env.LOVE_ARTIFACT_NAME }}
+          icon-specifier: "@drawable/LOVEputer"
       - name: upload
         uses: actions/upload-artifact@v3
         with:
