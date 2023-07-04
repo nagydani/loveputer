@@ -111,7 +111,6 @@ jobs:
         run: echo VER_CODE="$(echo $VERSION | sed -e 's/^v//' -e 's/\.//g')" >> $GITHUB_ENV
       - name: Package for android
         uses: love-actions/love-actions-android@v1
-        # continue-on-error: true
         with:
           app-name: ${{ env.PRODUCT_NAME }}
           bundle-id: ${{ env.BUNDLE_ID }}
@@ -122,11 +121,6 @@ jobs:
           output-folder: ${{ env.OUTPUT_FOLDER }}
           love-package: ${{ env.LOVE_ARTIFACT_NAME }}
           icon-specifier: "@drawable/${{ env.PRODUCT_NAME_SC }}"
-      # - name: upload
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: ${{ env.LOVE_APK_NAME }}
-      #     path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_APK_NAME }}
       - name: upload
         uses: actions/upload-artifact@v3
         with:
@@ -144,10 +138,6 @@ jobs:
       - build-linux
       - build-web
       - build-android
-<<<<<<< HEAD
-=======
-    continue-on-error: true
->>>>>>> 1f95737 (chore(ci): full release)
     steps:
       - uses: actions/download-artifact@v3
         with:
@@ -156,24 +146,21 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: ${{ env.LOVE_APPIMAGE }}
-          path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_APPIMAGE }}
+          path: ${{ env.ARTIFACT_FOLDER }}
       - uses: actions/download-artifact@v3
         with:
           name: ${{ env.LOVE_DEB }}
-          path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_DEB }}
+          path: ${{ env.ARTIFACT_FOLDER }}
       - uses: actions/download-artifact@v3
         with:
           name: ${{ env.LOVE_JS }}
-<<<<<<< HEAD
-          path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_JS }}.zip
-=======
           path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_JS }}
->>>>>>> 1f95737 (chore(ci): full release)
       - uses: actions/download-artifact@v3
         with:
           name: ${{ env.LOVE_DEBUG_APK_NAME }}
           path: ${{ env.ARTIFACT_FOLDER }}
-<<<<<<< HEAD
+      - name: control
+        run: ls -lR ${{ env.ARTIFACT_FOLDER }}/
       - name: Checksums
         run: |
           cd ${{ env.ARTIFACT_FOLDER }}
@@ -182,21 +169,8 @@ jobs:
         with:
           inputs: ${{ env.ARTIFACT_FOLDER }}/*
       - name: control
-        run: ls ${{ env.ARTIFACT_FOLDER }}/
-=======
-      - name: control
-        run: ls ${{ env.ARTIFACT_FOLDER }}/
-      # - name: Checksums
-      #   run: |
-      #     cd ${{ env.ARTIFACT_FOLDER }}
-      #     sha256sum * > SHA256SUMS.txt
->>>>>>> 1f95737 (chore(ci): full release)
+        run: ls -lR ${{ env.ARTIFACT_FOLDER }}/
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_DEBUG_APK_NAME }}
-            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_APPIMAGE }}
-            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_DEB }}
-            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_JS }}
-            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
+          files: ${{ env.ARTIFACT_FOLDER }}/*
