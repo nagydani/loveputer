@@ -174,8 +174,9 @@ jobs:
       - uses: sigstore/gh-action-sigstore-python@v1.2.3
         with:
           inputs: |
-            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
             ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_APPIMAGE }}
+            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_DEB }}
+        # ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
         # ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_DEBUG_APK_NAME }}
       - name: control
         run: ls ${{ env.ARTIFACT_FOLDER }}/
