@@ -100,9 +100,6 @@ jobs:
           output-folder: ${{ env.OUTPUT_FOLDER }}
           love-package: ${{ env.LOVE_ARTIFACT_NAME }}
 
-      - name: control
-        run: cat ./love-actions-android/love-android/app/src/main/AndroidManifest.xml
-
   release:
     permissions:
       id-token: write
