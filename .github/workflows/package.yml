@@ -70,7 +70,7 @@ jobs:
           name: LOVEputer.AppImage
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_APPIMAGE }}
 
-  build-html:
+  build-web:
     runs-on: ubuntu-latest
     needs: build-love
     steps:
