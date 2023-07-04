@@ -139,7 +139,7 @@ jobs:
       - build-love
       - build-linux
       - build-web
-      # - build-android
+      - build-android
     continue-on-error: true
     steps:
       - uses: actions/download-artifact@v3
@@ -157,23 +157,18 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: ${{ env.LOVE_JS }}
-      # - uses: actions/download-artifact@v3
-      #   with:
-      #     name: ${{ env.LOVE_DEBUG_APK_NAME }}
-      #     path: ${{ env.ARTIFACT_FOLDER }}
+          path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_JS }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.LOVE_DEBUG_APK_NAME }}
+          path: ${{ env.ARTIFACT_FOLDER }}
       - name: control
-        run: |
-          ls -lR ${{ env.ARTIFACT_FOLDER }}
-          ls -lR ${{ env.LOVE_JS }} || true
-          ls -lR ${{ env.LOVE_DEB }} || true
-          ls -lR ${{ env.LOVE_APPIMAGE }} || true
+        run: ls ${{ env.ARTIFACT_FOLDER }}/
       # - name: Checksums
       #   run: |
       #     cd ${{ env.ARTIFACT_FOLDER }}
       #     sha256sum * > SHA256SUMS.txt
-      - name: control
-        run: ls ${{ env.ARTIFACT_FOLDER }}/
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{ env.ARTIFACT_FOLDER }}/
+          files: ${{ env.ARTIFACT_FOLDER }}/*
