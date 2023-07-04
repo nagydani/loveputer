@@ -78,12 +78,12 @@ jobs:
           sudo apt install nodejs
           npm i -g love.js
           love.js -c ${{ env.LOVE_ARTIFACT_NAME }} ./${{ env.OUTPUT_FOLDER }} --title "LÖVEputer" --memory 67108864
-          7z a ${{ env.LOVE_JS }} ./${{ env.OUTPUT_FOLDER }}/*
+          7z a ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_JS }} ./${{ env.OUTPUT_FOLDER }}/*
       - name: upload
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.LOVE_JS }}
-          path: ${{ env.OUTPUT_FOLDER }}
+          path: ${{ env.ARTIFACT_FOLDER }}
 
   build-android:
     runs-on: ubuntu-latest
