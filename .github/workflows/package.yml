@@ -14,7 +14,7 @@ env:
   LOVE_APK_NAME: LOVEputer.apk
   LOVE_APPIMAGE: LOVEputer.AppImage
   LOVE_DEB: LOVEputer.deb
-  LOVE_JS: LOVEputer.js
+  LOVE_JS: LOVEputer.web.zip
 
 jobs:
   build-love:
@@ -84,6 +84,7 @@ jobs:
           sudo apt install nodejs
           npm i -g love.js
           love.js -c ${{ env.LOVE_ARTIFACT_NAME }} ./${{ env.OUTPUT_FOLDER }} --title "LÖVEputer" --memory 67108864
+          cd ${{ env.OUTPUT_FOLDER }} ; 7z a ../${{ env.LOVE_JS }}
       - name: upload
         uses: actions/upload-artifact@v3
         with:
