@@ -57,6 +57,20 @@ jobs:
           name: LOVEputer.AppImage
           path: ${{ env.OUTPUT_FOLDER }}/LOVEputer.AppImage
 
+  build-html:
+    runs-on: ubuntu-latest
+    needs: build-love
+    steps:
+      - name: Download love package
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.LOVE_ARTIFACT_NAME }}
+      - name: Build HTML
+        run: |
+          sudo apt install nodejs
+          npm i -g love.js
+          love.js -c ${{ env.LOVE_ARTIFACT_NAME }} ./dist --title "LÖVEputer" --memory 67108864
+
   build-android:
     runs-on: ubuntu-latest
     needs: build-love
