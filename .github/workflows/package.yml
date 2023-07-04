@@ -194,4 +194,9 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{ env.ARTIFACT_FOLDER }}/*
+          files: |
+            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_DEBUG_APK_NAME }}
+            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_APPIMAGE }}
+            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_DEB }}
+            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_JS }}
+            ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
