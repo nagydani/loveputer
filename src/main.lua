@@ -8,6 +8,7 @@ function love.load()
     _G.hiDPI = true
   end
 
+  love.keyboard.setTextInput(true)
   love.keyboard.setKeyRepeat(true)
 
   M = Console:new()
