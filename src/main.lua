@@ -33,3 +33,7 @@ end
 function love.draw()
   V:draw()
 end
+
+function love.resize(w, h)
+  V:resize(w, h)
+end
