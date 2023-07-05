@@ -63,12 +63,12 @@ jobs:
       - name: upload .deb
         uses: actions/upload-artifact@v3
         with:
-          name: LOVEputer.deb
+          name: ${{ env.PRODUCT_NAME }}.deb
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_DEB }}
       - name: upload AppImage
         uses: actions/upload-artifact@v3
         with:
-          name: LOVEputer.AppImage
+          name: ${{ env.PRODUCT_NAME }}.AppImage
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_APPIMAGE }}
 
   build-web:
@@ -126,6 +126,11 @@ jobs:
         with:
           name: ${{ env.LOVE_DEBUG_APK_NAME }}
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_DEBUG_APK_NAME }}
+      # - name: upload
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: ${{ env.LOVE_APK_NAME }}
+      #     path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_APK_NAME }}
 
   release:
     permissions:
