@@ -25,10 +25,13 @@ function Console:backspace()
 end
 
 function Console:evaluate()
-  local input = self.entered
-  self.history:push(input)
-  self.result = Eval.apply(self.history)
-  self.entered = ''
+  local ent = self.entered
+  if ent ~= '' then
+    local input = self.entered
+    self.history:push(input)
+    self.result = Eval.apply(self.history)
+    self.entered = ''
+  end
 end
 
 function Console:dump_state()
