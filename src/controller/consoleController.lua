@@ -14,7 +14,11 @@ function ConsoleController:increment()
 end
 
 function ConsoleController:keypressed(k)
-  if k == "return" then
+  local function isEnter(k)
+    return k == "return" or k == 'kpenter'
+  end
+
+  if isEnter(k) then
     self.model:evaluate()
   end
   if k == "backspace" then
