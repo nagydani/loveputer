@@ -115,6 +115,10 @@ jobs:
           output-folder: ${{ env.OUTPUT_FOLDER }}
           love-package: ${{ env.LOVE_ARTIFACT_NAME }}
           icon-specifier: "@drawable/${{ env.PRODUCT_NAME_SC }}"
+          keystore-alias: ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
+          keystore-base64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          keystore-key-password: ${{ secrets.ANDROID_KEYSTORE_KEYPASSWORD }}
+          keystore-store-password: ${{ secrets.ANDROID_KEYSTORE_STOREPASSWORD }}
       - name: control
         run: ls -lR ${{ env.OUTPUT_FOLDER }}
       - name: upload
@@ -122,11 +126,11 @@ jobs:
         with:
           name: ${{ env.LOVE_DEBUG_APK_NAME }}
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_DEBUG_APK_NAME }}
-      # - name: upload
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: ${{ env.LOVE_APK_NAME }}
-      #     path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_APK_NAME }}
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.LOVE_APK_NAME }}
+          path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_APK_NAME }}
 
   release:
     permissions:
