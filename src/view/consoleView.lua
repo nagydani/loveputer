@@ -1,5 +1,7 @@
 local _ = require("view/color")
 
+local G = love.graphics
+
 ConsoleView = {}
 
 function ConsoleView:new(m, cfg)
@@ -28,41 +30,68 @@ function ConsoleView:new(m, cfg)
     fontDir .. "8bitOperatorPlus8-Bold.ttf", cfg.fontSize)
   view.cfg = conf
 
+  local FAC = 1
+  if _G.hiDPI then FAC = 2 end
+  local BORDER = 4 * (2 / FAC)
+  view.fac = FAC
+  view.border = BORDER
+  G.scale(FAC, FAC)
+  G.setFont(view.font_ps)
+  local FH = view.font_ps:getHeight()
+  view.fh = FH
+  view.getDrawableHeight = function(h)
+    return
+        h - BORDER -- top border
+        - FH       -- separator
+        - FH       -- input line
+        - BORDER   -- bottom border
+  end
+
   return view
 end
 
+function ConsoleView:resize(wi, hi)
+  local w = wi / self.fac
+  local h = hi / self.fac
+
+  self.canvasDrawableHeight = self.getDrawableHeight(h)
+
+  local inputBox = {
+    x = self.border,
+    y = self.border + self.canvasDrawableHeight + 2 * self.border,
+    w = w - 2 * self.border,
+    h = self.fh,
+  }
+
+  love.keyboard.setTextInput(true,
+    inputBox.x, inputBox.y, inputBox.w, inputBox.h)
+end
+
 function ConsoleView:draw(x, y, w, h)
-  local G = love.graphics
-  local fac = 1
-  if _G.hiDPI then fac = 2 end
-  G.scale(fac, fac)
+  local b = self.border
 
-  G.setFont(self.font_ps)
-  local z = G.getFont():getHeight()
+  G.scale(self.fac, self.fac)
 
-  w = w or G.getWidth()
-  h = h or G.getHeight()
-  w = w / fac
-  h = h / fac
+  w = (w or G.getWidth()) / self.fac
+  h = (h or G.getHeight()) / self.fac
   x = x or 0
   y = y or 0
-  local border = 4 * (2 / fac)
-  local canvasDrawableHeight =
-      h - border -- top border
-      - z        -- separator
-      - z        -- input line
-      - border   -- bottom border
-  local linesN = math.floor(canvasDrawableHeight / z)
+
+  if not self.canvasDrawableHeight then
+    self.canvasDrawableHeight = self.getDrawableHeight(h)
+  end
+
+  local linesN = math.floor(self.canvasDrawableHeight / self.fh)
 
   local background = {
     draw = function()
       G.setColor(self.cfg.colors.border)
       G.rectangle("fill", 0, 0, w, h)
       G.setColor(self.cfg.colors.bg)
-      G.rectangle("fill", border, border, w - 2 * border, h - 2 * border)
+      G.rectangle("fill", b, b, w - 2 * b, h - 2 * b)
       -- separator
       G.setColor(self.cfg.colors.border)
-      G.rectangle("fill", 0, h - border - 2 * z - border, w, z)
+      G.rectangle("fill", 0, h - b - 2 * self.fh - b, w, self.fh)
     end,
   }
 
@@ -70,9 +99,9 @@ function ConsoleView:draw(x, y, w, h)
     draw = function()
       local function writeLine(l, text)
         if l < 0 or l > linesN then return end
-        local cx = border + 1
-        local lineOffset = (l - 1) * z
-        local cy = border + 1 + lineOffset
+        local cx = b + 1
+        local lineOffset = (l - 1) * self.fh
+        local cy = b + 1 + lineOffset
         G.setColor(self.cfg.colors.fg)
         G.print(text, cx, cy)
       end
@@ -93,7 +122,7 @@ function ConsoleView:draw(x, y, w, h)
   local input = {
     draw = function()
       G.setColor(self.cfg.colors.fg)
-      G.print(self.model.entered, border, h - border - z)
+      G.print(self.model.entered, b, h - b - self.fh)
     end
   }
 
