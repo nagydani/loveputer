@@ -3,12 +3,18 @@ name: Package
 on: [push, pull_request]
 
 env:
-  PRODUCT_NAME: LÖVEputer
+  PRODUCT_NAME: LOVEputer
+  PRODUCT_NAME_SC: loveputer
   BUNDLE_ID: com.example.loveputer
   BUILD_TYPE: ${{ fromJSON('["dev", "release"]')[startsWith(github.ref, 'refs/tags/v')] }}
   OUTPUT_FOLDER: dist
   ARTIFACT_FOLDER: artifact
   LOVE_ARTIFACT_NAME: loveputer.love
+  LOVE_DEBUG_APK_NAME: LOVEputer-debug.apk
+  LOVE_APK_NAME: LOVEputer.apk
+  LOVE_APPIMAGE: LOVEputer.AppImage
+  LOVE_DEB: LOVEputer.deb
+  LOVE_JS: LOVEputer.web.zip
 
 jobs:
   build-love:
@@ -58,16 +64,37 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: LOVEputer.deb
-          path: ${{ env.OUTPUT_FOLDER }}/LOVEputer.deb
+          path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_DEB }}
       - name: upload AppImage
         uses: actions/upload-artifact@v3
         with:
           name: LOVEputer.AppImage
-          path: ${{ env.OUTPUT_FOLDER }}/LOVEputer.AppImage
+          path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_APPIMAGE }}
+
+  build-web:
+    runs-on: ubuntu-latest
+    needs: build-love
+    steps:
+      - name: Download love package
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.LOVE_ARTIFACT_NAME }}
+      - name: Build HTML
+        run: |
+          sudo apt install nodejs
+          npm i -g love.js
+          love.js -c ${{ env.LOVE_ARTIFACT_NAME }} ./${{ env.OUTPUT_FOLDER }} --title "LÖVEputer" --memory 67108864
+          7z a ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_JS }} ./${{ env.OUTPUT_FOLDER }}/*
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.LOVE_JS }}
+          path: ${{ env.ARTIFACT_FOLDER }}
 
   build-android:
     runs-on: ubuntu-latest
     needs: build-love
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     env:
       ACTIONS_STEP_DEBUG: true
     steps:
@@ -77,20 +104,28 @@ jobs:
         with:
           name: game.love
           path: ./
+      - name: sed version code
+        id: sub
+        env:
+          VER: ${{ github.ref_name }}
+        run: echo VER_CODE="$(echo $VERSION | sed -e 's/^v//' -e 's/\.//g')" >> $GITHUB_ENV
       - name: Package for android
         uses: love-actions/love-actions-android@v1
-        continue-on-error: true
         with:
           app-name: ${{ env.PRODUCT_NAME }}
           bundle-id: ${{ env.BUNDLE_ID }}
           resource-path: "./res/android"
           product-name: ${{ env.PRODUCT_NAME }}
-          version-string: "0.0.1"
-          version-code: 001
+          version-string: ${{ github.ref_name }}
+          version-code: ${{ env.VER_CODE }}
           output-folder: ${{ env.OUTPUT_FOLDER }}
-
-      - name: control
-        run: cat ./love-actions-android/love-android/app/src/main/AndroidManifest.xml
+          love-package: ${{ env.LOVE_ARTIFACT_NAME }}
+          icon-specifier: "@drawable/${{ env.PRODUCT_NAME_SC }}"
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.LOVE_DEBUG_APK_NAME }}
+          path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_DEBUG_APK_NAME }}
 
   release:
     permissions:
@@ -100,20 +135,42 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     needs:
       - build-love
+      - build-linux
+      - build-web
+      - build-android
     steps:
       - uses: actions/download-artifact@v3
         with:
+          name: ${{ env.LOVE_ARTIFACT_NAME }}
           path: ${{ env.ARTIFACT_FOLDER }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.LOVE_APPIMAGE }}
+          path: ${{ env.ARTIFACT_FOLDER }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.LOVE_DEB }}
+          path: ${{ env.ARTIFACT_FOLDER }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.LOVE_JS }}
+          path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_JS }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.LOVE_DEBUG_APK_NAME }}
+          path: ${{ env.ARTIFACT_FOLDER }}
+      - name: control
+        run: ls -lR ${{ env.ARTIFACT_FOLDER }}/
       - name: Checksums
         run: |
-          cd artifacts
+          cd ${{ env.ARTIFACT_FOLDER }}
           sha256sum * > SHA256SUMS.txt
       - uses: sigstore/gh-action-sigstore-python@v1.2.3
         with:
           inputs: ${{ env.ARTIFACT_FOLDER }}/*
       - name: control
-        run: ls ${{ env.ARTIFACT_FOLDER }}/
+        run: ls -lR ${{ env.ARTIFACT_FOLDER }}/
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: artifacts/*
+          files: ${{ env.ARTIFACT_FOLDER }}/*
