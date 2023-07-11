@@ -7,7 +7,7 @@ local G = love.graphics
 
 ConsoleView = {}
 
-function ConsoleView:new(m, cfg)
+function ConsoleView:new(cfg, ctrl)
   local conf = {
     fontSize = 18,
     colors = {
@@ -44,10 +44,10 @@ function ConsoleView:new(m, cfg)
   local view = {
     title = TitleView,
     canvas = CanvasView:new(conf),
-    input = InputView:new(conf),
-    model = m,
+    input = InputView:new(conf, ctrl),
+    controller = ctrl,
+    cfg = conf,
   }
-  view.cfg = conf
   view.getDrawableHeight = function(h)
     return
         h - BORDER -- top border
@@ -79,7 +79,6 @@ function ConsoleView:resize(wi, hi)
     inputBox.x, inputBox.y, inputBox.w, inputBox.h)
 end
 
--- function ConsoleView:draw(x, y, w, h)
 function ConsoleView:draw()
   local b = self.cfg.border
 
@@ -106,6 +105,6 @@ function ConsoleView:draw()
   }
 
   background.draw()
-  self.canvas:draw(self.model.canvas.result)
-  self.input:draw(self.model.input.entered)
+  self.canvas:draw(self.controller:getResult())
+  self.input:draw(self.controller:getInput())
 end

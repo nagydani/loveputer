@@ -6,6 +6,7 @@ function ConsoleController:new(m)
   }
   setmetatable(cc, self)
   self.__index = self
+
   return cc
 end
 
@@ -47,4 +48,16 @@ end
 function ConsoleController:textinput(t)
   local ent = self.model.input.entered .. t
   self.model.input.entered = ent
+end
+
+function ConsoleController:getResult()
+  return self.model.canvas.result
+end
+
+function ConsoleController:getInput()
+  return self.model.input.entered
+end
+
+function ConsoleController:getStatus()
+  return self.model.input:getStatus()
 end
