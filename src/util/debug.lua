@@ -26,6 +26,8 @@ Debug = {
       res = res .. getIndent() .. t .. '\n'
     elseif type(t) == 'function' then
       res = res .. getIndent() .. 'f() ' .. t .. '\n'
+    elseif type(t) == 'number' then
+      res = res .. getIndent() .. 'N ' .. t .. '\n'
     end
     return res
   end
