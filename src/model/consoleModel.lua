@@ -1,5 +1,3 @@
-local utf8 = require("utf8")
-
 local _ = require("model/inputModel")
 local _ = require("model/canvasModel")
 local _ = require("model/eval")
@@ -22,15 +20,15 @@ function Console:incr()
 end
 
 function Console:paste(text)
-  local t = self.entered
-  self.entered = t .. text
+  local t = self.input.entered
+  self.input.entered = t .. text
 end
 
 function Console:evaluate()
-  local ent = self.entered
+  local ent = self.input.entered
   if ent ~= '' then
-    local input = self.entered
-    self.input:push(input)
+    local inputText = self.input.entered
+    self.input:push(inputText)
     local result = Eval.apply(self.input.entered)
     if result and result ~= '' then
       self.canvas:push(result)

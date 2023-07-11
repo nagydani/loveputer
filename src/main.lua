@@ -8,9 +8,9 @@ function love.load()
 
   M = Console:new()
   C = ConsoleController:new(M)
-  V = ConsoleView:new(M, {
+  V = ConsoleView:new({
     fontSize = 18
-  })
+  }, C)
 end
 
 function love.textinput(t)

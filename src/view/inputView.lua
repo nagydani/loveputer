@@ -4,10 +4,11 @@ local _ = require("view/statusline")
 
 InputView = {}
 
-function InputView:new(cfg)
+function InputView:new(cfg, ctrl)
   local iv = {
     cfg = cfg,
-    statusline = Statusline:new(cfg)
+    controller = ctrl,
+    statusline = Statusline:new(cfg),
   }
   setmetatable(iv, self)
   self.__index = self
@@ -19,7 +20,7 @@ function InputView:draw(input)
   local cf = self.cfg
   local b = cf.border
   local h = cf.height
-  self.statusline:draw(self.status)
+  self.statusline:draw(self.controller:getStatus())
   G.setColor(cf.colors.fg)
   G.print(input, b, h - b - self.cfg.fh)
 end
