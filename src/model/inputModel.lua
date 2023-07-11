@@ -1,5 +1,6 @@
 local utf8 = require("utf8")
 
+local _ = require("model/textEval")
 local _ = require("util/dequeue")
 
 InputModel = {}
@@ -8,6 +9,7 @@ function InputModel:new()
   local im = {
     entered = '',
     history = Dequeue:new(),
+    evaluator = TextEval:new(),
   }
   setmetatable(im, self)
   self.__index = self
