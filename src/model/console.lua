@@ -32,6 +32,10 @@ function Console:backspace()
     self.entered = string.sub(t, 1, #t - 1)
   end
 end
+
+function Console:paste(text)
+  local t = self.entered
+  self.entered = t .. text
 end
 
 function Console:evaluate()

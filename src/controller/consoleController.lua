@@ -18,11 +18,29 @@ function ConsoleController:keypressed(k)
     return k == "return" or k == 'kpenter'
   end
 
+  local ctrl, shift
+  ctrl  = love.keyboard.isDown("lctrl", "rctrl")
+  shift = love.keyboard.isDown("lshift", "rshift")
+
   if isEnter(k) then
     self.model:evaluate()
   end
   if k == "backspace" then
     self.model:backspace()
+  end
+
+  -- Ctrl held
+  if ctrl then
+    if k == "v" then
+      self.model:paste(love.system.getClipboardText())
+    end
+  end
+
+  -- Shift held
+  if shift then
+    if k == "insert" then
+      self.model:paste(love.system.getClipboardText())
+    end
   end
 end
 
