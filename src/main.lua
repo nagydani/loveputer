@@ -3,11 +3,6 @@ local _ = require("view/consoleView")
 local _ = require("controller/consoleController")
 
 function love.load()
-  local hidpi = os.getenv("HIDPI")
-  if hidpi == 'true' or hidpi == 'TRUE' then
-    _G.hiDPI = true
-  end
-
   love.keyboard.setTextInput(true)
   love.keyboard.setKeyRepeat(true)
 
