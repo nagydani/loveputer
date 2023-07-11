@@ -1,4 +1,5 @@
 local _ = require("util/dequeue")
+local _ = require("util/string")
 
 CanvasModel = {}
 
@@ -13,7 +14,7 @@ function CanvasModel:new()
 end
 
 function CanvasModel:push(newResult)
-  if newResult and newResult ~= '' then
+  if StringUtils.isNonEmptyString(newResult) then
     self.result:push(newResult)
   end
 end
