@@ -14,6 +14,7 @@ function ConsoleView:new(m, cfg)
       bg = Color[Color.white],
       border = Color[Color.black + Color.bright],
       fg = Color[Color.blue + Color.bright],
+      statFg = Color[Color.white + Color.bright],
     }
   }
   for k, v in pairs(cfg) do
@@ -101,9 +102,6 @@ function ConsoleView:draw()
       G.rectangle("fill", 0, 0, w, h)
       G.setColor(self.cfg.colors.bg)
       G.rectangle("fill", b, b, w - 2 * b, h - 2 * b)
-      -- separator
-      G.setColor(self.cfg.colors.border)
-      G.rectangle("fill", 0, h - b - 2 * self.cfg.fh - b, w, self.cfg.fh)
     end,
   }
 

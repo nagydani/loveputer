@@ -26,7 +26,8 @@ function Console:backspace()
 
   if byteoffset then
     -- remove the last UTF-8 character.
-    -- string.sub operates on bytes rather than UTF-8 characters, so we couldn't do string.sub(text, 1, -2).
+    -- string.sub operates on bytes rather than UTF-8 characters,
+    -- so we couldn't do string.sub(text, 1, -2).
     self.entered = string.sub(t, 1, byteoffset - 1)
   else
     self.entered = string.sub(t, 1, #t - 1)
