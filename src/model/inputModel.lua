@@ -74,6 +74,10 @@ function InputModel:evaluate()
   return self:_handle(true)
 end
 
+function InputModel:cancel()
+  self:_handle(false)
+end
+
 function InputModel:_handle(eval)
   local ent = self.entered
   local result
