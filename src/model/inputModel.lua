@@ -2,6 +2,7 @@ local utf8 = require("utf8")
 
 local _ = require("model/textEval")
 local _ = require("util/dequeue")
+local _ = require("util/string")
 
 InputModel = {}
 
@@ -19,7 +20,7 @@ function InputModel:new()
 end
 
 function InputModel:remember(input)
-  if input and input ~= '' then
+  if StringUtils.isNonEmptyString(input) then
     self.history:push(input)
   end
 end
