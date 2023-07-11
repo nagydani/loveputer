@@ -24,10 +24,10 @@ function ConsoleView:new(m, cfg)
   self.__index = self
 
   local fontDir = "assets/fonts/"
-  view.font_ps = love.graphics.newFont(
+  view.font_main = love.graphics.newFont(
+    fontDir .. "ubuntu_mono_bold_nerd.ttf", cfg.fontSize)
+  view.font_title = love.graphics.newFont(
     fontDir .. "PressStart2P-Regular.ttf", cfg.fontSize)
-  view.font_8bit = love.graphics.newFont(
-    fontDir .. "8bitOperatorPlus8-Bold.ttf", cfg.fontSize)
   view.cfg = conf
 
   local FAC = 1
@@ -36,8 +36,8 @@ function ConsoleView:new(m, cfg)
   view.fac = FAC
   view.border = BORDER
   G.scale(FAC, FAC)
-  G.setFont(view.font_ps)
-  local FH = view.font_ps:getHeight()
+  G.setFont(view.font_main)
+  local FH = view.font_main:getHeight()
   view.fh = FH
   view.getDrawableHeight = function(h)
     return
