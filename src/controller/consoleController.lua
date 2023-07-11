@@ -24,7 +24,8 @@ function ConsoleController:keypressed(k)
   shift = love.keyboard.isDown("lshift", "rshift")
 
   if isEnter(k) then
-    self.model:evaluate()
+    local res = self.model.input:evaluate()
+    self.model.canvas:push(res)
   end
   if k == "backspace" then
     self.model.input:backspace()

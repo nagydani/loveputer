@@ -18,16 +18,3 @@ end
 function Console:incr()
   self.n = self.n + 1
 end
-
-function Console:evaluate()
-  local ent = self.input.entered
-  if ent ~= '' then
-    local inputText = self.input.entered
-    self.input:remember(inputText)
-    local result = self.input.evaluator.apply(inputText)
-    if result and result ~= '' then
-      self.canvas:push(result)
-    end
-    self.input:clear()
-  end
-end

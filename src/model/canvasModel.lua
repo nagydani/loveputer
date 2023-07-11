@@ -13,5 +13,7 @@ function CanvasModel:new()
 end
 
 function CanvasModel:push(newResult)
-  self.result:push(newResult)
+  if newResult and newResult ~= '' then
+    self.result:push(newResult)
+  end
 end
