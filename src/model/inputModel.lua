@@ -19,7 +19,9 @@ function InputModel:new()
 end
 
 function InputModel:remember(input)
-  self.history:push(input)
+  if input and input ~= '' then
+    self.history:push(input)
+  end
 end
 
 function InputModel:addText(text)
@@ -66,4 +68,21 @@ function InputModel:getStatus()
     inputType = self.evaluator.kind,
     cursor = self.cursor,
   }
+end
+
+function InputModel:evaluate()
+  return self:_handle(true)
+end
+
+function InputModel:_handle(eval)
+  local ent = self.entered
+  local result
+  if ent ~= '' then
+    self:remember(ent)
+    if eval then
+      result = self.evaluator.apply(ent)
+    end
+    self:clear()
+  end
+  return result
 end
