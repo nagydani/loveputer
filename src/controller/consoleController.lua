@@ -31,6 +31,10 @@ function ConsoleController:keypressed(k)
     self.model.input:backspace()
   end
 
+  if k == "escape" then
+    self.model.input:cancel()
+  end
+
   -- Ctrl held
   if ctrl then
     if k == "v" then
