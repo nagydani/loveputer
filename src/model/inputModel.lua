@@ -27,9 +27,14 @@ function InputModel:addText(text)
     -- TODO: multiline
     local ent = self.entered
     local t = ent .. text
-    self.cursor.c = #t
     self.entered = t
+    self:updateCursor()
   end
+end
+
+function InputModel:updateCursor()
+  local t = self.entered
+  self.cursor.c = utf8.len(t) + 1
 end
 
 function InputModel:paste(text)
@@ -48,11 +53,12 @@ function InputModel:backspace()
   else
     self.entered = string.sub(t, 1, #t - 1)
   end
+  self:updateCursor()
 end
 
 function InputModel:clear()
-  self.cursor = { c = 1, l = 1 }
   self.entered = ''
+  self:updateCursor()
 end
 
 function InputModel:getStatus()
