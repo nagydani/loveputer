@@ -10,6 +10,7 @@ function InputModel:new()
     entered = '',
     history = Dequeue:new(),
     evaluator = TextEval:new(),
+    cursor = { c = 1, l = 1 }
   }
   setmetatable(im, self)
   self.__index = self
@@ -37,4 +38,11 @@ end
 
 function InputModel:clear()
   self.entered = ''
+end
+
+function InputModel:getStatus()
+  return {
+    inputType = self.evaluator.kind,
+    cursor = self.cursor,
+  }
 end

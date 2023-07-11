@@ -5,7 +5,6 @@ Statusline = {}
 function Statusline:new(cfg)
   local s = {
     cfg = cfg,
-    status = Status:new(),
   }
   setmetatable(s, self)
   self.__index = self
@@ -29,26 +28,16 @@ function Statusline:draw(status)
   }
   local endTextX = startBox.x + w - fh
   G.rectangle("fill", startBox.x, startBox.y, w, fh)
+
+  if not status then return end
   G.setColor(colors.statFg)
-  if self.status.inputType then
-    G.print(self.status.inputType, startText.x, startText.y)
+  if status.inputType then
+    G.print(status.inputType, startText.x, startText.y)
   end
-  if self.status.cursor then
-    local c = self.status.cursor
+  if status.cursor then
+    local c = status.cursor
     local pos = 'L' .. c.l .. ':' .. c.c
     local sx = endTextX - G.getFont():getWidth(pos)
     G.print(pos, sx, startText.y)
   end
-end
-
-Status = {}
-function Status:new()
-  local s = {
-    inputType = 'text',
-    cursor = { c = 1, l = 1 }
-  }
-  setmetatable(s, self)
-  self.__index = self
-
-  return s
 end
