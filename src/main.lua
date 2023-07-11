@@ -1,4 +1,4 @@
-local _ = require("model/console")
+local _ = require("model/consoleModel")
 local _ = require("view/consoleView")
 local _ = require("controller/consoleController")
 

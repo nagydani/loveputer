@@ -26,7 +26,7 @@ function ConsoleController:keypressed(k)
     self.model:evaluate()
   end
   if k == "backspace" then
-    self.model:backspace()
+    self.model.input:backspace()
   end
 
   -- Ctrl held
@@ -45,6 +45,6 @@ function ConsoleController:keypressed(k)
 end
 
 function ConsoleController:textinput(t)
-  local ent = self.model.entered .. t
-  self.model.entered = ent
+  local ent = self.model.input.entered .. t
+  self.model.input.entered = ent
 end

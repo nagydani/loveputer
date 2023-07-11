@@ -106,7 +106,6 @@ function ConsoleView:draw()
   }
 
   background.draw()
-  self.canvas:draw(self.model.result)
-  self.input:draw(self.model.entered)
-  -- self.title.draw('LÖVEputer', x, h / 2, w, self.font_title)
+  self.canvas:draw(self.model.canvas.result)
+  self.input:draw(self.model.input.entered)
 end
