@@ -1,15 +1,13 @@
 local _ = require("view/color")
 local _ = require("view/titleView")
+local _ = require("view/canvasView")
+local _ = require("view/inputView")
 
 local G = love.graphics
 
 ConsoleView = {}
 
 function ConsoleView:new(m, cfg)
-  local view = {
-    title = TitleView,
-    model = m,
-  }
   local conf = {
     fontSize = 18,
     colors = {
@@ -22,25 +20,33 @@ function ConsoleView:new(m, cfg)
     conf[k] = v
   end
 
-  setmetatable(view, self)
-  self.__index = self
-
-  local fontDir = "assets/fonts/"
-  view.font_main = love.graphics.newFont(
-    fontDir .. "ubuntu_mono_bold_nerd.ttf", cfg.fontSize)
-  view.font_title = love.graphics.newFont(
-    fontDir .. "PressStart2P-Regular.ttf", cfg.fontSize)
-  view.cfg = conf
-
   local FAC = 1
   if _G.hiDPI then FAC = 2 end
-  local BORDER = 4 * (2 / FAC)
-  view.fac = FAC
-  view.border = BORDER
   G.scale(FAC, FAC)
-  G.setFont(view.font_main)
-  local FH = view.font_main:getHeight()
-  view.fh = FH
+
+  local fontDir = "assets/fonts/"
+  conf.font_main = love.graphics.newFont(
+    fontDir .. "ubuntu_mono_bold_nerd.ttf", cfg.fontSize * FAC)
+  conf.font_title = love.graphics.newFont(
+    fontDir .. "PressStart2P-Regular.ttf", cfg.fontSize * FAC)
+
+  G.setFont(conf.font_main)
+
+  local BORDER = 4 * FAC
+  local FH = conf.font_main:getHeight()
+  conf.fac = FAC
+  conf.border = BORDER
+  conf.fh = FH
+  conf.width = G.getWidth()
+  conf.height = G.getHeight()
+
+  local view = {
+    title = TitleView,
+    canvas = CanvasView:new(conf),
+    input = InputView:new(conf),
+    model = m,
+  }
+  view.cfg = conf
   view.getDrawableHeight = function(h)
     return
         h - BORDER -- top border
@@ -49,41 +55,45 @@ function ConsoleView:new(m, cfg)
         - BORDER   -- bottom border
   end
 
+  setmetatable(view, self)
+  self.__index = self
+
   return view
 end
 
 function ConsoleView:resize(wi, hi)
-  local w = wi / self.fac
-  local h = hi / self.fac
+  local w = wi / self.cfg.fac
+  local h = hi / self.cfg.fac
 
   self.canvasDrawableHeight = self.getDrawableHeight(h)
 
   local inputBox = {
-    x = self.border,
-    y = self.border + self.canvasDrawableHeight + 2 * self.border,
-    w = w - 2 * self.border,
-    h = self.fh,
+    x = self.cfg.border,
+    y = self.cfg.border + self.canvasDrawableHeight + 2 * self.cfg.border,
+    w = w - 2 * self.cfg.border,
+    h = self.cfg.fh,
   }
 
   love.keyboard.setTextInput(true,
     inputBox.x, inputBox.y, inputBox.w, inputBox.h)
 end
 
-function ConsoleView:draw(x, y, w, h)
-  local b = self.border
+-- function ConsoleView:draw(x, y, w, h)
+function ConsoleView:draw()
+  local b = self.cfg.border
 
   G.scale(self.fac, self.fac)
 
-  w = (w or G.getWidth()) / self.fac
-  h = (h or G.getHeight()) / self.fac
-  x = x or 0
-  y = y or 0
+  local w = self.cfg.width
+  local h = self.cfg.height
+  local x, y = 0, 0
 
   if not self.canvasDrawableHeight then
     self.canvasDrawableHeight = self.getDrawableHeight(h)
   end
 
-  local linesN = math.floor(self.canvasDrawableHeight / self.fh)
+  local linesN = math.floor(self.canvasDrawableHeight / self.cfg.fh)
+  self.cfg.linesN = linesN
 
   local background = {
     draw = function()
@@ -93,42 +103,12 @@ function ConsoleView:draw(x, y, w, h)
       G.rectangle("fill", b, b, w - 2 * b, h - 2 * b)
       -- separator
       G.setColor(self.cfg.colors.border)
-      G.rectangle("fill", 0, h - b - 2 * self.fh - b, w, self.fh)
+      G.rectangle("fill", 0, h - b - 2 * self.cfg.fh - b, w, self.cfg.fh)
     end,
   }
 
-  local canvas = {
-    draw = function()
-      local function writeLine(l, text)
-        if l < 0 or l > linesN then return end
-        local cx = b + 1
-        local lineOffset = (l - 1) * self.fh
-        local cy = b + 1 + lineOffset
-        G.setColor(self.cfg.colors.fg)
-        G.print(text, cx, cy)
-      end
-
-      local function testCanvas()
-        for i = 1, linesN do
-          writeLine(i, '#' .. i .. ' ' .. self.model.n)
-        end
-      end
-
-      local output = self.model.result
-      for i = 1, #output do
-        writeLine(i, output[i])
-      end
-    end
-  }
-
-  local input = {
-    draw = function()
-      G.setColor(self.cfg.colors.fg)
-      G.print(self.model.entered, b, h - b - self.fh)
-    end
-  }
-
   background.draw()
-  canvas.draw()
-  input.draw()
+  self.canvas:draw(self.model.result)
+  self.input:draw(self.model.entered)
+  -- self.title.draw('LÖVEputer', x, h / 2, w, self.font_title)
 end
