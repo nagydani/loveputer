@@ -29,7 +29,7 @@ function Console:evaluate()
   if ent ~= '' then
     local inputText = self.input.entered
     self.input:push(inputText)
-    local result = Eval.apply(self.input.entered)
+    local result = self.input.evaluator.apply(inputText)
     if result and result ~= '' then
       self.canvas:push(result)
     end
