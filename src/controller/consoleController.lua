@@ -33,21 +33,20 @@ function ConsoleController:keypressed(k)
   -- Ctrl held
   if ctrl then
     if k == "v" then
-      self.model:paste(love.system.getClipboardText())
+      self.model.input:paste(love.system.getClipboardText())
     end
   end
 
   -- Shift held
   if shift then
     if k == "insert" then
-      self.model:paste(love.system.getClipboardText())
+      self.model.input:paste(love.system.getClipboardText())
     end
   end
 end
 
 function ConsoleController:textinput(t)
-  local ent = self.model.input.entered .. t
-  self.model.input.entered = ent
+  self.model.input:addText(t)
 end
 
 function ConsoleController:getResult()

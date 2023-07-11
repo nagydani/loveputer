@@ -18,8 +18,22 @@ function InputModel:new()
   return im
 end
 
-function InputModel:push(input)
+function InputModel:remember(input)
   self.history:push(input)
+end
+
+function InputModel:addText(text)
+  if type(text) == 'string' then
+    -- TODO: multiline
+    local ent = self.entered
+    local t = ent .. text
+    self.cursor.c = #t
+    self.entered = t
+  end
+end
+
+function InputModel:paste(text)
+  self:addText(text)
 end
 
 function InputModel:backspace()
@@ -37,6 +51,7 @@ function InputModel:backspace()
 end
 
 function InputModel:clear()
+  self.cursor = { c = 1, l = 1 }
   self.entered = ''
 end
 
