@@ -20,7 +20,13 @@ function InputView:draw(input)
   local cf = self.cfg
   local b = cf.border
   local h = cf.height
+  local y = h - b - self.cfg.fh
+  local function drawCursor()
+    local offset = self.cfg.font_main:getWidth(input)
+    G.print('_', b + offset, y)
+  end
   self.statusline:draw(self.controller:getStatus())
   G.setColor(cf.colors.fg)
-  G.print(input, b, h - b - self.cfg.fh)
+  G.print(input, b, y)
+  drawCursor()
 end
