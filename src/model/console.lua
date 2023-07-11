@@ -1,3 +1,4 @@
+local utf8 = require("utf8")
 local _ = require("util/dequeue")
 local _ = require("model/eval")
 
@@ -21,7 +22,16 @@ end
 
 function Console:backspace()
   local t = self.entered
-  self.entered = string.sub(t, 1, #t - 1)
+  local byteoffset = utf8.offset(t, -1)
+
+  if byteoffset then
+    -- remove the last UTF-8 character.
+    -- string.sub operates on bytes rather than UTF-8 characters, so we couldn't do string.sub(text, 1, -2).
+    self.entered = string.sub(t, 1, byteoffset - 1)
+  else
+    self.entered = string.sub(t, 1, #t - 1)
+  end
+end
 end
 
 function Console:evaluate()
