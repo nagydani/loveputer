@@ -27,13 +27,24 @@ function ConsoleController:keypressed(k)
     local res = self.model.input:evaluate()
     self.model.canvas:push(res)
   end
-  if k == "backspace" then
-    self.model.input:backspace()
-  end
-
   if k == "escape" then
     self.model.input:cancel()
   end
+
+  if k == "backspace" then
+    self.model.input:backspace()
+  end
+  if k == "delete" then
+    -- TODO
+  end
+
+  if k == "pageup" then
+    self.model.input:history_back()
+  end
+  if k == "pagedown" then
+    self.model.input:history_fwd()
+  end
+
 
   -- Ctrl held
   if ctrl then
@@ -59,7 +70,7 @@ function ConsoleController:getResult()
 end
 
 function ConsoleController:getInput()
-  return self.model.input.entered
+  return self.model.input:get_text()
 end
 
 function ConsoleController:getStatus()
