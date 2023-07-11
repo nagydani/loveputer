@@ -1,4 +1,5 @@
 local _ = require("view/color")
+local _ = require("view/titleView")
 
 local G = love.graphics
 
@@ -6,7 +7,8 @@ ConsoleView = {}
 
 function ConsoleView:new(m, cfg)
   local view = {
-    model = m
+    title = TitleView,
+    model = m,
   }
   local conf = {
     fontSize = 18,
