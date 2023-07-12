@@ -15,7 +15,7 @@ end
 function CanvasView:draw(output)
   local b = self.cfg.border
   local N = self.cfg.linesN
-  local function writeLine(l, text)
+  local function write_line(l, text)
     if l < 0 or l > N then return end
     local cx = b + 1
     local lineOffset = (l - 1) * self.cfg.fh
@@ -29,6 +29,6 @@ function CanvasView:draw(output)
     offset = #output - N
   end
   for i = 1, #output do
-    writeLine(i, output[i + offset])
+    write_line(i, output[i + offset])
   end
 end

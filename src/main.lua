@@ -9,7 +9,7 @@ function love.load()
   M = Console:new()
   C = ConsoleController:new(M)
   V = ConsoleView:new({
-    fontSize = 18
+    font_size = 18
   }, C)
 end
 

@@ -1,8 +1,8 @@
 TitleView = {
-  draw = function(title, x, y, w, customFont)
+  draw = function(title, x, y, w, custom_font)
     title = title or "LÖVEputer"
-    local prevFont = love.graphics.getFont()
-    local font = customFont or prevFont
+    local prev_font = love.graphics.getFont()
+    local font = custom_font or prev_font
     local fh = font:getHeight()
     x = x or 0
     y = y or love.graphics.getHeight() - 2 * fh
@@ -25,14 +25,13 @@ TitleView = {
         y + fh)
     end
     love.graphics.setColor(Color[15])
-    local offset = font:getWidth(title)
 
-    if customFont then
+    if custom_font then
       love.graphics.setFont(font)
     end
     love.graphics.print(title, x + fh, y)
-    if customFont then
-      love.graphics.setFont(prevFont)
+    if custom_font then
+      love.graphics.setFont(prev_font)
     end
   end
 }

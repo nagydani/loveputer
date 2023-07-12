@@ -9,12 +9,12 @@ ConsoleView = {}
 
 function ConsoleView:new(cfg, ctrl)
   local conf = {
-    fontSize = 18,
+    font_size = 18,
     colors = {
       bg = Color[Color.white],
       border = Color[Color.black + Color.bright],
       fg = Color[Color.blue + Color.bright],
-      statFg = Color[Color.white + Color.bright],
+      stat_fg = Color[Color.white + Color.bright],
     }
   }
   for k, v in pairs(cfg) do
@@ -25,11 +25,11 @@ function ConsoleView:new(cfg, ctrl)
   if _G.hiDPI then FAC = 2 end
   G.scale(FAC, FAC)
 
-  local fontDir = "assets/fonts/"
+  local font_dir = "assets/fonts/"
   conf.font_main = love.graphics.newFont(
-    fontDir .. "ubuntu_mono_bold_nerd.ttf", cfg.fontSize * FAC)
+    font_dir .. "ubuntu_mono_bold_nerd.ttf", cfg.font_size * FAC)
   conf.font_title = love.graphics.newFont(
-    fontDir .. "PressStart2P-Regular.ttf", cfg.fontSize * FAC)
+    font_dir .. "PressStart2P-Regular.ttf", cfg.font_size * FAC)
 
   G.setFont(conf.font_main)
 
@@ -48,7 +48,7 @@ function ConsoleView:new(cfg, ctrl)
     controller = ctrl,
     cfg = conf,
   }
-  view.getDrawableHeight = function(h)
+  view.get_drawable_height = function(h)
     return
         h - BORDER -- top border
         - FH       -- separator
@@ -66,11 +66,11 @@ function ConsoleView:resize(wi, hi)
   local w = wi / self.cfg.fac
   local h = hi / self.cfg.fac
 
-  self.canvasDrawableHeight = self.getDrawableHeight(h)
+  self.canvas_drawable_height = self.get_drawable_height(h)
 
   local inputBox = {
     x = self.cfg.border,
-    y = self.cfg.border + self.canvasDrawableHeight + 2 * self.cfg.border,
+    y = self.cfg.border + self.canvas_drawable_height + 2 * self.cfg.border,
     w = w - 2 * self.cfg.border,
     h = self.cfg.fh,
   }
@@ -88,11 +88,11 @@ function ConsoleView:draw()
   local h = self.cfg.height
   local x, y = 0, 0
 
-  if not self.canvasDrawableHeight then
-    self.canvasDrawableHeight = self.getDrawableHeight(h)
+  if not self.canvas_drawable_height then
+    self.canvas_drawable_height = self.get_drawable_height(h)
   end
 
-  local linesN = math.floor(self.canvasDrawableHeight / self.cfg.fh)
+  local linesN = math.floor(self.canvas_drawable_height / self.cfg.fh)
   self.cfg.linesN = linesN
 
   local background = {
@@ -105,6 +105,6 @@ function ConsoleView:draw()
   }
 
   background.draw()
-  self.canvas:draw(self.controller:getResult())
-  self.input:draw(self.controller:getInput())
+  self.canvas:draw(self.controller:get_result())
+  self.input:draw(self.controller:get_input())
 end
