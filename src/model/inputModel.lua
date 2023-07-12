@@ -73,6 +73,36 @@ function InputModel:backspace()
   self:updateCursor()
 end
 
+function InputModel:delete()
+  local t = self.entered
+  local byteoffset = utf8.offset(t, -1)
+
+  if byteoffset then
+    -- self.entered = string.sub(t, 1, byteoffset - 1)
+  else
+    -- self.entered = string.sub(t, 1, #t - 1)
+  end
+  -- self:updateCursor()
+end
+
+function InputModel:cursor_up()
+  -- TODO move when multiline
+  self:history_back()
+end
+
+function InputModel:cursor_down()
+  -- TODO move when multiline
+  self:history_fwd()
+end
+
+function InputModel:cursor_left()
+
+end
+
+function InputModel:cursor_right()
+
+end
+
 function InputModel:clear()
   self.entered = ''
   self:updateCursor()
