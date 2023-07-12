@@ -25,7 +25,7 @@ function InputView:draw(input)
     local offset = self.cfg.font_main:getWidth(input)
     G.print('|', b + offset, y)
   end
-  self.statusline:draw(self.controller:getStatus())
+  self.statusline:draw(self.controller:get_status())
   G.setColor(cf.colors.fg)
   G.print(input, b, y)
   drawCursor()

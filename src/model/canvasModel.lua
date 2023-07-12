@@ -14,7 +14,7 @@ function CanvasModel:new()
 end
 
 function CanvasModel:push(newResult)
-  if StringUtils.isNonEmptyString(newResult) then
+  if StringUtils.is_non_empty_string(newResult) then
     self.result:push(newResult)
   end
 end

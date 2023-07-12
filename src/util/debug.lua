@@ -1,7 +1,7 @@
 Debug = {
-  printT = function(t, tag, ind)
+  print_t = function(t, tag, ind)
     local indent = ind or 0
-    local function getIndent()
+    local function get_indent()
       local dent = ''
       for i = 0, indent do
         dent = dent .. '  '
@@ -17,17 +17,17 @@ Debug = {
     end
     if type(t) == 'table' then
       for k, v in pairs(t) do
-        local header = getIndent() .. '---- ' .. k .. ' ----\n'
-        res = res .. getIndent() .. header
-        res = res .. getIndent() .. Debug.printT(v, nil, indent + 1)
+        local header = get_indent() .. '---- ' .. k .. ' ----\n'
+        res = res .. get_indent() .. header
+        res = res .. get_indent() .. Debug.print_t(v, nil, indent + 1)
         res = res .. '\n'
       end
     elseif type(t) == 'string' then
-      res = res .. getIndent() .. t .. '\n'
+      res = res .. get_indent() .. t .. '\n'
     elseif type(t) == 'function' then
-      res = res .. getIndent() .. 'f() ' .. t .. '\n'
+      res = res .. get_indent() .. 'f() ' .. t .. '\n'
     elseif type(t) == 'number' then
-      res = res .. getIndent() .. 'N ' .. t .. '\n'
+      res = res .. get_indent() .. 'N ' .. t .. '\n'
     end
     return res
   end
