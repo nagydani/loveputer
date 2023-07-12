@@ -21,6 +21,16 @@ function love.keypressed(k)
   C:keypressed(k)
 end
 
+function love.keyreleased(k)
+  local ctrl = love.keyboard.isDown("lctrl", "rctrl")
+  -- Ctrl held
+  if ctrl then
+    if k == "escape" then
+      love.event.quit()
+    end
+  end
+end
+
 function love.update(dt)
   C:increment()
 end
