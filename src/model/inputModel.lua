@@ -144,6 +144,10 @@ function InputModel:history_back()
     local hi = self.historic_index
     local prev = self.history[hi - 1]
     if prev then
+      local current = self:get_text()
+      if StringUtils.is_non_empty_string(current) then
+        self.history[hi] = current
+      end
       self:set_text(prev)
       self.historic_index = hi - 1
     end
@@ -158,6 +162,10 @@ function InputModel:history_fwd()
   if self.historic_index then
     local hi = self.historic_index
     local next = self.history[hi + 1]
+    local current = self:get_text()
+    if StringUtils.is_non_empty_string(current) then
+      self.history[hi] = current
+    end
     if next then
       self.entered = next
       self.historic_index = hi + 1
