@@ -18,12 +18,17 @@ end
 
 function InputView:draw(input)
   local cf = self.cfg
+  local fh = self.cfg.fh
   local b = cf.border
   local h = cf.height
-  local y = h - b - self.cfg.fh
+  local y = h - b - fh
   local function drawCursor()
-    local offset = self.cfg.font_main:getWidth(input)
-    G.print('|', b + offset, y)
+    local cl, cc = self.controller.model.input:get_cursor_pos()
+    -- we use a monospace font, so the width should be the same for any input
+    local fw = self.cfg.font_main:getWidth('a')
+    local offset = fw * (cc)
+    local w_off = fw
+    G.print('|', offset - w_off, y)
   end
   self.statusline:draw(self.controller:get_status())
   G.setColor(cf.colors.fg)
