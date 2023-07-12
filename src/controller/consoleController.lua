@@ -35,7 +35,20 @@ function ConsoleController:keypressed(k)
     self.model.input:backspace()
   end
   if k == "delete" then
-    -- TODO
+    self.model.input:delete()
+  end
+
+  if k == "up" then
+    self.model.input:cursor_up()
+  end
+  if k == "down" then
+    self.model.input:cursor_down()
+  end
+  if k == "left" then
+    self.model.input:cursor_left()
+  end
+  if k == "right" then
+    self.model.input:cursor_right()
   end
 
   if k == "pageup" then
