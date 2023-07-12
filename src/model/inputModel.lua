@@ -27,6 +27,8 @@ function InputModel:remember(input)
 end
 
 function InputModel:add_text(text)
+  -- TODO: multiline
+  local _, pos_x = self:get_cursor_pos()
   if type(text) == 'string' then
     -- TODO: multiline
     local ent = self:get_text()
@@ -41,7 +43,7 @@ function InputModel:set_text(text)
     -- TODO: multiline
     local t = text
     self.entered = t
-    self:update_cursor()
+    self:update_cursor(true)
   end
 end
 
@@ -49,9 +51,20 @@ function InputModel:get_text()
   return self.entered or ''
 end
 
-function InputModel:update_cursor()
+function InputModel:update_cursor(destructive)
   local t = self.entered
-  self.cursor.c = utf8.len(t) + 1
+  if destructive then
+    self.cursor.c = utf8.len(t) + 1
+  end
+end
+
+function InputModel:advance_cursor(n)
+  local cur = self.cursor.c
+  local move = n or 1
+  local next = StringUtils.to_utf8_index(self:get_text(), cur + move)
+
+  self.cursor.c = cur + next
+  -- TODO multiline
 end
 
 function InputModel:paste(text)
@@ -59,7 +72,9 @@ function InputModel:paste(text)
 end
 
 function InputModel:backspace()
+  -- TODO: multiline
   local t = self.entered
+  local _, pos_x = self:get_cursor_pos()
   local byteoffset = utf8.offset(t, -1)
 
   if byteoffset then
@@ -85,6 +100,10 @@ function InputModel:delete()
   -- self:update_cursor()
 end
 
+function InputModel:get_cursor_pos()
+  return self.cursor.l, self.cursor.c
+end
+
 function InputModel:cursor_up()
   -- TODO move when multiline
   self:history_back()
@@ -105,7 +124,7 @@ end
 
 function InputModel:clear()
   self.entered = ''
-  self:update_cursor()
+  self:update_cursor(true)
   self.historic_index = nil
 end
 
@@ -156,6 +175,7 @@ function InputModel:history_back()
     self:remember(ent)
     self.entered = self.history[self.historic_index]
   end
+  self:update_cursor(true)
 end
 
 function InputModel:history_fwd()
@@ -167,7 +187,7 @@ function InputModel:history_fwd()
       self.history[hi] = current
     end
     if next then
-      self.entered = next
+      self:set_text(next)
       self.historic_index = hi + 1
     else
       self:clear()
@@ -175,4 +195,5 @@ function InputModel:history_fwd()
   else
     self:cancel()
   end
+  self:update_cursor(true)
 end
