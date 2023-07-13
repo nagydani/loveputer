@@ -4,3 +4,5 @@ std = "lua52"
 unscoped_variables = "allow"
 undefined_variable = "allow"
 incorrect_standard_library_use = "allow"
+
+exclude = [".vscode-oss/*"]
