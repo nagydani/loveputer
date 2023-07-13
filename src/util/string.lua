@@ -16,4 +16,20 @@ StringUtils = {
     return ui
   end,
 
+
+  utf8_split_at = function(s, i)
+    local pre = ''
+    local post = ''
+    local j = 1
+    for _, c in utf8.codes(s) do
+      if j < i then
+        pre = pre .. utf8.char(c)
+      else
+        post = post .. utf8.char(c)
+      end
+      j = j + 1
+    end
+    return pre, post
+  end,
+
 }
