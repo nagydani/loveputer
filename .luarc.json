@@ -1,5 +1,6 @@
 {
   "diagnostics.globals": [
+    "utf8",
     "describe",
     "it",
     "pending",
