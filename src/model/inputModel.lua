@@ -172,7 +172,7 @@ end
 
 function InputModel:get_status()
   return {
-    inputType = self.evaluator.kind,
+    input_type = self.evaluator.kind,
     cursor = self.cursor,
   }
 end
