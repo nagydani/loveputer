@@ -16,6 +16,13 @@ StringUtils = {
     return ui
   end,
 
+  split_at = function(s, i)
+    local pre = ''
+    local post = ''
+    pre = string.sub(s, 1, i - 1)
+    post = string.sub(s, i, #s)
+    return pre, post
+  end,
 
   utf8_split_at = function(s, i)
     local pre = ''
