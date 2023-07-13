@@ -56,7 +56,7 @@ function InputModel:get_text()
 end
 
 function InputModel:update_cursor(destructive)
-  local t = self.entered
+  local t = self:get_text()
   if destructive then
     self.cursor.c = utf8.len(t) + 1
   end

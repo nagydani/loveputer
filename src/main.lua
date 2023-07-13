@@ -1,6 +1,6 @@
-local _ = require("model/consoleModel")
-local _ = require("view/consoleView")
-local _ = require("controller/consoleController")
+require("model/consoleModel")
+require("view/consoleView")
+require("controller/consoleController")
 
 function love.load()
   love.keyboard.setTextInput(true)

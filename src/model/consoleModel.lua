@@ -1,6 +1,5 @@
-local _ = require("model/inputModel")
-local _ = require("model/canvasModel")
-local _ = require("model/eval")
+require("model/inputModel")
+require("model/canvasModel")
 
 Console = {}
 
