@@ -22,7 +22,7 @@ function ConsoleView:new(cfg, ctrl)
   end
 
   local FAC = 1
-  if _G.hiDPI then
+  if love.hiDPI then
     FAC = 2
   end
   G.scale(FAC, FAC)
