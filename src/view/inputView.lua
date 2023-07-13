@@ -23,7 +23,7 @@ function InputView:draw(input)
   local h = cf.height
   local y = h - b - fh
   local function drawCursor()
-    local cl, cc = self.controller.model.input:get_cursor_pos()
+    local _, cc = self.controller.model.input:get_cursor_pos()
     -- we use a monospace font, so the width should be the same for any input
     local fw = self.cfg.font_main:getWidth('a')
     local offset = fw * (cc)

@@ -28,6 +28,7 @@ end
 
 function InputModel:add_text(text)
   -- TODO: multiline
+  -- TODO: UTF-8
   local _, pos_x = self:get_cursor_pos()
   if type(text) == 'string' then
     local ent = self:get_text()
@@ -85,15 +86,15 @@ end
 
 function InputModel:backspace()
   -- TODO: multiline
+  -- TODO: UTF-8
   local ent = self.entered
   local _, pos_x = self:get_cursor_pos()
-  local byteoffset = utf8.offset(ent, -1)
+  local byteoffset = utf8.offset(ent, pos_x - 1)
 
   if byteoffset then
-    -- remove the last UTF-8 character.
-    -- string.sub operates on bytes rather than UTF-8 characters,
-    -- so we couldn't do string.sub(text, 1, -2).
-    self.entered = string.sub(ent, 1, byteoffset - 1)
+    local pre = string.sub(ent, 1, byteoffset - 1)
+    local post = string.sub(ent, byteoffset + 1)
+    self:set_text(pre .. post, true)
   else
     self.entered = string.sub(ent, 1, #ent - 1)
   end
