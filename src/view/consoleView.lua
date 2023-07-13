@@ -15,6 +15,7 @@ function ConsoleView:new(cfg, ctrl)
       border = Color[Color.black + Color.bright],
       fg = Color[Color.blue + Color.bright],
       stat_fg = Color[Color.white + Color.bright],
+      debug = Color[Color.yellow],
     }
   }
   for k, v in pairs(cfg) do
