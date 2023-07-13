@@ -115,6 +115,14 @@ function InputModel:get_cursor_pos()
   return self.cursor.l, self.cursor.c
 end
 
+function InputModel:get_cursor_x()
+  return self.cursor.c
+end
+
+function InputModel:get_cursor_y()
+  return self.cursor.l
+end
+
 function InputModel:cursor_up()
   -- TODO move when multiline
   self:history_back()
