@@ -136,9 +136,10 @@ end
 
 function InputModel:cursor_right()
   local line = self:get_text()
+  local len = utf8.len(line)
   local cx = self.cursor.c
   local next = cx + 1
-  if cx <= #line then
+  if cx <= len then
     self.cursor.c = next
     -- TODO multiline overflow
   end
