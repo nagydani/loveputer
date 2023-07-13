@@ -1,5 +1,5 @@
-local _ = require("util/dequeue")
-local _ = require("util/string")
+require("util/dequeue")
+require("util/string")
 
 CanvasModel = {}
 

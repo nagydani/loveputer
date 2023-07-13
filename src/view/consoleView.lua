@@ -1,7 +1,7 @@
-local _ = require("view/color")
-local _ = require("view/titleView")
-local _ = require("view/canvasView")
-local _ = require("view/inputView")
+require("view/color")
+require("view/titleView")
+require("view/canvasView")
+require("view/inputView")
 
 local G = love.graphics
 
@@ -22,7 +22,9 @@ function ConsoleView:new(cfg, ctrl)
   end
 
   local FAC = 1
-  if _G.hiDPI then FAC = 2 end
+  if _G.hiDPI then
+    FAC = 2
+  end
   G.scale(FAC, FAC)
 
   local font_dir = "assets/fonts/"
@@ -86,7 +88,6 @@ function ConsoleView:draw()
 
   local w = self.cfg.width
   local h = self.cfg.height
-  local x, y = 0, 0
 
   if not self.canvas_drawable_height then
     self.canvas_drawable_height = self.get_drawable_height(h)

@@ -1,0 +1,6 @@
+std = "lua52"
+
+[lints]
+unscoped_variables = "allow"
+undefined_variable = "allow"
+incorrect_standard_library_use = "allow"

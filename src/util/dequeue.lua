@@ -11,6 +11,6 @@ function Dequeue:push(l)
   table.insert(self, l)
 end
 
-function Dequeue:get_last_index(l)
+function Dequeue:get_last_index()
   return #self
 end

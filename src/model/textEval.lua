@@ -1,3 +1,5 @@
+require("model/eval")
+
 TextEval = {}
 
 function TextEval:new()

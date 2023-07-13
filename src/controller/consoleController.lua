@@ -15,7 +15,7 @@ function ConsoleController:increment()
 end
 
 function ConsoleController:keypressed(k)
-  local function is_enter(k)
+  local function is_enter()
     return k == "return" or k == 'kpenter'
   end
 
@@ -23,7 +23,7 @@ function ConsoleController:keypressed(k)
   ctrl  = love.keyboard.isDown("lctrl", "rctrl")
   shift = love.keyboard.isDown("lshift", "rshift")
 
-  if is_enter(k) then
+  if is_enter() then
     local res = self.model.input:evaluate()
     self.model.canvas:push(res)
   end

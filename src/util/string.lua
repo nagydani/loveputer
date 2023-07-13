@@ -12,8 +12,8 @@ StringUtils = {
   end,
 
   to_utf8_index = function(s, i)
-    -- local al = utf8.len(s)
     local ui = utf8.offset(s, i)
     return ui
   end,
+
 }
