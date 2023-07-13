@@ -232,6 +232,52 @@ describe("input model spec", function()
         local cc = model:get_cursor_x()
         assert.is_equal(base, cc)
       end)
+    end)
+  end)
+
+  -----------------
+  --   Del/Bksp  --
+  -----------------
+  describe('delete and backspace', function()
+    local model = InputModel:new()
+
+    local test1 = 'когда'
+    local test2 = 'asdf'
+    local test1_len = utf8.len(test1)
+    local test2_len = utf8.len(test2)
+
+    describe('deletes', function()
+      local line_end = 1 + utf8.len(test2)
+      it('none at the end', function()
+        model:set_text(test2)
+        local cc = model:get_cursor_x()
+        assert.is_equal(line_end, cc)
+        model:delete()
+        assert.is_equal(test2, model:get_text())
+      end)
+
+      it('one', function()
+        model:retreat_cursor()
+        model:delete()
+        local cc = model:get_cursor_x()
+        assert.is_equal(line_end - 1, cc)
+        assert.is_equal(string.sub(test2, 1, line_end - 2), model:get_text())
+      end)
+
+      it('all', function()
+        local l = #(model:get_text())
+        for i = 1, l do
+          model:retreat_cursor()
+        end
+        local cc = model:get_cursor_x()
+        assert.is_equal(1, cc)
+        for i = 1, l do
+          model:delete()
+        end
+        assert.is_equal('', model:get_text())
+      end)
+    end)
+  end)
 
   describe('', function()
     it('', function()
