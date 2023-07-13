@@ -12,7 +12,7 @@ function Statusline:new(cfg)
   return s
 end
 
-function Statusline:draw(status)
+function Statusline:draw(status, time)
   local cf = self.cfg
   local b = cf.border
   local h = cf.height
@@ -27,12 +27,18 @@ function Statusline:draw(status)
     y = start_box.y,
   }
   local endTextX = start_box.x + w - fh
+  local midX = (start_box.x + w) / 2
   G.rectangle("fill", start_box.x, start_box.y, w, fh)
 
   if not status then return end
   G.setColor(colors.stat_fg)
   if status.input_type then
     G.print(status.input_type, start_text.x, start_text.y)
+  end
+  if love.DEBUG then
+    G.setColor(colors.debug)
+    G.print(time, midX, start_text.y)
+    G.setColor(colors.stat_fg)
   end
   if status.cursor then
     local c = status.cursor
