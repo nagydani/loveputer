@@ -2,6 +2,8 @@ require("model/consoleModel")
 require("view/consoleView")
 require("controller/consoleController")
 
+local V
+
 function love.load()
   love.keyboard.setTextInput(true)
   love.keyboard.setKeyRepeat(true)
