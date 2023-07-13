@@ -34,7 +34,7 @@ function love.keyreleased(k)
 end
 
 function love.update(dt)
-  C:increment()
+  C:pass_time(dt)
 end
 
 function love.draw()

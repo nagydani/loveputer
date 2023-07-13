@@ -17,6 +17,7 @@ function InputView:new(cfg, ctrl)
 end
 
 function InputView:draw(input)
+  local time = self.controller:get_timestamp()
   local cf = self.cfg
   local fh = self.cfg.fh
   local b = cf.border
@@ -30,8 +31,15 @@ function InputView:draw(input)
     local w_off = fw
     G.print('|', offset - w_off, y)
   end
-  self.statusline:draw(self.controller:get_status())
+
+  self.statusline:draw(
+    self.controller:get_status(),
+    time
+  )
   G.setColor(cf.colors.fg)
   G.print(input, b, y)
-  drawCursor()
+  local blink = math.floor(math.floor(time * 2) % 2) == 0
+  if blink then
+    drawCursor()
+  end
 end
