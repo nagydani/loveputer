@@ -28,13 +28,19 @@ end
 
 function InputModel:add_text(text)
   -- TODO: multiline
-  -- TODO: UTF-8
-  local _, pos_x = self:get_cursor_pos()
   if type(text) == 'string' then
+    local _, pos_x = self:get_cursor_pos()
     local ent = self:get_text()
-    local pre = string.sub(ent, 1, pos_x - 1)
-    local post = string.sub(ent, pos_x, #ent)
-    local nval = pre .. text .. post
+    local ulen = utf8.len(ent)
+    local nval
+    local pre, post = '', ''
+    if ulen ~= #ent then -- branch off for UTF-8
+      pre, post = StringUtils.utf8_split_at(ent, pos_x)
+      nval = pre .. text .. post
+    else
+      pre, post = StringUtils.split_at(ent, pos_x)
+      nval = pre .. text .. post
+    end
     self.entered = nval
     self:advance_cursor(utf8.len(text))
   end
@@ -85,28 +91,38 @@ function InputModel:paste(text)
 end
 
 function InputModel:backspace()
-  -- TODO: multiline
-  -- TODO: UTF-8
   local ent = self:get_text()
-  local _, pos_x = self:get_cursor_pos()
-  local byteoffset = utf8.offset(ent, pos_x - 1)
-
-  if byteoffset then
-    local pre = string.sub(ent, 1, byteoffset - 1)
-    local post = string.sub(ent, byteoffset + 1)
-    self:set_text(pre .. post, true)
-  else
-    local nval = string.sub(ent, 1, #ent - 1)
-    self:set_text(nval, true)
+  local cl, cc = self:get_cursor_pos()
+  if cc == 1 then
+    -- TODO: multiline
+    if cl == 1 then return end
   end
+
+  local ulen = utf8.len(ent)
+  local pre, post = '', ''
+  if ulen ~= #ent then -- branch off for UTF-8
+    _, post = StringUtils.utf8_split_at(ent, cc)
+    pre, _ = StringUtils.utf8_split_at(ent, cc - 1)
+  else
+    pre = string.sub(ent, 1, cc - 2)
+    post = string.sub(ent, cc, #ent)
+  end
+  self:set_text(pre .. post, true)
   self:retreat_cursor()
 end
 
 function InputModel:delete()
   local ent = self:get_text()
-  local _, pos_x = self:get_cursor_pos()
-  local pre = string.sub(ent, 1, pos_x - 1)
-  local post = string.sub(ent, pos_x + 1, #ent)
+  local ulen = utf8.len(ent)
+  local cl, cc = self:get_cursor_pos()
+  local pre, post = '', ''
+  if ulen ~= #ent then -- branch off for UTF-8
+    _, post = StringUtils.utf8_split_at(ent, cc + 1)
+    pre, _ = StringUtils.utf8_split_at(ent, cc)
+  else
+    pre = string.sub(ent, 1, cc - 1)
+    post = string.sub(ent, cc + 1, #ent)
+  end
   local nval = pre .. post
   self:set_text(nval, true)
 end
@@ -134,13 +150,7 @@ function InputModel:cursor_down()
 end
 
 function InputModel:cursor_left()
-  local line = self:get_text()
-  local cx = self.cursor.c
-  if cx > 1 then
-    local prev = StringUtils.to_utf8_index(line, cx - 1)
-    self.cursor.c = prev
-    -- TODO multiline underflow
-  end
+  self:retreat_cursor()
 end
 
 function InputModel:cursor_right()
