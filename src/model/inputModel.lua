@@ -220,3 +220,14 @@ function InputModel:history_fwd()
   end
   self:update_cursor(true)
 end
+
+function InputModel:jump_home()
+  self.cursor = { c = 1, l = 1 }
+end
+
+function InputModel:jump_end()
+  -- TODO multiline
+  local last_line = 1
+  local last_char = utf8.len(self:get_text()) + 1
+  self.cursor = { c = last_char, l = last_line }
+end
