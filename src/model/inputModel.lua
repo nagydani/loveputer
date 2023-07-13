@@ -87,7 +87,7 @@ end
 function InputModel:backspace()
   -- TODO: multiline
   -- TODO: UTF-8
-  local ent = self.entered
+  local ent = self:get_text()
   local _, pos_x = self:get_cursor_pos()
   local byteoffset = utf8.offset(ent, pos_x - 1)
 
@@ -96,13 +96,14 @@ function InputModel:backspace()
     local post = string.sub(ent, byteoffset + 1)
     self:set_text(pre .. post, true)
   else
-    self.entered = string.sub(ent, 1, #ent - 1)
+    local nval = string.sub(ent, 1, #ent - 1)
+    self:set_text(nval, true)
   end
   self:retreat_cursor()
 end
 
 function InputModel:delete()
-  local ent = self.entered
+  local ent = self:get_text()
   local _, pos_x = self:get_cursor_pos()
   local pre = string.sub(ent, 1, pos_x - 1)
   local post = string.sub(ent, pos_x + 1, #ent)
@@ -146,7 +147,7 @@ function InputModel:cursor_right()
 end
 
 function InputModel:clear()
-  self.entered = ''
+  self:set_text('')
   self:update_cursor(true)
   self.historic_index = nil
 end
@@ -167,7 +168,7 @@ function InputModel:cancel()
 end
 
 function InputModel:_handle(eval)
-  local ent = self.entered
+  local ent = self:get_text()
   self.historic_index = nil
   local result
   if ent ~= '' then
@@ -181,7 +182,7 @@ function InputModel:_handle(eval)
 end
 
 function InputModel:history_back()
-  local ent = self.entered
+  local ent = self:get_text()
   if self.historic_index then
     local hi = self.historic_index
     local prev = self.history[hi - 1]
@@ -196,9 +197,8 @@ function InputModel:history_back()
   else
     self.historic_index = self.history:get_last_index()
     self:remember(ent)
-    self.entered = self.history[self.historic_index]
+    self:set_text(self.history[self.historic_index])
   end
-  self:update_cursor(true)
 end
 
 function InputModel:history_fwd()
