@@ -1,0 +1,7 @@
+{
+  "diagnostics.globals": [
+    "describe",
+    "it",
+    "pending",
+  ]
+}
