@@ -1,8 +1,8 @@
 local utf8 = require("utf8")
 
-local _ = require("model/textEval")
-local _ = require("util/dequeue")
-local _ = require("util/string")
+require("model/textEval")
+require("util/dequeue")
+require("util/string")
 
 InputModel = {}
 
@@ -30,20 +30,23 @@ function InputModel:add_text(text)
   -- TODO: multiline
   local _, pos_x = self:get_cursor_pos()
   if type(text) == 'string' then
-    -- TODO: multiline
     local ent = self:get_text()
-    local t = ent .. text
-    self.entered = t
-    self:update_cursor()
+    local pre = string.sub(ent, 1, pos_x - 1)
+    local post = string.sub(ent, pos_x, #ent)
+    local nval = pre .. text .. post
+    self.entered = nval
+    self:advance_cursor(utf8.len(text))
   end
 end
 
-function InputModel:set_text(text)
+function InputModel:set_text(text, keep_cursor)
   if type(text) == 'string' then
     -- TODO: multiline
     local t = text
     self.entered = t
-    self:update_cursor(true)
+    if not keep_cursor then
+      self:update_cursor(true)
+    end
   end
 end
 
@@ -61,10 +64,19 @@ end
 function InputModel:advance_cursor(n)
   local cur = self.cursor.c
   local move = n or 1
-  local next = StringUtils.to_utf8_index(self:get_text(), cur + move)
-
-  self.cursor.c = cur + next
+  local next = cur + move
+  self.cursor.c = next
   -- TODO multiline
+end
+
+-- TODO: look up a non-retarded synonym
+function InputModel:retreat_cursor()
+  local cur = self.cursor.c
+  local next = cur - 1
+  if cur > 1 then
+    self.cursor.c = next
+    -- TODO multiline
+  end
 end
 
 function InputModel:paste(text)
@@ -73,31 +85,28 @@ end
 
 function InputModel:backspace()
   -- TODO: multiline
-  local t = self.entered
+  local ent = self.entered
   local _, pos_x = self:get_cursor_pos()
-  local byteoffset = utf8.offset(t, -1)
+  local byteoffset = utf8.offset(ent, -1)
 
   if byteoffset then
     -- remove the last UTF-8 character.
     -- string.sub operates on bytes rather than UTF-8 characters,
     -- so we couldn't do string.sub(text, 1, -2).
-    self.entered = string.sub(t, 1, byteoffset - 1)
+    self.entered = string.sub(ent, 1, byteoffset - 1)
   else
-    self.entered = string.sub(t, 1, #t - 1)
+    self.entered = string.sub(ent, 1, #ent - 1)
   end
-  self:update_cursor()
+  self:retreat_cursor()
 end
 
 function InputModel:delete()
-  local t = self.entered
-  local byteoffset = utf8.offset(t, -1)
-
-  if byteoffset then
-    -- self.entered = string.sub(t, 1, byteoffset - 1)
-  else
-    -- self.entered = string.sub(t, 1, #t - 1)
-  end
-  -- self:update_cursor()
+  local ent = self.entered
+  local _, pos_x = self:get_cursor_pos()
+  local pre = string.sub(ent, 1, pos_x - 1)
+  local post = string.sub(ent, pos_x + 1, #ent)
+  local nval = pre .. post
+  self:set_text(nval, true)
 end
 
 function InputModel:get_cursor_pos()
@@ -115,11 +124,23 @@ function InputModel:cursor_down()
 end
 
 function InputModel:cursor_left()
-
+  local line = self:get_text()
+  local cx = self.cursor.c
+  if cx > 1 then
+    local prev = StringUtils.to_utf8_index(line, cx - 1)
+    self.cursor.c = prev
+    -- TODO multiline underflow
+  end
 end
 
 function InputModel:cursor_right()
-
+  local line = self:get_text()
+  local cx = self.cursor.c
+  local next = cx + 1
+  if cx <= #line then
+    self.cursor.c = next
+    -- TODO multiline overflow
+  end
 end
 
 function InputModel:clear()
