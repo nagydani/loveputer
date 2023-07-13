@@ -1,7 +1,8 @@
 ConsoleController = {}
 
-function ConsoleController:new(m)
+function ConsoleController:new(m, init)
   local cc = {
+    time = init or 0,
     model = m
   }
   setmetatable(cc, self)
@@ -10,8 +11,8 @@ function ConsoleController:new(m)
   return cc
 end
 
-function ConsoleController:increment()
-  self.model:incr()
+function ConsoleController:pass_time(dt)
+  self.time = self.time + dt
 end
 
 function ConsoleController:keypressed(k)
@@ -95,4 +96,8 @@ end
 
 function ConsoleController:get_status()
   return self.model.input:get_status()
+end
+
+function ConsoleController:get_timestamp()
+  return self.time
 end
