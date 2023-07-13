@@ -58,6 +58,13 @@ function ConsoleController:keypressed(k)
     self.model.input:history_fwd()
   end
 
+  if k == "home" then
+    self.model.input:jump_home()
+  end
+  if k == "end" then
+    self.model.input:jump_end()
+  end
+
 
   -- Ctrl held
   if ctrl then
