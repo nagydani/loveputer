@@ -1,0 +1,13 @@
+return {
+    default = {
+        ROOT = "tests",
+        pattern = "_spec.lua$",
+        ["defer-print"] = true,
+        ["exclude-tags"] = "delay",
+    },
+    all = {
+        ROOT = "tests",
+        pattern = "_spec.lua$",
+        ["defer-print"] = true,
+    },
+}
