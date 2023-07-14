@@ -31,18 +31,9 @@ function InputModel:add_text(text)
   if type(text) == 'string' then
     local _, pos_x = self:get_cursor_pos()
     local ent = self:get_text()
-    local ulen = utf8.len(ent)
-    local nval
-    local pre, post = '', ''
-    if ulen ~= #ent then -- branch off for UTF-8
-      pre, post = StringUtils.utf8_split_at(ent, pos_x)
-      nval = pre .. text .. post
-    else
-      pre, post = StringUtils.split_at(ent, pos_x)
-      nval = pre .. text .. post
-    end
-    self.entered = nval
-    self:advance_cursor(utf8.len(text))
+    local pre, post = StringUtils.split_at(ent, pos_x)
+    local nval = pre .. text .. post
+    self:set_text(nval)
   end
 end
 
@@ -98,31 +89,17 @@ function InputModel:backspace()
     if cl == 1 then return end
   end
 
-  local ulen = utf8.len(ent)
-  local pre, post = '', ''
-  if ulen ~= #ent then -- branch off for UTF-8
-    _, post = StringUtils.utf8_split_at(ent, cc)
-    pre, _ = StringUtils.utf8_split_at(ent, cc - 1)
-  else
-    pre = string.sub(ent, 1, cc - 2)
-    post = string.sub(ent, cc, #ent)
-  end
+  local pre = StringUtils.utf8_sub(ent, 1, cc - 2)
+  local post = StringUtils.utf8_sub(ent, cc)
   self:set_text(pre .. post, true)
   self:retreat_cursor()
 end
 
 function InputModel:delete()
   local ent = self:get_text()
-  local ulen = utf8.len(ent)
-  local cl, cc = self:get_cursor_pos()
-  local pre, post = '', ''
-  if ulen ~= #ent then -- branch off for UTF-8
-    _, post = StringUtils.utf8_split_at(ent, cc + 1)
-    pre, _ = StringUtils.utf8_split_at(ent, cc)
-  else
-    pre = string.sub(ent, 1, cc - 1)
-    post = string.sub(ent, cc + 1, #ent)
-  end
+  local _, cc = self:get_cursor_pos()
+  local pre = StringUtils.utf8_sub(ent, 1, cc - 1)
+  local post = StringUtils.utf8_sub(ent, cc + 1)
   local nval = pre .. post
   self:set_text(nval, true)
 end

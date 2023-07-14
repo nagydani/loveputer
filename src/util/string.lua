@@ -17,25 +17,23 @@ StringUtils = {
   end,
 
   split_at = function(s, i)
-    local pre = ''
-    local post = ''
-    pre = string.sub(s, 1, i - 1)
-    post = string.sub(s, i, #s)
+    local pre, post = '', ''
+    local ulen = utf8.len(s)
+    if ulen ~= #s then -- branch off for UTF-8
+      pre = StringUtils.utf8_sub(s, 1, i)
+      post = StringUtils.utf8_sub(s, i + 1)
+    else
+      pre = string.sub(s, 1, i - 1)
+      post = string.sub(s, i, #s)
+    end
     return pre, post
   end,
 
   utf8_split_at = function(s, i)
     local pre = ''
     local post = ''
-    local j = 1
-    for _, c in utf8.codes(s) do
-      if j < i then
-        pre = pre .. utf8.char(c)
-      else
-        post = post .. utf8.char(c)
-      end
-      j = j + 1
-    end
+    pre = StringUtils.utf8_sub(s, 1, i - 1)
+    post = StringUtils.utf8_sub(s, i)
     return pre, post
   end,
 
