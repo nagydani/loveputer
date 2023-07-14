@@ -277,6 +277,57 @@ describe("input model spec", function()
         assert.is_equal('', model:get_text())
       end)
     end)
+
+    describe('moves cursor correctly', function()
+      local line_end = utf8.len(test1)
+      it('', function()
+        model:clear()
+        model:add_text(test1)
+        assert.is_equal(test1, model:get_text())
+        model:cursor_left()
+        model:cursor_left()
+        local cc = model:get_cursor_x()
+        assert.is_equal(1 + test1_len - 2, cc)
+      end)
+
+      describe('backwards', function()
+        local res = 'когда'
+        -- local res = 'когда'
+        it('deletes', function()
+          model:delete()
+          assert.is_equal('кога', model:get_text())
+        end)
+
+        it('does backspace', function()
+          model:backspace()
+          assert.is_equal('коа', model:get_text())
+        end)
+
+        it('jumps home', function()
+          model:jump_home()
+          --   model:cursor_left()
+          local _, cc = model:get_cursor_pos()
+          assert.is_equal(1, cc)
+        end)
+
+        it('deletes', function()
+          model:delete()
+          assert.is_equal('оа', model:get_text())
+        end)
+
+        it('jumps to the end', function()
+          model:jump_end()
+          local pos = utf8.len('оа') + 1
+          local _, cc = model:get_cursor_pos()
+          assert.is_equal(pos, cc)
+        end)
+
+        it('does backspace', function()
+          model:backspace()
+          assert.is_equal('о', model:get_text())
+        end)
+      end)
+    end)
   end)
 
   describe('', function()
