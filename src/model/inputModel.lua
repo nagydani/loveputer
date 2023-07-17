@@ -8,7 +8,7 @@ InputModel = {}
 
 function InputModel:new()
   local im = {
-    entered = '',
+    entered = { '' },
     history = Dequeue:new(),
     evaluator = TextEval:new(),
     cursor = { c = 1, l = 1 },
@@ -20,28 +20,37 @@ function InputModel:new()
 end
 
 function InputModel:remember(input)
-  if StringUtils.is_non_empty_string(input) then
-    -- TODO: handle historic input
+  if StringUtils.is_non_empty_string_array(input) then
     self.history:push(input)
   end
 end
 
 function InputModel:add_text(text)
-  -- TODO: multiline
   if type(text) == 'string' then
-    local _, pos_x = self:get_cursor_pos()
-    local ent = self:get_text()
-    local pre, post = StringUtils.split_at(ent, pos_x)
+    local cl, cc = self:get_cursor_pos()
+    -- TODO: multiline
+    local line = self:get_text_line(cl)
+    local pre, post = StringUtils.split_at(line, cc)
     local nval = pre .. text .. post
-    self:set_text(nval)
+    self:set_text_line(nval, cl, true)
+    self:advance_cursor(StringUtils.len(text))
   end
 end
 
 function InputModel:set_text(text, keep_cursor)
   if type(text) == 'string' then
     -- TODO: multiline
-    local t = text
-    self.entered = t
+    self.entered = { text }
+    if not keep_cursor then
+      self:update_cursor(true)
+    end
+  end
+end
+
+function InputModel:set_text_line(text, ln, keep_cursor)
+  if type(text) == 'string' then
+    -- TODO: multiline
+    self.entered[ln] = text
     if not keep_cursor then
       self:update_cursor(true)
     end
@@ -49,13 +58,26 @@ function InputModel:set_text(text, keep_cursor)
 end
 
 function InputModel:get_text()
-  return self.entered or ''
+  return self.entered or { '' }
 end
 
-function InputModel:update_cursor(destructive)
+function InputModel:get_text_line(l)
+  return self.entered[l]
+end
+
+function InputModel:get_current_line()
+  local cl = self:get_cursor_y() or 1
+  return self.entered[cl]
+end
+
+function InputModel:update_cursor(replace_line)
+  local cl = self:get_cursor_y()
   local t = self:get_text()
-  if destructive then
-    self.cursor.c = utf8.len(t) + 1
+  if replace_line then
+    self.cursor.c = utf8.len(t[cl]) + 1
+    self.cursor.l = #t
+  else
+
   end
 end
 
@@ -69,11 +91,17 @@ end
 
 -- TODO: look up a non-retarded synonym
 function InputModel:retreat_cursor()
-  local cur = self.cursor.c
-  local next = cur - 1
-  if cur > 1 then
+  local cl, cc = self:get_cursor_pos()
+  local next = cc - 1
+  if cc > 1 then
     self.cursor.c = next
+  elseif cl > 1 then
     -- TODO multiline
+    local cpl = cl - 1
+    local pl = self:get_text_line(cpl)
+    local cpc = #pl + 1
+    self.cursor.l = cpl
+    self.cursor.c = cpc
   end
 end
 
@@ -82,26 +110,28 @@ function InputModel:paste(text)
 end
 
 function InputModel:backspace()
-  local ent = self:get_text()
+  local line = self:get_current_line()
   local cl, cc = self:get_cursor_pos()
   if cc == 1 then
     -- TODO: multiline
     if cl == 1 then return end
   end
 
-  local pre = StringUtils.utf8_sub(ent, 1, cc - 2)
-  local post = StringUtils.utf8_sub(ent, cc)
-  self:set_text(pre .. post, true)
+  local pre = StringUtils.utf8_sub(line, 1, cc - 2)
+  local post = StringUtils.utf8_sub(line, cc)
+  local nval = pre .. post
+  self:set_text_line(nval, cl, true)
   self:retreat_cursor()
 end
 
 function InputModel:delete()
-  local ent = self:get_text()
-  local _, cc = self:get_cursor_pos()
-  local pre = StringUtils.utf8_sub(ent, 1, cc - 1)
-  local post = StringUtils.utf8_sub(ent, cc + 1)
+  local line = self:get_current_line()
+  local cl, cc = self:get_cursor_pos()
+  -- TODO: multiline
+  local pre = StringUtils.utf8_sub(line, 1, cc - 1)
+  local post = StringUtils.utf8_sub(line, cc + 1)
   local nval = pre .. post
-  self:set_text(nval, true)
+  self:set_text_line(nval, cl, true)
 end
 
 function InputModel:get_cursor_pos()
@@ -131,11 +161,11 @@ function InputModel:cursor_left()
 end
 
 function InputModel:cursor_right()
-  local line = self:get_text()
+  local cl, cc = self:get_cursor_pos()
+  local line = self:get_text_line(cl)
   local len = utf8.len(line)
-  local cx = self.cursor.c
-  local next = cx + 1
-  if cx <= len then
+  local next = cc + 1
+  if cc <= len then
     self.cursor.c = next
     -- TODO multiline overflow
   end
@@ -166,7 +196,7 @@ function InputModel:_handle(eval)
   local ent = self:get_text()
   self.historic_index = nil
   local result
-  if ent ~= '' then
+  if not StringUtils.is_non_empty_string_array(ent) then
     self:remember(ent)
     if eval then
       result = self.evaluator.apply(ent)
@@ -222,7 +252,8 @@ end
 
 function InputModel:jump_end()
   -- TODO multiline
-  local last_line = 1
-  local last_char = utf8.len(self:get_text()) + 1
+  local ent = self:get_text()
+  local last_line = #ent
+  local last_char = utf8.len(ent[last_line]) + 1
   self.cursor = { c = last_char, l = last_line }
 end

@@ -1,6 +1,9 @@
 local utf8 = require("utf8")
 
 StringUtils = {
+  normalise_string = function(s)
+    return string.gsub(s, "%s+", "")
+  end,
   is_non_empty_string = function(s)
     if s and s ~= '' then
       local normalisedString = string.gsub(s, "%s+", "")
@@ -9,6 +12,10 @@ StringUtils = {
       end
     end
     return false
+  end,
+
+  len = function(s)
+    return utf8.len(s)
   end,
 
   to_utf8_index = function(s, i)
@@ -68,3 +75,16 @@ StringUtils = {
     end
   end,
 }
+
+function StringUtils:is_non_empty_string_array(sa)
+  if type(sa) ~= 'table' then
+    return false
+  else
+    for _, s in ipairs(sa) do
+      if self.is_non_empty_string(s) then
+        return true
+      end
+      return false
+    end
+  end
+end
