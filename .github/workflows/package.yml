@@ -37,6 +37,8 @@ jobs:
 
   build-love:
     runs-on: ubuntu-latest
+    needs:
+      - run-busted
     steps:
       - uses: actions/checkout@v3
       - name: Build bare love package
