@@ -33,7 +33,7 @@ jobs:
         run: luarocks --local install busted
 
       - name: run unit tests
-        run: busted tests
+        run: busted tests -o utfTerminal
 
   build-love:
     runs-on: ubuntu-latest
