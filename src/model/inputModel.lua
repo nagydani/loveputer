@@ -27,13 +27,30 @@ end
 
 function InputModel:add_text(text)
   if type(text) == 'string' then
-    local cl, cc = self:get_cursor_pos()
+    local sl, cc = self:get_cursor_pos()
     -- TODO: multiline
-    local line = self:get_text_line(cl)
-    local pre, post = StringUtils.split_at(line, cc)
-    local nval = pre .. text .. post
-    self:set_text_line(nval, cl, true)
-    self:advance_cursor(StringUtils.len(text))
+    local cur_line = self:get_text_line(sl)
+    local pre, post = string.split_at(cur_line, cc)
+    local lines = string.lines(text)
+    local n_added = #lines
+    if n_added == 1 then
+      local nval = pre .. text .. post
+      self:set_text_line(nval, sl)
+    else
+      for k, line in ipairs(lines) do
+        if k == 1 then
+          local nval = pre .. line
+          self:set_text_line(nval, sl, true)
+          self:advance_cursor(0, 1)
+        elseif k == n_added then
+          local nval = line .. post
+          self:set_text_line(nval, sl + k - 1, true)
+        else
+          self:insert_text_line(line, sl + k - 1)
+        end
+        -- local last_len = StringUtils.len(lines[n_added])
+      end
+    end
   end
 end
 
@@ -57,6 +74,13 @@ function InputModel:set_text_line(text, ln, keep_cursor)
   end
 end
 
+function InputModel:insert_text_line(text, li)
+  local l = li or self:get_cursor_y()
+  local old = self.entered
+  self.cursor.y = l + 1
+  return table.insert(old, l, text)
+end
+
 function InputModel:get_text()
   return self.entered or { '' }
 end
@@ -74,19 +98,24 @@ function InputModel:update_cursor(replace_line)
   local cl = self:get_cursor_y()
   local t = self:get_text()
   if replace_line then
-    self.cursor.c = utf8.len(t[cl]) + 1
+    self.cursor.c = StringUtils.len(t[cl]) + 1
     self.cursor.l = #t
   else
 
   end
 end
 
-function InputModel:advance_cursor(n)
-  local cur = self.cursor.c
-  local move = n or 1
-  local next = cur + move
-  self.cursor.c = next
-  -- TODO multiline
+function InputModel:advance_cursor(x, y)
+  local cur_l, cur_c = self:get_cursor_pos()
+  local move_x = x or 1
+  local move_y = y or 0
+  if move_y == 0 then
+    local next = cur_c + move_x
+    self.cursor.c = next
+  else
+    self.cursor.l = cur_l + move_y
+    -- TODO multiline
+  end
 end
 
 -- TODO: look up a non-retarded synonym
@@ -163,7 +192,7 @@ end
 function InputModel:cursor_right()
   local cl, cc = self:get_cursor_pos()
   local line = self:get_text_line(cl)
-  local len = utf8.len(line)
+  local len = StringUtils.len(line)
   local next = cc + 1
   if cc <= len then
     self.cursor.c = next
@@ -254,6 +283,6 @@ function InputModel:jump_end()
   -- TODO multiline
   local ent = self:get_text()
   local last_line = #ent
-  local last_char = utf8.len(ent[last_line]) + 1
+  local last_char = StringUtils.len(ent[last_line]) + 1
   self.cursor = { c = last_char, l = last_line }
 end
