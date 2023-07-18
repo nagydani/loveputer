@@ -1,6 +1,6 @@
 require("../model/eval")
 require("../model/inputModel")
-
+require("../util/debug")
 
 describe("input model spec", function()
   -----------------
