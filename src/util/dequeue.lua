@@ -14,3 +14,11 @@ end
 function Dequeue:get_last_index()
   return #self
 end
+
+function Dequeue:items()
+  local i = {}
+  for _, v in ipairs(self) do
+    table.insert(i, v)
+  end
+  return i
+end

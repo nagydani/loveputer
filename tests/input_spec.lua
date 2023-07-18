@@ -397,7 +397,29 @@ describe("input model spec", function()
     end)
   end)
 
+  -----------------
+  --   History   --
+  -----------------
+  describe('history', function()
+    local model = InputModel:new()
+    local test1_l1 = 'first'
+    local test1_l2 = 'second'
 
+    it('keeps entries', function()
+      model:add_text(test1_l1)
+      model:evaluate()
+      local he = model:_get_history_entries()
+      assert.same({ test1_l1 }, he[1])
+      assert.same({ { test1_l1 } }, he)
+      local h1 = model:_get_history_entry(1)
+      assert.same(test1_l1, h1[1])
+
+      model:add_text(test1_l2)
+      model:cursor_up()
+      local t = model:get_text()
+      assert.same({ test1_l1 }, t)
+    end)
+  end)
 
   describe('', function()
     it('', function()
