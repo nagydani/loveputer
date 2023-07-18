@@ -21,8 +21,10 @@ function InputView:draw(input)
   local cf = self.cfg
   local fh = self.cfg.fh
   local b = cf.border
-  local h = cf.height
-  local y = h - b - fh
+  local fullHeight = cf.height
+  local inLines = #input
+  local inHeight = inLines * fh
+  local y = fullHeight - b - inHeight
   local function drawCursor()
     local _, cc = self.controller.model.input:get_cursor_pos()
     -- we use a monospace font, so the width should be the same for any input
@@ -34,10 +36,14 @@ function InputView:draw(input)
 
   self.statusline:draw(
     self.controller:get_status(),
+    inLines,
     time
   )
   G.setColor(cf.colors.fg)
-  G.print(input, b, y)
+  for i, l in ipairs(input) do
+    local dy = y - (-i + 1) * fh
+    G.print(l, b, dy)
+  end
   local blink = math.floor(math.floor(time * 2) % 2) == 0
   if blink then
     drawCursor()
