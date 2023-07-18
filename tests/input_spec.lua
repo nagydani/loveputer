@@ -307,8 +307,7 @@ describe("input model spec", function()
 
         it('jumps home', function()
           model:jump_home()
-          --   model:cursor_left()
-          local _, cc = model:get_cursor_pos()
+          local cc = model:get_cursor_x()
           assert.is_equal(1, cc)
         end)
 
@@ -331,6 +330,67 @@ describe("input model spec", function()
       end)
     end)
   end)
+
+  -----------------
+  --  Multiline  --
+  -----------------
+  describe('handles multiline', function()
+    local model = InputModel:new()
+    local test1 = 'first\nsecond'
+    local test1_l1 = 'first'
+    local test2 = 'когда\nброжу'
+    local test2_l1 = 'когда'
+    local test2_l2 = 'брожу'
+    local test1_l2 = 'second'
+    local char1 = 'a'
+    local char2 = 'd'
+    local test3 = '1st\n2nd\n3rd'
+    local test3_l1 = '1st'
+    local test3_l2 = '2nd'
+    local test3_l3 = '3rd'
+
+    it('paste two', function()
+      model:add_text(test1)
+      assert.same({
+        test1_l1,
+        test1_l2,
+      }, model:get_text())
+    end)
+
+    it('paste UTF-8', function()
+      model:clear()
+      model:add_text(test2)
+      assert.same({
+        test2_l1,
+        test2_l2,
+      }, model:get_text())
+    end)
+
+    it('paste into existing', function()
+      model:clear()
+      model:add_text(char1)
+      model:add_text(char2)
+      model:cursor_left(char2)
+      model:add_text(test2)
+      assert.same({
+        char1 .. test2_l1,
+        test2_l2 .. char2,
+      }, model:get_text())
+    end)
+
+    it('paste more than two', function()
+      model:clear()
+      model:add_text(char1)
+      model:add_text(test3)
+      assert.same({
+        char1 .. test3_l1,
+        test3_l2,
+        test3_l3,
+      }, model:get_text())
+    end)
+  end)
+
+
 
   describe('', function()
     it('', function()
