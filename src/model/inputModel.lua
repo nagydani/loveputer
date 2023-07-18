@@ -47,7 +47,7 @@ function InputModel:add_text(text)
           local nval = line .. post
           local last_line_i = sl + k - 1
           self:set_text_line(nval, last_line_i, true)
-          self:move_cursor(last_line_i, #line + 1)
+          self:move_cursor(last_line_i, StringUtils.len(line) + 1)
         else
           self:insert_text_line(line, sl + k - 1)
         end
