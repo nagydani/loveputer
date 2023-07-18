@@ -190,13 +190,21 @@ function InputModel:get_cursor_y()
 end
 
 function InputModel:cursor_up()
-  -- TODO move when multiline
-  self:history_back()
+  local lines = #(self:get_text())
+  if lines == 1 then
+    self:history_back()
+  else
+    -- TODO move when multiline
+  end
 end
 
 function InputModel:cursor_down()
-  -- TODO move when multiline
-  self:history_fwd()
+  local lines = #(self:get_text())
+  if lines == 1 then
+    self:history_fwd()
+  else
+    -- TODO move when multiline
+  end
 end
 
 function InputModel:cursor_left()
@@ -299,4 +307,16 @@ function InputModel:jump_end()
   local last_line = #ent
   local last_char = StringUtils.len(ent[last_line]) + 1
   self.cursor = { c = last_char, l = last_line }
+end
+
+function InputModel:_get_history_length()
+  return #(self.history)
+end
+
+function InputModel:_get_history_entry(i)
+  return self.history[i]
+end
+
+function InputModel:_get_history_entries()
+  return self.history:items()
 end
