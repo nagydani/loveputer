@@ -76,4 +76,20 @@ describe("StringUtils", function()
       end)
     end)
   end)
+
+  describe('splits on char', function()
+    local test1 = 'first\nsecond'
+    local test1_l1 = 'first'
+    local test1_l2 = 'second'
+    it('splits on one', function()
+      local res = string.lines(test1)
+      assert.same({ test1_l1, test1_l2 }, res)
+    end)
+
+    it('splits on none', function()
+      local test = 'text'
+      local res = string.lines(test)
+      assert.same({ test }, res)
+    end)
+  end)
 end)

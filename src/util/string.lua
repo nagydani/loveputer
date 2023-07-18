@@ -15,26 +15,13 @@ StringUtils = {
   end,
 
   len = function(s)
-    return utf8.len(s)
+    return utf8.len(s or '')
   end,
-
   to_utf8_index = function(s, i)
     local ui = utf8.offset(s, i)
     return ui
   end,
 
-  split_at = function(s, i)
-    local pre, post = '', ''
-    local ulen = utf8.len(s)
-    if ulen ~= #s then -- branch off for UTF-8
-      pre = StringUtils.utf8_sub(s, 1, i)
-      post = StringUtils.utf8_sub(s, i + 1)
-    else
-      pre = string.sub(s, 1, i - 1)
-      post = string.sub(s, i, #s)
-    end
-    return pre, post
-  end,
 
   utf8_split_at = function(s, i)
     local pre = ''
@@ -87,4 +74,30 @@ function StringUtils:is_non_empty_string_array(sa)
       return false
     end
   end
+end
+
+string.split_at = function(s, i)
+  local pre, post = '', ''
+  local ulen = utf8.len(s)
+  if ulen ~= #s then -- branch off for UTF-8
+    pre = StringUtils.utf8_sub(s, 1, i)
+    post = StringUtils.utf8_sub(s, i + 1)
+  else
+    pre = string.sub(s, 1, i - 1)
+    post = string.sub(s, i, #s)
+  end
+  return pre, post
+end
+
+string.split = function(str, char)
+  local pattern = '([^' .. char .. ']+)'
+  local words = {}
+  for word in string.gmatch(str, pattern) do
+    table.insert(words, word)
+  end
+  return words
+end
+
+string.lines = function(s)
+  return string.split(s, '\n')
 end
