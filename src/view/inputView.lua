@@ -20,22 +20,24 @@ function InputView:draw(input)
   local time = self.controller:get_timestamp()
   local cf = self.cfg
   local fh = self.cfg.fh
+  local status = self.controller:get_status()
   local b = cf.border
   local fullHeight = cf.height
   local inLines = #input
   local inHeight = inLines * fh
   local y = fullHeight - b - inHeight
   local function drawCursor()
-    local _, cc = self.controller.model.input:get_cursor_pos()
+    local cl, cc = self.controller.model.input:get_cursor_pos()
     -- we use a monospace font, so the width should be the same for any input
     local fw = self.cfg.font_main:getWidth('a')
-    local offset = fw * (cc)
+    local offset = fw * cc
     local w_off = fw
-    G.print('|', offset - w_off, y)
+    local ch = y - (-cl + 1) * fh
+    G.print('|', offset - w_off, ch)
   end
 
   self.statusline:draw(
-    self.controller:get_status(),
+    status,
     inLines,
     time
   )
