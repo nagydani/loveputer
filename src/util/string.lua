@@ -5,7 +5,7 @@ StringUtils = {
     return string.gsub(s, "%s+", "")
   end,
   is_non_empty_string = function(s)
-    if s and s ~= '' then
+    if s and type(s) == 'string' and s ~= '' then
       local normalisedString = string.gsub(s, "%s+", "")
       if normalisedString ~= '' then
         return true

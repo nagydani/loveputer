@@ -264,16 +264,21 @@ function InputModel:history_back()
     local prev = self.history[hi - 1]
     if prev then
       local current = self:get_text()
-      if StringUtils.is_non_empty_string(current) then
+      if StringUtils:is_non_empty_string_array(current) then
         self.history[hi] = current
       end
       self:set_text(prev)
+      local last_line_len = StringUtils.len(prev[#prev])
+      self:move_cursor(#prev, last_line_len + 1)
       self.historic_index = hi - 1
     end
   else
     self.historic_index = self.history:get_last_index()
     self:remember(ent)
-    self:set_text(self.history[self.historic_index])
+    local prev = self.history[self.historic_index]
+    local last_line_len = StringUtils.len(prev[#prev])
+    self:set_text(prev)
+    self:move_cursor(#prev, last_line_len + 1)
   end
 end
 
