@@ -282,7 +282,6 @@ describe("input model spec", function()
     end)
 
     describe('moves cursor correctly', function()
-      local line_end = utf8.len(test1)
       it('', function()
         model:clear()
         model:add_text(test1)
@@ -294,7 +293,6 @@ describe("input model spec", function()
       end)
 
       describe('backwards', function()
-        local res = 'когда'
         it('deletes', function()
           model:delete()
           assert.same({ 'кога' }, model:get_text())
@@ -338,10 +336,10 @@ describe("input model spec", function()
     local model = InputModel:new()
     local test1 = 'first\nsecond'
     local test1_l1 = 'first'
+    local test1_l2 = 'second'
     local test2 = 'когда\nброжу'
     local test2_l1 = 'когда'
     local test2_l2 = 'брожу'
-    local test1_l2 = 'second'
     local char1 = 'a'
     local char2 = 'd'
     local test3 = '1st\n2nd\n3rd'
@@ -355,6 +353,9 @@ describe("input model spec", function()
         test1_l1,
         test1_l2,
       }, model:get_text())
+      local cl, cc = model:get_cursor_pos()
+      assert.same(2, cl)
+      assert.same(1 + #test1_l2, cc)
     end)
 
     it('paste UTF-8', function()
@@ -364,6 +365,9 @@ describe("input model spec", function()
         test2_l1,
         test2_l2,
       }, model:get_text())
+      local cl, cc = model:get_cursor_pos()
+      assert.same(2, cl)
+      assert.same(1 + StringUtils.len(test2_l2), cc)
     end)
 
     it('paste into existing', function()
@@ -376,6 +380,9 @@ describe("input model spec", function()
         char1 .. test2_l1,
         test2_l2 .. char2,
       }, model:get_text())
+      local cl, cc = model:get_cursor_pos()
+      assert.same(2, cl)
+      assert.same(1 + StringUtils.len(test2_l2), cc)
     end)
 
     it('paste more than two', function()
