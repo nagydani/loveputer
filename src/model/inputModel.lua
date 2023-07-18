@@ -20,7 +20,7 @@ function InputModel:new()
 end
 
 function InputModel:remember(input)
-  if StringUtils.is_non_empty_string_array(input) then
+  if StringUtils:is_non_empty_string_array(input) then
     self.history:push(input)
   end
 end
@@ -59,11 +59,17 @@ end
 
 function InputModel:set_text(text, keep_cursor)
   if type(text) == 'string' then
-    -- TODO: multiline
-    self.entered = { text }
+    local lines = string.lines(text)
+    local n_added = #lines
+    if n_added == 1 then
+      self.entered = { text }
+    else
+    end
     if not keep_cursor then
       self:update_cursor(true)
     end
+  elseif type(text) == 'table' then
+    self.entered = text
   end
 end
 
@@ -209,7 +215,7 @@ function InputModel:cursor_right()
 end
 
 function InputModel:clear()
-  self:set_text('')
+  self:set_text({ '' })
   self:update_cursor(true)
   self.historic_index = nil
 end
