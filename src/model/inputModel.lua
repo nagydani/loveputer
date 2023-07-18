@@ -35,16 +35,19 @@ function InputModel:add_text(text)
     local n_added = #lines
     if n_added == 1 then
       local nval = pre .. text .. post
-      self:set_text_line(nval, sl)
+      self:set_text_line(nval, sl, true)
+      self:advance_cursor(StringUtils.len(text))
     else
       for k, line in ipairs(lines) do
         if k == 1 then
           local nval = pre .. line
           self:set_text_line(nval, sl, true)
-          self:advance_cursor(0, 1)
+          -- self:advance_cursor(0, 1)
         elseif k == n_added then
           local nval = line .. post
-          self:set_text_line(nval, sl + k - 1, true)
+          local last_line_i = sl + k - 1
+          self:set_text_line(nval, last_line_i, true)
+          self:move_cursor(last_line_i, #line + 1)
         else
           self:insert_text_line(line, sl + k - 1)
         end
@@ -116,6 +119,11 @@ function InputModel:advance_cursor(x, y)
     self.cursor.l = cur_l + move_y
     -- TODO multiline
   end
+end
+
+function InputModel:move_cursor(y, x)
+  -- TODO: bounds checks
+  self.cursor = { c = x, l = y }
 end
 
 -- TODO: look up a non-retarded synonym
