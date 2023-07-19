@@ -9,6 +9,15 @@ function CanvasView:new(cfg)
   setmetatable(cv, self)
   self.__index = self
 
+
+  cv.canvas = love.graphics.newCanvas(w, h)
+  cv.terminal = {
+    colors = {
+      bg = Color[Color.blue],
+      fg = Color[Color.white + Color.bright],
+    },
+    cursor = { l = 1, c = 1 }
+  }
   return cv
 end
 
