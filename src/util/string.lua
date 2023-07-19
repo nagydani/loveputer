@@ -22,15 +22,6 @@ StringUtils = {
     return ui
   end,
 
-
-  utf8_split_at = function(s, i)
-    local pre = ''
-    local post = ''
-    pre = StringUtils.utf8_sub(s, 1, i - 1)
-    post = StringUtils.utf8_sub(s, i)
-    return pre, post
-  end,
-
   -- original from http://lua-users.org/lists/lua-l/2014-04/msg00590.html
   utf8_sub = function(s, i, j)
     i = i or 1
@@ -80,8 +71,8 @@ string.split_at = function(s, i)
   local pre, post = '', ''
   local ulen = utf8.len(s)
   if ulen ~= #s then -- branch off for UTF-8
-    pre = StringUtils.utf8_sub(s, 1, i)
-    post = StringUtils.utf8_sub(s, i + 1)
+    pre = StringUtils.utf8_sub(s, 1, i - 1)
+    post = StringUtils.utf8_sub(s, i)
   else
     pre = string.sub(s, 1, i - 1)
     post = string.sub(s, i, #s)
