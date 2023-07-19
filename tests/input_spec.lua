@@ -259,7 +259,7 @@ describe("input model spec", function()
       end)
 
       it('one', function()
-        model:retreat_cursor()
+        model:cursor_left()
         model:delete()
         local cc = model:get_cursor_x()
         assert.is_equal(line_end - 1, cc)
@@ -271,7 +271,7 @@ describe("input model spec", function()
         local cl = model:get_cursor_y()
         local ll = #(model:get_text()[cl])
         for i = 1, ll do
-          model:retreat_cursor()
+          model:cursor_left()
         end
         local cc = model:get_cursor_x()
         assert.is_equal(1, cc)

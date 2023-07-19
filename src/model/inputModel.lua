@@ -144,22 +144,6 @@ function InputModel:move_cursor(y, x)
   self.cursor = { c = x, l = y }
 end
 
--- TODO: look up a non-retarded synonym
-function InputModel:retreat_cursor()
-  local cl, cc = self:get_cursor_pos()
-  local next = cc - 1
-  if cc > 1 then
-    self.cursor.c = next
-  elseif cl > 1 then
-    -- TODO multiline
-    local cpl = cl - 1
-    local pl = self:get_text_line(cpl)
-    local cpc = #pl + 1
-    self.cursor.l = cpl
-    self.cursor.c = cpc
-  end
-end
-
 function InputModel:paste(text)
   self:add_text(text)
 end
@@ -176,7 +160,7 @@ function InputModel:backspace()
   local post = StringUtils.utf8_sub(line, cc)
   local nval = pre .. post
   self:set_text_line(nval, cl, true)
-  self:retreat_cursor()
+  self:cursor_left()
 end
 
 function InputModel:delete()
@@ -228,7 +212,17 @@ function InputModel:cursor_down()
 end
 
 function InputModel:cursor_left()
-  self:retreat_cursor()
+  local cl, cc = self:get_cursor_pos()
+  if cc > 1 then
+    local next = cc - 1
+    self.cursor.c = next
+  elseif cl > 1 then
+    local cpl = cl - 1
+    local pl = self:get_text_line(cpl)
+    local cpc = 1 + string.ulen(pl)
+    self.cursor.l = cpl
+    self.cursor.c = cpc
+  end
 end
 
 function InputModel:cursor_right()
@@ -238,7 +232,8 @@ function InputModel:cursor_right()
   local next = cc + 1
   if cc <= len then
     self.cursor.c = next
-    -- TODO multiline overflow
+  elseif cl < self:get_n_text_lines() then
+    self:move_cursor(cl + 1, 1)
   end
 end
 
@@ -295,10 +290,9 @@ function InputModel:history_back()
   else
     self.historic_index = self.history:get_last_index()
     self:remember(ent)
-    local prev = self.history[self.historic_index]
-    local last_line_len = string.ulen(prev[#prev])
+    local prev = self.history[self.historic_index] or ''
     self:set_text(prev)
-    self:move_cursor(#prev, last_line_len + 1)
+    self:jump_end()
   end
   self:jump_end() -- TODO: remember cursor pos?
 end
