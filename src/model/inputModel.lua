@@ -70,6 +70,7 @@ function InputModel:set_text(text, keep_cursor)
   elseif type(text) == 'table' then
     self.entered = text
   end
+  self:jump_end()
 end
 
 function InputModel:set_text_line(text, ln, keep_cursor)
