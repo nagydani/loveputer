@@ -79,6 +79,9 @@ function ConsoleController:keypressed(k)
     if k == "insert" then
       self.model.input:paste(love.system.getClipboardText())
     end
+    if is_enter() then
+      self.model.input:line_feed()
+    end
   end
 end
 
