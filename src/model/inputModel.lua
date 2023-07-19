@@ -28,7 +28,6 @@ end
 function InputModel:add_text(text)
   if type(text) == 'string' then
     local sl, cc = self:get_cursor_pos()
-    -- TODO: multiline
     local cur_line = self:get_text_line(sl)
     local pre, post = string.split_at(cur_line, cc)
     local lines = string.lines(text)
@@ -88,6 +87,15 @@ function InputModel:insert_text_line(text, li)
   local old = self.entered
   self.cursor.y = l + 1
   return table.insert(old, l, text)
+end
+
+function InputModel:line_feed()
+  local cl, cc = self:get_cursor_pos()
+  local cur_line = self:get_text_line(cl)
+  local pre, post = string.split_at(cur_line, cc)
+  self:set_text_line(pre, cl, true)
+  self:insert_text_line(post, cl + 1)
+  self:move_cursor(cl + 1, 1)
 end
 
 function InputModel:get_text()
