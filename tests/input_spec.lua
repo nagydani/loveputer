@@ -107,6 +107,7 @@ describe("input model spec", function()
       local ent = model:get_text()
       local ll = #(ent[cl]) -- first line length
       local len = #ent      -- number of lines
+      assert.same(1 + ll, 1 + string.ulen(test1))
       assert.same(1 + ll, cc)
       assert.same(cl, len)
     end)
@@ -423,6 +424,111 @@ describe("input model spec", function()
         'ког',
         'да',
       }, model:get_text())
+    end)
+  end)
+  --   cursor    --
+  describe(' multiline cursor', function()
+    local model = InputModel:new()
+    local test_char1 = 'f'
+    local test1 = 'first\nsecond'
+    local test1_l1 = 'first'
+    local test1_l2 = 'second'
+
+    local test2 = 'Вкусив историй тёмных вкус\nВ ночи слетающих из уст'
+    local test2_len = 2
+    local test2_l1 = 'Вкусив историй тёмных вкус'
+    local test2_l2 = 'В ночи слетающих из уст'
+    -- local char1 = 'a'
+    -- local char2 = 'd'
+    -- local test3 = '1st\n2nd\n3rd'
+    -- local test3_l1 = '1st'
+    -- local test3_l2 = '2nd'
+    -- local test3_l3 = '3rd'
+
+    it("jumps to start on Home", function()
+      model:add_text(test1)
+      model:jump_home()
+      local cl, cc = model:get_cursor_pos()
+      assert.same(1, cl)
+      assert.same(1, cc)
+    end)
+
+    it("doesn't move back at the start", function()
+      model:cursor_left()
+      model:cursor_left()
+      assert.same(1, model:get_cursor_x())
+      assert.same(1, model:get_cursor_y())
+    end)
+
+    it("jumps to the end on End", function()
+      model:jump_end()
+      local cl, cc = model:get_cursor_pos()
+      local ent = model:get_text()
+      local len = #ent                 -- number of lines
+      local ll = string.ulen(ent[len]) -- last line length
+      assert.same(1 + ll, cc)
+      assert.same(cl, len)
+      assert.same(1 + ll, 1 + string.ulen(test1_l2))
+      assert.same(cl, #string.lines(test1))
+    end)
+
+    -- UTF-8
+    it("UTF-8 jumps to start on Home", function()
+      model:clear()
+      model:add_text(test2)
+      model:jump_home()
+      local cl, cc = model:get_cursor_pos()
+      assert.same(1, cl)
+      assert.same(1, cc)
+    end)
+
+    it("UTF-8 doesn't move back at the start", function()
+      model:cursor_left()
+      model:cursor_left()
+      assert.same(1, model:get_cursor_x())
+      assert.same(1, model:get_cursor_y())
+    end)
+
+    it("UTF-8 jumps to the end on End", function()
+      model:jump_end()
+      local cl, cc = model:get_cursor_pos()
+      local ent = model:get_text()
+      local len = #ent                 -- number of lines
+      local ll = string.ulen(ent[len]) -- last line length
+      assert.same(1 + ll, cc)
+      assert.same(cl, len)
+      assert.same(cl, test2_len)
+      assert.same(1 + ll, 1 + string.ulen(test2_l2))
+      assert.same(cl, #string.lines(test2))
+    end)
+
+    it('moves up', function()
+      model:cursor_up()
+      local cl, cc = model:get_cursor_pos()
+      assert.same(cl, test2_len - 1) -- second last row ( in this case, first )
+      assert.same(1 + math.min(
+        string.ulen(test2_l2),
+        string.ulen(test2_l1)
+      ), cc)
+    end)
+    it('moves down', function()
+      model:jump_home()
+      model:cursor_down()
+      local cl, cc = model:get_cursor_pos()
+      assert.same(cl, 2)         -- second row
+      assert.same(cl, test2_len) -- same as last
+      assert.same(cc, 1)         -- first char
+    end)
+
+    it('pages history down', function()
+      model:cursor_down()
+      local t = model:get_text()
+      assert.same({ '' }, t) -- next is empty
+    end)
+    it('pages history up', function()
+      model:cursor_up()
+      local t = model:get_text()
+      assert.same({ test2_l1, test2_l2 }, t) -- brings it back
     end)
   end)
 
