@@ -21,7 +21,7 @@ function Statusline:draw(status, inLines, time)
   local colors = cf.colors
 
   G.setColor(colors.border)
-  local sy = h - b - (1 + inLines) * fh - b
+  local sy = h - b - (1 + inLines) * fh
   local start_box = { x = 0, y = sy }
   local start_text = {
     x = start_box.x + fh,

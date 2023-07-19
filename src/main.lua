@@ -8,11 +8,15 @@ function love.load()
   love.keyboard.setTextInput(true)
   love.keyboard.setKeyRepeat(true)
 
+  -- properties
+  local baseconf = {
+    font_size = 18,
+    border = 4,
+  }
+
   M = Console:new()
   C = ConsoleController:new(M)
-  V = ConsoleView:new({
-    font_size = 18
-  }, C)
+  V = ConsoleView:new(baseconf, C)
 end
 
 function love.textinput(t)
