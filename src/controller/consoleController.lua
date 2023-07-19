@@ -24,11 +24,11 @@ function ConsoleController:keypressed(k)
   ctrl  = love.keyboard.isDown("lctrl", "rctrl")
   shift = love.keyboard.isDown("lshift", "rshift")
 
-  if is_enter() then
+  if not shift and is_enter() then
     local res = self.model.input:evaluate()
     self.model.canvas:push(res)
   end
-  if k == "escape" then
+  if not ctrl and k == "escape" then
     self.model.input:cancel()
   end
 
