@@ -43,15 +43,6 @@ end
 function CanvasView:draw(output)
   local b = self.cfg.border
   local linesN = math.floor(self.canvas_drawable_height / self.cfg.fh)
-
-  local function write_line(l, text)
-    if l < 0 or l > linesN then return end
-    local cx = b + 1
-    local lineOffset = (l - 1) * self.cfg.fh
-    local cy = b + 1 + lineOffset
-    G.print(text or '', cx, cy)
-  end
-
   -- draw internal canvas
   local background = {
     draw = function()
@@ -61,15 +52,28 @@ function CanvasView:draw(output)
       G.rectangle("fill", 0, 0, self.w, self.h)
     end,
   }
+  local terminal = {
+    draw = function()
+      local function write_line(l, text)
+        if l < 0 or l > linesN then return end
+        local cx = b + 1
+        local lineOffset = (l - 1) * self.cfg.fh
+        local cy = b + 1 + lineOffset
+        G.print(text or '', cx, cy)
+      end
+
+      G.setColor(self.terminal.colors.fg)
+      local offset = 0
+      if #output > linesN then
+        offset = #output - linesN
+      end
+      for i = 1, #output do
+        write_line(i, output[i + offset])
+      end
+    end
+  }
   background.draw()
-  G.setColor(self.terminal.colors.fg)
-  local offset = 0
-  if #output > linesN then
-    offset = #output - linesN
-  end
-  for i = 1, #output do
-    write_line(i, output[i + offset])
-  end
+  terminal.draw()
 
   -- return to main canvas
   G.setCanvas()
