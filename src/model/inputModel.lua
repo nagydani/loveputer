@@ -35,7 +35,7 @@ function InputModel:add_text(text)
     if n_added == 1 then
       local nval = pre .. text .. post
       self:set_text_line(nval, sl, true)
-      self:advance_cursor(StringUtils.len(text))
+      self:advance_cursor(string.ulen(text))
     else
       for k, line in ipairs(lines) do
         if k == 1 then
@@ -46,11 +46,11 @@ function InputModel:add_text(text)
           local nval = line .. post
           local last_line_i = sl + k - 1
           self:set_text_line(nval, last_line_i, true)
-          self:move_cursor(last_line_i, StringUtils.len(line) + 1)
+          self:move_cursor(last_line_i, string.ulen(line) + 1)
         else
           self:insert_text_line(line, sl + k - 1)
         end
-        -- local last_len = StringUtils.len(lines[n_added])
+        -- local last_len = string.ulen(lines[n_added])
       end
     end
   end
@@ -115,7 +115,7 @@ function InputModel:update_cursor(replace_line)
   local cl = self:get_cursor_y()
   local t = self:get_text()
   if replace_line then
-    self.cursor.c = StringUtils.len(t[cl]) + 1
+    self.cursor.c = string.ulen(t[cl]) + 1
     self.cursor.l = #t
   else
 
@@ -222,7 +222,7 @@ end
 function InputModel:cursor_right()
   local cl, cc = self:get_cursor_pos()
   local line = self:get_text_line(cl)
-  local len = StringUtils.len(line)
+  local len = string.ulen(line)
   local next = cc + 1
   if cc <= len then
     self.cursor.c = next
@@ -276,7 +276,7 @@ function InputModel:history_back()
         self.history[hi] = current
       end
       self:set_text(prev)
-      local last_line_len = StringUtils.len(prev[#prev])
+      local last_line_len = string.ulen(prev[#prev])
       self:move_cursor(#prev, last_line_len + 1)
       self.historic_index = hi - 1
     end
@@ -284,7 +284,7 @@ function InputModel:history_back()
     self.historic_index = self.history:get_last_index()
     self:remember(ent)
     local prev = self.history[self.historic_index]
-    local last_line_len = StringUtils.len(prev[#prev])
+    local last_line_len = string.ulen(prev[#prev])
     self:set_text(prev)
     self:move_cursor(#prev, last_line_len + 1)
   end
@@ -318,7 +318,7 @@ function InputModel:jump_end()
   -- TODO multiline
   local ent = self:get_text()
   local last_line = #ent
-  local last_char = StringUtils.len(ent[last_line]) + 1
+  local last_char = string.ulen(ent[last_line]) + 1
   self.cursor = { c = last_char, l = last_line }
 end
 

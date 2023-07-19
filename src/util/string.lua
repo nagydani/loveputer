@@ -67,6 +67,10 @@ function StringUtils:is_non_empty_string_array(sa)
   end
 end
 
+string.ulen = function(s)
+  return utf8.len(s or '')
+end
+
 string.split_at = function(s, i)
   local pre, post = '', ''
   local ulen = utf8.len(s)
