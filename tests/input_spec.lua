@@ -427,9 +427,8 @@ describe("input model spec", function()
     end)
   end)
   --   cursor    --
-  describe(' multiline cursor', function()
+  describe('multiline cursor', function()
     local model = InputModel:new()
-    local test_char1 = 'f'
     local test1 = 'first\nsecond'
     local test1_l1 = 'first'
     local test1_l2 = 'second'
@@ -438,14 +437,13 @@ describe("input model spec", function()
     local test2_len = 2
     local test2_l1 = 'Вкусив историй тёмных вкус'
     local test2_l2 = 'В ночи слетающих из уст'
-    -- local char1 = 'a'
-    -- local char2 = 'd'
-    -- local test3 = '1st\n2nd\n3rd'
-    -- local test3_l1 = '1st'
-    -- local test3_l2 = '2nd'
-    -- local test3_l3 = '3rd'
 
-    it("jumps to start on Home", function()
+    local test3 = 'Вселяя\nстрах'
+    local test3_len = 2
+    local test3_l1 = 'Вселяя'
+    local test3_l2 = 'страх'
+
+    it("jumps to start on [Home]", function()
       model:add_text(test1)
       model:jump_home()
       local cl, cc = model:get_cursor_pos()
@@ -460,7 +458,7 @@ describe("input model spec", function()
       assert.same(1, model:get_cursor_y())
     end)
 
-    it("jumps to the end on End", function()
+    it("jumps to the end on [End]", function()
       model:jump_end()
       local cl, cc = model:get_cursor_pos()
       local ent = model:get_text()
@@ -498,6 +496,7 @@ describe("input model spec", function()
       assert.same(1 + ll, cc)
       assert.same(cl, len)
       assert.same(cl, test2_len)
+      assert.same(cc, 1 + string.ulen(test2_l2))
       assert.same(1 + ll, 1 + string.ulen(test2_l2))
       assert.same(cl, #string.lines(test2))
     end)
@@ -528,8 +527,52 @@ describe("input model spec", function()
     it('pages history up', function()
       model:cursor_up()
       local t = model:get_text()
+      local cl, cc = model:get_cursor_pos()
+      local ent = model:get_text()
+      local len = #ent                       -- number of lines
+      local ll = string.ulen(ent[len])       -- last line length
       assert.same({ test2_l1, test2_l2 }, t) -- brings it back
+      assert.same(cc, 1 + string.ulen(test2_l2))
+      assert.same(1 + ll, 1 + string.ulen(test2_l2))
+      assert.same(cl, #string.lines(test2))
     end)
+
+    it('traverses over line breaks', function()
+      model:jump_home()
+      model:cursor_down()
+      local cl1, cc1 = model:get_cursor_pos()
+      assert.same(cl1, 2)
+      assert.same(cc1, 1)
+      model:cursor_left()
+      local cl2, cc2 = model:get_cursor_pos()
+      assert.same(cl2, 1)
+      assert.same(cc2, 1 + string.ulen(test2_l1))
+
+      model:clear()
+      model:add_text(test3)
+      model:jump_end()
+      local cl3, cc3 = model:get_cursor_pos()
+      assert.same(cl3, test3_len)
+      assert.same(cc3, 1 + string.ulen(test3_l2))
+      model:cursor_up()
+      local cl4, cc4 = model:get_cursor_pos()
+      assert.same(cl4, test3_len - 1)
+      assert.same(1 + math.min(
+        string.ulen(test3_l2),
+        string.ulen(test3_l1)
+      ), cc4)
+      model:cursor_right() -- to line end
+      model:cursor_right() -- wrap to next line
+      local cl5, cc5 = model:get_cursor_pos()
+      assert.same(cl5, test3_len)
+      assert.same(cc5, 1)
+    end)
+  end)
+
+  --   Del/Bksp  --
+  describe('multiline delete', function()
+    -- it('', function()
+    -- end)
   end)
 
   -----------------
