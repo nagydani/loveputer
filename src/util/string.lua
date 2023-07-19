@@ -14,14 +14,7 @@ StringUtils = {
     return false
   end,
 
-  len = function(s)
-    return utf8.len(s or '')
-  end,
-  to_utf8_index = function(s, i)
-    local ui = utf8.offset(s, i)
-    return ui
-  end,
-
+  -- TODO: move to string table too
   -- original from http://lua-users.org/lists/lua-l/2014-04/msg00590.html
   utf8_sub = function(s, i, j)
     i = i or 1
