@@ -20,6 +20,7 @@ function InputView:draw(input)
   local time = self.controller:get_timestamp()
   local cf = self.cfg
   local fh = self.cfg.fh
+  local w = self.cfg.width
   local status = self.controller:get_status()
   local b = cf.border
   local fullHeight = cf.height
@@ -36,6 +37,18 @@ function InputView:draw(input)
     G.print('|', offset - w_off, ch)
   end
 
+  local h = self.cfg.height
+  local inputBackground = {
+    draw = function()
+      G.setColor(self.cfg.colors.bg)
+      G.rectangle("fill",
+        b,
+        h - b - inLines * fh,
+        w - 2 * b, inLines * fh)
+    end,
+  }
+
+  inputBackground.draw()
   self.statusline:draw(
     status,
     inLines,

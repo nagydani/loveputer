@@ -10,6 +10,7 @@ ConsoleView = {}
 function ConsoleView:new(cfg, ctrl)
   local conf = {
     font_size = 18,
+    border = 0,
     colors = {
       bg = Color[Color.white],
       border = Color[Color.black + Color.bright],
@@ -31,13 +32,14 @@ function ConsoleView:new(cfg, ctrl)
   local font_dir = "assets/fonts/"
   conf.font_main = love.graphics.newFont(
     font_dir .. "ubuntu_mono_bold_nerd.ttf", cfg.font_size * FAC)
+  conf.fh = conf.font_main:getHeight()
   conf.font_title = love.graphics.newFont(
     font_dir .. "PressStart2P-Regular.ttf", cfg.font_size * FAC)
 
   G.setFont(conf.font_main)
 
-  local BORDER = 4 * FAC
-  local FH = conf.font_main:getHeight()
+  local BORDER = conf.border * FAC
+  local FH = conf.fh
   conf.fac = FAC
   conf.border = BORDER
   conf.fh = FH
@@ -51,13 +53,6 @@ function ConsoleView:new(cfg, ctrl)
     controller = ctrl,
     cfg = conf,
   }
-  view.get_drawable_height = function(h)
-    return
-        h - BORDER -- top border
-        - FH       -- separator
-        - FH       -- input line
-        - BORDER   -- bottom border
-  end
 
   setmetatable(view, self)
   self.__index = self
@@ -69,7 +64,7 @@ function ConsoleView:resize(wi, hi)
   local w = wi / self.cfg.fac
   local h = hi / self.cfg.fac
 
-  self.canvas_drawable_height = self.get_drawable_height(h)
+  self.canvas_drawable_height = self.cfg.get_drawable_height(h)
 
   local inputBox = {
     x = self.cfg.border,
@@ -90,19 +85,10 @@ function ConsoleView:draw()
   local w = self.cfg.width
   local h = self.cfg.height
 
-  if not self.canvas_drawable_height then
-    self.canvas_drawable_height = self.get_drawable_height(h)
-  end
-
-  local linesN = math.floor(self.canvas_drawable_height / self.cfg.fh)
-  self.cfg.linesN = linesN
-
   local background = {
     draw = function()
       G.setColor(self.cfg.colors.border)
       G.rectangle("fill", 0, 0, w, h)
-      G.setColor(self.cfg.colors.bg)
-      G.rectangle("fill", b, b, w - 2 * b, h - 2 * b)
     end,
   }
 
