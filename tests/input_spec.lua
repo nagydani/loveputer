@@ -347,7 +347,7 @@ describe("input model spec", function()
     local test3_l2 = '2nd'
     local test3_l3 = '3rd'
 
-    it('paste two', function()
+    it('pastes two', function()
       model:add_text(test1)
       assert.same({
         test1_l1,
@@ -355,10 +355,10 @@ describe("input model spec", function()
       }, model:get_text())
       local cl, cc = model:get_cursor_pos()
       assert.same(2, cl)
-      assert.same(1 + #test1_l2, cc)
+      assert.same(1 + StringUtils.len(test1_l2), cc)
     end)
 
-    it('paste UTF-8', function()
+    it('pastes UTF-8', function()
       model:clear()
       model:add_text(test2)
       assert.same({
@@ -370,11 +370,11 @@ describe("input model spec", function()
       assert.same(1 + StringUtils.len(test2_l2), cc)
     end)
 
-    it('paste into existing', function()
+    it('pastes into existing', function()
       model:clear()
       model:add_text(char1)
       model:add_text(char2)
-      model:cursor_left(char2)
+      model:cursor_left()
       model:add_text(test2)
       assert.same({
         char1 .. test2_l1,
@@ -385,7 +385,7 @@ describe("input model spec", function()
       assert.same(1 + StringUtils.len(test2_l2), cc)
     end)
 
-    it('paste more than two', function()
+    it('pastes more than two lines', function()
       model:clear()
       model:add_text(char1)
       model:add_text(test3)
@@ -393,6 +393,35 @@ describe("input model spec", function()
         char1 .. test3_l1,
         test3_l2,
         test3_l3,
+      }, model:get_text())
+    end)
+
+    it('enters newline', function()
+      model:clear()
+      model:add_text(char1)
+      model:add_text(char2)
+      model:cursor_left()
+      model:line_feed()
+      assert.same({
+        char1,
+        char2,
+      }, model:get_text())
+      model:line_feed()
+      assert.same({
+        char1,
+        '',
+        char2,
+      }, model:get_text())
+    end)
+    it('enters newline in UTF-8 text', function()
+      model:clear()
+      model:add_text(test2_l1)
+      model:cursor_left()
+      model:cursor_left()
+      model:line_feed()
+      assert.same({
+        'ког',
+        'да',
       }, model:get_text())
     end)
   end)
