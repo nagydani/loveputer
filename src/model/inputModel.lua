@@ -106,6 +106,10 @@ function InputModel:get_text_line(l)
   return self.entered[l]
 end
 
+function InputModel:get_n_text_lines()
+  return #self.entered
+end
+
 function InputModel:get_current_line()
   local cl = self:get_cursor_y() or 1
   return self.entered[cl]
@@ -197,21 +201,29 @@ function InputModel:get_cursor_y()
   return self.cursor.l
 end
 
+-- TODO: refractor these into a single function
 function InputModel:cursor_up()
-  local lines = #(self:get_text())
-  if lines == 1 then
-    self:history_back()
+  local cl, cc = self:get_cursor_pos()
+  if cl > 1 then
+    local nl = cl - 1
+    local target_line = self:get_text_line(nl)
+    local newc = math.min(cc, 1 + string.ulen(target_line))
+    self:move_cursor(nl, newc)
   else
-    -- TODO move when multiline
+    self:history_back()
   end
 end
 
 function InputModel:cursor_down()
-  local lines = #(self:get_text())
-  if lines == 1 then
-    self:history_fwd()
+  local cl, cc = self:get_cursor_pos()
+  local n = self:get_n_text_lines()
+  if cl < n then
+    local nl = cl + 1
+    local target_line = self:get_text_line(nl)
+    local newc = math.min(cc, 1 + string.ulen(target_line))
+    self:move_cursor(nl, newc)
   else
-    -- TODO move when multiline
+    self:history_fwd()
   end
 end
 
@@ -288,6 +300,7 @@ function InputModel:history_back()
     self:set_text(prev)
     self:move_cursor(#prev, last_line_len + 1)
   end
+  self:jump_end() -- TODO: remember cursor pos?
 end
 
 function InputModel:history_fwd()
@@ -307,7 +320,7 @@ function InputModel:history_fwd()
   else
     self:cancel()
   end
-  self:update_cursor(true)
+  self:jump_end() -- TODO: remember cursor pos?
 end
 
 function InputModel:jump_home()
@@ -315,7 +328,6 @@ function InputModel:jump_home()
 end
 
 function InputModel:jump_end()
-  -- TODO multiline
   local ent = self:get_text()
   local last_line = #ent
   local last_char = string.ulen(ent[last_line]) + 1
