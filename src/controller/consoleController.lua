@@ -1,5 +1,7 @@
 ConsoleController = {}
 
+require("tests/test_terminal")
+
 function ConsoleController:new(m, init)
   local cc = {
     time = init or 0,
@@ -71,6 +73,9 @@ function ConsoleController:keypressed(k)
   if ctrl then
     if k == "v" then
       self.model.input:paste(love.system.getClipboardText())
+    end
+    if love.DEBUG and k == 't' then
+      TerminalTest:test(self.model.canvas)
     end
   end
 
