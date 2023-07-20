@@ -13,6 +13,13 @@ function CanvasModel:new()
   return cm
 end
 
+function CanvasModel:_manipulate(commands)
+  for _, c in ipairs(commands) do
+    local f = load(c)
+    if f then f() end
+  end
+end
+
 function CanvasModel:push(newResult)
   if StringUtils:is_non_empty_string_array(newResult) then
     self.result:push(newResult)
