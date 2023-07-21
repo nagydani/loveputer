@@ -9,8 +9,6 @@ ConsoleView = {}
 
 function ConsoleView:new(cfg, ctrl)
   local conf = {
-    font_size = 18,
-    border = 0,
     colors = {
       bg = Color[Color.white],
       border = Color[Color.black + Color.bright],
@@ -23,26 +21,13 @@ function ConsoleView:new(cfg, ctrl)
     conf[k] = v
   end
 
-  local FAC = 1
-  if love.hiDPI then
-    FAC = 2
-  end
+  local FAC = conf.fac
   G.scale(FAC, FAC)
-
-  local font_dir = "assets/fonts/"
-  conf.font_main = love.graphics.newFont(
-    font_dir .. "ubuntu_mono_bold_nerd.ttf", cfg.font_size * FAC)
-  conf.fh = conf.font_main:getHeight()
-  conf.font_title = love.graphics.newFont(
-    font_dir .. "PressStart2P-Regular.ttf", cfg.font_size * FAC)
-
   G.setFont(conf.font_main)
 
-  local BORDER = conf.border * FAC
-  local FH = conf.fh
+  local BORDER = conf.border
   conf.fac = FAC
   conf.border = BORDER
-  conf.fh = FH
   conf.width = G.getWidth()
   conf.height = G.getHeight()
 
@@ -92,7 +77,8 @@ function ConsoleView:draw()
     end,
   }
 
-  background.draw()
-  self.canvas:draw(self.controller:get_result())
+  -- background.draw()
+  local canvas = self.controller:get_canvas()
+  self.canvas:draw(canvas)
   self.input:draw(self.controller:get_input())
 end

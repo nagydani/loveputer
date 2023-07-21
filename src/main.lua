@@ -2,19 +2,49 @@ require("model/consoleModel")
 require("view/consoleView")
 require("controller/consoleController")
 
+require("util/debug")
+
+local G = love.graphics
 local V
 
 function love.load()
+  local FAC = 1
+  if love.hiDPI then FAC = 2 end
+  local font_size = 18 * FAC
+  local border = 4 * FAC
+
   love.keyboard.setTextInput(true)
   love.keyboard.setKeyRepeat(true)
 
+  local font_dir = "assets/fonts/"
+  local font_main = love.graphics.newFont(
+    font_dir .. "ubuntu_mono_bold_nerd.ttf", font_size)
+  local font_title = love.graphics.newFont(
+    font_dir .. "PressStart2P-Regular.ttf", font_size)
+  local fh = font_main:getHeight()
+  local w = G.getWidth() - 2 * border
+  local h = G.getHeight() + fh
+
   -- properties
   local baseconf = {
-    font_size = 18,
-    border = 4,
+    font_main = font_main,
+    border = border,
+    fh = fh,
+    fac = FAC,
+    w = w,
+    h = h,
+    get_drawable_height = function()
+      return
+          h - border -- top border
+          - border   -- statusline border
+          - fh       -- statusline
+          - border   -- statusline bottom border
+          - fh       -- input line
+          - border   -- bottom border
+    end
   }
 
-  M = Console:new()
+  M = Console:new(baseconf)
   C = ConsoleController:new(M)
   V = ConsoleView:new(baseconf, C)
 end

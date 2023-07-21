@@ -3,10 +3,10 @@ require("model/canvasModel")
 
 Console = {}
 
-function Console:new()
+function Console:new(cfg)
   local c = {
     input = InputModel:new(),
-    canvas = CanvasModel:new(),
+    output = CanvasModel:new(cfg),
   }
   setmetatable(c, self)
   self.__index = self
