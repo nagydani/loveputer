@@ -22,6 +22,8 @@ function love.load()
   local font_title = love.graphics.newFont(
     font_dir .. "PressStart2P-Regular.ttf", font_size)
   local fh = font_main:getHeight()
+  -- we use a monospace font, so the width should be the same for any input
+  local fw = font_main:getWidth('a')
   local w = G.getWidth() - 2 * border
   local h = G.getHeight() + fh
 
@@ -30,6 +32,7 @@ function love.load()
     font_main = font_main,
     border = border,
     fh = fh,
+    fw = fw,
     fac = FAC,
     w = w,
     h = h,
