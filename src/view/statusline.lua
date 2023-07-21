@@ -20,6 +20,7 @@ function Statusline:draw(status, inLines, time)
   local fh = cf.fh
   local colors = cf.colors
 
+  G.push('all')
   G.setColor(colors.border)
   local sy = h - b - (1 + inLines) * fh
   local start_box = { x = 0, y = sy }
@@ -47,4 +48,5 @@ function Statusline:draw(status, inLines, time)
     local sx = endTextX - G.getFont():getWidth(pos)
     G.print(pos, sx, start_text.y)
   end
+  G.pop()
 end

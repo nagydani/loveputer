@@ -20,9 +20,11 @@ end
 
 function CanvasView:draw(canvas)
   local b = self.cfg.border
-
-  G.setCanvas()
   local tf = love.math.newTransform()
+
+  G.push('all')
+  G.setCanvas()
   tf:translate(b, b)
   G.draw(canvas, tf)
+  G.pop()
 end

@@ -104,10 +104,6 @@ function ConsoleController:textinput(t)
   self.model.input:add_text(t)
 end
 
-function ConsoleController:get_result()
-  return self.model.output.result
-end
-
 function ConsoleController:get_canvas()
   return self.model.output.canvas
 end
