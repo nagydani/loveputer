@@ -39,8 +39,3 @@ Debug = {
     return res
   end
 }
-
-
--- function Debug:dump_t(t)
---   -- self.print_t(t)
--- end

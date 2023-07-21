@@ -17,6 +17,10 @@ function ConsoleController:pass_time(dt)
   self.time = self.time + dt
 end
 
+function ConsoleController:get_timestamp()
+  return self.time
+end
+
 function ConsoleController:keypressed(k)
   local function is_enter()
     return k == "return" or k == 'kpenter'
@@ -28,7 +32,7 @@ function ConsoleController:keypressed(k)
 
   if not shift and is_enter() then
     local res = self.model.input:evaluate()
-    self.model.canvas:push(res)
+    self.model.output:push(res)
   end
   if not ctrl and k == "escape" then
     self.model.input:cancel()
@@ -74,8 +78,11 @@ function ConsoleController:keypressed(k)
     if k == "v" then
       self.model.input:paste(love.system.getClipboardText())
     end
-    if love.DEBUG and k == 't' then
-      TerminalTest:test(self.model.canvas)
+    if love.DEBUG then
+      local o = self.model.output
+      if k == 't' then
+        TerminalTest:test(o)
+      end
     end
   end
 
@@ -95,7 +102,11 @@ function ConsoleController:textinput(t)
 end
 
 function ConsoleController:get_result()
-  return self.model.canvas.result
+  return self.model.output.result
+end
+
+function ConsoleController:get_canvas()
+  return self.model.output.canvas
 end
 
 function ConsoleController:get_input()
@@ -104,8 +115,4 @@ end
 
 function ConsoleController:get_status()
   return self.model.input:get_status()
-end
-
-function ConsoleController:get_timestamp()
-  return self.time
 end
