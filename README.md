@@ -24,6 +24,21 @@ luarocks --local install busted
 
 For information about installing [LÖVE2D] and [LuaRocks], visit their respective webpages.
 
+### Debug mode
+
+Certain diagnostic key combinations are only available in debug mode,
+to access this, run the project with the `DEBUG` environment variable set
+(it's value doesn't matter, just that it's set):
+```sh
+DEBUG=1 love src
+```
+
+### HiDPI
+
+Similarly, to set double scaling, set the `HIDPI` variable to `true`
+```sh
+HIDPI=true love src
+```
 
 
 [löve2d]: https://love2d.org
