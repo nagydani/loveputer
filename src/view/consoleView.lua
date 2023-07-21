@@ -45,39 +45,9 @@ function ConsoleView:new(cfg, ctrl)
   return view
 end
 
-function ConsoleView:resize(wi, hi)
-  local w = wi / self.cfg.fac
-  local h = hi / self.cfg.fac
-
-  self.canvas_drawable_height = self.cfg.get_drawable_height(h)
-
-  local inputBox = {
-    x = self.cfg.border,
-    y = self.cfg.border + self.canvas_drawable_height + 2 * self.cfg.border,
-    w = w - 2 * self.cfg.border,
-    h = self.cfg.fh,
-  }
-
-  love.keyboard.setTextInput(true,
-    inputBox.x, inputBox.y, inputBox.w, inputBox.h)
-end
-
 function ConsoleView:draw()
-  local b = self.cfg.border
-
   G.scale(self.fac, self.fac)
 
-  local w = self.cfg.width
-  local h = self.cfg.height
-
-  local background = {
-    draw = function()
-      G.setColor(self.cfg.colors.border)
-      G.rectangle("fill", 0, 0, w, h)
-    end,
-  }
-
-  -- background.draw()
   local canvas = self.controller:get_canvas()
   self.canvas:draw(canvas)
   self.input:draw(self.controller:get_input())

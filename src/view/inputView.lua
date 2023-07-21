@@ -46,6 +46,7 @@ function InputView:draw(input)
     end,
   }
 
+  G.push('all')
   inputBackground.draw()
   self.statusline:draw(
     status,
@@ -61,4 +62,5 @@ function InputView:draw(input)
   if blink then
     drawCursor()
   end
+  G.pop()
 end
