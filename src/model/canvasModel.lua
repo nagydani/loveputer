@@ -25,16 +25,14 @@ function CanvasModel:new(cfg)
   self.__index = self
 
 
-  local background = {
-    draw = function()
-      G.clear(0, 0, 0, 0)
-      G.setBlendMode('alpha')
-      G.setColor(cm.terminal.colors.bg)
-      G.setColor(Color[Color.blue])
-      G.rectangle("fill", 0, 0, cfg.w, cfg.h)
-    end,
-  }
-  cm.canvas:renderTo(background.draw)
+  cm.background = function()
+    G.clear(0, 0, 0, 0)
+    G.setBlendMode('alpha')
+    G.setColor(cm.terminal.colors.bg)
+    G.setColor(Color[Color.blue])
+    G.rectangle("fill", 0, 0, cfg.w, cfg.h)
+  end
+  cm.canvas:renderTo(cm.background)
 
   return cm
 end
@@ -52,4 +50,8 @@ function CanvasModel:push(newResult)
   if StringUtils:is_non_empty_string_array(newResult) then
     self.result:push(newResult)
   end
+end
+
+function CanvasModel:clear()
+  self.canvas:renderTo(self.background)
 end
