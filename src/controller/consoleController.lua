@@ -83,6 +83,9 @@ function ConsoleController:keypressed(k)
       if k == 't' then
         TerminalTest:test(o)
       end
+      if k == 'c' then
+        o:clear()
+      end
     end
   end
 
