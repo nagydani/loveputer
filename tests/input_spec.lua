@@ -1,6 +1,4 @@
-require("../model/eval")
-require("../model/inputModel")
-require("../util/debug")
+require("model/inputModel")
 
 describe("input model spec", function()
   -----------------
