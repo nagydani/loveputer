@@ -4,6 +4,8 @@ require("model/textEval")
 require("util/dequeue")
 require("util/string")
 
+require("util/debug")
+
 InputModel = {}
 
 function InputModel:new()
@@ -20,7 +22,7 @@ function InputModel:new()
 end
 
 function InputModel:remember(input)
-  if StringUtils:is_non_empty_string_array(input) then
+  if string.is_non_empty_string_array(input) then
     self.history:push(input)
   end
 end
@@ -263,7 +265,7 @@ function InputModel:_handle(eval)
   local ent = self:get_text()
   self.historic_index = nil
   local result
-  if not StringUtils.is_non_empty_string_array(ent) then
+  if string.is_non_empty_string_array(ent) then
     self:remember(ent)
     if eval then
       result = self.evaluator.apply(ent)
@@ -280,7 +282,7 @@ function InputModel:history_back()
     local prev = self.history[hi - 1]
     if prev then
       local current = self:get_text()
-      if StringUtils:is_non_empty_string_array(current) then
+      if string.is_non_empty_string_array(current) then
         self.history[hi] = current
       end
       self:set_text(prev)
@@ -303,7 +305,7 @@ function InputModel:history_fwd()
     local hi = self.historic_index
     local next = self.history[hi + 1]
     local current = self:get_text()
-    if StringUtils.is_non_empty_string(current) then
+    if string.is_non_empty_string(current) then
       self.history[hi] = current
     end
     if next then

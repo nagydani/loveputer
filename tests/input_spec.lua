@@ -595,6 +595,8 @@ describe("input model spec", function()
       local t = model:get_text()
       assert.same({ test1_l1 }, t)
     end)
+
+    -- TODO: test traversing
   end)
 
   describe('', function()

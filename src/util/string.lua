@@ -1,19 +1,6 @@
 local utf8 = require("utf8")
 
 StringUtils = {
-  normalise_string = function(s)
-    return string.gsub(s, "%s+", "")
-  end,
-  is_non_empty_string = function(s)
-    if s and type(s) == 'string' and s ~= '' then
-      local normalisedString = string.gsub(s, "%s+", "")
-      if normalisedString ~= '' then
-        return true
-      end
-    end
-    return false
-  end,
-
   -- TODO: move to string table too
   -- original from http://lua-users.org/lists/lua-l/2014-04/msg00590.html
   utf8_sub = function(s, i, j)
@@ -47,12 +34,25 @@ StringUtils = {
   end,
 }
 
-function StringUtils:is_non_empty_string_array(sa)
+string.normalize = function(s)
+  return string.gsub(s, "%s+", "")
+end
+
+string.is_non_empty_string = function(s)
+  if s and type(s) == 'string' and s ~= '' then
+    if string.normalize(s) ~= '' then
+      return true
+    end
+  end
+  return false
+end
+
+string.is_non_empty_string_array = function(sa)
   if type(sa) ~= 'table' then
     return false
   else
     for _, s in ipairs(sa) do
-      if self.is_non_empty_string(s) then
+      if string.is_non_empty_string(s) then
         return true
       end
       return false
