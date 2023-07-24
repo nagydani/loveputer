@@ -15,7 +15,11 @@ function CanvasModel:new(cfg)
   local colsN = math.floor(w / cfg.fw)
   local term = Terminal(w, h, cfg.font_main)
 
+  local color = cfg.colors.terminal
   -- term:hide_cursor()
+  term:set_cursor_color(unpack(color.fg))
+  term:set_cursor_backcolor(unpack(color.bg))
+  term:clear()
   local cm = {
     terminal = term,
     cfg = cfg,
