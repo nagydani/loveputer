@@ -1,6 +1,8 @@
 require("util/dequeue")
 require("util/string")
 
+local Terminal = require "lib/terminal"
+
 local G = love.graphics
 
 CanvasModel = {}
@@ -11,17 +13,11 @@ function CanvasModel:new(cfg)
   local h = cfg.get_drawable_height() + cfg.fh
   local linesN = math.floor(cfg.get_drawable_height() / cfg.fh)
   local colsN = math.floor(w / cfg.fw)
+  local term = Terminal(w, h, cfg.font_main)
+
+  -- term:hide_cursor()
   local cm = {
-    canvas = love.graphics.newCanvas(w, h),
-    terminal = {
-      rows = linesN,
-      columns = colsN,
-      colors = {
-        bg = Color[Color.blue],
-        fg = Color[Color.white + Color.bright],
-      },
-      cursor = { l = 1, c = 1 }
-    },
+    terminal = term,
     cfg = cfg,
   }
   setmetatable(cm, self)
@@ -32,9 +28,6 @@ function CanvasModel:new(cfg)
     G.setColor(cm.terminal.colors.bg)
     G.rectangle("fill", 0, 0, cfg.w, cfg.h)
   end
-  G.push('all')
-  cm.canvas:renderTo(cm.background)
-  G.pop()
 
   return cm
 end
@@ -48,29 +41,24 @@ function CanvasModel:_manipulate(commands)
   end)
 end
 
-function CanvasModel:write_line(text)
+function CanvasModel:write(text)
   if string.is_non_empty_string(text) then
-    local function f()
-      G.setColor(self.terminal.colors.fg)
-      local cur = self.terminal.cursor
-      local cx = cur.c
-      local cl = cur.l
-      local lineOffset = cur.l
-      local cy = (lineOffset - 1) * self.cfg.fh
-      G.print(text, cx, cy)
-      self.terminal.cursor.l = cl + 1
-    end
-
-    self.canvas:renderTo(f)
+    self.terminal:print(text)
   end
 end
 
 function CanvasModel:push(newResult)
-  for _, v in ipairs(newResult) do
-    self:write_line(v)
+  if type(newResult) == 'table' then
+    for _, v in ipairs(newResult) do
+      self:write(v)
+    end
   end
 end
 
 function CanvasModel:clear()
-  self.canvas:renderTo(self.background)
+  self.terminal:clear()
+end
+
+function CanvasModel:update(dt)
+  self.terminal:update(dt)
 end

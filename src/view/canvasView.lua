@@ -18,13 +18,13 @@ function CanvasView:new(cfg)
   return cv
 end
 
-function CanvasView:draw(canvas)
+function CanvasView:draw(terminal)
   local b = self.cfg.border
   local tf = love.math.newTransform()
 
   G.push('all')
   G.setCanvas()
-  tf:translate(b, b)
-  G.draw(canvas, tf)
+  G.translate(b, b)
+  terminal:draw()
   G.pop()
 end

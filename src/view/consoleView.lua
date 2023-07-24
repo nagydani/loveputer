@@ -48,7 +48,7 @@ end
 function ConsoleView:draw()
   G.scale(self.fac, self.fac)
 
-  local canvas = self.controller:get_canvas()
-  self.canvas:draw(canvas)
+  local terminal = self.controller:get_terminal()
+  self.canvas:draw(terminal)
   self.input:draw(self.controller:get_input())
 end
