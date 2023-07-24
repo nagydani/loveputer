@@ -15,6 +15,7 @@ end
 
 function ConsoleController:pass_time(dt)
   self.time = self.time + dt
+  self.model.output.terminal:update(dt)
 end
 
 function ConsoleController:get_timestamp()
@@ -104,8 +105,8 @@ function ConsoleController:textinput(t)
   self.model.input:add_text(t)
 end
 
-function ConsoleController:get_canvas()
-  return self.model.output.canvas
+function ConsoleController:get_terminal()
+  return self.model.output.terminal
 end
 
 function ConsoleController:get_input()

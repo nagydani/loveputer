@@ -58,8 +58,7 @@ function InputView:draw(input)
     local dy = y - (-i + 1) * fh
     G.print(l, b, dy)
   end
-  local blink = math.floor(math.floor(time * 2) % 2) == 0
-  if blink then
+  if love.timer.getTime() % 1 > 0.5 then
     drawCursor()
   end
   G.pop()
