@@ -104,4 +104,15 @@ describe("StringUtils", function()
       assert.same({ test }, res)
     end)
   end)
+
+  describe('splits multiple', function()
+    local test1 = { 'first\nsecond', 'third' }
+    local test1_l1 = 'first'
+    local test1_l2 = 'second'
+    local test1_2 = 'third'
+    it('', function()
+      local res = string.lines(test1)
+      assert.same({ test1_l1, test1_l2, test1_2 }, res)
+    end)
+  end)
 end)

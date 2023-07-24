@@ -78,6 +78,7 @@ string.split_at = function(s, i)
 end
 
 string.split = function(str, char)
+  if not type(str) == 'string' then return {} end
   local pattern = '([^' .. char .. ']+)'
   local words = {}
   for word in string.gmatch(str, pattern) do
@@ -86,6 +87,23 @@ string.split = function(str, char)
   return words
 end
 
+string.split_array = function(str_arr, char)
+  if not type(str_arr) == 'table' then return {} end
+  local words = {}
+  for _, line in ipairs(str_arr) do
+    local ws = string.split(line, char)
+    for _, word in ipairs(ws) do
+      table.insert(words, word)
+    end
+  end
+  return words
+end
+
 string.lines = function(s)
-  return string.split(s, '\n')
+  if type(s) == 'string' then
+    return string.split(s, '\n')
+  end
+  if type(s) == 'table' then
+    return string.split_array(s, '\n')
+  end
 end
