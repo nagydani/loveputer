@@ -33,14 +33,14 @@ function Statusline:draw(status, inLines, time)
   G.rectangle("fill", start_box.x, start_box.y, w, fh)
 
   if not status then return end
-  G.setColor(colors.stat_fg)
+  G.setColor(colors.statusline.fg)
   if status.input_type then
     G.print(status.input_type, start_text.x, start_text.y)
   end
   if love.DEBUG then
     G.setColor(colors.debug)
     G.print(time, midX, start_text.y)
-    G.setColor(colors.stat_fg)
+    G.setColor(colors.statusline.fg)
   end
   if status.cursor then
     local c = status.cursor

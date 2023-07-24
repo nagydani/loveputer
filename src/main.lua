@@ -44,7 +44,23 @@ function love.load()
           - border   -- statusline bottom border
           - fh       -- input line
           - border   -- bottom border
-    end
+    end,
+    colors = {
+      border = Color[Color.black + Color.bright],
+      debug = Color[Color.yellow],
+      terminal = {
+        fg = Color[Color.white + Color.bright],
+        bg = Color[Color.blue],
+      },
+      input = {
+        bg = Color[Color.white],
+        fg = Color[Color.blue + Color.bright],
+      },
+      statusline = {
+        fg = Color[Color.white + Color.bright],
+        bg = Color[Color.black],
+      },
+    }
   }
 
   M = Console:new(baseconf)

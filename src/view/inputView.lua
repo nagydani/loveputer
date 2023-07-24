@@ -38,7 +38,7 @@ function InputView:draw(input)
   local h = self.cfg.height
   local inputBackground = {
     draw = function()
-      G.setColor(self.cfg.colors.bg)
+      G.setColor(self.cfg.colors.input.bg)
       G.rectangle("fill",
         b,
         h - b - inLines * fh,
@@ -53,7 +53,7 @@ function InputView:draw(input)
     inLines,
     time
   )
-  G.setColor(cf.colors.fg)
+  G.setColor(cf.colors.input.fg)
   for i, l in ipairs(input) do
     local dy = y - (-i + 1) * fh
     G.print(l, b, dy)
