@@ -24,6 +24,13 @@ luarocks --local install busted
 
 For information about installing [LÖVE2D] and [LuaRocks], visit their respective webpages.
 
+
+### Running unit tests
+
+```sh
+busted tests
+```
+
 ### Debug mode
 
 Certain diagnostic key combinations are only available in debug mode,
