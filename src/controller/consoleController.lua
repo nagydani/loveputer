@@ -27,6 +27,25 @@ function ConsoleController:keypressed(k)
     return k == "return" or k == 'kpenter'
   end
 
+  local function terminal_test()
+    local o = self.model.output
+    if not love.state.testing then
+      love.state.testing = 'running'
+      TerminalTest:test(o.terminal)
+    elseif love.state.testing == 'waiting' then
+      TerminalTest:reset(o.terminal)
+      love.state.testing = false
+    end
+  end
+
+  if love.state.testing == 'running' then
+    return
+  end
+  if love.state.testing == 'waiting' then
+    terminal_test()
+    return
+  end
+
   local ctrl, shift
   ctrl  = love.keyboard.isDown("lctrl", "rctrl")
   shift = love.keyboard.isDown("lshift", "rshift")
@@ -76,19 +95,15 @@ function ConsoleController:keypressed(k)
     end
   end
 
-
   -- Ctrl held
   if ctrl then
     if k == "v" then
       self.model.input:paste(love.system.getClipboardText())
     end
     if love.DEBUG then
-      local o = self.model.output
       if k == 't' then
-        TerminalTest:test(o.terminal)
-      end
-      if k == 'c' then
-        o:clear()
+        terminal_test()
+        return
       end
     end
   end
@@ -105,6 +120,7 @@ function ConsoleController:keypressed(k)
 end
 
 function ConsoleController:textinput(t)
+  -- TODO: block with events
   self.model.input:add_text(t)
 end
 
