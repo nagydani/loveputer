@@ -125,6 +125,7 @@ local function wrap_if_bottom(terminal)
         terminal_roll_up(terminal, terminal.cursor_y - terminal.height)
         terminal.cursor_y = terminal.height
     end
+    terminal:redraw()
 end
 
 local function terminal_update(terminal, dt)
@@ -242,6 +243,13 @@ local function terminal_update(terminal, dt)
         table.insert(rest, terminal.stdin[i])
     end
     terminal.stdin = rest
+end
+local function terminal_redraw(terminal)
+    for _, row in ipairs(terminal.state_buffer) do
+        for _, state in ipairs(row) do
+            state.dirty = true
+        end
+    end
 end
 
 local function terminal_draw(terminal)
@@ -401,6 +409,7 @@ local function terminal(self, width, height,
     instance.reverse_cursor = terminal_reverse
     instance.set_cursor_color = terminal_set_cursor_color
     instance.set_cursor_backcolor = terminal_set_cursor_backcolor
+    instance.redraw = terminal_redraw
 
     instance.frame = terminal_frame
 
