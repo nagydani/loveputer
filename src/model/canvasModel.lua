@@ -11,8 +11,6 @@ CanvasModel = {}
 function CanvasModel:new(cfg)
   local w = G.getWidth() - 2 * cfg.border
   local h = cfg.get_drawable_height() + cfg.fh
-  local linesN = math.floor(cfg.get_drawable_height() / cfg.fh)
-  local colsN = math.floor(w / cfg.fw)
   local term = Terminal(w, h, cfg.font_main)
 
   local color = cfg.colors.terminal
