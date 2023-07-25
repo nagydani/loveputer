@@ -31,46 +31,49 @@ function ConsoleController:keypressed(k)
   ctrl  = love.keyboard.isDown("lctrl", "rctrl")
   shift = love.keyboard.isDown("lshift", "rshift")
 
-  if not shift and is_enter() then
-    local res = self.model.input:evaluate()
-    self.model.output:push(res)
-  end
-  if not ctrl and k == "escape" then
-    self.model.input:cancel()
-  end
+  -- input controls
+  do
+    if k == "backspace" then
+      self.model.input:backspace()
+    end
+    if k == "delete" then
+      self.model.input:delete()
+    end
 
-  if k == "backspace" then
-    self.model.input:backspace()
-  end
-  if k == "delete" then
-    self.model.input:delete()
-  end
+    if k == "up" then
+      self.model.input:cursor_up()
+    end
+    if k == "down" then
+      self.model.input:cursor_down()
+    end
+    if k == "left" then
+      self.model.input:cursor_left()
+    end
+    if k == "right" then
+      self.model.input:cursor_right()
+    end
 
-  if k == "up" then
-    self.model.input:cursor_up()
-  end
-  if k == "down" then
-    self.model.input:cursor_down()
-  end
-  if k == "left" then
-    self.model.input:cursor_left()
-  end
-  if k == "right" then
-    self.model.input:cursor_right()
-  end
+    if k == "pageup" then
+      self.model.input:history_back()
+    end
+    if k == "pagedown" then
+      self.model.input:history_fwd()
+    end
 
-  if k == "pageup" then
-    self.model.input:history_back()
-  end
-  if k == "pagedown" then
-    self.model.input:history_fwd()
-  end
+    if k == "home" then
+      self.model.input:jump_home()
+    end
+    if k == "end" then
+      self.model.input:jump_end()
+    end
 
-  if k == "home" then
-    self.model.input:jump_home()
-  end
-  if k == "end" then
-    self.model.input:jump_end()
+    if not shift and is_enter() then
+      local res = self.model.input:evaluate()
+      self.model.output:push(res)
+    end
+    if not ctrl and k == "escape" then
+      self.model.input:cancel()
+    end
   end
 
 
