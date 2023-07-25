@@ -82,7 +82,7 @@ function ConsoleController:keypressed(k)
     if love.DEBUG then
       local o = self.model.output
       if k == 't' then
-        TerminalTest:test(o)
+        TerminalTest:test(o.terminal)
       end
       if k == 'c' then
         o:clear()
