@@ -23,17 +23,19 @@ function ConsoleController:get_timestamp()
 end
 
 function ConsoleController:keypressed(k)
+  local out = self.model.output
+  local input = self.model.input
   local function is_enter()
     return k == "return" or k == 'kpenter'
   end
 
   local function terminal_test()
-    local o = self.model.output
     if not love.state.testing then
       love.state.testing = 'running'
-      TerminalTest:test(o.terminal)
+      input:cancel()
+      TerminalTest:test(out.terminal)
     elseif love.state.testing == 'waiting' then
-      TerminalTest:reset(o.terminal)
+      -- TerminalTest:reset(out.terminal)
       love.state.testing = false
     end
   end
@@ -53,52 +55,52 @@ function ConsoleController:keypressed(k)
   -- input controls
   do
     if k == "backspace" then
-      self.model.input:backspace()
+      input:backspace()
     end
     if k == "delete" then
-      self.model.input:delete()
+      input:delete()
     end
 
     if k == "up" then
-      self.model.input:cursor_up()
+      input:cursor_up()
     end
     if k == "down" then
-      self.model.input:cursor_down()
+      input:cursor_down()
     end
     if k == "left" then
-      self.model.input:cursor_left()
+      input:cursor_left()
     end
     if k == "right" then
-      self.model.input:cursor_right()
+      input:cursor_right()
     end
 
     if k == "pageup" then
-      self.model.input:history_back()
+      input:history_back()
     end
     if k == "pagedown" then
-      self.model.input:history_fwd()
+      input:history_fwd()
     end
 
     if k == "home" then
-      self.model.input:jump_home()
+      input:jump_home()
     end
     if k == "end" then
-      self.model.input:jump_end()
+      input:jump_end()
     end
 
     if not shift and is_enter() then
-      local res = self.model.input:evaluate()
-      self.model.output:push(res)
+      local res = input:evaluate()
+      out:push(res)
     end
     if not ctrl and k == "escape" then
-      self.model.input:cancel()
+      input:cancel()
     end
   end
 
   -- Ctrl held
   if ctrl then
     if k == "v" then
-      self.model.input:paste(love.system.getClipboardText())
+      input:paste(love.system.getClipboardText())
     end
     if love.DEBUG then
       if k == 't' then
@@ -111,10 +113,10 @@ function ConsoleController:keypressed(k)
   -- Shift held
   if shift then
     if k == "insert" then
-      self.model.input:paste(love.system.getClipboardText())
+      input:paste(love.system.getClipboardText())
     end
     if is_enter() then
-      self.model.input:line_feed()
+      input:line_feed()
     end
   end
 end
