@@ -35,7 +35,7 @@ function InputModel:add_text(text)
     local lines = string.lines(text)
     local n_added = #lines
     if n_added == 1 then
-      local nval = pre .. text .. post
+      local nval = string.interleave(pre, text, post)
       self:set_text_line(nval, sl, true)
       self:advance_cursor(string.ulen(text))
     else
