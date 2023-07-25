@@ -23,6 +23,33 @@ describe("StringUtils", function()
       assert.equal('к', pre)
       assert.equal('огда', post)
     end)
+
+    describe('on char', function()
+      local test1 = 'first\nsecond'
+      local test1_l1 = 'first'
+      local test1_l2 = 'second'
+      it('one', function()
+        local res = string.lines(test1)
+        assert.same({ test1_l1, test1_l2 }, res)
+      end)
+
+      it('none', function()
+        local test = 'text'
+        local res = string.lines(test)
+        assert.same({ test }, res)
+      end)
+    end)
+
+    describe('multiple', function()
+      local test1 = { 'first\nsecond', 'third' }
+      local test1_l1 = 'first'
+      local test1_l2 = 'second'
+      local test1_2 = 'third'
+      it('', function()
+        local res = string.lines(test1)
+        assert.same({ test1_l1, test1_l2, test1_2 }, res)
+      end)
+    end)
   end)
 
   describe('substrings UTF-8 text with the other impl', function()
@@ -89,30 +116,26 @@ describe("StringUtils", function()
     end)
   end)
 
-  describe('splits on char', function()
-    local test1 = 'first\nsecond'
-    local test1_l1 = 'first'
-    local test1_l2 = 'second'
-    it('splits on one', function()
-      local res = string.lines(test1)
-      assert.same({ test1_l1, test1_l2 }, res)
+  describe('joins', function()
+    local words = { 'first', 'second' }
+    it('no char specified', function()
+      local res = string.join(words)
+      assert.same('first second', res)
+    end)
+    it('newline specified', function()
+      local res = string.join(words, '\n')
+      assert.same('first\nsecond', res)
+    end)
+    it('comma specified', function()
+      local res = string.join(words, ', ')
+      assert.same('first, second', res)
     end)
 
-    it('splits on none', function()
-      local test = 'text'
-      local res = string.lines(test)
-      assert.same({ test }, res)
-    end)
-  end)
-
-  describe('splits multiple', function()
-    local test1 = { 'first\nsecond', 'third' }
-    local test1_l1 = 'first'
-    local test1_l2 = 'second'
-    local test1_2 = 'third'
-    it('', function()
-      local res = string.lines(test1)
-      assert.same({ test1_l1, test1_l2, test1_2 }, res)
+    it('single word', function()
+      local word = 'word'
+      local w = { word }
+      local res = string.join(w, ', ')
+      assert.same(word, res)
     end)
   end)
 end)
