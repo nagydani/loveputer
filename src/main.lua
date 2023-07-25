@@ -63,6 +63,10 @@ function love.load()
     }
   }
 
+  love.state = {
+    testing = false
+  }
+
   M = Console:new(baseconf)
   C = ConsoleController:new(M)
   V = ConsoleView:new(baseconf, C)
