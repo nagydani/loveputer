@@ -79,7 +79,7 @@ end
 
 string.split = function(str, char)
   if not type(str) == 'string' then return {} end
-  local pattern = '([^' .. char .. ']+)'
+  local pattern = string.interleave('([^', char, ']+)')
   local words = {}
   for word in string.gmatch(str, pattern) do
     table.insert(words, word)
@@ -119,4 +119,8 @@ string.join = function(strs, char)
     end
   end
   return res
+end
+
+string.interleave = function(prefix, text, postfix)
+  return string.join({ prefix, postfix }, text)
 end
