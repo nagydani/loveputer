@@ -37,12 +37,10 @@ function CanvasModel:new(cfg)
 end
 
 function CanvasModel:_manipulate(commands)
-  self.canvas:renderTo(function()
-    for _, c in ipairs(commands) do
-      local f = load(c)
-      if f then f() end
-    end
-  end)
+  for _, c in ipairs(commands) do
+    local f = load(c)
+    if f then f() end
+  end
 end
 
 function CanvasModel:write(text)
