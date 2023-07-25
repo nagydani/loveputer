@@ -107,3 +107,16 @@ string.lines = function(s)
     return string.split_array(s, '\n')
   end
 end
+
+string.join = function(strs, char)
+  local res = ''
+  if not strs or type(strs) ~= 'table' then return res end
+  local j = char or ' '
+  for i, word in ipairs(strs) do
+    res = res .. word
+    if i ~= #strs then
+      res = res .. j
+    end
+  end
+  return res
+end
