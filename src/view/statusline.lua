@@ -39,6 +39,9 @@ function Statusline:draw(status, inLines, time)
   end
   if love.DEBUG then
     G.setColor(colors.debug)
+    if love.state.testing then
+      G.print('testing', midX - (7 * cf.fw + cf.border), start_text.y)
+    end
     G.print(time, midX, start_text.y)
     G.setColor(colors.statusline.fg)
   end
