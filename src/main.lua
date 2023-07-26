@@ -64,6 +64,7 @@ function love.load(args)
       statusline = {
         fg = Color[Color.white + Color.bright],
         bg = Color[Color.black],
+        indicator = Color[Color.cyan + Color.bright],
       },
     },
     testrun = testrun,

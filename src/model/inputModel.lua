@@ -281,6 +281,7 @@ function InputModel:get_status()
   return {
     input_type = self.evaluator.kind,
     cursor = self.cursor,
+    n_lines = self:get_n_text_lines(),
   }
 end
 

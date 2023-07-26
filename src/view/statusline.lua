@@ -47,9 +47,17 @@ function Statusline:draw(status, inLines, time)
   end
   if status.cursor then
     local c = status.cursor
-    local pos = 'L' .. c.l .. ':' .. c.c
-    local sx = endTextX - G.getFont():getWidth(pos)
-    G.print(pos, sx, start_text.y)
+    local pos_l = 'L' .. c.l
+    local pos_c = ':' .. c.c
+    local lw = G.getFont():getWidth(pos_l)
+    local cw = G.getFont():getWidth(pos_c)
+    local sx = endTextX - (lw + cw)
+    if c.l == status.n_lines then
+      G.setColor(colors.statusline.indicator)
+    end
+    G.print(pos_l, sx, start_text.y)
+    G.setColor(colors.statusline.fg)
+    G.print(pos_c, sx + lw, start_text.y)
   end
   G.pop()
 end
