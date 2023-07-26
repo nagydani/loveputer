@@ -49,9 +49,7 @@ end
 
 function CanvasModel:push(newResult)
   if type(newResult) == 'table' then
-    for _, v in ipairs(newResult) do
-      self:write(v)
-    end
+    self:write(string.join(newResult, '\n'))
   end
 end
 
