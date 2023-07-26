@@ -9,8 +9,16 @@ CanvasModel = {}
 
 
 function CanvasModel:new(cfg)
-  local w = G.getWidth() - 2 * cfg.border
-  local h = cfg.get_drawable_height() + cfg.fh
+  local w, h
+  if cfg.testrun then
+    local debugheight = 6
+    local debugwidth = math.floor(debugheight * love.window.aspect)
+    w = debugwidth * cfg.fw
+    h = debugheight * cfg.fh
+  else
+    w = G.getWidth() - 2 * cfg.border
+    h = cfg.get_drawable_height()
+  end
   local term = Terminal(w, h, cfg.font_main)
 
   local color = cfg.colors.terminal
