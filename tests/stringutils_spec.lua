@@ -165,4 +165,38 @@ describe("StringUtils", function()
       assert.is_true(res)
     end)
   end)
+
+  describe('wraps strings', function()
+    it('even', function()
+      local test1 = '123qweдлв'
+      local test1_l1 = '123'
+      local test1_l2 = 'qwe'
+      local test1_l3 = 'длв'
+      local res = string.wrap_at(test1, 3)
+      assert.same({ test1_l1, test1_l2, test1_l3 }, res)
+    end)
+    it('with remainder', function()
+      local test1 = 'длвqwe1234'
+      local test1_l1 = 'длв'
+      local test1_l2 = 'qwe'
+      local test1_l3 = '123'
+      local test1_l4 = '4'
+      local res = string.wrap_at(test1, 3)
+      assert.same({
+        test1_l1,
+        test1_l2,
+        test1_l3,
+        test1_l4 }, res)
+    end)
+    it('shorter', function()
+      local test1 = '1234'
+      local res = string.wrap_at(test1, 5)
+      assert.same({ test1 }, res)
+    end)
+    it('empty', function()
+      local test1 = ''
+      local res = string.wrap_at(test1, 5)
+      assert.same({ test1 }, res)
+    end)
+  end)
 end)
