@@ -77,12 +77,15 @@ end
 
 function InputModel:set_text_line(text, ln, keep_cursor)
   if type(text) == 'string' then
-    -- TODO: multiline
     self.entered[ln] = text
     if not keep_cursor then
       self:update_cursor(true)
     end
   end
+end
+
+function InputModel:drop_text_line(ln)
+  table.remove(self.entered, ln)
 end
 
 function InputModel:insert_text_line(text, li)
@@ -154,24 +157,52 @@ end
 function InputModel:backspace()
   local line = self:get_current_line()
   local cl, cc = self:get_cursor_pos()
-  if cc == 1 then
-    -- TODO: multiline
-    if cl == 1 then return end
-  end
+  local pre, post
 
-  local pre = StringUtils.utf8_sub(line, 1, cc - 2)
-  local post = StringUtils.utf8_sub(line, cc)
-  local nval = pre .. post
-  self:set_text_line(nval, cl, true)
-  self:cursor_left()
+  local n = self:get_n_text_lines()
+
+  if cc == 1 then
+    if cl == 1 then -- can't delete nothing
+      return
+    end
+    -- line merge
+    local newcl = cl - 1
+    pre = self:get_text_line(newcl)
+    post = line
+    local nval = pre .. post
+    self:set_text_line(nval, newcl)
+    self:drop_text_line(cl)
+  else
+    -- regular merge
+    pre = StringUtils.utf8_sub(line, 1, cc - 2)
+    post = StringUtils.utf8_sub(line, cc)
+    local nval = pre .. post
+    self:set_text_line(nval, cl, true)
+    self:cursor_left()
+  end
 end
 
 function InputModel:delete()
   local line = self:get_current_line()
   local cl, cc = self:get_cursor_pos()
-  -- TODO: multiline
-  local pre = StringUtils.utf8_sub(line, 1, cc - 1)
-  local post = StringUtils.utf8_sub(line, cc + 1)
+  local pre, post
+
+  local n = self:get_n_text_lines()
+
+  local llen = string.ulen(line)
+  if cc == llen + 1 then
+    if cl == n then
+      return
+    end
+    -- line merge
+    post = self:get_text_line(cl + 1)
+    pre = line
+    self:drop_text_line(cl + 1)
+  else
+    -- regular merge
+    pre = StringUtils.utf8_sub(line, 1, cc - 1)
+    post = StringUtils.utf8_sub(line, cc + 1)
+  end
   local nval = pre .. post
   self:set_text_line(nval, cl, true)
 end

@@ -65,14 +65,15 @@ string.ulen = function(s)
 end
 
 string.split_at = function(s, i)
+  local str = s or ''
   local pre, post = '', ''
-  local ulen = utf8.len(s)
-  if ulen ~= #s then -- branch off for UTF-8
-    pre = StringUtils.utf8_sub(s, 1, i - 1)
-    post = StringUtils.utf8_sub(s, i)
+  local ulen = string.ulen(str)
+  if ulen ~= #str then -- branch off for UTF-8
+    pre = StringUtils.utf8_sub(str, 1, i - 1)
+    post = StringUtils.utf8_sub(str, i)
   else
-    pre = string.sub(s, 1, i - 1)
-    post = string.sub(s, i, #s)
+    pre = string.sub(str, 1, i - 1)
+    post = string.sub(str, i, #str)
   end
   return pre, post
 end
