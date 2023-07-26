@@ -50,6 +50,8 @@ to access this, run the project with the `DEBUG` environment variable set
 DEBUG=1 love src
 ```
 
+In this mode, a VT-100 terminal test can be activated with ^T (C-t, or Ctrl+t).
+
 ### HiDPI
 
 Similarly, to set double scaling, set the `HIDPI` variable to `true`
