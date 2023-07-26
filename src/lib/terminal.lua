@@ -146,6 +146,7 @@ local function terminal_update(terminal, dt)
                 terminal.cursor_y = terminal.cursor_y + 1
                 wrap_if_bottom(terminal)
             else
+                wrap_if_bottom(terminal)
                 terminal_update_character(terminal,
                     terminal.cursor_x,
                     terminal.cursor_y,
@@ -154,7 +155,6 @@ local function terminal_update(terminal, dt)
                 if terminal.cursor_x > terminal.width then
                     terminal.cursor_x = 1
                     terminal.cursor_y = terminal.cursor_y + 1
-                    wrap_if_bottom(terminal)
                 end
                 terminal.dirty = true
             end
