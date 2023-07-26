@@ -174,8 +174,8 @@ function InputModel:backspace()
     self:drop_text_line(cl)
   else
     -- regular merge
-    pre = StringUtils.utf8_sub(line, 1, cc - 2)
-    post = StringUtils.utf8_sub(line, cc)
+    pre = string.usub(line, 1, cc - 2)
+    post = string.usub(line, cc)
     local nval = pre .. post
     self:set_text_line(nval, cl, true)
     self:cursor_left()
@@ -200,8 +200,8 @@ function InputModel:delete()
     self:drop_text_line(cl + 1)
   else
     -- regular merge
-    pre = StringUtils.utf8_sub(line, 1, cc - 1)
-    post = StringUtils.utf8_sub(line, cc + 1)
+    pre = string.usub(line, 1, cc - 1)
+    post = string.usub(line, cc + 1)
   end
   local nval = pre .. post
   self:set_text_line(nval, cl, true)
