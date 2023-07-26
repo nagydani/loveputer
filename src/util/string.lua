@@ -55,8 +55,8 @@ string.is_non_empty_string_array = function(sa)
       if string.is_non_empty_string(s) then
         return true
       end
-      return false
     end
+    return false
   end
 end
 

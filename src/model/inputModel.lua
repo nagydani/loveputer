@@ -305,7 +305,7 @@ function InputModel:history_fwd()
     local hi = self.historic_index
     local next = self.history[hi + 1]
     local current = self:get_text()
-    if string.is_non_empty_string(current) then
+    if string.is_non_empty_string_array(current) then
       self.history[hi] = current
     end
     if next then
