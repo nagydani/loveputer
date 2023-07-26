@@ -147,7 +147,11 @@ end
 
 function InputModel:move_cursor(y, x)
   -- TODO: bounds checks
-  self.cursor = { c = x, l = y }
+  local cl, cc = self:get_cursor_pos()
+  self.cursor = {
+    c = x or cc,
+    l = y or cl
+  }
 end
 
 function InputModel:paste(text)
@@ -157,6 +161,7 @@ end
 function InputModel:backspace()
   local line = self:get_current_line()
   local cl, cc = self:get_cursor_pos()
+  local newcl = cl - 1
   local pre, post
 
   local n = self:get_n_text_lines()
@@ -166,11 +171,12 @@ function InputModel:backspace()
       return
     end
     -- line merge
-    local newcl = cl - 1
     pre = self:get_text_line(newcl)
+    local pre_len = string.ulen(pre)
     post = line
     local nval = pre .. post
-    self:set_text_line(nval, newcl)
+    self:set_text_line(nval, newcl, true)
+    self:move_cursor(newcl, pre_len)
     self:drop_text_line(cl)
   else
     -- regular merge
