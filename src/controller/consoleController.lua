@@ -147,3 +147,17 @@ end
 function ConsoleController:get_status()
   return self.model.input:get_status()
 end
+
+function ConsoleController:autotest()
+  local input = self.model.input
+  local output = self.model.output
+  local term = output.terminal
+  local w = term.width
+  local h = term.height
+  local char = 'x'
+  for _ = 1, (w * h) do
+    input:add_text(char)
+  end
+  evaluate_input(input, output)
+  input:add_text(char)
+end

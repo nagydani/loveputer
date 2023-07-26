@@ -77,6 +77,10 @@ function love.load(args)
   M = Console:new(baseconf)
   C = ConsoleController:new(M, testrun)
   V = ConsoleView:new(baseconf, C)
+
+  if testrun then
+    C:autotest()
+  end
 end
 
 function love.textinput(t)
