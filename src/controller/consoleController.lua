@@ -102,6 +102,9 @@ function ConsoleController:keypressed(k)
     if k == "v" then
       input:paste(love.system.getClipboardText())
     end
+    if k == "l" then
+      out:clear()
+    end
     if love.DEBUG then
       if k == 't' then
         terminal_test()
