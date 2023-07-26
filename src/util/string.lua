@@ -1,39 +1,5 @@
 local utf8 = require("utf8")
 
-StringUtils = {
-  -- TODO: move to string table too
-  -- original from http://lua-users.org/lists/lua-l/2014-04/msg00590.html
-  utf8_sub = function(s, i, j)
-    i = i or 1
-    j = j or -1
-    if i < 1 or j < 1 then
-      local n = utf8.len(s)
-      if not n then return '' end
-      if i > n then return '' end
-      if i < 0 then i = n + 1 + i end
-      if j < 0 then
-        j = n + 1 + j
-      end
-      if i < 0 then i = 1 elseif i > n then i = n end
-      if j < 0 then
-        j = 1
-      elseif j > n then
-        j = n
-      end
-    end
-    if j < i then return "" end
-    i = utf8.offset(s, i)
-    j = utf8.offset(s, j + 1)
-    if i and j then
-      return s:sub(i, j - 1)
-    elseif i then
-      return s:sub(i)
-    else
-      return ""
-    end
-  end,
-}
-
 string.normalize = function(s)
   return string.gsub(s, "%s+", "")
 end
@@ -64,13 +30,44 @@ string.ulen = function(s)
   return utf8.len(s or '')
 end
 
+-- original from http://lua-users.org/lists/lua-l/2014-04/msg00590.html
+string.usub = function(s, i, j)
+  i = i or 1
+  j = j or -1
+  if i < 1 or j < 1 then
+    local n = string.ulen(s)
+    if not n then return '' end
+    if i > n then return '' end
+    if i < 0 then i = n + 1 + i end
+    if j < 0 then
+      j = n + 1 + j
+    end
+    if i < 0 then i = 1 elseif i > n then i = n end
+    if j < 0 then
+      j = 1
+    elseif j > n then
+      j = n
+    end
+  end
+  if j < i then return "" end
+  i = utf8.offset(s, i)
+  j = utf8.offset(s, j + 1)
+  if i and j then
+    return s:sub(i, j - 1)
+  elseif i then
+    return s:sub(i)
+  else
+    return ""
+  end
+end
+
 string.split_at = function(s, i)
   local str = s or ''
   local pre, post = '', ''
   local ulen = string.ulen(str)
   if ulen ~= #str then -- branch off for UTF-8
-    pre = StringUtils.utf8_sub(str, 1, i - 1)
-    post = StringUtils.utf8_sub(str, i)
+    pre = string.usub(str, 1, i - 1)
+    post = string.usub(str, i)
   else
     pre = string.sub(str, 1, i - 1)
     post = string.sub(str, i, #str)
