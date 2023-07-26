@@ -55,6 +55,7 @@ end
 
 function CanvasModel:clear()
   self.terminal:clear()
+  self.terminal:move_to(1, 1)
 end
 
 function CanvasModel:update(dt)
