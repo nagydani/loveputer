@@ -75,7 +75,7 @@ function love.load(args)
   love.window.aspect = G.getWidth() / G.getHeight()
 
   M = Console:new(baseconf)
-  C = ConsoleController:new(M)
+  C = ConsoleController:new(M, testrun)
   V = ConsoleView:new(baseconf, C)
 end
 

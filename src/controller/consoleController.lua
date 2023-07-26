@@ -2,10 +2,11 @@ ConsoleController = {}
 
 require("tests/test_terminal")
 
-function ConsoleController:new(m, init)
+function ConsoleController:new(m, testrun)
   local cc = {
-    time = init or 0,
-    model = m
+    time = 0,
+    model = m,
+    testrun = testrun
   }
   setmetatable(cc, self)
   self.__index = self
@@ -126,7 +127,9 @@ end
 
 function ConsoleController:textinput(t)
   -- TODO: block with events
-  self.model.input:add_text(t)
+  if not self.testrun then
+    self.model.input:add_text(t)
+  end
 end
 
 function ConsoleController:get_terminal()
