@@ -73,7 +73,7 @@ function InputView:draw(input)
         -- adjust in-line: from all lines, move back
         -- the number of line wraps
         - (n - y_offset) * fh
-    G.print('|', (x_offset - 1) * fw, ch)
+    G.print('|', (x_offset - 1.5) * fw, ch)
   end
 
   local drawBackground = function()
