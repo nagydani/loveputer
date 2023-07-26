@@ -31,6 +31,16 @@ For information about installing [LÖVE2D] and [LuaRocks], visit their respectiv
 busted tests
 ```
 
+### Test mode
+
+The game can be run with the `--test` flag, which causes it to launch in test mode.
+
+```sh
+love src --test
+```
+
+This is currently used for testing the canvas terminal, therefore it causes the terminal to be smaller (so overflows are clearly visible), and pre-fills it with characters.
+
 ### Debug mode
 
 Certain diagnostic key combinations are only available in debug mode,
