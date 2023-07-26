@@ -15,8 +15,8 @@ function love.load(args)
 
   local FAC = 1
   if love.hiDPI then FAC = 2 end
-  local font_size = 18 * FAC
-  local border = 4 * FAC
+  local font_size = 16 * FAC
+  local border = 0 * FAC
 
   love.keyboard.setTextInput(true)
   love.keyboard.setKeyRepeat(true)
