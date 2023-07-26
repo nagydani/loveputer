@@ -630,9 +630,4 @@ describe("input model spec", function()
 
     -- TODO: test traversing
   end)
-
-  describe('', function()
-    it('', function()
-    end)
-  end)
 end)
