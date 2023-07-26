@@ -315,8 +315,9 @@ end
 
 function InputModel:history_back()
   local ent = self:get_text()
-  if self.historic_index then
-    local hi = self.historic_index
+  local hi = self.historic_index
+  -- TODO: remember cursor pos?
+  if hi and hi > 0 then
     local prev = self.history[hi - 1]
     if prev then
       local current = self:get_text()
@@ -325,8 +326,8 @@ function InputModel:history_back()
       end
       self:set_text(prev)
       local last_line_len = string.ulen(prev[#prev])
-      self:move_cursor(#prev, last_line_len + 1)
       self.historic_index = hi - 1
+      self:jump_end()
     end
   else
     self.historic_index = self.history:get_last_index()
@@ -335,7 +336,6 @@ function InputModel:history_back()
     self:set_text(prev)
     self:jump_end()
   end
-  self:jump_end() -- TODO: remember cursor pos?
 end
 
 function InputModel:history_fwd()
