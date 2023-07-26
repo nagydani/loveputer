@@ -23,6 +23,11 @@ function ConsoleController:get_timestamp()
   return self.time
 end
 
+local function evaluate_input(input, out)
+  local res = input:evaluate()
+  out:push(res)
+end
+
 function ConsoleController:keypressed(k)
   local out = self.model.output
   local input = self.model.input
@@ -90,8 +95,7 @@ function ConsoleController:keypressed(k)
     end
 
     if not shift and is_enter() then
-      local res = input:evaluate()
-      out:push(res)
+      evaluate_input(input, out)
     end
     if not ctrl and k == "escape" then
       input:cancel()
