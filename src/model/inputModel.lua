@@ -176,7 +176,7 @@ function InputModel:backspace()
     post = line
     local nval = pre .. post
     self:set_text_line(nval, newcl, true)
-    self:move_cursor(newcl, pre_len)
+    self:move_cursor(newcl, pre_len + 1)
     self:drop_text_line(cl)
   else
     -- regular merge
