@@ -7,7 +7,12 @@ require("util/debug")
 local G = love.graphics
 local V
 
-function love.load()
+function love.load(args)
+  local testrun = false
+  for _, a in ipairs(args) do
+    if a == '--test' then testrun = true end
+  end
+
   local FAC = 1
   if love.hiDPI then FAC = 2 end
   local font_size = 18 * FAC
@@ -60,12 +65,14 @@ function love.load()
         fg = Color[Color.white + Color.bright],
         bg = Color[Color.black],
       },
-    }
+    },
+    testrun = testrun,
   }
 
   love.state = {
     testing = false
   }
+  love.window.aspect = G.getWidth() / G.getHeight()
 
   M = Console:new(baseconf)
   C = ConsoleController:new(M)
