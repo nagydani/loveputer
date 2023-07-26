@@ -75,6 +75,29 @@ string.split_at = function(s, i)
   return pre, post
 end
 
+string.wrap_at = function(s, i)
+  if
+      not s or type(s) ~= 'string' or s == '' or
+      not i or type(i) ~= 'number' or i < 1 then
+    return { '' }
+  end
+  local len = string.ulen(s)
+  local mod = math.floor(i)
+  local n = math.floor(len / mod)
+  local res = {}
+  local chunk = ''
+  local rem = s
+  for _ = 1, n do
+    chunk, rem = string.split_at(rem, mod + 1)
+    table.insert(res, chunk)
+  end
+  if string.is_non_empty_string(rem) then
+    table.insert(res, rem)
+  end
+
+  return res
+end
+
 string.split = function(str, char)
   if not type(str) == 'string' then return {} end
   local pattern = string.interleave('([^', char, ']+)')
