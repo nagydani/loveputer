@@ -1,6 +1,6 @@
 ConsoleController = {}
 
-require("tests/test_terminal")
+require("util/test_terminal")
 
 function ConsoleController:new(m, testrun)
   local cc = {
