@@ -31,6 +31,7 @@ function love.load(args)
   local fw = font_main:getWidth('█')
   local w = G.getWidth() - 2 * border
   local h = G.getHeight() + fh
+  local drawableWidth = w - 2 * border
 
   -- properties
   local baseconf = {
@@ -67,6 +68,8 @@ function love.load(args)
         indicator = Color[Color.cyan + Color.bright],
       },
     },
+    drawableWidth = drawableWidth,
+    drawableChars = math.floor(drawableWidth / fw),
     testrun = testrun,
   }
 

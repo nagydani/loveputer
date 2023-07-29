@@ -29,8 +29,8 @@ function InputView:draw(input)
   local inLines = #input
   local apparentLines = inLines
   local inHeight = inLines * fh
-  local drawableWidth = w - 2 * b
-  local drawableChars = math.floor(drawableWidth / fw)
+  local drawableWidth = self.cfg.drawableWidth
+  local drawableChars = self.cfg.drawableChars
   local y = h - b - inHeight
 
 
