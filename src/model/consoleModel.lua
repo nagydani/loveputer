@@ -5,7 +5,7 @@ Console = {}
 
 function Console:new(cfg)
   local c = {
-    input = InputModel:new(),
+    input = InputModel:new(cfg),
     output = CanvasModel:new(cfg),
   }
   setmetatable(c, self)

@@ -1,11 +1,15 @@
 require("model/inputModel")
 
 describe("input model spec", function()
+  local mockConf = {
+    drawableChars = 80,
+  }
+
   -----------------
   --   ASCII     --
   -----------------
   describe('basics', function()
-    local model = InputModel:new()
+    local model = InputModel:new(mockConf)
 
     it('initializes', function()
       assert.are.equal(getmetatable(model), InputModel)
@@ -49,7 +53,7 @@ describe("input model spec", function()
   --   cursor    --
   -----------------
   describe('cursor', function()
-    local model = InputModel:new()
+    local model = InputModel:new(mockConf)
     local test1 = 'text'
     local test_char1 = 'x'
 
@@ -116,7 +120,7 @@ describe("input model spec", function()
   --   UTF-8     --
   -----------------
   describe('handles UTF-8', function()
-    local model = InputModel:new()
+    local model = InputModel:new(mockConf)
 
     local test1 = 'когда'
     local test2 = 'あいうえお'
@@ -239,7 +243,7 @@ describe("input model spec", function()
   --   Del/Bksp  --
   -----------------
   describe('delete and backspace', function()
-    local model = InputModel:new()
+    local model = InputModel:new(mockConf)
 
     local test1 = 'когда'
     local test2 = 'asdf'
@@ -332,7 +336,7 @@ describe("input model spec", function()
   --  Multiline  --
   -----------------
   describe('handles multiline', function()
-    local model = InputModel:new()
+    local model = InputModel:new(mockConf)
     local test1 = 'first\nsecond'
     local test1_l1 = 'first'
     local test1_l2 = 'second'
@@ -426,7 +430,7 @@ describe("input model spec", function()
   end)
   --   cursor    --
   describe('multiline cursor', function()
-    local model = InputModel:new()
+    local model = InputModel:new(mockConf)
     local test1 = 'first\nsecond'
     local test1_l1 = 'first'
     local test1_l2 = 'second'
@@ -569,7 +573,7 @@ describe("input model spec", function()
 
   --   Del/Bksp  --
   describe('multiline delete', function()
-    local model = InputModel:new()
+    local model = InputModel:new(mockConf)
     local test1 = 'firstsecond'
     local test1_l1 = 'first'
     local test1_l2 = 'second'
@@ -609,7 +613,7 @@ describe("input model spec", function()
   --   History   --
   -----------------
   describe('history', function()
-    local model = InputModel:new()
+    local model = InputModel:new(mockConf)
     local test1_l1 = 'first'
     local test1_l2 = 'second'
 
