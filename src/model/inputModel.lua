@@ -8,12 +8,13 @@ require("util/debug")
 
 InputModel = {}
 
-function InputModel:new()
+function InputModel:new(cfg)
   local im = {
     entered = { '' },
     history = Dequeue:new(),
     evaluator = TextEval:new(),
     cursor = { c = 1, l = 1 },
+    wrap = cfg.drawableChars,
   }
   setmetatable(im, self)
   self.__index = self
@@ -228,6 +229,12 @@ end
 -- TODO: refractor these into a single function
 function InputModel:cursor_up()
   local cl, cc = self:get_cursor_pos()
+  local w = self.wrap
+  local llen = string.ulen(self:get_text_line(cl))
+  if llen > w and cc - w > 0 then
+    self:move_cursor(cl, cc - self.wrap)
+    return
+  end
   if cl > 1 then
     local nl = cl - 1
     local target_line = self:get_text_line(nl)
@@ -240,7 +247,13 @@ end
 
 function InputModel:cursor_down()
   local cl, cc = self:get_cursor_pos()
+  local w = self.wrap
   local n = self:get_n_text_lines()
+  local llen = string.ulen(self:get_text_line(cl))
+  if llen > w and cc + w <= llen + 1 then
+    self:move_cursor(cl, cc + self.wrap)
+    return
+  end
   if cl < n then
     local nl = cl + 1
     local target_line = self:get_text_line(nl)
