@@ -264,6 +264,16 @@ function InputModel:cursor_down()
   end
 end
 
+function InputModel:cursor_vertical_move(dir)
+  if dir == 'up' then
+    self:cursor_up()
+  elseif dir == 'down' then
+    self:cursor_down()
+  else
+    return
+  end
+end
+
 function InputModel:cursor_left()
   local cl, cc = self:get_cursor_pos()
   if cc > 1 then

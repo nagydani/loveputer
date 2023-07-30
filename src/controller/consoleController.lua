@@ -68,10 +68,10 @@ function ConsoleController:keypressed(k)
     end
 
     if k == "up" then
-      input:cursor_up()
+      input:cursor_vertical_move('up')
     end
     if k == "down" then
-      input:cursor_down()
+      input:cursor_vertical_move('down')
     end
     if k == "left" then
       input:cursor_left()
