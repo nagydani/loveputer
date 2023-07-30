@@ -226,49 +226,40 @@ function InputModel:get_cursor_y()
   return self.cursor.l
 end
 
--- TODO: refractor these into a single function
-function InputModel:cursor_up()
-  local cl, cc = self:get_cursor_pos()
-  local w = self.wrap
-  local llen = string.ulen(self:get_text_line(cl))
-  if llen > w and cc - w > 0 then
-    self:move_cursor(cl, cc - self.wrap)
-    return
-  end
-  if cl > 1 then
-    local nl = cl - 1
-    local target_line = self:get_text_line(nl)
-    local newc = math.min(cc, 1 + string.ulen(target_line))
-    self:move_cursor(nl, newc)
-  else
-    self:history_back()
-  end
-end
-
-function InputModel:cursor_down()
+function InputModel:cursor_vertical_move(dir)
   local cl, cc = self:get_cursor_pos()
   local w = self.wrap
   local n = self:get_n_text_lines()
   local llen = string.ulen(self:get_text_line(cl))
-  if llen > w and cc + w <= llen + 1 then
-    self:move_cursor(cl, cc + self.wrap)
-    return
+  local function move(is_inline, is_not_last_line, sign, hmove)
+    if llen > w and is_inline() then
+      self:move_cursor(cl, cc + (sign * self.wrap))
+      return
+    end
+    if is_not_last_line() then
+      local nl = cl + (sign * 1)
+      local target_line = self:get_text_line(nl)
+      local newc = math.min(cc, 1 + string.ulen(target_line))
+      self:move_cursor(nl, newc)
+    else
+      hmove(self)
+    end
   end
-  if cl < n then
-    local nl = cl + 1
-    local target_line = self:get_text_line(nl)
-    local newc = math.min(cc, 1 + string.ulen(target_line))
-    self:move_cursor(nl, newc)
-  else
-    self:history_fwd()
-  end
-end
 
-function InputModel:cursor_vertical_move(dir)
   if dir == 'up' then
-    self:cursor_up()
+    move(
+      function() return cc - w > 0 end,
+      function() return cl > 1 end,
+      -1,
+      InputModel.history_back
+    )
   elseif dir == 'down' then
-    self:cursor_down()
+    move(
+      function() return cc + w <= llen + 1 end,
+      function() return cl < n end,
+      1,
+      InputModel.history_fwd
+    )
   else
     return
   end
