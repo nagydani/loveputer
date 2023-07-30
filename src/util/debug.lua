@@ -37,5 +37,13 @@ Debug = {
       res = res .. get_indent() .. 'N ' .. t .. '\n'
     end
     return res
-  end
+  end,
+
+  text_table = function(t)
+    local res = ''
+    for i, l in ipairs(t) do
+      res = res .. string.format("#%02d: '%s'\n", i, l)
+    end
+    return res
+  end,
 }
