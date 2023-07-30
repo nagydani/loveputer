@@ -232,11 +232,11 @@ function InputModel:cursor_vertical_move(dir)
   local n = self:get_n_text_lines()
   local llen = string.ulen(self:get_text_line(cl))
   local full_lines = math.floor(llen / w)
-  local function move(is_inline, is_not_last_line, sign, hmove)
+  local function move(is_inline, is_not_last_line)
     local function sgn(back, fwd)
-      if sign < 0 then
+      if dir == 'up' then
         return back()
-      elseif sign > 0 then
+      elseif dir == 'down' then
         return fwd()
       end
     end
@@ -249,7 +249,10 @@ function InputModel:cursor_vertical_move(dir)
       return
     end
     if is_not_last_line() then
-      local nl = cl + (sign * 1)
+      local nl = sgn(
+        function() return cl - 1 end,
+        function() return cl + 1 end
+      )
       local target_line = self:get_text_line(nl)
       local target_len = string.ulen(target_line)
       local newc
@@ -271,23 +274,22 @@ function InputModel:cursor_vertical_move(dir)
       end
       self:move_cursor(nl, newc)
     else
-      hmove(self)
+      sgn(
+        function() self:history_back() end,
+        function() self:history_fwd() end
+      )
     end
   end
 
   if dir == 'up' then
     move(
       function() return cc - w > 0 end,
-      function() return cl > 1 end,
-      -1,
-      InputModel.history_back
+      function() return cl > 1 end
     )
   elseif dir == 'down' then
     move(
       function() return cc <= full_lines * w end,
-      function() return cl < n end,
-      1,
-      InputModel.history_fwd
+      function() return cl < n end
     )
   else
     return
