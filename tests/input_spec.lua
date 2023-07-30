@@ -634,4 +634,86 @@ describe("input model spec", function()
 
     -- TODO: test traversing
   end)
+
+  ----------------------
+  -- Very long lines  --
+  ----------------------
+  describe('very long lines', function()
+    local cfg = {
+      drawableChars = 80,
+    }
+    local model = InputModel:new(cfg)
+    local w = cfg.drawableChars
+    local n_char = w * 2 + 4
+    local char1 = 'щ'
+    describe('cursor and history', function()
+      for _ = 1, n_char do
+        model:add_text(char1)
+      end
+      local cl0, cc0 = model:get_cursor_pos()
+      assert.same(1, cl0)
+      assert.same(n_char + 1, cc0)
+      it('moves up inside long line', function()
+        model:cursor_up()
+        model:cursor_up()
+        local cl, cc = model:get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(n_char + 1 - w, cc)
+        model:cursor_up()
+        cl, cc = model:get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(n_char + 1 - w - w, cc)
+        -- -- history action
+        -- model:cursor_up()
+        -- cl, cc = model:get_cursor_pos()
+        -- assert.same(1, cl)
+        -- assert.same(1, cc)
+      end)
+      it('moves down inside long line', function()
+        -- -- history action
+        -- model:cursor_down()
+        model:jump_home()
+        local cl, cc = model:get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(1, cc)
+        model:cursor_down()
+        cl, cc = model:get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(1 + w, cc)
+        model:cursor_down()
+        cl, cc = model:get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(1 + w + w, cc)
+        -- history action
+        model:cursor_down()
+        cl, cc = model:get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(1, cc)
+      end)
+
+      model:evaluate()
+      assert.same({ '' }, model:get_text())
+      it('moves up in history on first line', function()
+        model:cursor_up()
+        local cl, cc = model:get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(n_char + 1, cc)
+        -- model:cursor_up()
+      end)
+      it('moves down in history on last line', function()
+        local t2 = 'text2 Привет'
+        model:cancel()
+        model:add_text(t2)
+        model:history_back()
+        local cl, cc = model:get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(n_char + 1, cc)
+        model:cursor_down() -- should result in history_fwd
+        assert.same({ t2 }, model:get_text())
+        cl, cc = model:get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(string.ulen(t2) + 1, cc)
+      end)
+    end)
+  end)
 end)
