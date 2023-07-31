@@ -28,7 +28,13 @@ function love.load(args)
   local fw = font_main:getWidth('█')
   local w = G.getWidth() - 2 * border
   local h = G.getHeight() + fh
+  local debugheight = 6
+  local debugwidth = math.floor(debugheight * (80 / 25))
   local drawableWidth = w - 2 * border
+  if testrun then
+    drawableWidth = debugwidth * fw
+  end
+
   love.keyboard.setTextInput(true)
   love.keyboard.setKeyRepeat(true)
   if love.system.getOS() == 'Android' then
@@ -74,6 +80,9 @@ function love.load(args)
         indicator = Color[Color.cyan + Color.bright],
       },
     },
+
+    debugheight = debugheight,
+    debugwidth = debugwidth,
     drawableWidth = drawableWidth,
     drawableChars = math.floor(drawableWidth / fw),
     testrun = testrun,
