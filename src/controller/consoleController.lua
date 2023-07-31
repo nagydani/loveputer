@@ -41,7 +41,7 @@ function ConsoleController:keypressed(k)
       input:cancel()
       TerminalTest:test(out.terminal)
     elseif love.state.testing == 'waiting' then
-      -- TerminalTest:reset(out.terminal)
+      TerminalTest:reset(out.terminal)
       love.state.testing = false
     end
   end
