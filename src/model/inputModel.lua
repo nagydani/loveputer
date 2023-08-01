@@ -255,13 +255,13 @@ function InputModel:cursor_vertical_move(dir)
       )
       local target_line = self:get_text_line(nl)
       local target_len = string.ulen(target_line)
+      local offset = math.fmod(cc, w)
       local newc
       if target_len > w then
         local base = sgn(
           function() return math.floor(target_len / w) * w end,
           function() return 0 end
         )
-        local offset = math.fmod(cc, w)
         local t_offset = sgn(
           function() return math.fmod(target_len, w) + 1 end,
           function() return math.fmod(w, target_len) end
@@ -270,7 +270,7 @@ function InputModel:cursor_vertical_move(dir)
         local new_off = math.min(offset, t_offset)
         newc = base + new_off
       else
-        newc = math.min(cc, 1 + string.ulen(target_line))
+        newc = math.min(offset, 1 + string.ulen(target_line))
       end
       self:move_cursor(nl, newc)
     else
