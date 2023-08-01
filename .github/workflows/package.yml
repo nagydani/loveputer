@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 env:
   PRODUCT_NAME: ${{ vars.PRODUCT_NAME }}
+  PRODUCT_NAME_ANSI: ${{ vars.PRODUCT_NAME_ANSI }}
   PRODUCT_NAME_SC: ${{ vars.PRODUCT_NAME_SC }}
   BUNDLE_ID: com.example.${{ vars.PRODUCT_NAME_SC }}
   BUILD_TYPE: ${{ fromJSON('["dev", "release"]')[startsWith(github.ref, 'refs/tags/v')] }}
@@ -78,7 +79,7 @@ jobs:
           bundle-id: ${{ env.BUNDLE_ID }}
           love-package: ${{ env.LOVE_ARTIFACT_NAME }}
           # love-package: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
-          product-name: ${{ env.PRODUCT_NAME }}
+          product-name: ${{ env.PRODUCT_NAME_ANSI }}
           output-folder: ${{ env.OUTPUT_FOLDER }}
           icon-path: ./src/assets/example_icon.png
       - name: upload .deb
