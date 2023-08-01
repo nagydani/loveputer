@@ -132,7 +132,7 @@ jobs:
           VER: ${{ github.ref_name }}
         run: echo VER_CODE="$(echo $VERSION | sed -e 's/^v//' -e 's/\.//g')" >> $GITHUB_ENV
       - name: Package for android
-        uses: aldum/love-actions-android@v0.0.3-t
+        uses: aldum/love-actions-android@v0.0.4-t
         with:
           love-ref: "main"
           no-soft-keyboard: "enabled"
