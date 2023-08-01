@@ -5,5 +5,12 @@
   },
   "Lua.workspace.library": [
     "${3rd}/love2d/library"
-  ]
+  ],
+  "files.exclude": {
+    "**/.vscode-oss/extensions/sumneko.lua*": true,
+    "**/.bloop": true,
+    "**/.bsp": true,
+    "**/.metals": true,
+    "**/target": true,
+  },
 }

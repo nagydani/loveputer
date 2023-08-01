@@ -1,10 +1,21 @@
 Eval = {
+  kind = '',
   apply = function(input)
-    local cpy = {}
-    -- TODO logic
-    for i = #input, 1, -1 do
-      table.insert(cpy, input[i])
-    end
-    return cpy
+    return input
   end
 }
+
+
+function Eval:inherit(kind, evaluator)
+  local e = {
+    kind = kind
+  }
+  setmetatable(e, self)
+  self.__index = self
+
+  if type(evaluator) == 'function' then
+    e.apply = evaluator
+  end
+
+  return e
+end
