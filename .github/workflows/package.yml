@@ -132,8 +132,9 @@ jobs:
           VER: ${{ github.ref_name }}
         run: echo VER_CODE="$(echo $VERSION | sed -e 's/^v//' -e 's/\.//g')" >> $GITHUB_ENV
       - name: Package for android
-        uses: love-actions/love-actions-android@v1
+        uses: aldum/love-actions-android@v0.0.1-t
         with:
+          love-ref: "main"
           app-name: ${{ env.PRODUCT_NAME }}
           bundle-id: ${{ env.BUNDLE_ID }}
           resource-path: "./res/android"
