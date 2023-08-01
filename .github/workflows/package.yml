@@ -13,8 +13,8 @@ env:
   LOVE_ARTIFACT_NAME: ${{ vars.PRODUCT_NAME_SC }}.love
   LOVE_DEBUG_APK_NAME: ${{ vars.PRODUCT_NAME }}-debug.apk
   LOVE_APK_NAME: ${{ vars.PRODUCT_NAME }}-release.apk
-  LOVE_APPIMAGE: ${{ vars.PRODUCT_NAME }}.AppImage
-  LOVE_DEB: ${{ vars.PRODUCT_NAME }}.deb
+  LOVE_APPIMAGE: ${{ vars.PRODUCT_NAME_ANSI }}.AppImage
+  LOVE_DEB: ${{ vars.PRODUCT_NAME_ANSI }}.deb
   LOVE_JS: ${{ vars.PRODUCT_NAME }}.web.zip
 
 jobs:
@@ -85,12 +85,12 @@ jobs:
       - name: upload .deb
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.PRODUCT_NAME }}.deb
+          name: ${{ env.LOVE_DEB }}
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_DEB }}
       - name: upload AppImage
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.PRODUCT_NAME }}.AppImage
+          name: ${{ env.LOVE_APPIMAGE }}
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_APPIMAGE }}
 
   build-web:
