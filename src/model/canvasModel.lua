@@ -11,10 +11,8 @@ CanvasModel = {}
 function CanvasModel:new(cfg)
   local w, h
   if cfg.testrun then
-    local debugheight = 6
-    local debugwidth = math.floor(debugheight * love.window.aspect)
-    w = debugwidth * cfg.fw
-    h = debugheight * cfg.fh
+    w = cfg.debugwidth * cfg.fw
+    h = cfg.debugheight * cfg.fh
   else
     w = G.getWidth() - 2 * cfg.border
     h = cfg.get_drawable_height()
@@ -22,7 +20,7 @@ function CanvasModel:new(cfg)
   local term = Terminal(w, h, cfg.font_main)
 
   local color = cfg.colors.terminal
-  -- term:hide_cursor()
+  term:hide_cursor()
   term:set_cursor_color(unpack(color.fg))
   term:set_cursor_backcolor(unpack(color.bg))
   term:clear()

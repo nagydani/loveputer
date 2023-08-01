@@ -18,9 +18,6 @@ function love.load(args)
   local font_size = 16 * FAC
   local border = 0 * FAC
 
-  love.keyboard.setTextInput(true)
-  love.keyboard.setKeyRepeat(true)
-
   local font_dir = "assets/fonts/"
   local font_main = love.graphics.newFont(
     font_dir .. "ubuntu_mono_bold_nerd.ttf", font_size)
@@ -31,6 +28,22 @@ function love.load(args)
   local fw = font_main:getWidth('█')
   local w = G.getWidth() - 2 * border
   local h = G.getHeight() + fh
+  local debugheight = 6
+  local debugwidth = math.floor(debugheight * (80 / 25))
+  local drawableWidth = w - 2 * border
+  if testrun then
+    drawableWidth = debugwidth * fw
+  end
+
+  love.keyboard.setTextInput(true)
+  love.keyboard.setKeyRepeat(true)
+  if love.system.getOS() == 'Android' then
+    love.isAndroid = true
+    love.window.setMode(w, h, {
+      fullscreen = true,
+      fullscreentype = "exclusive",
+    })
+  end
 
   -- properties
   local baseconf = {
@@ -67,6 +80,11 @@ function love.load(args)
         indicator = Color[Color.cyan + Color.bright],
       },
     },
+
+    debugheight = debugheight,
+    debugwidth = debugwidth,
+    drawableWidth = drawableWidth,
+    drawableChars = math.floor(drawableWidth / fw),
     testrun = testrun,
   }
 
@@ -108,8 +126,4 @@ end
 
 function love.draw()
   V:draw()
-end
-
-function love.resize(w, h)
-  V:resize(w, h)
 end

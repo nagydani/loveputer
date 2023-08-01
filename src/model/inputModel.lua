@@ -8,12 +8,13 @@ require("util/debug")
 
 InputModel = {}
 
-function InputModel:new()
+function InputModel:new(cfg)
   local im = {
     entered = { '' },
     history = Dequeue:new(),
     evaluator = TextEval:new(),
     cursor = { c = 1, l = 1 },
+    wrap = cfg.drawableChars,
   }
   setmetatable(im, self)
   self.__index = self
@@ -225,29 +226,73 @@ function InputModel:get_cursor_y()
   return self.cursor.l
 end
 
--- TODO: refractor these into a single function
-function InputModel:cursor_up()
+function InputModel:cursor_vertical_move(dir)
   local cl, cc = self:get_cursor_pos()
-  if cl > 1 then
-    local nl = cl - 1
-    local target_line = self:get_text_line(nl)
-    local newc = math.min(cc, 1 + string.ulen(target_line))
-    self:move_cursor(nl, newc)
-  else
-    self:history_back()
-  end
-end
-
-function InputModel:cursor_down()
-  local cl, cc = self:get_cursor_pos()
+  local w = self.wrap
   local n = self:get_n_text_lines()
-  if cl < n then
-    local nl = cl + 1
-    local target_line = self:get_text_line(nl)
-    local newc = math.min(cc, 1 + string.ulen(target_line))
-    self:move_cursor(nl, newc)
+  local llen = string.ulen(self:get_text_line(cl))
+  local full_lines = math.floor(llen / w)
+  local function move(is_inline, is_not_last_line)
+    local function sgn(back, fwd)
+      if dir == 'up' then
+        return back()
+      elseif dir == 'down' then
+        return fwd()
+      end
+    end
+    if llen > w and is_inline() then
+      local newc = sgn(
+        function() return math.max(cc - self.wrap, 0) end,
+        function() return math.min(cc + self.wrap, llen + 1) end
+      )
+      self:move_cursor(cl, newc)
+      return
+    end
+    if is_not_last_line() then
+      local nl = sgn(
+        function() return cl - 1 end,
+        function() return cl + 1 end
+      )
+      local target_line = self:get_text_line(nl)
+      local target_len = string.ulen(target_line)
+      local offset = math.fmod(cc, w)
+      local newc
+      if target_len > w then
+        local base = sgn(
+          function() return math.floor(target_len / w) * w end,
+          function() return 0 end
+        )
+        local t_offset = sgn(
+          function() return math.fmod(target_len, w) + 1 end,
+          function() return math.fmod(w, target_len) end
+        )
+
+        local new_off = math.min(offset, t_offset)
+        newc = base + new_off
+      else
+        newc = math.min(offset, 1 + string.ulen(target_line))
+      end
+      self:move_cursor(nl, newc)
+    else
+      sgn(
+        function() self:history_back() end,
+        function() self:history_fwd() end
+      )
+    end
+  end
+
+  if dir == 'up' then
+    move(
+      function() return cc - w > 0 end,
+      function() return cl > 1 end
+    )
+  elseif dir == 'down' then
+    move(
+      function() return cc <= full_lines * w end,
+      function() return cl < n end
+    )
   else
-    self:history_fwd()
+    return
   end
 end
 

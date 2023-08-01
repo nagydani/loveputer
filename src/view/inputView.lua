@@ -29,8 +29,8 @@ function InputView:draw(input)
   local inLines = #input
   local apparentLines = inLines
   local inHeight = inLines * fh
-  local drawableWidth = w - 2 * b
-  local drawableChars = math.floor(drawableWidth / fw)
+  local drawableWidth = self.cfg.drawableWidth
+  local drawableChars = self.cfg.drawableChars
   local y = h - b - inHeight
 
 
@@ -40,7 +40,7 @@ function InputView:draw(input)
   local app = 0
   local breaks = 0
   for i, l in ipairs(input) do
-    local n = math.floor(string.len(l) / drawableChars)
+    local n = math.floor(string.ulen(l) / drawableChars)
     -- remember how many apparent lines will be overall
     cursor_wrap[i] = n + 1
     breaks = breaks + n

@@ -1,11 +1,15 @@
 require("model/inputModel")
 
 describe("input model spec", function()
+  local mockConf = {
+    drawableChars = 80,
+  }
+
   -----------------
   --   ASCII     --
   -----------------
   describe('basics', function()
-    local model = InputModel:new()
+    local model = InputModel:new(mockConf)
 
     it('initializes', function()
       assert.are.equal(getmetatable(model), InputModel)
@@ -49,7 +53,7 @@ describe("input model spec", function()
   --   cursor    --
   -----------------
   describe('cursor', function()
-    local model = InputModel:new()
+    local model = InputModel:new(mockConf)
     local test1 = 'text'
     local test_char1 = 'x'
 
@@ -116,7 +120,7 @@ describe("input model spec", function()
   --   UTF-8     --
   -----------------
   describe('handles UTF-8', function()
-    local model = InputModel:new()
+    local model = InputModel:new(mockConf)
 
     local test1 = 'когда'
     local test2 = 'あいうえお'
@@ -239,7 +243,7 @@ describe("input model spec", function()
   --   Del/Bksp  --
   -----------------
   describe('delete and backspace', function()
-    local model = InputModel:new()
+    local model = InputModel:new(mockConf)
 
     local test1 = 'когда'
     local test2 = 'asdf'
@@ -332,7 +336,7 @@ describe("input model spec", function()
   --  Multiline  --
   -----------------
   describe('handles multiline', function()
-    local model = InputModel:new()
+    local model = InputModel:new(mockConf)
     local test1 = 'first\nsecond'
     local test1_l1 = 'first'
     local test1_l2 = 'second'
@@ -426,7 +430,7 @@ describe("input model spec", function()
   end)
   --   cursor    --
   describe('multiline cursor', function()
-    local model = InputModel:new()
+    local model = InputModel:new(mockConf)
     local test1 = 'first\nsecond'
     local test1_l1 = 'first'
     local test1_l2 = 'second'
@@ -500,7 +504,7 @@ describe("input model spec", function()
     end)
 
     it('moves up', function()
-      model:cursor_up()
+      model:cursor_vertical_move('up')
       local cl, cc = model:get_cursor_pos()
       assert.same(cl, test2_len - 1) -- second last row ( in this case, first )
       assert.same(1 + math.min(
@@ -510,7 +514,7 @@ describe("input model spec", function()
     end)
     it('moves down', function()
       model:jump_home()
-      model:cursor_down()
+      model:cursor_vertical_move('down')
       local cl, cc = model:get_cursor_pos()
       assert.same(cl, 2)         -- second row
       assert.same(cl, test2_len) -- same as last
@@ -518,12 +522,12 @@ describe("input model spec", function()
     end)
 
     it('pages history down', function()
-      model:cursor_down()
+      model:cursor_vertical_move('down')
       local t = model:get_text()
       assert.same({ '' }, t) -- next is empty
     end)
     it('pages history up', function()
-      model:cursor_up()
+      model:cursor_vertical_move('up')
       local t = model:get_text()
       local cl, cc = model:get_cursor_pos()
       local ent = model:get_text()
@@ -537,7 +541,7 @@ describe("input model spec", function()
 
     it('traverses over line breaks', function()
       model:jump_home()
-      model:cursor_down()
+      model:cursor_vertical_move('down')
       local cl1, cc1 = model:get_cursor_pos()
       assert.same(cl1, 2)
       assert.same(cc1, 1)
@@ -552,7 +556,7 @@ describe("input model spec", function()
       local cl3, cc3 = model:get_cursor_pos()
       assert.same(cl3, test3_len)
       assert.same(cc3, 1 + string.ulen(test3_l2))
-      model:cursor_up()
+      model:cursor_vertical_move('up')
       local cl4, cc4 = model:get_cursor_pos()
       assert.same(cl4, test3_len - 1)
       assert.same(1 + math.min(
@@ -569,7 +573,7 @@ describe("input model spec", function()
 
   --   Del/Bksp  --
   describe('multiline delete', function()
-    local model = InputModel:new()
+    local model = InputModel:new(mockConf)
     local test1 = 'firstsecond'
     local test1_l1 = 'first'
     local test1_l2 = 'second'
@@ -577,7 +581,7 @@ describe("input model spec", function()
       model:add_text(test1_l1)
       model:line_feed()
       model:add_text(test1_l2)
-      model:cursor_up()
+      model:cursor_vertical_move('up')
       model:delete()
       local res = model:get_text()
       assert.same({ test1 }, res)
@@ -593,7 +597,7 @@ describe("input model spec", function()
       model:line_feed()
       model:add_text(test1_l2)
       model:jump_home()
-      model:cursor_down()
+      model:cursor_vertical_move('down')
       model:backspace()
       local res = model:get_text()
       assert.same({ test1 }, res)
@@ -609,7 +613,7 @@ describe("input model spec", function()
   --   History   --
   -----------------
   describe('history', function()
-    local model = InputModel:new()
+    local model = InputModel:new(mockConf)
     local test1_l1 = 'first'
     local test1_l2 = 'second'
 
@@ -623,11 +627,93 @@ describe("input model spec", function()
       assert.same(test1_l1, h1[1])
 
       model:add_text(test1_l2)
-      model:cursor_up()
+      model:cursor_vertical_move('up')
       local t = model:get_text()
       assert.same({ test1_l1 }, t)
     end)
 
     -- TODO: test traversing
+  end)
+
+  ----------------------
+  -- Very long lines  --
+  ----------------------
+  describe('very long lines', function()
+    local cfg = {
+      drawableChars = 80,
+    }
+    local model = InputModel:new(cfg)
+    local w = cfg.drawableChars
+    local n_char = w * 2 + 4
+    local char1 = 'щ'
+    describe('cursor and history', function()
+      for _ = 1, n_char do
+        model:add_text(char1)
+      end
+      local cl0, cc0 = model:get_cursor_pos()
+      assert.same(1, cl0)
+      assert.same(n_char + 1, cc0)
+      it('moves up inside long line', function()
+        model:cursor_vertical_move('up')
+        model:cursor_vertical_move('up')
+        local cl, cc = model:get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(n_char + 1 - w, cc)
+        model:cursor_vertical_move('up')
+        cl, cc = model:get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(n_char + 1 - w - w, cc)
+        -- -- history action
+        -- model:cursor_vertical_move('up')
+        -- cl, cc = model:get_cursor_pos()
+        -- assert.same(1, cl)
+        -- assert.same(1, cc)
+      end)
+      it('moves down inside long line', function()
+        -- -- history action
+        -- model:cursor_vertical_move('down')
+        model:jump_home()
+        local cl, cc = model:get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(1, cc)
+        model:cursor_vertical_move('down')
+        cl, cc = model:get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(1 + w, cc)
+        model:cursor_vertical_move('down')
+        cl, cc = model:get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(1 + w + w, cc)
+        -- history action
+        model:cursor_vertical_move('down')
+        cl, cc = model:get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(1, cc)
+      end)
+
+      model:evaluate()
+      assert.same({ '' }, model:get_text())
+      it('moves up in history on first line', function()
+        model:cursor_vertical_move('up')
+        local cl, cc = model:get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(n_char + 1, cc)
+        -- model:cursor_vertical_move('up')
+      end)
+      it('moves down in history on last line', function()
+        local t2 = 'text2 Привет'
+        model:cancel()
+        model:add_text(t2)
+        model:history_back()
+        local cl, cc = model:get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(n_char + 1, cc)
+        model:cursor_vertical_move('down') -- should result in history_fwd
+        assert.same({ t2 }, model:get_text())
+        cl, cc = model:get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(string.ulen(t2) + 1, cc)
+      end)
+    end)
   end)
 end)

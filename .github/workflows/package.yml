@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 env:
   PRODUCT_NAME: ${{ vars.PRODUCT_NAME }}
+  PRODUCT_NAME_ANSI: ${{ vars.PRODUCT_NAME_ANSI }}
   PRODUCT_NAME_SC: ${{ vars.PRODUCT_NAME_SC }}
   BUNDLE_ID: com.example.${{ vars.PRODUCT_NAME_SC }}
   BUILD_TYPE: ${{ fromJSON('["dev", "release"]')[startsWith(github.ref, 'refs/tags/v')] }}
@@ -12,8 +13,8 @@ env:
   LOVE_ARTIFACT_NAME: ${{ vars.PRODUCT_NAME_SC }}.love
   LOVE_DEBUG_APK_NAME: ${{ vars.PRODUCT_NAME }}-debug.apk
   LOVE_APK_NAME: ${{ vars.PRODUCT_NAME }}-release.apk
-  LOVE_APPIMAGE: ${{ vars.PRODUCT_NAME }}.AppImage
-  LOVE_DEB: ${{ vars.PRODUCT_NAME }}.deb
+  LOVE_APPIMAGE: ${{ vars.PRODUCT_NAME_ANSI }}.AppImage
+  LOVE_DEB: ${{ vars.PRODUCT_NAME_ANSI }}.deb
   LOVE_JS: ${{ vars.PRODUCT_NAME }}.web.zip
 
 jobs:
@@ -78,18 +79,18 @@ jobs:
           bundle-id: ${{ env.BUNDLE_ID }}
           love-package: ${{ env.LOVE_ARTIFACT_NAME }}
           # love-package: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
-          product-name: ${{ env.PRODUCT_NAME }}
+          product-name: ${{ env.PRODUCT_NAME_ANSI }}
           output-folder: ${{ env.OUTPUT_FOLDER }}
           icon-path: ./src/assets/example_icon.png
       - name: upload .deb
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.PRODUCT_NAME }}.deb
+          name: ${{ env.LOVE_DEB }}
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_DEB }}
       - name: upload AppImage
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.PRODUCT_NAME }}.AppImage
+          name: ${{ env.LOVE_APPIMAGE }}
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_APPIMAGE }}
 
   build-web:
@@ -132,8 +133,10 @@ jobs:
           VER: ${{ github.ref_name }}
         run: echo VER_CODE="$(echo $VERSION | sed -e 's/^v//' -e 's/\.//g')" >> $GITHUB_ENV
       - name: Package for android
-        uses: love-actions/love-actions-android@v1
+        uses: aldum/love-actions-android@v0.1.0
         with:
+          love-ref: "main"
+          no-soft-keyboard: "enabled"
           app-name: ${{ env.PRODUCT_NAME }}
           bundle-id: ${{ env.BUNDLE_ID }}
           resource-path: "./res/android"

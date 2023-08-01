@@ -1,6 +1,6 @@
 ConsoleController = {}
 
-require("tests/test_terminal")
+require("util/test_terminal")
 
 function ConsoleController:new(m, testrun)
   local cc = {
@@ -41,7 +41,7 @@ function ConsoleController:keypressed(k)
       input:cancel()
       TerminalTest:test(out.terminal)
     elseif love.state.testing == 'waiting' then
-      -- TerminalTest:reset(out.terminal)
+      TerminalTest:reset(out.terminal)
       love.state.testing = false
     end
   end
@@ -68,10 +68,10 @@ function ConsoleController:keypressed(k)
     end
 
     if k == "up" then
-      input:cursor_up()
+      input:cursor_vertical_move('up')
     end
     if k == "down" then
-      input:cursor_down()
+      input:cursor_vertical_move('down')
     end
     if k == "left" then
       input:cursor_left()
