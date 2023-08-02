@@ -6,11 +6,19 @@ require("util/string")
 
 require("util/debug")
 
+InputText = {}
+function InputText:new(values)
+  local text = Dequeue:new(values)
+  if not values then text:append('') end
+  -- if values then print(Debug.text_table(values or {})) end
+  return text
+end
+
 InputModel = {}
 
 function InputModel:new(cfg)
   local im = {
-    entered = { '' },
+    entered = InputText:new(),
     history = Dequeue:new(),
     evaluator = TextEval:new(),
     cursor = { c = 1, l = 1 },
@@ -24,7 +32,7 @@ end
 
 function InputModel:remember(input)
   if string.is_non_empty_string_array(input) then
-    self.history:push(input)
+    self.history:append(input)
   end
 end
 
@@ -44,7 +52,6 @@ function InputModel:add_text(text)
         if k == 1 then
           local nval = pre .. line
           self:set_text_line(nval, sl, true)
-          -- self:advance_cursor(0, 1)
         elseif k == n_added then
           local nval = line .. post
           local last_line_i = sl + k - 1
@@ -53,32 +60,31 @@ function InputModel:add_text(text)
         else
           self:insert_text_line(line, sl + k - 1)
         end
-        -- local last_len = string.ulen(lines[n_added])
       end
     end
   end
 end
 
 function InputModel:set_text(text, keep_cursor)
+  self.entered = nil
   if type(text) == 'string' then
     local lines = string.lines(text)
     local n_added = #lines
     if n_added == 1 then
-      self.entered = { text }
-    else
+      self.entered = InputText:new({ text })
     end
     if not keep_cursor then
       self:update_cursor(true)
     end
   elseif type(text) == 'table' then
-    self.entered = text
+    self.entered = InputText:new(text)
   end
   self:jump_end()
 end
 
 function InputModel:set_text_line(text, ln, keep_cursor)
   if type(text) == 'string' then
-    self.entered[ln] = text
+    self.entered:update(text, ln)
     if not keep_cursor then
       self:update_cursor(true)
     end
@@ -86,14 +92,13 @@ function InputModel:set_text_line(text, ln, keep_cursor)
 end
 
 function InputModel:drop_text_line(ln)
-  table.remove(self.entered, ln)
+  self.entered:remove(ln)
 end
 
 function InputModel:insert_text_line(text, li)
   local l = li or self:get_cursor_y()
-  local old = self.entered
   self.cursor.y = l + 1
-  return table.insert(old, l, text)
+  self.entered:insert(text, l)
 end
 
 function InputModel:line_feed()
@@ -106,20 +111,20 @@ function InputModel:line_feed()
 end
 
 function InputModel:get_text()
-  return self.entered or { '' }
+  return self.entered or InputText:new()
 end
 
 function InputModel:get_text_line(l)
-  return self.entered[l]
+  return self.entered:get(l)
 end
 
 function InputModel:get_n_text_lines()
-  return #self.entered
+  return self.entered:length()
 end
 
 function InputModel:get_current_line()
   local cl = self:get_cursor_y() or 1
-  return self.entered[cl]
+  return self.entered:get(cl)
 end
 
 function InputModel:update_cursor(replace_line)
@@ -323,7 +328,7 @@ function InputModel:cursor_right()
 end
 
 function InputModel:clear()
-  self:set_text({ '' })
+  self.entered = InputText:new()
   self:update_cursor(true)
   self.historic_index = nil
 end

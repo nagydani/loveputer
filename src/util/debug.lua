@@ -41,8 +41,10 @@ Debug = {
 
   text_table = function(t)
     local res = ''
-    for i, l in ipairs(t) do
-      res = res .. string.format("#%02d: '%s'\n", i, l)
+    if t then
+      for i, l in ipairs(t) do
+        res = res .. string.format("#%02d: '%s'\n", i, l)
+      end
     end
     return res
   end,
