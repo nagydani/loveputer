@@ -73,6 +73,7 @@ function love.load(args)
       input = {
         bg = Color[Color.white],
         fg = Color[Color.blue + Color.bright],
+        cursor = Color[Color.white + Color.bright],
       },
       statusline = {
         fg = Color[Color.white + Color.bright],

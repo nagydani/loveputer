@@ -59,8 +59,14 @@ function InputView:draw(input)
   local function drawCursor()
     -- TODO pass cursor position instead of querying
     local cl, cc = self.controller.model.input:get_cursor_pos()
-    local x_offset = math.fmod(cc, drawableChars)
-    local y_offset = math.floor(cc / drawableChars)
+    local x_offset = (function()
+      if cc > drawableChars then
+        return math.fmod(cc, drawableChars)
+      else
+        return cc
+      end
+    end)()
+    local y_offset = math.floor((cc - 1) / drawableChars)
     local yh = 0
     local n = cursor_wrap[cl]
     -- how many apparent lines we have so far?
@@ -75,7 +81,10 @@ function InputView:draw(input)
         -- adjust in-line: from all lines, move back
         -- the number of line wraps
         - (n - y_offset) * fh
+    G.push('all')
+    G.setColor(colors.cursor)
     G.print('|', (x_offset - 1.5) * fw, ch)
+    G.pop()
   end
 
   local drawBackground = function()
