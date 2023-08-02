@@ -29,10 +29,12 @@ function Dequeue:append(v)
 end
 
 function Dequeue:insert(v, i)
+  -- TODO: bounds check
   table.insert(self, i, v)
 end
 
 function Dequeue:update(v, i)
+  -- TODO: bounds check
   self[i] = v
 end
 
