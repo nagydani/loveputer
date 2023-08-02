@@ -15,8 +15,8 @@ function love.load(args)
 
   local FAC = 1
   if love.hiDPI then FAC = 2 end
-  local font_size = 16 * FAC
-  local border = 0 * FAC
+  local font_size = 32 * FAC
+  local border = 2 * FAC
 
   local font_dir = "assets/fonts/"
   local font_main = love.graphics.newFont(
