@@ -131,9 +131,7 @@ end
 
 function ConsoleController:textinput(t)
   -- TODO: block with events
-  if not self.testrun then
-    self.model.input:add_text(t)
-  end
+  self.model.input:add_text(t)
 end
 
 function ConsoleController:get_terminal()

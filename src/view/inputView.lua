@@ -2,6 +2,8 @@ local G = love.graphics
 
 require("view/statusline")
 
+require("util/debug")
+
 InputView = {}
 
 function InputView:new(cfg, ctrl)

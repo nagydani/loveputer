@@ -3,6 +3,8 @@ require("view/titleView")
 require("view/canvasView")
 require("view/inputView")
 
+require("util/debug")
+
 local G = love.graphics
 
 ConsoleView = {}
