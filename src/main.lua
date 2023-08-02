@@ -7,6 +7,26 @@ require("util/debug")
 local G = love.graphics
 local V
 
+local function set_print()
+  local origPrint = _G.print
+  _G.orig_print = origPrint
+  local magicPrint = function(...)
+    local arg = { ... }
+    if type(arg) == 'string' then
+      origPrint('s', arg)
+      M.output:push({ arg })
+    end
+    if type(arg) == 'table' then
+      -- origPrint('t', string.join(arg, '\t'))
+      for _, v in ipairs(arg) do
+        origPrint(v)
+      end
+      M.output:push(arg)
+    end
+  end
+  _G.print = magicPrint
+end
+
 function love.load(args)
   local testrun = false
   for _, a in ipairs(args) do
@@ -97,6 +117,8 @@ function love.load(args)
   M = Console:new(baseconf)
   C = ConsoleController:new(M, testrun)
   V = ConsoleView:new(baseconf, C)
+
+  set_print()
 
   if testrun then
     C:autotest()
