@@ -136,6 +136,17 @@ describe("StringUtils", function()
       local w = { word }
       local res = string.join(w, ', ')
       assert.same(word, res)
+      res = string.join(word, ', ')
+      assert.same(word, res)
+    end)
+
+    it('single line', function()
+      local str = 'lorem ipsum dolor'
+      local w = { str }
+      local res = string.join(w, '\n')
+      assert.same(str, res)
+      res = string.join(str, ', ')
+      assert.same(str, res)
     end)
   end)
 
