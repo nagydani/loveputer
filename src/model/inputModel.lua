@@ -115,11 +115,13 @@ function InputModel:get_text()
 end
 
 function InputModel:get_text_line(l)
-  return self.entered:get(l)
+  local ent = self.entered or InputText:new()
+  return ent:get(l)
 end
 
 function InputModel:get_n_text_lines()
-  return self.entered:length()
+  local ent = self.entered or InputText:new()
+  return ent:length()
 end
 
 function InputModel:get_current_line()
