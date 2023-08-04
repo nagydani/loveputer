@@ -44,6 +44,26 @@ function ConsoleView:draw()
   G.scale(self.fac, self.fac)
 
   local terminal = self.controller:get_terminal()
+  if love.DEBUG then
+    self:draw_placeholder()
+  end
   self.canvas:draw(terminal)
   self.input:draw(self.controller:get_input())
+end
+
+function ConsoleView:draw_placeholder()
+  local band = self.cfg.fh
+  local w = self.cfg.w
+  local h = self.cfg.h
+  G.push('all')
+  love.graphics.setColor(Color[Color.yellow])
+  for o = -h, w, 2 * band do
+    love.graphics.polygon("fill"
+    , o + 0, h
+    , o + h, 0
+    , o + h + band, 0
+    , o + band, h
+    )
+  end
+  G.pop()
 end
