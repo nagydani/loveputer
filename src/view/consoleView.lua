@@ -10,28 +10,12 @@ local G = love.graphics
 ConsoleView = {}
 
 function ConsoleView:new(cfg, ctrl)
-  local conf = {
-  }
-  for k, v in pairs(cfg) do
-    conf[k] = v
-  end
-
-  local FAC = conf.fac
-  G.scale(FAC, FAC)
-  G.setFont(conf.font_main)
-
-  local BORDER = conf.border
-  conf.fac = FAC
-  conf.border = BORDER
-  conf.width = G.getWidth()
-  conf.height = G.getHeight()
-
   local view = {
     title = TitleView,
-    canvas = CanvasView:new(conf),
-    input = InputView:new(conf, ctrl),
+    canvas = CanvasView:new(cfg),
+    input = InputView:new(cfg, ctrl),
     controller = ctrl,
-    cfg = conf,
+    cfg = cfg,
   }
 
   setmetatable(view, self)

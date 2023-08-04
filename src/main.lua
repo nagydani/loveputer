@@ -35,8 +35,8 @@ function love.load(args)
 
   local FAC = 1
   if love.hiDPI then FAC = 2 end
-  local font_size = 32 * FAC
-  local border = 2 * FAC
+  local font_size = 32.4 * FAC
+  local border = 0 * FAC
 
   local font_dir = "assets/fonts/"
   local font_main = love.graphics.newFont(
@@ -47,7 +47,7 @@ function love.load(args)
   -- we use a monospace font, so the width should be the same for any input
   local fw = font_main:getWidth('█')
   local w = G.getWidth() - 2 * border
-  local h = G.getHeight() + fh
+  local h = love.fixHeight
   local debugheight = 6
   local debugwidth = math.floor(debugheight * (80 / 25))
   local drawableWidth = w - 2 * border

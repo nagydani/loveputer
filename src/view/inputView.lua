@@ -26,8 +26,7 @@ function InputView:draw(input)
   local b = self.cfg.border
   local fh = self.cfg.fh
   local fw = self.cfg.fw
-  local w = self.cfg.width
-  local h = self.cfg.height
+  local h = self.cfg.h
   local inLines = #input
   local apparentLines = inLines
   local inHeight = inLines * fh
@@ -83,7 +82,7 @@ function InputView:draw(input)
         - (n - y_offset) * fh
     G.push('all')
     G.setColor(colors.cursor)
-    G.print('|', (x_offset - 1.5) * fw, ch)
+    G.print('|', b + (x_offset - 1.5) * fw, ch)
     G.pop()
   end
 
@@ -105,6 +104,7 @@ function InputView:draw(input)
   drawBackground()
   self.statusline:draw(status, apparentLines, time)
   G.setColor(colors.fg)
+  G.setFont(self.cfg.font_main)
   for i, l in ipairs(display) do
     write_line(i, l)
   end
