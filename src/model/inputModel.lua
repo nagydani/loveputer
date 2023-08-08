@@ -1,6 +1,7 @@
 local utf8 = require("utf8")
 
 require("model/textEval")
+require("model/luaEval")
 require("util/dequeue")
 require("util/string")
 
@@ -17,10 +18,13 @@ end
 InputModel = {}
 
 function InputModel:new(cfg)
+  local textEval = TextEval:new()
   local im = {
     entered = InputText:new(),
     history = Dequeue:new(),
-    evaluator = TextEval:new(),
+    evaluator = textEval,
+    textEval = textEval,
+    luaEval = LuaEval:new(),
     cursor = { c = 1, l = 1 },
     wrap = cfg.drawableChars,
   }
@@ -431,4 +435,13 @@ end
 
 function InputModel:_get_history_entries()
   return self.history:items()
+end
+
+function InputModel:test_lua_eval()
+  local le = self.luaEval
+  le.apply({
+    'for i=1, 5',
+    'print(i)',
+    'end',
+  })
 end

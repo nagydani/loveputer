@@ -115,6 +115,9 @@ function ConsoleController:keypressed(k)
         terminal_test()
         return
       end
+      if k == 'o' then
+        input:test_lua_eval()
+      end
     end
   end
 
