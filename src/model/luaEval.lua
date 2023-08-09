@@ -1,4 +1,5 @@
 require("model/eval")
+local parser = require("model/parser")
 
 require("util/string")
 require("util/debug")
@@ -8,13 +9,14 @@ LuaEval = {}
 function LuaEval:new()
   local eval = function(text)
     local code = string.join(text, '\n')
-    local f, err = load(code)
+    local ok, r = parser.parse(code)
+    -- local f, err = load(code)
     -- if f then
     --   pcall(f)
     -- end
-    return f, err
+    return ok, r
   end
-  local te = Eval:inherit('lua', eval)
+  local ev = Eval:inherit('lua', eval)
 
-  return te
+  return ev
 end
