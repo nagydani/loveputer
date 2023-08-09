@@ -88,9 +88,14 @@ end
 
 function InputModel:set_text_line(text, ln, keep_cursor)
   if type(text) == 'string' then
-    self.entered:update(text, ln)
-    if not keep_cursor then
-      self:update_cursor(true)
+    local ent = self.entered
+    if ent then
+      ent:update(text, ln)
+      if not keep_cursor then
+        self:update_cursor(true)
+      end
+    elseif ln == 1 then
+      self.entered = InputText:new(text)
     end
   end
 end
