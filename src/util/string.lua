@@ -3,6 +3,11 @@ local utf8 = require("utf8")
 string.normalize = function(s)
   return string.gsub(s, "%s+", "")
 end
+string.trim = function(s)
+  local pre = string.gsub(s, "^%s+", "")
+  local post = string.gsub(pre, "%s+$", "")
+  return post
+end
 
 string.is_non_empty_string = function(s)
   if s and type(s) == 'string' and s ~= '' then
