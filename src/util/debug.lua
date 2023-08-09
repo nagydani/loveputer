@@ -39,11 +39,18 @@ Debug = {
     return res
   end,
 
-  text_table = function(t)
+  text_table = function(t, no_ln)
     local res = ''
     if t then
       for i, l in ipairs(t) do
-        res = res .. string.format("#%02d: '%s'\n", i, l)
+        local line = (function()
+          if not no_ln then
+            return string.format("#%02d: '%s'\n", i, l)
+          else
+            return string.format("'%s'\n", l)
+          end
+        end)()
+        res = res .. line
       end
     end
     return res
