@@ -1,6 +1,6 @@
 require("util/string")
 
-describe("StringUtils", function()
+describe("StringUtils #string", function()
   local utest1 = 'когда'
   local utest2 = 'あいうえお'
 

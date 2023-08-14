@@ -1,6 +1,6 @@
 require("model/inputModel")
 
-describe("input model spec", function()
+describe("input model spec #input", function()
   local mockConf = {
     drawableChars = 80,
   }

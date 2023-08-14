@@ -2,7 +2,7 @@ require("model/textEval")
 require("model/luaEval")
 
 
-describe('TextEval', function()
+describe('TextEval #eval', function()
   local eval = TextEval:new()
   it('returns', function()
     local input = 'asd'
