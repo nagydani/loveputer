@@ -1,12 +1,12 @@
 require("model/eval")
-local parser = require("model/parser")
 
 require("util/string")
 require("util/debug")
 
 LuaEval = {}
 
-function LuaEval:new()
+function LuaEval:new(parser)
+  local parser = require("model/parser")(parser)
   local eval = function(text)
     local code = string.join(text, '\n')
     local ok, r = parser.parse(code)
