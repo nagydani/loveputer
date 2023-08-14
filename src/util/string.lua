@@ -4,6 +4,7 @@ string.normalize = function(s)
   return string.gsub(s, "%s+", "")
 end
 string.trim = function(s)
+  if not s then return '' end
   local pre = string.gsub(s, "^%s+", "")
   local post = string.gsub(pre, "%s+$", "")
   return post
