@@ -1,4 +1,5 @@
 require("util/string")
+require("util/dequeue")
 
 return function(parserlib)
   local lib = parserlib or 'metalua'
@@ -18,16 +19,24 @@ return function(parserlib)
 
   local parsers = {
     metalua = {
-      parse = function(code)
-        local mlc = require 'metalua/metalua/compiler'.new()
-        local parser = mlc.src_to_ast
+      compiler = require 'metalua/metalua/compiler'.new(),
+      tokenize = function(code, lc)
         local c = string.join(code, '\n')
-        return pcall(parser, mlc, c)
+        local lexer = lc:src_to_lexstream(c)
+        local tokens = Dequeue:new()
+        local n
+        repeat
+          n = lexer:next()
+          tokens:append(n)
+        until n.tag == 'Eof'
+        return tokens
       end,
-      pprint = function(code)
-        local pprinter = require 'metalua/metalua/pprint'
-        return pprinter.tostring(code)
+      parse = function(code, lc)
+        local c = string.join(code, '\n')
+        local parser = lc.src_to_ast
+        return pcall(parser, lc, c)
       end,
+
       get_error = function(result)
         local err_lines = string.split(result, '\n')
         local err_first_line = err_lines[1]
@@ -38,9 +47,29 @@ return function(parserlib)
         local errmsg = string.trim(colons[4])
         return line, char, errmsg
       end,
-    },
 
+      pprint = function(code)
+        local pprinter = require 'metalua/metalua/pprint'
+        local c = string.join(code, '\n')
+        return pprinter.tostring(c)
+      end,
+    }
   }
 
-  return parsers[lib]
+  local library = parsers[lib]
+  local lc = library.compiler
+
+  local tokenize = function(code)
+    return library.tokenize(code, lc)
+  end
+  local parse = function(code)
+    return library.parse(code, lc)
+  end
+
+  return {
+    tokenize = tokenize,
+    parse = parse,
+    pprint = library.pprint,
+    get_error = library.get_error
+  }
 end

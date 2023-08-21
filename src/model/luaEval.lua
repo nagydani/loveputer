@@ -6,17 +6,14 @@ require("util/debug")
 LuaEval = {}
 
 function LuaEval:new(parser)
-  local parser = require("model/parser")(parser)
+  local luaParser = require("model/parser")(parser)
   local eval = function(text)
     local code = string.join(text, '\n')
-    local ok, r = parser.parse(code)
-    -- local f, err = load(code)
-    -- if f then
-    --   pcall(f)
-    -- end
+    local ok, r = luaParser.parse(code)
     return ok, r
   end
   local ev = Eval:inherit('lua', eval)
+  ev.parser = luaParser
 
   return ev
 end

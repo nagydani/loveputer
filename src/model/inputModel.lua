@@ -23,7 +23,7 @@ function InputModel:new(cfg)
   local im = {
     entered = InputText:new(),
     history = Dequeue:new(),
-    evaluator = textEval,
+    evaluator = luaEval,
     textEval = textEval,
     luaEval = luaEval,
     cursor = { c = 1, l = 1 },
@@ -343,6 +343,7 @@ function InputModel:clear()
   self.entered = InputText:new()
   self:update_cursor(true)
   self.historic_index = nil
+  self.tokens = nil
 end
 
 function InputModel:get_status()
@@ -373,6 +374,14 @@ function InputModel:_handle(eval)
     self:clear()
   end
   return result
+end
+
+function InputModel:parse()
+  local ev = self.evaluator
+  if ev.kind == 'lua' then
+    local ts = ev.parser.tokenize(self:get_text())
+    self.tokens = ts
+  end
 end
 
 function InputModel:history_back()

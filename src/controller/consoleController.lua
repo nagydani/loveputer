@@ -135,6 +135,7 @@ end
 function ConsoleController:textinput(t)
   -- TODO: block with events
   self.model.input:add_text(t)
+  self.model.input:parse()
 end
 
 function ConsoleController:get_terminal()
