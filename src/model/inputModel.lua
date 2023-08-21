@@ -43,7 +43,7 @@ end
 
 function InputModel:add_text(text)
   if type(text) == 'string' then
-    local sl, cc = self:get_cursor_pos()
+    local sl, cc = self:_get_cursor_pos()
     local cur_line = self:get_text_line(sl)
     local pre, post = string.split_at(cur_line, cc)
     local lines = string.lines(text)
@@ -114,7 +114,7 @@ function InputModel:_insert_text_line(text, li)
 end
 
 function InputModel:line_feed()
-  local cl, cc = self:get_cursor_pos()
+  local cl, cc = self:_get_cursor_pos()
   local cur_line = self:get_text_line(cl)
   local pre, post = string.split_at(cur_line, cc)
   self:_set_text_line(pre, cl, true)
@@ -154,7 +154,7 @@ function InputModel:_update_cursor(replace_line)
 end
 
 function InputModel:_advance_cursor(x, y)
-  local cur_l, cur_c = self:get_cursor_pos()
+  local cur_l, cur_c = self:_get_cursor_pos()
   local move_x = x or 1
   local move_y = y or 0
   if move_y == 0 then
@@ -168,7 +168,7 @@ end
 
 function InputModel:move_cursor(y, x)
   -- TODO: bounds checks
-  local cl, cc = self:get_cursor_pos()
+  local cl, cc = self:_get_cursor_pos()
   self.cursor = {
     c = x or cc,
     l = y or cl
@@ -181,7 +181,7 @@ end
 
 function InputModel:backspace()
   local line = self:_get_current_line()
-  local cl, cc = self:get_cursor_pos()
+  local cl, cc = self:_get_cursor_pos()
   local newcl = cl - 1
   local pre, post
 
@@ -212,7 +212,7 @@ end
 
 function InputModel:delete()
   local line = self:_get_current_line()
-  local cl, cc = self:get_cursor_pos()
+  local cl, cc = self:_get_cursor_pos()
   local pre, post
 
   local n = self:get_n_text_lines()
@@ -236,8 +236,14 @@ function InputModel:delete()
   self:text_change()
 end
 
-function InputModel:get_cursor_pos()
+function InputModel:_get_cursor_pos()
   return self.cursor.l, self.cursor.c
+end
+
+function InputModel:get_cursor_info()
+  return {
+    cursor = self.cursor,
+  }
 end
 
 function InputModel:get_cursor_x()
@@ -249,7 +255,7 @@ function InputModel:get_cursor_y()
 end
 
 function InputModel:cursor_vertical_move(dir)
-  local cl, cc = self:get_cursor_pos()
+  local cl, cc = self:_get_cursor_pos()
   local w = self.wrap
   local n = self:get_n_text_lines()
   local llen = string.ulen(self:get_text_line(cl))
@@ -319,26 +325,25 @@ function InputModel:cursor_vertical_move(dir)
 end
 
 function InputModel:cursor_left()
-  local cl, cc = self:get_cursor_pos()
+  local cl, cc = self:_get_cursor_pos()
   if cc > 1 then
     local next = cc - 1
-    self.cursor.c = next
+    self:move_cursor(nil, next)
   elseif cl > 1 then
     local cpl = cl - 1
     local pl = self:get_text_line(cpl)
     local cpc = 1 + string.ulen(pl)
-    self.cursor.l = cpl
-    self.cursor.c = cpc
+    self:move_cursor(cpl, cpc)
   end
 end
 
 function InputModel:cursor_right()
-  local cl, cc = self:get_cursor_pos()
+  local cl, cc = self:_get_cursor_pos()
   local line = self:get_text_line(cl)
   local len = string.ulen(line)
   local next = cc + 1
   if cc <= len then
-    self.cursor.c = next
+    self:move_cursor(nil, next)
   elseif cl < self:get_n_text_lines() then
     self:move_cursor(cl + 1, 1)
   end
@@ -449,14 +454,14 @@ function InputModel:history_fwd()
 end
 
 function InputModel:jump_home()
-  self.cursor = { c = 1, l = 1 }
+  self:move_cursor(1, 1)
 end
 
 function InputModel:jump_end()
   local ent = self:get_text()
   local last_line = #ent
   local last_char = string.ulen(ent[last_line]) + 1
-  self.cursor = { c = last_char, l = last_line }
+  self:move_cursor(last_line, last_char)
 end
 
 function InputModel:_get_history_length()

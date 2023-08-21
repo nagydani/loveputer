@@ -56,8 +56,8 @@ function InputView:draw(input)
 
   local start_y = h - b - apparentLines * fh
   local function drawCursor()
-    -- TODO pass cursor position instead of querying
-    local cl, cc = self.controller.model.input:get_cursor_pos()
+    local cursorInfo = self.controller:get_cursor_info()
+    local cl, cc = cursorInfo.cursor.l, cursorInfo.cursor.c
     local x_offset = (function()
       if cc > drawableChars then
         return math.fmod(cc, drawableChars)

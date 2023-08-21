@@ -161,6 +161,10 @@ function ConsoleController:get_input()
   return self.model.input:get_text()
 end
 
+function ConsoleController:get_cursor_info()
+  return self.model.input:get_cursor_info()
+end
+
 function ConsoleController:get_status()
   return self.model.input:get_status()
 end
