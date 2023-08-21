@@ -375,8 +375,15 @@ function InputModel:_handle(eval)
     self:_remember(ent)
     if eval then
       ok, result = self.evaluator.apply(ent)
+      if ok then
+        self:clear()
+      else
+        local l, c, err = self:get_eval_error(result)
+        self:move_cursor(l, c + 1)
+      end
+    else
+      self:clear()
     end
-    self:clear()
   end
   return ok, result
 end

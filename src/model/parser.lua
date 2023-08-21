@@ -42,8 +42,8 @@ return function(parserlib)
         local err_first_line = err_lines[1]
         local colons = string.split(err_first_line, ':')
         local ms = string.gmatch(colons[3], '%d+')
-        local line = ms()
-        local char = ms()
+        local line = tonumber(ms())
+        local char = tonumber(ms())
         local errmsg = string.trim(colons[4])
         return line, char, errmsg
       end,
