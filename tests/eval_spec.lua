@@ -36,6 +36,14 @@ end
 ------------------------------------------
 
 local inputs = {
+  {
+    compiles = false,
+    code = { 'úő' }
+  },
+  {
+    compiles = true,
+    code = { 'local s = "úő"' }
+  },
   { compiles = false, code = { 'local' } },
   { compiles = true,  code = { 'local a' } },
   { compiles = true,  code = { 'local x = 1', } },
