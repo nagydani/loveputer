@@ -24,8 +24,23 @@ function ConsoleController:get_timestamp()
 end
 
 local function evaluate_input(input, out)
-  local res = input:evaluate()
-  out:push(res)
+  local text = input:get_text()
+  local syntax_ok, res = input:evaluate()
+  if syntax_ok then
+    local code = string.join(text, '\n')
+    local f, load_err = loadstring(code)
+    if f then
+      local ok, call_err = pcall(f)
+      if ok then
+      else
+        orig_print(call_err)
+      end
+    else
+      orig_print(load_err)
+    end
+  else
+    orig_print(input:get_eval_error(res))
+  end
 end
 
 function ConsoleController:keypressed(k)
@@ -135,7 +150,7 @@ end
 function ConsoleController:textinput(t)
   -- TODO: block with events
   self.model.input:add_text(t)
-  self.model.input:parse()
+  self.model.input:text_change()
 end
 
 function ConsoleController:get_terminal()

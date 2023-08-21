@@ -67,6 +67,7 @@ function InputModel:add_text(text)
         end
       end
     end
+    self:text_change()
   end
 end
 
@@ -85,6 +86,7 @@ function InputModel:_set_text(text, keep_cursor)
     self.entered = InputText:new(text)
   end
   self:jump_end()
+  self:text_change()
 end
 
 function InputModel:_set_text_line(text, ln, keep_cursor)
@@ -118,6 +120,7 @@ function InputModel:line_feed()
   self:_set_text_line(pre, cl, true)
   self:_insert_text_line(post, cl + 1)
   self:move_cursor(cl + 1, 1)
+  self:text_change()
 end
 
 function InputModel:get_text()
@@ -204,6 +207,7 @@ function InputModel:backspace()
     self:_set_text_line(nval, cl, true)
     self:cursor_left()
   end
+  self:text_change()
 end
 
 function InputModel:delete()
@@ -229,6 +233,7 @@ function InputModel:delete()
   end
   local nval = pre .. post
   self:_set_text_line(nval, cl, true)
+  self:text_change()
 end
 
 function InputModel:get_cursor_pos()
@@ -365,22 +370,29 @@ end
 function InputModel:_handle(eval)
   local ent = self:get_text()
   self.historic_index = nil
-  local result
+  local ok, result
   if string.is_non_empty_string_array(ent) then
     self:_remember(ent)
     if eval then
-      result = self.evaluator.apply(ent)
+      ok, result = self.evaluator.apply(ent)
     end
     self:clear()
   end
-  return result
+  return ok, result
 end
 
-function InputModel:parse()
+function InputModel:text_change()
   local ev = self.evaluator
   if ev.kind == 'lua' then
     local ts = ev.parser.tokenize(self:get_text())
     self.tokens = ts
+  end
+end
+
+function InputModel:get_eval_error(errors)
+  local ev = self.evaluator
+  if ev.kind == 'lua' then
+    return ev.parser.get_error(errors)
   end
 end
 

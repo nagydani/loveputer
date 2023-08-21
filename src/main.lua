@@ -13,15 +13,16 @@ local function set_print()
   local magicPrint = function(...)
     local arg = { ... }
     if type(arg) == 'string' then
-      origPrint('s', arg)
-      M.output:push({ arg })
+      -- origPrint('s', arg)
+      M.output:push({ arg .. '\n' })
     end
     if type(arg) == 'table' then
       -- origPrint('t', string.join(arg, '\t'))
       for _, v in ipairs(arg) do
         origPrint(v)
+        M.output:push(v)
       end
-      M.output:push(arg)
+      -- M.output:push(arg)
     end
   end
   _G.print = magicPrint
