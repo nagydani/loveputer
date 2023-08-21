@@ -58,6 +58,7 @@ function InputView:draw(input)
   local function drawCursor()
     local cursorInfo = self.controller:get_cursor_info()
     local cl, cc = cursorInfo.cursor.l, cursorInfo.cursor.c
+    local is_err = cursorInfo.err_cursor
     local x_offset = (function()
       if cc > drawableChars then
         return math.fmod(cc, drawableChars)
@@ -82,6 +83,7 @@ function InputView:draw(input)
         - (n - y_offset) * fh
     G.push('all')
     G.setColor(colors.cursor)
+    if is_err then G.setColor(colors.err_cursor) end
     G.print('|', b + (x_offset - 1.5) * fw, ch)
     G.pop()
   end

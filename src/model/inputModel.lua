@@ -27,6 +27,7 @@ function InputModel:new(cfg)
     textEval = textEval,
     luaEval = luaEval,
     cursor = { c = 1, l = 1 },
+    err_cursor = false,
     wrap = cfg.drawableChars,
   }
   setmetatable(im, self)
@@ -173,6 +174,7 @@ function InputModel:move_cursor(y, x)
     c = x or cc,
     l = y or cl
   }
+  self.err_cursor = false
 end
 
 function InputModel:paste(text)
@@ -243,6 +245,7 @@ end
 function InputModel:get_cursor_info()
   return {
     cursor = self.cursor,
+    err_cursor = self.err_cursor or false,
   }
 end
 
@@ -385,6 +388,7 @@ function InputModel:_handle(eval)
       else
         local l, c, err = self:get_eval_error(result)
         self:move_cursor(l, c + 1)
+        self.err_cursor = true
       end
     else
       self:clear()

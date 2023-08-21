@@ -95,6 +95,7 @@ function love.load(args)
         bg = Color[Color.white],
         fg = Color[Color.blue + Color.bright],
         cursor = Color[Color.white + Color.bright],
+        err_cursor = Color[Color.red],
       },
       statusline = {
         fg = Color[Color.white + Color.bright],
