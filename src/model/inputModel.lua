@@ -35,7 +35,7 @@ function InputModel:new(cfg)
   return im
 end
 
-function InputModel:remember(input)
+function InputModel:_remember(input)
   if string.is_non_empty_string_array(input) then
     self.history:append(input)
   end
@@ -50,27 +50,27 @@ function InputModel:add_text(text)
     local n_added = #lines
     if n_added == 1 then
       local nval = string.interleave(pre, text, post)
-      self:set_text_line(nval, sl, true)
-      self:advance_cursor(string.ulen(text))
+      self:_set_text_line(nval, sl, true)
+      self:_advance_cursor(string.ulen(text))
     else
       for k, line in ipairs(lines) do
         if k == 1 then
           local nval = pre .. line
-          self:set_text_line(nval, sl, true)
+          self:_set_text_line(nval, sl, true)
         elseif k == n_added then
           local nval = line .. post
           local last_line_i = sl + k - 1
-          self:set_text_line(nval, last_line_i, true)
+          self:_set_text_line(nval, last_line_i, true)
           self:move_cursor(last_line_i, string.ulen(line) + 1)
         else
-          self:insert_text_line(line, sl + k - 1)
+          self:_insert_text_line(line, sl + k - 1)
         end
       end
     end
   end
 end
 
-function InputModel:set_text(text, keep_cursor)
+function InputModel:_set_text(text, keep_cursor)
   self.entered = nil
   if type(text) == 'string' then
     local lines = string.lines(text)
@@ -79,7 +79,7 @@ function InputModel:set_text(text, keep_cursor)
       self.entered = InputText:new({ text })
     end
     if not keep_cursor then
-      self:update_cursor(true)
+      self:_update_cursor(true)
     end
   elseif type(text) == 'table' then
     self.entered = InputText:new(text)
@@ -87,13 +87,13 @@ function InputModel:set_text(text, keep_cursor)
   self:jump_end()
 end
 
-function InputModel:set_text_line(text, ln, keep_cursor)
+function InputModel:_set_text_line(text, ln, keep_cursor)
   if type(text) == 'string' then
     local ent = self.entered
     if ent then
       ent:update(text, ln)
       if not keep_cursor then
-        self:update_cursor(true)
+        self:_update_cursor(true)
       end
     elseif ln == 1 then
       self.entered = InputText:new(text)
@@ -101,11 +101,11 @@ function InputModel:set_text_line(text, ln, keep_cursor)
   end
 end
 
-function InputModel:drop_text_line(ln)
+function InputModel:_drop_text_line(ln)
   self.entered:remove(ln)
 end
 
-function InputModel:insert_text_line(text, li)
+function InputModel:_insert_text_line(text, li)
   local l = li or self:get_cursor_y()
   self.cursor.y = l + 1
   self.entered:insert(text, l)
@@ -115,8 +115,8 @@ function InputModel:line_feed()
   local cl, cc = self:get_cursor_pos()
   local cur_line = self:get_text_line(cl)
   local pre, post = string.split_at(cur_line, cc)
-  self:set_text_line(pre, cl, true)
-  self:insert_text_line(post, cl + 1)
+  self:_set_text_line(pre, cl, true)
+  self:_insert_text_line(post, cl + 1)
   self:move_cursor(cl + 1, 1)
 end
 
@@ -134,12 +134,12 @@ function InputModel:get_n_text_lines()
   return ent:length()
 end
 
-function InputModel:get_current_line()
+function InputModel:_get_current_line()
   local cl = self:get_cursor_y() or 1
   return self.entered:get(cl)
 end
 
-function InputModel:update_cursor(replace_line)
+function InputModel:_update_cursor(replace_line)
   local cl = self:get_cursor_y()
   local t = self:get_text()
   if replace_line then
@@ -150,7 +150,7 @@ function InputModel:update_cursor(replace_line)
   end
 end
 
-function InputModel:advance_cursor(x, y)
+function InputModel:_advance_cursor(x, y)
   local cur_l, cur_c = self:get_cursor_pos()
   local move_x = x or 1
   local move_y = y or 0
@@ -177,7 +177,7 @@ function InputModel:paste(text)
 end
 
 function InputModel:backspace()
-  local line = self:get_current_line()
+  local line = self:_get_current_line()
   local cl, cc = self:get_cursor_pos()
   local newcl = cl - 1
   local pre, post
@@ -193,21 +193,21 @@ function InputModel:backspace()
     local pre_len = string.ulen(pre)
     post = line
     local nval = pre .. post
-    self:set_text_line(nval, newcl, true)
+    self:_set_text_line(nval, newcl, true)
     self:move_cursor(newcl, pre_len + 1)
-    self:drop_text_line(cl)
+    self:_drop_text_line(cl)
   else
     -- regular merge
     pre = string.usub(line, 1, cc - 2)
     post = string.usub(line, cc)
     local nval = pre .. post
-    self:set_text_line(nval, cl, true)
+    self:_set_text_line(nval, cl, true)
     self:cursor_left()
   end
 end
 
 function InputModel:delete()
-  local line = self:get_current_line()
+  local line = self:_get_current_line()
   local cl, cc = self:get_cursor_pos()
   local pre, post
 
@@ -221,14 +221,14 @@ function InputModel:delete()
     -- line merge
     post = self:get_text_line(cl + 1)
     pre = line
-    self:drop_text_line(cl + 1)
+    self:_drop_text_line(cl + 1)
   else
     -- regular merge
     pre = string.usub(line, 1, cc - 1)
     post = string.usub(line, cc + 1)
   end
   local nval = pre .. post
-  self:set_text_line(nval, cl, true)
+  self:_set_text_line(nval, cl, true)
 end
 
 function InputModel:get_cursor_pos()
@@ -341,7 +341,7 @@ end
 
 function InputModel:clear()
   self.entered = InputText:new()
-  self:update_cursor(true)
+  self:_update_cursor(true)
   self.historic_index = nil
   self.tokens = nil
 end
@@ -367,7 +367,7 @@ function InputModel:_handle(eval)
   self.historic_index = nil
   local result
   if string.is_non_empty_string_array(ent) then
-    self:remember(ent)
+    self:_remember(ent)
     if eval then
       result = self.evaluator.apply(ent)
     end
@@ -395,16 +395,16 @@ function InputModel:history_back()
       if string.is_non_empty_string_array(current) then
         self.history[hi] = current
       end
-      self:set_text(prev)
+      self:_set_text(prev)
       local last_line_len = string.ulen(prev[#prev])
       self.historic_index = hi - 1
       self:jump_end()
     end
   else
     self.historic_index = self.history:get_last_index()
-    self:remember(ent)
+    self:_remember(ent)
     local prev = self.history[self.historic_index] or ''
-    self:set_text(prev)
+    self:_set_text(prev)
     self:jump_end()
   end
 end
@@ -418,7 +418,7 @@ function InputModel:history_fwd()
       self.history[hi] = current
     end
     if next then
-      self:set_text(next)
+      self:_set_text(next)
       self.historic_index = hi + 1
     else
       self:clear()
