@@ -19,12 +19,13 @@ InputModel = {}
 
 function InputModel:new(cfg)
   local textEval = TextEval:new()
+  local luaEval = LuaEval:new('metalua')
   local im = {
     entered = InputText:new(),
     history = Dequeue:new(),
     evaluator = textEval,
     textEval = textEval,
-    luaEval = LuaEval:new(),
+    luaEval = luaEval,
     cursor = { c = 1, l = 1 },
     wrap = cfg.drawableChars,
   }
@@ -444,9 +445,12 @@ end
 
 function InputModel:test_lua_eval()
   local le = self.luaEval
-  le.apply({
+  local ok, res = le.apply({
     'for i=1, 5',
     'print(i)',
     'end',
   })
+  print('eval ' .. (function()
+    if ok then return 'ok' else return 'no' end
+  end)() .. '\n')
 end
