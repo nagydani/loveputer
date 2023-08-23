@@ -39,7 +39,10 @@ local function evaluate_input(input, out)
       orig_print(load_err)
     end
   else
-    orig_print(input:get_eval_error(res))
+    local eval_err = input:get_eval_error(res)
+    if string.is_non_empty_string(eval_err) then
+      orig_print(eval_err)
+    end
   end
 end
 

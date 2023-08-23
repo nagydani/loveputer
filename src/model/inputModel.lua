@@ -407,7 +407,7 @@ end
 
 function InputModel:get_eval_error(errors)
   local ev = self.evaluator
-  if ev.kind == 'lua' then
+  if ev.kind == 'lua' and string.is_non_empty_string_array(self:get_text()) then
     return ev.parser.get_error(errors)
   end
 end
