@@ -1,4 +1,5 @@
 require("model/consoleModel")
+local redirect_to = require("model/ioRedirect")
 require("view/consoleView")
 require("controller/consoleController")
 
@@ -6,27 +7,6 @@ require("util/debug")
 
 local G = love.graphics
 local V
-
-local function set_print()
-  local origPrint = _G.print
-  _G.orig_print = origPrint
-  local magicPrint = function(...)
-    local arg = { ... }
-    if type(arg) == 'string' then
-      -- origPrint('s', arg)
-      M.output:push({ arg .. '\n' })
-    end
-    if type(arg) == 'table' then
-      -- origPrint('t', string.join(arg, '\t'))
-      for _, v in ipairs(arg) do
-        origPrint(v)
-        M.output:push(v)
-      end
-      -- M.output:push(arg)
-    end
-  end
-  _G.print = magicPrint
-end
 
 function love.load(args)
   local testrun = false
@@ -121,7 +101,7 @@ function love.load(args)
   C = ConsoleController:new(M, testrun)
   V = ConsoleView:new(baseconf, C)
 
-  set_print()
+  redirect_to(M)
 
   if testrun then
     C:autotest()
