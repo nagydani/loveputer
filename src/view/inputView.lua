@@ -19,7 +19,6 @@ function InputView:new(cfg, ctrl)
 end
 
 function InputView:draw(input)
-  local text = input.text
   local time = self.controller:get_timestamp()
   local status = self.controller:get_status()
 
@@ -28,13 +27,21 @@ function InputView:draw(input)
   local fh = self.cfg.fh
   local fw = self.cfg.fw
   local h = self.cfg.h
+  local drawableWidth = self.cfg.drawableWidth
+  local drawableChars = self.cfg.drawableChars
+
+  local isError = string.is_non_empty_string(input.err)
+  local text = (function()
+    if isError then
+      return string.wrap_at(input.err, drawableChars - 1)
+    else
+      return input.text
+    end
+  end)()
   local inLines = #text
   local apparentLines = inLines
   local inHeight = inLines * fh
-  local drawableWidth = self.cfg.drawableWidth
-  local drawableChars = self.cfg.drawableChars
   local y = h - b - inHeight
-
 
   local display = {}
   local cursor_wrap = {}
@@ -46,9 +53,9 @@ function InputView:draw(input)
     -- remember how many apparent lines will be overall
     cursor_wrap[i] = n + 1
     breaks = breaks + n
-    local text = string.wrap_at(l, drawableChars)
-    app = app + #text
-    for _, tl in ipairs(text) do
+    local lines = string.wrap_at(l, drawableChars)
+    app = app + #lines
+    for _, tl in ipairs(lines) do
       table.insert(display, tl)
     end
   end
@@ -68,7 +75,7 @@ function InputView:draw(input)
     end)()
     local y_offset = math.floor((cc - 1) / drawableChars)
     local yh = 0
-    local n = cursor_wrap[cl]
+    local n = cursor_wrap[cl] or 0
     -- how many apparent lines we have so far?
     for i = 1, cl do
       yh = yh + cursor_wrap[i]
@@ -88,7 +95,11 @@ function InputView:draw(input)
   end
 
   local drawBackground = function()
-    G.setColor(colors.bg)
+    if isError then
+      G.setColor(colors.error_bg)
+    else
+      G.setColor(colors.bg)
+    end
     G.rectangle("fill",
       b,
       start_y,
@@ -104,18 +115,17 @@ function InputView:draw(input)
   G.push('all')
   G.setFont(self.cfg.font_main)
   self.statusline:draw(status, apparentLines, time)
-  if string.is_non_empty_string(input.err) then
+  drawBackground()
+  if isError then
     G.setColor(colors.error)
-    write_line(1, input.err)
   else
-    drawBackground()
     G.setColor(colors.fg)
-    for i, l in ipairs(display) do
-      write_line(i, l)
-    end
     if love.timer.getTime() % 1 > 0.5 then
       drawCursor()
     end
+  end
+  for i, l in ipairs(display) do
+    write_line(i, l)
   end
   G.pop()
 end
