@@ -1,4 +1,5 @@
 function love.conf(t)
+  t.identity = 'loveputer'
   t.window.title = 'LÖVEputer'
   t.window.resizable = false
   local hidpi = os.getenv("HIDPI")
