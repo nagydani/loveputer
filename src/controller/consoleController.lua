@@ -64,6 +64,8 @@ function ConsoleController:keypressed(k)
     end
   end
 
+  self.model.input:clear_error()
+
   if love.state.testing == 'running' then
     return
   end
@@ -161,7 +163,10 @@ function ConsoleController:get_terminal()
 end
 
 function ConsoleController:get_input()
-  return self.model.input:get_text()
+  return {
+    text = self.model.input:get_text(),
+    err = self.model.input:get_error(),
+  }
 end
 
 function ConsoleController:get_cursor_info()

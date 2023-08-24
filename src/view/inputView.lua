@@ -19,6 +19,7 @@ function InputView:new(cfg, ctrl)
 end
 
 function InputView:draw(input)
+  local text = input.text
   local time = self.controller:get_timestamp()
   local status = self.controller:get_status()
 
@@ -27,7 +28,7 @@ function InputView:draw(input)
   local fh = self.cfg.fh
   local fw = self.cfg.fw
   local h = self.cfg.h
-  local inLines = #input
+  local inLines = #text
   local apparentLines = inLines
   local inHeight = inLines * fh
   local drawableWidth = self.cfg.drawableWidth
@@ -40,7 +41,7 @@ function InputView:draw(input)
   local apparentHeight = inHeight
   local app = 0
   local breaks = 0
-  for i, l in ipairs(input) do
+  for i, l in ipairs(text) do
     local n = math.floor(string.ulen(l) / drawableChars)
     -- remember how many apparent lines will be overall
     cursor_wrap[i] = n + 1
@@ -58,7 +59,6 @@ function InputView:draw(input)
   local function drawCursor()
     local cursorInfo = self.controller:get_cursor_info()
     local cl, cc = cursorInfo.cursor.l, cursorInfo.cursor.c
-    local is_err = cursorInfo.err_cursor
     local x_offset = (function()
       if cc > drawableChars then
         return math.fmod(cc, drawableChars)
@@ -83,7 +83,6 @@ function InputView:draw(input)
         - (n - y_offset) * fh
     G.push('all')
     G.setColor(colors.cursor)
-    if is_err then G.setColor(colors.err_cursor) end
     G.print('|', b + (x_offset - 1.5) * fw, ch)
     G.pop()
   end
@@ -103,15 +102,20 @@ function InputView:draw(input)
 
   -- draw
   G.push('all')
-  drawBackground()
-  self.statusline:draw(status, apparentLines, time)
-  G.setColor(colors.fg)
   G.setFont(self.cfg.font_main)
-  for i, l in ipairs(display) do
-    write_line(i, l)
-  end
-  if love.timer.getTime() % 1 > 0.5 then
-    drawCursor()
+  self.statusline:draw(status, apparentLines, time)
+  if string.is_non_empty_string(input.err) then
+    G.setColor(colors.error)
+    write_line(1, input.err)
+  else
+    drawBackground()
+    G.setColor(colors.fg)
+    for i, l in ipairs(display) do
+      write_line(i, l)
+    end
+    if love.timer.getTime() % 1 > 0.5 then
+      drawCursor()
+    end
   end
   G.pop()
 end
