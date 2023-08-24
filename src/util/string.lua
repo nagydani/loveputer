@@ -33,7 +33,11 @@ string.is_non_empty_string_array = function(sa)
 end
 
 string.ulen = function(s)
-  return utf8.len(s or '')
+  if string.is_non_empty_string(s) then
+    return utf8.len(s)
+  else
+    return 0
+  end
 end
 
 -- original from http://lua-users.org/lists/lua-l/2014-04/msg00590.html
