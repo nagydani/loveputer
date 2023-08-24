@@ -411,6 +411,13 @@ function InputModel:get_error()
   return self.error
 end
 
+function InputModel:set_error(error)
+  if string.is_non_empty_string(error) then
+    self.error = error
+    self:history_back()
+  end
+end
+
 function InputModel:get_eval_error(errors)
   local ev = self.evaluator
   if ev.kind == 'lua' and string.is_non_empty_string_array(self:get_text()) then

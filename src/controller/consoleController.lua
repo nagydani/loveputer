@@ -1,6 +1,7 @@
 ConsoleController = {}
 
 require("util/test_terminal")
+require("util/eval")
 
 function ConsoleController:new(m, testrun)
   local cc = {
@@ -33,7 +34,8 @@ local function evaluate_input(input, out)
       local ok, call_err = pcall(f)
       if ok then
       else
-        orig_print(call_err)
+        local e = parse_load_error(call_err)
+        input:set_error(e)
       end
     else
       orig_print(load_err)
