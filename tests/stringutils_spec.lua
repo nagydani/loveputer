@@ -209,5 +209,14 @@ describe("StringUtils #string", function()
       local res = string.wrap_at(test1, 5)
       assert.same({ test1 }, res)
     end)
+
+    it('unicode', function()
+      local test1 = "An expression was expected, and `�' can 't start an expression "
+      local exp = { 'An expression was expected, an'
+      , "d `�' can 't start an expressi"
+      , 'on ' }
+      local res = string.wrap_at(test1, 30)
+      assert.same(exp, res)
+    end)
   end)
 end)
