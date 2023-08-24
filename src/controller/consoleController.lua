@@ -1,6 +1,6 @@
 ConsoleController = {}
 
-require("util/test_terminal")
+require("util/testTerminal")
 require("util/eval")
 
 function ConsoleController:new(m, testrun)
