@@ -2,6 +2,7 @@ require("model/consoleModel")
 local redirect_to = require("model/ioRedirect")
 require("view/consoleView")
 require("controller/consoleController")
+local colors = require("conf/colors")
 
 require("util/debug")
 
@@ -64,26 +65,7 @@ function love.load(args)
           - fh       -- input line
           - border   -- bottom border
     end,
-    colors = {
-      border = Color[Color.black + Color.bright],
-      debug = Color[Color.yellow],
-      terminal = {
-        fg = Color[Color.white + Color.bright],
-        bg = Color[Color.blue],
-      },
-      input = {
-        bg = Color[Color.white],
-        fg = Color[Color.blue + Color.bright],
-        cursor = Color[Color.white + Color.bright],
-        error = Color[Color.red],
-        error_bg = Color[Color.black],
-      },
-      statusline = {
-        fg = Color[Color.white + Color.bright],
-        bg = Color[Color.black],
-        indicator = Color[Color.cyan + Color.bright],
-      },
-    },
+    colors = colors,
 
     debugheight = debugheight,
     debugwidth = debugwidth,
