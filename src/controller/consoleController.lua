@@ -168,6 +168,7 @@ function ConsoleController:get_input()
   return {
     text = self.model.input:get_text(),
     err = self.model.input:get_error(),
+    highlight = self.model.input:is_highlighted(),
   }
 end
 

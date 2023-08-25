@@ -403,6 +403,12 @@ function InputModel:text_change()
   end
 end
 
+function InputModel:is_highlighted()
+  local ev = self.evaluator
+  if ev.kind == 'lua' then return true end
+  return false
+end
+
 function InputModel:clear_error()
   self.error = nil
 end

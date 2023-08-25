@@ -31,6 +31,7 @@ function InputView:draw(input)
   local drawableChars = self.cfg.drawableChars
 
   local isError = string.is_non_empty_string(input.err)
+  local highlight = input.highlight
   local text = (function()
     if isError then
       return string.wrap_at(input.err, drawableChars - 1)
@@ -108,7 +109,10 @@ function InputView:draw(input)
   end
   local write_line = function(i, l)
     local dy = y - (-i + 1 + breaks) * fh
-    G.print(l, b, dy)
+    if highlight then
+    else
+      G.print(l, b, dy)
+    end
   end
 
   -- draw
