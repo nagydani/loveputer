@@ -86,7 +86,7 @@ Debug = {
           flat = false
           dent = '\n' .. string.times('  ', indent + 1)
         end
-        res = res .. dent .. k .. ': '
+        res = res .. dent .. Debug.terse_t(k) .. ': '
         res = res .. Debug.terse_t(v, indent + 1, seen)
       end
       local br = (function()
