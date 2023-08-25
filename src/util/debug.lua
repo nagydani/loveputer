@@ -75,6 +75,7 @@ Debug = {
     local seen = prev_seen or {}
     local indent = level or 0
     local res = ''
+    local flat = true
     if type(t) == 'table' then
       res = res .. '{'
       if seen[t] then return '' end
@@ -82,12 +83,16 @@ Debug = {
       for k, v in pairs(t) do
         local dent = ''
         if type(v) == 'table' then
+          flat = false
           dent = '\n' .. string.times('  ', indent + 1)
         end
         res = res .. dent .. k .. ': '
         res = res .. Debug.terse_t(v, indent + 1, seen)
       end
-      local dent = '\n' .. string.times('  ', indent)
+      local br = (function()
+        if flat then return '' else return '\n' end
+      end)()
+      local dent = br .. string.times('  ', indent)
       res = res .. dent .. '}, '
     elseif type(t) == 'string' then
       res = res .. text(t) .. ', '
