@@ -28,7 +28,11 @@ return {
   reset = reset,
   to_control = to_control,
 
-  print_c = function(ci, s)
-    print(to_control(ci) .. s .. reset)
+  print_c = function(ci, s, part)
+    if part then
+      io.write(to_control(ci) .. s)
+    else
+      print(to_control(ci) .. s .. reset)
+    end
   end
 }
