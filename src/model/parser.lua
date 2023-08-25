@@ -53,6 +53,56 @@ return function(parserlib)
         local c = string.join(code, '\n')
         return pprinter.tostring(c)
       end,
+
+      syntax_hl = function(tokens)
+        local colored_tokens = {}
+        orig_print()
+        for _, t in pairs(tokens) do
+          -- orig_print(Debug.terse_t(t))
+          local text  = t[1]
+          local tag   = t.tag
+          local lfi   = t.lineinfo.first
+          local lla   = t.lineinfo.last
+          local first = { l = lfi.line, c = lfi.column }
+          local last  = { l = lla.line, c = lla.column }
+          -- local first_f = lfi.facing
+          -- local last_f  = lla.facing
+
+          if first.l == last.l then
+            local l = first.l
+            if not colored_tokens[l] then
+              colored_tokens[l] = {}
+            end
+            local single = false
+            if first.c == last.c then
+              single = true
+            end
+            local type = (function()
+              if tag == 'Keyword' then
+                if single then
+                  return 'kw_single'
+                else
+                  return 'kw_multi'
+                end
+              elseif tag == 'Number' then
+                return 'number'
+              elseif tag == 'String' then
+                return 'string'
+              elseif tag == 'Id' then
+                return 'identifier'
+              else
+                -- TODO: comments
+                return nil
+              end
+            end)()
+            for i = first.c, last.c do
+              colored_tokens[l][i] = type
+            end
+          else
+          end
+        end
+        return colored_tokens
+      end,
     }
   }
 
@@ -70,6 +120,7 @@ return function(parserlib)
     tokenize = tokenize,
     parse = parse,
     pprint = library.pprint,
-    get_error = library.get_error
+    get_error = library.get_error,
+    syntax_hl = library.syntax_hl,
   }
 end

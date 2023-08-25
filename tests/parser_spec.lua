@@ -1,5 +1,6 @@
 require("view/color")
 local parser = require("model/parser")('metalua')
+local tokenHL = require("model/tokenHighlighter")
 
 require("util/debug")
 local term = require("util/termcolor")
@@ -156,6 +157,36 @@ describe('parse #parser', function()
         end
       end
       assert.equals(ok, input.compiles)
+    end)
+  end
+end)
+
+local highlighter_debug = os.getenv("HL_DEBUG")
+describe('highlight #parser', function()
+  -- term.print_c(Color.black, 'black')
+  -- term.print_c(Color.red, 'red')
+  -- term.print_c(Color.green, 'green')
+  -- term.print_c(Color.yellow, 'yellow')
+  -- term.print_c(Color.blue, 'blue')
+  -- term.print_c(Color.magenta, 'magenta')
+  -- term.print_c(Color.cyan, 'cyan')
+  -- term.print_c(Color.white, 'white')
+  for i, input in ipairs(inputs) do
+    local tag = 'input #' .. i
+    it('parses ' .. tag, function()
+      local tokens = parser.tokenize(input.code)
+      local hl = parser.syntax_hl(tokens)
+      -- print(Debug.text_table(input.code, true))
+      if highlighter_debug then
+        for l, line in ipairs(input.code) do
+          local rowc = hl[l]
+          for j = 1, #line do
+            local c = tokenHL.colorize(rowc[j])
+            term.print_c(c, string.sub(line, j, j), true)
+          end
+          print()
+        end
+      end
     end)
   end
 end)
