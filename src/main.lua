@@ -113,5 +113,7 @@ function love.update(dt)
 end
 
 function love.draw()
-  V:draw()
+  local terminal = C:get_terminal()
+  local input = C:get_input()
+  V:draw(terminal, input)
 end
