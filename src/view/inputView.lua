@@ -109,10 +109,7 @@ function InputView:draw(input)
   end
   local write_line = function(i, l)
     local dy = y - (-i + 1 + breaks) * fh
-    if highlight then
-    else
-      G.print(l, b, dy)
-    end
+    G.print(l, b, dy)
   end
 
   -- draw
@@ -128,8 +125,15 @@ function InputView:draw(input)
       drawCursor()
     end
   end
-  for i, l in ipairs(display) do
-    write_line(i, l)
+  if highlight then
+    -- TODO
+    for i, l in ipairs(display) do
+      write_line(i, l)
+    end
+  else
+    for i, l in ipairs(display) do
+      write_line(i, l)
+    end
   end
   G.pop()
 end

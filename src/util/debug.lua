@@ -1,14 +1,19 @@
+require("util/string")
+
+local INDENT = '  '
+
+local function get_indent(level, starter)
+  local indent = starter or ''
+  for _ = 0, level do
+    indent = indent .. INDENT
+  end
+  return indent
+end
+
 Debug = {
-  print_t = function(t, tag, ind, prev_seen)
+  print_t = function(t, tag, level, prev_seen)
     local seen = prev_seen or {}
-    local indent = ind or 0
-    local function get_indent(starter)
-      local dent = starter or ''
-      for i = 0, indent do
-        dent = dent .. '  '
-      end
-      return dent
-    end
+    local indent = level or 0
 
     if not t then return '' end
     local res = ''
@@ -17,25 +22,25 @@ Debug = {
       res = '[' .. tag .. ']'
     end
     if type(t) == 'table' then
-      if seen[t] then return end
+      if seen[t] then return '' end
       seen[t] = true
       for k, v in pairs(t) do
         local ts = Debug.print_t(v, nil, indent + 1, seen)
         if ts then
-          local header = get_indent() .. '---- ' .. k .. ' ----\n'
-          res = res .. get_indent() .. header
-          res = res .. get_indent() .. ts
+          local header = get_indent(indent) .. '---- ' .. k .. ' ----\n'
+          res = res .. get_indent(indent) .. header
+          res = res .. get_indent(indent) .. ts
           res = res .. '\n'
         end
       end
     elseif type(t) == 'string' then
-      res = res .. get_indent() .. t .. '\n'
+      res = res .. get_indent(indent) .. t .. '\n'
     elseif type(t) == 'function' then
-      res = res .. get_indent() .. 'f() ' .. '' .. '\n'
-      -- res = res .. get_indent() .. 'f() ' .. string.dump(t) .. '\n'
-      res = res .. get_indent('    ') .. 'end\n'
+      -- res = res .. get_indent(indent) .. 'f() ' .. string.dump(t) .. '\n'
+      -- res = res .. get_indent(indent, '    ') .. 'end\n'
+      res = res .. get_indent(indent) .. 'f() ' .. '' .. 'end\n'
     elseif type(t) == 'number' then
-      res = res .. get_indent() .. 'N ' .. t .. '\n'
+      res = res .. get_indent(indent) .. 'N ' .. t .. '\n'
     end
     return res
   end,
@@ -54,6 +59,35 @@ Debug = {
         res = res .. line
       end
     end
+    return res
+  end,
+
+  terse_t = function(t, level, prev_seen)
+    if not t then return '' end
+
+    local seen = prev_seen or {}
+    local indent = level or 0
+    local res = ''
+    if type(t) == 'table' then
+      res = res .. '{'
+      if seen[t] then return '' end
+      seen[t] = true
+      for k, v in pairs(t) do
+        local dent = ''
+        if type(v) == 'table' then
+          dent = '\n' .. string.times('  ', indent + 1)
+        end
+        res = res .. dent .. k .. ': '
+        res = res .. Debug.terse_t(v, indent + 1, seen)
+      end
+      local dent = '\n' .. string.times('  ', indent)
+      res = res .. dent .. '}, '
+    elseif type(t) == 'string' then
+      res = res .. "'" .. t .. "'" .. ', '
+    else
+      res = res .. tostring(t) .. ', '
+    end
+
     return res
   end,
 }

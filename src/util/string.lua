@@ -159,3 +159,13 @@ end
 string.interleave = function(prefix, text, postfix)
   return string.join({ prefix, postfix }, text)
 end
+
+string.times = function(s, n)
+  local till = n or 1
+  local str = s or ''
+  local res = ''
+  for _ = 1, till do
+    res = res .. str
+  end
+  return res
+end
