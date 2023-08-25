@@ -2,12 +2,17 @@ require("util/string")
 
 local INDENT = '  '
 
-local function get_indent(level, starter)
+local get_indent = function(level, starter)
   local indent = starter or ''
   for _ = 0, level do
     indent = indent .. INDENT
   end
   return indent
+end
+
+local text = function(t)
+  if not t or type(t) ~= 'string' then return end
+  return string.format("'%s'", t)
 end
 
 Debug = {
@@ -45,15 +50,17 @@ Debug = {
     return res
   end,
 
+  text = text,
+
   text_table = function(t, no_ln)
     local res = ''
     if t then
       for i, l in ipairs(t) do
         local line = (function()
           if not no_ln then
-            return string.format("#%02d: '%s'\n", i, l)
+            return string.format("#%02d: %s\n", i, text(l))
           else
-            return string.format("'%s'\n", l)
+            return text(l) .. '\n'
           end
         end)()
         res = res .. line
@@ -83,7 +90,7 @@ Debug = {
       local dent = '\n' .. string.times('  ', indent)
       res = res .. dent .. '}, '
     elseif type(t) == 'string' then
-      res = res .. "'" .. t .. "'" .. ', '
+      res = res .. text(t) .. ', '
     else
       res = res .. tostring(t) .. ', '
     end
