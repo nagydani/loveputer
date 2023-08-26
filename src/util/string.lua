@@ -33,7 +33,7 @@ string.is_non_empty_string_array = function(sa)
 end
 
 string.ulen = function(s)
-  if string.is_non_empty_string(s) then
+  if s then
     return utf8.len(s)
   else
     return 0
