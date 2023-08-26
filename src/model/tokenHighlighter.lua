@@ -1,3 +1,4 @@
+require("util/color")
 local c = require("conf/colors").input
 local colors = c.syntax_i
 

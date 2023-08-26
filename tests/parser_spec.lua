@@ -1,4 +1,4 @@
-require("view/color")
+require("util/color")
 local parser = require("model/parser")('metalua')
 local tokenHL = require("model/tokenHighlighter")
 

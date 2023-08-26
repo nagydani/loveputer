@@ -1,7 +1,7 @@
-require("view/color")
 require("view/titleView")
 require("view/canvasView")
 require("view/inputView")
+require("util/color")
 
 require("util/debug")
 
