@@ -179,12 +179,12 @@ describe('highlight #parser', function()
       -- print(Debug.text_table(input.code, true))
       if highlighter_debug then
         for l, line in ipairs(input.code) do
-          local rowc = hl[l]
+          local rowc = hl[l] or {}
           for j = 1, #line do
             local c = tokenHL.colorize(rowc[j])
             term.print_c(c, string.sub(line, j, j), true)
           end
-          print()
+          print(term.reset)
         end
       end
     end)
