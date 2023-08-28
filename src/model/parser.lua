@@ -89,6 +89,8 @@ return function(lib)
   local syntax_hl = function(tokens)
     if not tokens then return {} end
 
+    local colored_tokens = {}
+
     local function getType(tag, single)
       if tag == 'Keyword' then
         if single then
@@ -107,7 +109,32 @@ return function(lib)
       end
     end
 
-    local colored_tokens = {}
+    local function multiline(first, last, text, ttype, tl)
+      local ls = first.l
+      local le = last.l
+      local cs = first.c
+      local ce = last.c
+      local lines = string.lines(text)
+      local till = le + 1 - ls
+      for l = 1, till do
+        if not colored_tokens[l] then
+          colored_tokens[l] = {}
+        end
+      end
+      for i = cs, cs + string.ulen(lines[1]) + tl do
+        colored_tokens[ls][i] = ttype
+      end
+      for i = 2, till - 1 do
+        local e = string.ulen(lines[i])
+        for j = 1, e do
+          colored_tokens[ls + i - 1][j] = ttype
+        end
+      end
+      for i = 1, ce do
+        colored_tokens[le][i] = ttype
+      end
+    end
+
     local colorize = function(t)
       local text     = t[1]
       local tag      = t.tag
@@ -156,30 +183,8 @@ return function(lib)
           colored_tokens[l][i] = getType(tag, single)
         end
       else
-        local ls = first.l
-        local le = last.l
-        local cs = first.c
-        local ce = last.c
-        local lines = string.lines(text)
-        local till = le + 1 - ls
-        for l = 1, till do
-          if not colored_tokens[l] then
-            colored_tokens[l] = {}
-          end
-        end
         local tl = 2 -- a string block starts with '[['
-        for i = cs, cs + string.ulen(lines[1]) + tl do
-          colored_tokens[ls][i] = 'string'
-        end
-        for i = 2, till - 1 do
-          local e = string.ulen(lines[i])
-          for j = 1, e do
-            colored_tokens[ls + i - 1][j] = 'string'
-          end
-        end
-        for i = 1, ce do
-          colored_tokens[le][i] = 'string'
-        end
+        multiline(first, last, text, 'string', tl)
       end
 
       -- comments
@@ -196,26 +201,8 @@ return function(lib)
             colored_tokens[ls][i] = 'comment'
           end
         else
-          local lines = string.lines(co.text)
-          local till = le + 1 - ls
-          for l = 1, till do
-            if not colored_tokens[l] then
-              colored_tokens[l] = {}
-            end
-          end
           local tl = 4 -- a block comment starts with '--[['
-          for i = cs, cs + string.ulen(lines[1]) + tl do
-            colored_tokens[ls][i] = 'comment'
-          end
-          for i = 2, till - 1 do
-            local e = string.ulen(lines[i])
-            for j = 1, e do
-              colored_tokens[ls + i - 1][j] = 'comment'
-            end
-          end
-          for i = 1, ce do
-            colored_tokens[le][i] = 'comment'
-          end
+          multiline(co.first, co.last, co.text, 'comment', tl)
         end
       end
     end -- colorize

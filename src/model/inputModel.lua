@@ -408,6 +408,7 @@ function InputModel:highlight()
     local p = ev.parser
     local text = self:get_text()
     local lex = p.stream_tokens(text)
+    -- iterating over the stream exhausts it
     local tokens = p.realize_stream(lex)
     local ok, err = p.parse(text)
     local parse_err
@@ -417,7 +418,6 @@ function InputModel:highlight()
     end
 
     return {
-      -- lexstream = lex,
       parse_err = parse_err,
       hl = p.syntax_hl(tokens),
     }
