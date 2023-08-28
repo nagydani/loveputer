@@ -209,6 +209,16 @@ describe("StringUtils #string", function()
       local res = string.wrap_at(test1, 5)
       assert.same({ test1 }, res)
     end)
+    it('whitespace', function()
+      local test1 = ' '
+      local res = string.wrap_at(test1, 5)
+      assert.same({ test1 }, res)
+    end)
+    it('whitespace break', function()
+      local test1 = ' '
+      local res = string.wrap_at(test1 .. test1, 1)
+      assert.same({ test1, test1 }, res)
+    end)
 
     it('unicode', function()
       local test1 = "An expression was expected, and `�' can 't start an expression "
