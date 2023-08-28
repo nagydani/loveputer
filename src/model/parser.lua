@@ -121,7 +121,15 @@ return function(lib)
       local cs = first.c
       local ce = last.c
       local lines = string.lines(text)
+      local n_lines = #lines
       local till = le + 1 - ls
+      -- if the first line has no text after the block starter,
+      -- we need to add an empty line on the front
+      if n_lines + 1 == till then
+        table.insert(lines, 1, '')
+      end
+
+      -- first line
       for i = cs, cs + string.ulen(lines[1]) + tl do
         colored_tokens[ls][i] = ttype
       end
@@ -131,6 +139,7 @@ return function(lib)
           colored_tokens[ls + i - 1][j] = ttype
         end
       end
+      -- last line
       for i = 1, ce do
         colored_tokens[le][i] = ttype
       end
@@ -149,8 +158,8 @@ return function(lib)
       local function add_comment(c)
         local id = c.lineinfo.first.id
         if not comments[id] then
-          local comment = c[1]
-          if string.sub(comment, 1, 2) == '[[' then
+          local comment_text = c[1]
+          if string.sub(comment_text, 1, 2) == '[[' then
             -- TODO unclosed comment block
             -- orig_print(Debug.terse_t(c))
           end
@@ -162,7 +171,7 @@ return function(lib)
           local li     = {
             first = cfirst,
             last = clast,
-            text = comment,
+            text = comment_text,
           }
           comments[id] = li
         end

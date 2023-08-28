@@ -173,22 +173,31 @@ local inputs = {
       'あいうえお --]]',
     }
   },
-  -- TODO: fix in parser
-  -- {
-  --   compiles = true,
-  --   code = {
-  --     "--[[ multiline",
-  --     "comment --]] -- another comment",
-  --   }
-  -- },
-  -- {
-  --   compiles = true,
-  --   code = {
-  --     "local a = 1 --[[ multiline",
-  --     "comment --]] -- another comment",
-  --     "a = 2",
-  --   }
-  -- },
+  {
+    compiles = true,
+    code = {
+      "--[[ multiline",
+      "    =-=",
+      "comment --]] -- another comment",
+    }
+  },
+  {
+    compiles = true,
+    code = {
+      "-- comment",
+      "  --[[ multiline",
+      " |-|",
+      "comment --]]",
+    }
+  },
+  {
+    compiles = true,
+    code = {
+      "local a = 1 --[[ multiline",
+      "comment --]] -- another comment",
+      "a = 2",
+    }
+  },
   {
     compiles = true,
     code = {
@@ -216,15 +225,15 @@ local inputs = {
       'end',
     }
   },
-  -- multiline string
-  {
-    compiles = false,
-    code = {
-      'local ml = [[',
-      '  multiline string',
-      '  without closing',
-    }
-  },
+  multiline string
+{
+  compiles = false,
+  code = {
+    'local ml = [[',
+    '  multiline string',
+    '  without closing',
+  }
+},
   {
     compiles = true,
     code = {
