@@ -6,12 +6,14 @@ local function set_print(M)
   _G.orig_print = origPrint
   local magicPrint = function(...)
     local arg = { ... }
-    -- origPrint('t', string.join(arg, '\t'))
-    for _, v in ipairs(arg) do
-      origPrint(v)
-      M.output:push(v)
+    local out = ''
+    local l = #arg
+    for i, v in ipairs(arg) do
+      out = out .. tostring(v)
+      if i ~= l then out = out .. '\t' end
     end
-    -- M.output:push(arg)
+    origPrint(out)
+    M.output:push(out)
   end
   _G.print = magicPrint
 end
