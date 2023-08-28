@@ -30,11 +30,11 @@ function InputView:draw(input)
   local drawableWidth = self.cfg.drawableWidth
   local drawableChars = self.cfg.drawableChars
 
-  local isError = string.is_non_empty_string(input.err)
+  local isError = string.is_non_empty_string(input.error)
   local highlight = input.highlight
   local text = (function()
     if isError then
-      return string.wrap_at(input.err, drawableChars - 1)
+      return string.wrap_at(input.error, drawableChars - 1)
     else
       return input.text
     end
@@ -142,7 +142,7 @@ function InputView:draw(input)
       drawCursor()
     end
   end
-  if highlight then
+  if highlight and not isError then
     for l, s in ipairs(display) do
       for i = 1, string.ulen(s) do
         local char = string.usub(s, i, i)
