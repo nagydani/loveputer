@@ -68,7 +68,7 @@ local inputs = {
     compiles = true,
     code = {
       'for i=1,5 do',
-      'print(i)',
+      '  print(i)',
       'end',
     }
   },
@@ -76,7 +76,7 @@ local inputs = {
     compiles = false,
     code = {
       'for i=1,5',
-      'print(i)',
+      '  print(i)',
       'end',
     }
   },
@@ -84,7 +84,7 @@ local inputs = {
     compiles = false,
     code = {
       'for i=1,5 then',
-      'print(i)',
+      '  print(i)',
       'end',
     }
   },
@@ -92,7 +92,7 @@ local inputs = {
     compiles = false,
     code = {
       'for i=1,5 do',
-      'print(i)',
+      '  print(i)',
     }
   },
 
@@ -163,14 +163,6 @@ end)
 
 local highlighter_debug = os.getenv("HL_DEBUG")
 describe('highlight #parser', function()
-  -- term.print_c(Color.black, 'black')
-  -- term.print_c(Color.red, 'red')
-  -- term.print_c(Color.green, 'green')
-  -- term.print_c(Color.yellow, 'yellow')
-  -- term.print_c(Color.blue, 'blue')
-  -- term.print_c(Color.magenta, 'magenta')
-  -- term.print_c(Color.cyan, 'cyan')
-  -- term.print_c(Color.white, 'white')
   for i, input in ipairs(inputs) do
     local tag = 'input #' .. i
     it('parses ' .. tag, function()
@@ -184,8 +176,9 @@ describe('highlight #parser', function()
             local c = tokenHL.colorize(rowc[j])
             term.print_c(c, string.sub(line, j, j), true)
           end
-          print(term.reset)
+          print()
         end
+        print(term.reset)
       end
     end)
   end
