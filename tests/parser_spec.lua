@@ -130,6 +130,56 @@ local inputs = {
   { compiles = true,  code = { 'a = { ["foo"]="bar" }' } },
   { compiles = true,  code = { 'a = { [1]=a, [2]=b, }' } },
   { compiles = true,  code = { 'a = { true, a=1; ["foo"]="bar", }' } },
+  -- comments
+  {
+    compiles = true,
+    code = {
+      '-- this loop is rad',
+      'for i=1,5 do',
+      '  print(i)',
+      'end',
+    }
+  },
+  {
+    compiles = true,
+    code = {
+      '--- it foos the bar',
+      '---@param bar table',
+      'function foo(bar)',
+      'end',
+    }
+  },
+  {
+    compiles = true,
+    code = {
+      'function foo()',
+      '  -- TODO: foo the bar',
+      'end',
+    }
+  },
+  {
+    compiles = true,
+    code = {
+      'for i=1,5 do',
+      '  print(i)',
+      'end -- done',
+    }
+  },
+  {
+    compiles = true,
+    code = {
+      "--[[ multiline",
+      "comment",
+      'あいうえお --]]',
+    }
+  },
+  {
+    compiles = true,
+    code = {
+      "print('когда') --[[ function foo()",
+      'end --]]',
+    }
+  },
 }
 
 local parser_debug = os.getenv("PARSER_DEBUG")
