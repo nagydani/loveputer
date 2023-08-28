@@ -107,9 +107,26 @@ function InputView:draw(input)
       drawableWidth,
       apparentHeight * fh)
   end
-  local write_line = function(i, l)
-    local dy = y - (-i + 1 + breaks) * fh
-    G.print(l, b, dy)
+
+  --- Write a line of text to output
+  ---@param l number
+  ---@param str string
+  local write_line = function(l, str)
+    local dy = y - (-l + 1 + breaks) * fh
+    G.print(str, b, dy)
+  end
+  --- Write a token to output
+  ---@param l number
+  ---@param c number
+  ---@param token string
+  ---@param color table
+  local write_token = function(l, c, token, color)
+    local dy = y - (-l + 1 + breaks) * fh
+    local dx = b + (c - 1) * fw
+    G.push('all')
+    G.setColor(color)
+    G.print(token, dx, dy)
+    G.pop()
   end
 
   -- draw
@@ -126,13 +143,18 @@ function InputView:draw(input)
     end
   end
   if highlight then
-    -- TODO
-    for i, l in ipairs(display) do
-      write_line(i, l)
+    for l, s in ipairs(display) do
+      for i = 1, string.ulen(s) do
+        local char = string.usub(s, i, i)
+        local row = highlight.hl[l] or {}
+        local ttype = row[i]
+        local color = colors.syntax[ttype] or colors.fg
+        write_token(l, i, char, color)
+      end
     end
   else
-    for i, l in ipairs(display) do
-      write_line(i, l)
+    for l, str in ipairs(display) do
+      write_line(l, str)
     end
   end
   G.pop()

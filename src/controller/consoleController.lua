@@ -66,7 +66,7 @@ function ConsoleController:keypressed(k)
     end
   end
 
-  self.model.input:clear_error()
+  input:clear_error()
 
   if love.state.testing == 'running' then
     return
@@ -165,10 +165,11 @@ function ConsoleController:get_terminal()
 end
 
 function ConsoleController:get_input()
+  local im = self.model.input
   return {
-    text = self.model.input:get_text(),
-    err = self.model.input:get_error(),
-    highlight = self.model.input:is_highlighted(),
+    text = im:get_text(),
+    error = im:get_error(),
+    highlight = im:highlight(),
   }
 end
 

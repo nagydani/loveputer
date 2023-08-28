@@ -4,7 +4,6 @@ require("model/textEval")
 require("model/luaEval")
 require("util/dequeue")
 require("util/string")
-
 require("util/debug")
 
 InputText = {}
@@ -403,10 +402,24 @@ function InputModel:text_change()
   end
 end
 
-function InputModel:is_highlighted()
+function InputModel:highlight()
   local ev = self.evaluator
-  if ev.kind == 'lua' then return true end
-  return false
+  if ev.kind == 'lua' then
+    local p = ev.parser
+    local lex = p.stream_tokens(self:get_text())
+    local tokens = p.realize_stream(lex)
+    local ok, err = p.parse_stream(lex)
+    local parse_err
+    if not ok then
+      _, _, parse_err = p.get_error(err)
+    end
+
+    return {
+      -- lexstream = lex,
+      parse_err = parse_err,
+      hl = p.syntax_hl(tokens),
+    }
+  end
 end
 
 function InputModel:clear_error()
