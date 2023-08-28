@@ -90,6 +90,12 @@ return function(lib)
     if not tokens then return {} end
 
     local colored_tokens = {}
+    setmetatable(colored_tokens, {
+      __index = function(table, key)
+        table[key] = {}
+        return table[key]
+      end
+    })
 
     local function getType(tag, single)
       if tag == 'Keyword' then
@@ -116,11 +122,6 @@ return function(lib)
       local ce = last.c
       local lines = string.lines(text)
       local till = le + 1 - ls
-      for l = 1, till do
-        if not colored_tokens[l] then
-          colored_tokens[l] = {}
-        end
-      end
       for i = cs, cs + string.ulen(lines[1]) + tl do
         colored_tokens[ls][i] = ttype
       end
@@ -172,9 +173,6 @@ return function(lib)
       -- normal tokens
       if first.l == last.l then
         local l = first.l
-        if not colored_tokens[l] then
-          colored_tokens[l] = {}
-        end
         local single = false
         if string.ulen(text) == 1 then
           single = true
@@ -194,9 +192,6 @@ return function(lib)
         local cs = co.first.c
         local ce = co.last.c
         if ls == le then
-          if not colored_tokens[ls] then
-            colored_tokens[ls] = {}
-          end
           for i = cs, ce do
             colored_tokens[ls][i] = 'comment'
           end

@@ -192,6 +192,16 @@ local inputs = {
   {
     compiles = true,
     code = {
+      "local a",
+      "  -- comment",
+      "--[[ multiline",
+      "comment --]]",
+      "a = 2",
+    }
+  },
+  {
+    compiles = true,
+    code = {
       "print('когда') --[[ function foo()",
       'end --]]',
     }
