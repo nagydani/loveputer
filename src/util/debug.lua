@@ -86,7 +86,11 @@ Debug = {
           flat = false
           dent = '\n' .. string.times('  ', indent + 1)
         end
-        res = res .. dent .. Debug.terse_t(k) .. ': '
+        if type(k) == table then
+          res = res .. dent .. Debug.terse_t(k) .. ': '
+        else
+          res = res .. dent .. k .. ': '
+        end
         res = res .. Debug.terse_t(v, indent + 1, seen)
       end
       local br = (function()
