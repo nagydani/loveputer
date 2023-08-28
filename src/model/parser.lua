@@ -90,6 +90,12 @@ return function(lib)
     if not tokens then return {} end
 
     local colored_tokens = {}
+    setmetatable(colored_tokens, {
+      __index = function(table, key)
+        table[key] = {}
+        return table[key]
+      end
+    })
 
     local function getType(tag, single)
       if tag == 'Keyword' then
@@ -115,12 +121,15 @@ return function(lib)
       local cs = first.c
       local ce = last.c
       local lines = string.lines(text)
+      local n_lines = #lines
       local till = le + 1 - ls
-      for l = 1, till do
-        if not colored_tokens[l] then
-          colored_tokens[l] = {}
-        end
+      -- if the first line has no text after the block starter,
+      -- we need to add an empty line on the front
+      if n_lines + 1 == till then
+        table.insert(lines, 1, '')
       end
+
+      -- first line
       for i = cs, cs + string.ulen(lines[1]) + tl do
         colored_tokens[ls][i] = ttype
       end
@@ -130,6 +139,7 @@ return function(lib)
           colored_tokens[ls + i - 1][j] = ttype
         end
       end
+      -- last line
       for i = 1, ce do
         colored_tokens[le][i] = ttype
       end
@@ -145,13 +155,11 @@ return function(lib)
       -- local first_f = lfi.facing
       -- local last_f  = lla.facing
       local comments = {}
-      local comm_pre = lfi.comments and lfi.comments[1]
-      local comm_suc = lla.comments and lla.comments[1]
-      for _, c in ipairs({ comm_pre, comm_suc }) do
+      local function add_comment(c)
         local id = c.lineinfo.first.id
         if not comments[id] then
-          local comment = c[1]
-          if string.sub(comment, 1, 2) == '[[' then
+          local comment_text = c[1]
+          if string.sub(comment_text, 1, 2) == '[[' then
             -- TODO unclosed comment block
             -- orig_print(Debug.terse_t(c))
           end
@@ -163,18 +171,25 @@ return function(lib)
           local li     = {
             first = cfirst,
             last = clast,
-            text = comment,
+            text = comment_text,
           }
           comments[id] = li
+        end
+      end
+      if lfi.comments then
+        for _, c in ipairs(lfi.comments) do
+          add_comment(c)
+        end
+      end
+      if lla.comments then
+        for _, c in ipairs(lla.comments) do
+          add_comment(c)
         end
       end
 
       -- normal tokens
       if first.l == last.l then
         local l = first.l
-        if not colored_tokens[l] then
-          colored_tokens[l] = {}
-        end
         local single = false
         if string.ulen(text) == 1 then
           single = true
@@ -194,9 +209,6 @@ return function(lib)
         local cs = co.first.c
         local ce = co.last.c
         if ls == le then
-          if not colored_tokens[ls] then
-            colored_tokens[ls] = {}
-          end
           for i = cs, ce do
             colored_tokens[ls][i] = 'comment'
           end
