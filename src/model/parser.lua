@@ -55,6 +55,7 @@ return function(lib)
     local parser = mlc.lexstream_to_ast
     return pcall(parser, mlc, stream)
   end
+
   local parse = function(code)
     local stream = stream_tokens(code)
     return parse_stream(stream)
@@ -86,10 +87,11 @@ return function(lib)
   ---@param tokens table
   ---@return table
   local syntax_hl = function(tokens)
+    if not tokens then
+      return {}
+    end
     local colored_tokens = {}
-    orig_print()
-    for _, t in pairs(tokens) do
-      -- orig_print(Debug.terse_t(t))
+    local colorize = function(t)
       local text  = t[1]
       local tag   = t.tag
       local lfi   = t.lineinfo.first
@@ -132,16 +134,28 @@ return function(lib)
       else
       end
     end
+
+    if tokens.next then
+      repeat
+        local t = tokens:next()
+        colorize(t)
+      until t.tag == 'Eof'
+    else
+      for _, t in pairs(tokens) do
+        colorize(t)
+      end
+    end
     return colored_tokens
   end
 
   return {
-    stream_tokens = stream_tokens,
-    tokenize      = tokenize,
-    parse         = parse,
-    parse_stream  = parse_stream,
-    pprint        = pprint,
-    get_error     = get_error,
-    syntax_hl     = syntax_hl,
+    stream_tokens  = stream_tokens,
+    realize_stream = realize_stream,
+    tokenize       = tokenize,
+    parse          = parse,
+    parse_stream   = parse_stream,
+    pprint         = pprint,
+    get_error      = get_error,
+    syntax_hl      = syntax_hl,
   }
 end
