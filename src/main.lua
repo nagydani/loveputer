@@ -57,13 +57,13 @@ function love.load(args)
     w = w,
     h = h,
     get_drawable_height = function()
-      return
-          h - border -- top border
-          - border   -- statusline border
-          - fh       -- statusline
-          - border   -- statusline bottom border
-          - fh       -- input line
-          - border   -- bottom border
+      local d = h - border -- top border
+          - border         -- statusline border
+          - fh             -- statusline
+          - border         -- statusline bottom border
+          - fh             -- input line
+          - border         -- bottom border
+      return math.floor(d / fh) * fh
     end,
     colors = colors,
 

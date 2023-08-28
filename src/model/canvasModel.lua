@@ -31,12 +31,6 @@ function CanvasModel:new(cfg)
   setmetatable(cm, self)
   self.__index = self
 
-
-  cm.background = function()
-    G.setColor(cm.terminal.colors.bg)
-    G.rectangle("fill", 0, 0, cfg.w, cfg.h)
-  end
-
   return cm
 end
 

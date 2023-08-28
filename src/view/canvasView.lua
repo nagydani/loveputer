@@ -13,11 +13,25 @@ function CanvasView:new(cfg)
 end
 
 function CanvasView:draw(terminal)
-  local b = self.cfg.border
+  local cfg = self.cfg
+  local b = cfg.border
+
+  local drawBackground = function()
+    G.push('all')
+    G.setColor(cfg.colors.terminal.bg)
+    G.rectangle("fill",
+      b,
+      b + cfg.get_drawable_height(),
+      cfg.w - b,
+      cfg.fh
+    )
+    G.pop()
+  end
 
   G.push('all')
   G.setCanvas()
   G.translate(b, b)
   terminal:draw()
+  drawBackground()
   G.pop()
 end
