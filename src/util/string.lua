@@ -10,9 +10,16 @@ string.trim = function(s)
   return post
 end
 
-string.is_non_empty_string = function(s)
+string.is_non_empty_string = function(s, no_trim)
   if s and type(s) == 'string' and s ~= '' then
-    if string.normalize(s) ~= '' then
+    local str = (function()
+      if no_trim then
+        return s
+      else
+        return string.normalize(s)
+      end
+    end)()
+    if str ~= '' then
       return true
     end
   end
@@ -101,7 +108,7 @@ string.wrap_at = function(s, i)
     chunk, rem = string.split_at(rem, mod + 1)
     table.insert(res, chunk)
   end
-  if string.is_non_empty_string(rem) then
+  if string.is_non_empty_string(rem, true) then
     table.insert(res, rem)
   end
 
