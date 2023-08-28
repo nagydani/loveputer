@@ -146,9 +146,7 @@ return function(lib)
       -- local first_f = lfi.facing
       -- local last_f  = lla.facing
       local comments = {}
-      local comm_pre = lfi.comments and lfi.comments[1]
-      local comm_suc = lla.comments and lla.comments[1]
-      for _, c in ipairs({ comm_pre, comm_suc }) do
+      local function add_comment(c)
         local id = c.lineinfo.first.id
         if not comments[id] then
           local comment = c[1]
@@ -167,6 +165,16 @@ return function(lib)
             text = comment,
           }
           comments[id] = li
+        end
+      end
+      if lfi.comments then
+        for _, c in ipairs(lfi.comments) do
+          add_comment(c)
+        end
+      end
+      if lla.comments then
+        for _, c in ipairs(lla.comments) do
+          add_comment(c)
         end
       end
 
