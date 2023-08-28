@@ -124,16 +124,21 @@ return function(lib)
         local id = c.lineinfo.first.id
         if not comments[id] then
           local comment = c[1]
-          local cfi     = c.lineinfo.first
-          local cla     = c.lineinfo.last
-          local cfirst  = { l = cfi.line, c = cfi.column }
-          local clast   = { l = cla.line, c = cla.column }
-          local li      = {
+          if string.sub(comment, 1, 2) == '[[' then
+            -- TODO unclosed comment block
+            -- orig_print(Debug.terse_t(c))
+          end
+
+          local cfi    = c.lineinfo.first
+          local cla    = c.lineinfo.last
+          local cfirst = { l = cfi.line, c = cfi.column }
+          local clast  = { l = cla.line, c = cla.column }
+          local li     = {
             first = cfirst,
             last = clast,
             text = comment,
           }
-          comments[id]  = li
+          comments[id] = li
         end
       end
 
@@ -151,7 +156,30 @@ return function(lib)
           colored_tokens[l][i] = getType(tag, single)
         end
       else
-        -- TODO: multiline strings
+        local ls = first.l
+        local le = last.l
+        local cs = first.c
+        local ce = last.c
+        local lines = string.lines(text)
+        local till = le + 1 - ls
+        for l = 1, till do
+          if not colored_tokens[l] then
+            colored_tokens[l] = {}
+          end
+        end
+        local tl = 2 -- a string block starts with '[['
+        for i = cs, cs + string.ulen(lines[1]) + tl do
+          colored_tokens[ls][i] = 'string'
+        end
+        for i = 2, till - 1 do
+          local e = string.ulen(lines[i])
+          for j = 1, e do
+            colored_tokens[ls + i - 1][j] = 'string'
+          end
+        end
+        for i = 1, ce do
+          colored_tokens[le][i] = 'string'
+        end
       end
 
       -- comments

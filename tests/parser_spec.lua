@@ -180,6 +180,26 @@ local inputs = {
       'end --]]',
     }
   },
+  {
+    compiles = false,
+    code = {
+      'for i=1,5 do --[[ inserting',
+      '  a multiline comment',
+      '  without closing',
+      '  fp',
+      'end',
+    }
+  },
+  -- multiline string
+  {
+    compiles = true,
+    code = {
+      'local ml = [[ multi',
+      '  line',
+      '  string',
+      ']]',
+    }
+  },
 }
 
 local parser_debug = os.getenv("PARSER_DEBUG")
