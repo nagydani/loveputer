@@ -406,12 +406,14 @@ function InputModel:highlight()
   local ev = self.evaluator
   if ev.kind == 'lua' then
     local p = ev.parser
-    local lex = p.stream_tokens(self:get_text())
+    local text = self:get_text()
+    local lex = p.stream_tokens(text)
     local tokens = p.realize_stream(lex)
-    local ok, err = p.parse_stream(lex)
+    local ok, err = p.parse(text)
     local parse_err
     if not ok then
-      _, _, parse_err = p.get_error(err)
+      local l, c, msg = p.get_error(err)
+      parse_err = { l = l, c = c, msg = msg }
     end
 
     return {

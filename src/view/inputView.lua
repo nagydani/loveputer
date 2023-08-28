@@ -143,12 +143,24 @@ function InputView:draw(input)
     end
   end
   if highlight and not isError then
+    local perr = highlight.parse_err
+    local el, ec
+    if perr then
+      el = perr.l
+      ec = perr.c
+    end
     for l, s in ipairs(display) do
       for i = 1, string.ulen(s) do
         local char = string.usub(s, i, i)
         local row = highlight.hl[l] or {}
         local ttype = row[i]
-        local color = colors.syntax[ttype] or colors.fg
+        local color
+        if perr and l > el or
+            (l == el and i > ec) then
+          color = colors.error
+        else
+          color = colors.syntax[ttype] or colors.fg
+        end
         write_token(l, i, char, color)
       end
     end
