@@ -432,10 +432,12 @@ function InputModel:get_error()
   return self.error
 end
 
-function InputModel:set_error(error)
+function InputModel:set_error(error, is_load_error)
   if string.is_non_empty_string(error) then
     self.error = error
-    self:history_back()
+    if not is_load_error then
+      self:history_back()
+    end
   end
 end
 

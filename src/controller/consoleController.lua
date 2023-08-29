@@ -24,7 +24,7 @@ function ConsoleController:get_timestamp()
   return self.time
 end
 
-local function evaluate_input(input, out)
+local function evaluate_input(input)
   local text = input:get_text()
   local syntax_ok, res = input:evaluate()
   if syntax_ok then
@@ -35,9 +35,10 @@ local function evaluate_input(input, out)
       if ok then
       else
         local e = parse_load_error(call_err)
-        input:set_error(e)
+        input:set_error(e, true)
       end
     else
+      -- we should not see many of these, since the code is parsed prior
       orig_print(load_err)
     end
   else
