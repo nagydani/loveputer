@@ -108,14 +108,19 @@ string.wrap_at = function(s, i)
   return res
 end
 
-string.split = function(str, char)
+-- https://stackoverflow.com/a/51893646
+string.split = function(str, delimiter)
   if not type(str) == 'string' then return {} end
-  local pattern = string.interleave('([^', char, ']+)')
-  local words = {}
-  for word in string.gmatch(str, pattern) do
-    table.insert(words, word)
+  local result               = {}
+  local from                 = 1
+  local delim_from, delim_to = string.find(str, delimiter, from)
+  while delim_from do
+    table.insert(result, string.sub(str, from, delim_from - 1))
+    from                 = delim_to + 1
+    delim_from, delim_to = string.find(str, delimiter, from)
   end
-  return words
+  table.insert(result, string.sub(str, from))
+  return result
 end
 
 string.split_array = function(str_arr, char)
@@ -138,6 +143,7 @@ string.lines = function(s)
     return string.split_array(s, '\n')
   end
 end
+
 
 string.join = function(strs, char)
   local res = ''

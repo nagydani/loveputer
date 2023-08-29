@@ -38,6 +38,18 @@ describe("StringUtils #string", function()
         local res = string.lines(test)
         assert.same({ test }, res)
       end)
+
+      it('preceding', function()
+        local test = '\nmultiline\ncomment'
+        local res = string.lines(test)
+        assert.same({ '', 'multiline', 'comment' }, res)
+      end)
+
+      it('succeding', function()
+        local test = 'multiline\ncomment\n\n'
+        local res = string.lines(test)
+        assert.same({ 'multiline', 'comment', '', '' }, res)
+      end)
     end)
 
     describe('multiple', function()
