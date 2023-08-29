@@ -11,8 +11,10 @@ local V
 
 function love.load(args)
   local testrun = false
+  local sizedebug = false
   for _, a in ipairs(args) do
     if a == '--test' then testrun = true end
+    if a == '--size' then sizedebug = true end
   end
 
   local FAC = 1
@@ -33,7 +35,7 @@ function love.load(args)
   local debugheight = 6
   local debugwidth = math.floor(debugheight * (80 / 25))
   local drawableWidth = w - 2 * border
-  if testrun then
+  if sizedebug then
     drawableWidth = debugwidth * fw
   end
 
@@ -72,6 +74,7 @@ function love.load(args)
     drawableWidth = drawableWidth,
     drawableChars = math.floor(drawableWidth / fw),
     testrun = testrun,
+    sizedebug = sizedebug,
   }
 
   love.state = {
@@ -80,7 +83,7 @@ function love.load(args)
   love.window.aspect = G.getWidth() / G.getHeight()
 
   M = Console:new(baseconf)
-  C = ConsoleController:new(M, testrun)
+  C = ConsoleController:new(M)
   V = ConsoleView:new(baseconf, C)
 
   redirect_to(M)

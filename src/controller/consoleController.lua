@@ -3,11 +3,10 @@ ConsoleController = {}
 require("util/testTerminal")
 require("util/eval")
 
-function ConsoleController:new(m, testrun)
+function ConsoleController:new(m)
   local cc = {
     time = 0,
     model = m,
-    testrun = testrun
   }
   setmetatable(cc, self)
   self.__index = self

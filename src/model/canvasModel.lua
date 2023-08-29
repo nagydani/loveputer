@@ -10,7 +10,7 @@ CanvasModel = {}
 
 function CanvasModel:new(cfg)
   local w, h
-  if cfg.testrun then
+  if cfg.sizedebug then
     w = cfg.debugwidth * cfg.fw
     h = cfg.debugheight * cfg.fh
   else
