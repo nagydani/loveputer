@@ -9,6 +9,11 @@ if not orig_print then
   _G.orig_print = print
 end
 
+-- when testing with Lua5.3
+if not _G.unpack then
+  _G.unpack = table.unpack
+end
+
 local inputs = {
   {
     compiles = false,
