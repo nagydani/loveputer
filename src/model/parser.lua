@@ -71,8 +71,8 @@ return function(lib)
     local err_first_line = err_lines[1]
     local colons = string.split(err_first_line, ':')
     local ms = string.gmatch(colons[3], '%d+')
-    local line = tonumber(ms()) or 0
-    local char = tonumber(ms()) or 0
+    local line = tonumber(ms() or '') or 0
+    local char = tonumber(ms() or '') or 0
     local errmsg = string.trim(colons[4])
     return line, char, errmsg
   end
