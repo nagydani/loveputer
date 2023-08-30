@@ -1,7 +1,6 @@
-require("util/dequeue")
-require("util/string")
-
-local Terminal = require "lib/terminal"
+require("util.dequeue")
+require("util.string")
+local Terminal = require("lib.terminal")
 
 local G = love.graphics
 

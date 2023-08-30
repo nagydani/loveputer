@@ -1,11 +1,12 @@
 local utf8 = require("utf8")
 
-require("model/textEval")
-require("model/luaEval")
-require("model/inputText")
-require("util/dequeue")
-require("util/string")
-require("util/debug")
+require("model.input.eval.textEval")
+require("model.input.eval.luaEval")
+require("model.input.inputText")
+require("model.input.cursor")
+require("util.dequeue")
+require("util.string")
+require("util.debug")
 
 
 InputModel = {}
@@ -19,7 +20,7 @@ function InputModel:new(cfg)
     evaluator = luaEval,
     textEval = textEval,
     luaEval = luaEval,
-    cursor = { c = 1, l = 1 },
+    cursor = Cursor:new(),
     error = nil,
     wrap = cfg.drawableChars,
   }

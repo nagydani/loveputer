@@ -1,4 +1,4 @@
-require("util/string")
+require("util.string")
 
 describe("StringUtils #string", function()
   local utest1 = 'когда'

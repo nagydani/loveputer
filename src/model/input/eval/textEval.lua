@@ -1,4 +1,4 @@
-require("model/eval")
+require("model.input.eval.eval")
 
 TextEval = {}
 

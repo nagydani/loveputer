@@ -1,4 +1,4 @@
-require("model/inputModel")
+require("model.input.inputModel")
 
 if not orig_print then
   _G.orig_print = function() end

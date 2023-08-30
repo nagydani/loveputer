@@ -1,10 +1,10 @@
-require("model/consoleModel")
-local redirect_to = require("model/ioRedirect")
-require("view/consoleView")
-require("controller/consoleController")
-local colors = require("conf/colors")
+require("model.consoleModel")
+local redirect_to = require("model.ioRedirect")
+require("view.consoleView")
+require("controller.consoleController")
+local colors = require("conf.colors")
 
-require("util/debug")
+require("util.debug")
 
 local G = love.graphics
 local V

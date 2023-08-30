@@ -1,4 +1,4 @@
-require("util/string")
+require("util.string")
 
 local INDENT = '  '
 

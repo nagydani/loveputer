@@ -1,7 +1,7 @@
 ConsoleController = {}
 
-require("util/testTerminal")
-require("util/eval")
+require("util.testTerminal")
+require("util.eval")
 
 function ConsoleController:new(m)
   local cc = {

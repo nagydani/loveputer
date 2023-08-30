@@ -1,5 +1,5 @@
-require("model/inputModel")
-require("model/canvasModel")
+require("model.input.inputModel")
+require("model.canvasModel")
 
 Console = {}
 

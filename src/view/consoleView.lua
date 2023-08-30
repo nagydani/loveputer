@@ -1,9 +1,8 @@
-require("view/titleView")
-require("view/canvasView")
-require("view/inputView")
-require("util/color")
-
-require("util/debug")
+require("view.titleView")
+require("view.canvasView")
+require("view.inputView")
+require("util.color")
+require("util.debug")
 
 local G = love.graphics
 

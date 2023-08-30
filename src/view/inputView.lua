@@ -1,8 +1,7 @@
 local G = love.graphics
 
-require("view/statusline")
-
-require("util/debug")
+require("view.statusline")
+require("util.debug")
 
 InputView = {}
 
