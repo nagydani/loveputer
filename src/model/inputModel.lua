@@ -2,17 +2,11 @@ local utf8 = require("utf8")
 
 require("model/textEval")
 require("model/luaEval")
+require("model/inputText")
 require("util/dequeue")
 require("util/string")
 require("util/debug")
 
-InputText = {}
-function InputText:new(values)
-  local text = Dequeue:new(values)
-  if not values then text:append('') end
-  -- if values then print(Debug.text_table(values or {})) end
-  return text
-end
 
 InputModel = {}
 
