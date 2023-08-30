@@ -27,6 +27,8 @@ function love.load(args)
     font_dir .. "ubuntu_mono_bold_nerd.ttf", font_size)
   local font_title = love.graphics.newFont(
     font_dir .. "PressStart2P-Regular.ttf", font_size)
+  local lh = 1.0468
+  font_main:setLineHeight(lh)
   local fh = font_main:getHeight()
   -- we use a monospace font, so the width should be the same for any input
   local fw = font_main:getWidth('█')
@@ -55,17 +57,21 @@ function love.load(args)
     border = border,
     fh = fh,
     fw = fw,
+    lh = lh,
     fac = FAC,
     w = w,
     h = h,
     get_drawable_height = function()
+      local ch = fh * lh
       local d = h - border -- top border
           - border         -- statusline border
           - fh             -- statusline
           - border         -- statusline bottom border
           - fh             -- input line
           - border         -- bottom border
-      return math.floor(d / fh) * fh
+      local n_lines = math.floor(d / ch)
+      local res = n_lines * ch
+      return res
     end,
     colors = colors,
 

@@ -17,7 +17,7 @@ function CanvasModel:new(cfg)
     w = G.getWidth() - 2 * cfg.border
     h = cfg.get_drawable_height()
   end
-  local term = Terminal(w, h, cfg.font_main)
+  local term = Terminal(w, h, cfg.font_main, nil, cfg.fh * cfg.lh)
 
   local color = cfg.colors.terminal
   term:hide_cursor()
