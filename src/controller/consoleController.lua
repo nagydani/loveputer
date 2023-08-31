@@ -160,6 +160,14 @@ function ConsoleController:textinput(t)
   self.model.input:text_change()
 end
 
+function ConsoleController:mousepressed(x, y, btn)
+  orig_print(string.format('down {%d, %d}', x, y), btn)
+end
+
+function ConsoleController:mousereleased(x, y, btn)
+  orig_print(string.format('up {%d, %d}', x, y), btn)
+end
+
 function ConsoleController:get_terminal()
   return self.model.output.terminal
 end

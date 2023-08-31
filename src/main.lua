@@ -126,3 +126,11 @@ function love.draw()
   local input = C:get_input()
   V:draw(terminal, input)
 end
+
+function love.mousepressed(x, y, button)
+  C:mousepressed(x, y, button)
+end
+
+function love.mousereleased(x, y, button)
+  C:mousereleased(x, y, button)
+end
