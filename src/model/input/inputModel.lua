@@ -3,7 +3,8 @@ local utf8 = require("utf8")
 require("model.input.eval.textEval")
 require("model.input.eval.luaEval")
 require("model.input.inputText")
-require("model.input.cursor")
+require("model.input.selection")
+
 require("util.dequeue")
 require("util.string")
 require("util.debug")
@@ -28,6 +29,7 @@ function InputModel:new(cfg)
     cursor_wrap = {},
     wrap_reverse = {},
     n_breaks = 0,
+    selection = Selection:new()
   }
   setmetatable(im, self)
   self.__index = self
@@ -175,16 +177,17 @@ function InputModel:_advance_cursor(x, y)
   end
 end
 
-function InputModel:move_cursor(y, x)
+function InputModel:move_cursor(y, x, selection)
   local prev_l, prev_c = self:_get_cursor_pos()
   local c, l
-  if y and y > 1 and y <= self.n_lines then
+  if y and y >= 1 and y <= self.n_lines then
     l = y
   else
     l = prev_l
   end
   local llen = #(self:get_text_line(l))
-  if x and x > 1 and x <= llen then
+  -- if x and x > 1 and x <= llen then
+  if x then
     c = x
   else
     c = prev_c
@@ -193,6 +196,12 @@ function InputModel:move_cursor(y, x)
     c = c,
     l = l
   }
+
+  if selection == 'keep' then
+  elseif selection == 'move' then
+  else
+    self:clear_selection()
+  end
 end
 
 function InputModel:paste(text)
@@ -577,7 +586,31 @@ function InputModel:translate_grid_to_cursor(l, c)
   return li, ci
 end
 
+function InputModel:start_selection(l, c)
+  self.selection.start = Cursor:new(l, c)
+  orig_print(Debug.terse_t(self.selection))
+end
+
+function InputModel:end_selection(l, c)
+  self.selection.fin = Cursor:new(l, c)
+end
+
+function InputModel:get_selection()
+  return self.selection
+end
+
+function InputModel:clear_selection()
+  self.selection = Selection:new()
+end
+
+function InputModel:mouse_click(l, c)
+  local li, ci = self:translate_grid_to_cursor(l, c)
+  self:clear_selection()
+  self:start_selection(li, ci)
+end
+
 function InputModel:mouse_release(l, c)
   local li, ci = self:translate_grid_to_cursor(l, c)
-  self:move_cursor(li, ci)
+  self:end_selection(li, ci)
+  self:move_cursor(li, ci, 'keep')
 end

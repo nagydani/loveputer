@@ -171,21 +171,29 @@ function ConsoleController:_translate_to_input_grid(x, y)
   return char, line
 end
 
-function ConsoleController:mousepressed(x, y, btn)
-  if btn == 1 then
-    -- orig_print(string.format('down {%d, %d}', x, y), btn)
-  end
-end
-
-function ConsoleController:mousereleased(x, y, btn)
+function ConsoleController:_handle_mouse(x, y, btn, handler)
   if btn == 1 then
     local im = self.model.input
     local n_lines = #(im:get_wrapped_text())
     local c, l = self:_translate_to_input_grid(x, y)
     if l < n_lines then
-      im:mouse_release(n_lines - l, c)
+      handler(n_lines - l, c)
     end
   end
+end
+
+function ConsoleController:mousepressed(x, y, btn)
+  local im = self.model.input
+  self:_handle_mouse(x, y, btn, function(l, c)
+    im:mouse_click(l, c)
+  end)
+end
+
+function ConsoleController:mousereleased(x, y, btn)
+  local im = self.model.input
+  self:_handle_mouse(x, y, btn, function(l, c)
+    im:mouse_release(l, c)
+  end)
 end
 
 function ConsoleController:get_terminal()
@@ -198,6 +206,7 @@ function ConsoleController:get_input()
     text = im:get_text(),
     error = im:get_error(),
     highlight = im:highlight(),
+    selection = im:get_selection(),
   }
 end
 

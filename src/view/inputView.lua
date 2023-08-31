@@ -129,11 +129,17 @@ function InputView:draw(input)
   ---@param c number
   ---@param token string
   ---@param color table
-  local write_token = function(l, c, token, color)
+  local write_token = function(l, c, token, color, selected)
     local dy = y - (-l + 1 + breaks) * fh
     local dx = b + (c - 1) * fw
     G.push('all')
-    G.setColor(color)
+    if selected then
+      G.setColor(color)
+      G.print('█', dx, dy)
+      G.setColor(colors.bg)
+    else
+      G.setColor(color)
+    end
     G.print(token, dx, dy)
     G.pop()
   end
@@ -170,7 +176,27 @@ function InputView:draw(input)
         else
           color = colors.syntax[ttype] or colors.fg
         end
-        write_token(l, i, char, color)
+        local selected = (function()
+          local sel = input.selection
+          local startl = sel.start.l
+          local endl = sel.fin.l
+          if startl then
+            local startc = sel.start.c
+            local endc = sel.fin.c
+            if startc and endc then
+              local sc = math.min(sel.start.c, sel.fin.c)
+              local ec = math.max(sel.start.c, sel.fin.c)
+              if startl == endl then
+                if l == startl and i >= sc and i < ec then
+                  return true
+                else
+                  return false
+                end
+              end
+            end
+          end
+        end)()
+        write_token(l, i, char, color, selected)
       end
     end
   else
