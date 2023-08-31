@@ -133,27 +133,11 @@ function InputModel:get_n_text_lines()
 end
 
 function InputModel:get_wrapped_text()
-  local drawableChars = self.wrap
-  local text = self:get_text()
-  local display = {}
-  local cursor_wrap = {}
-  local breaks = 0
-  for i, l in ipairs(text) do
-    local n = math.floor(string.ulen(l) / drawableChars)
-    -- remember how many apparent lines will be overall
-    cursor_wrap[i] = n + 1
-    breaks = breaks + n
-    local lines = string.wrap_at(l, drawableChars)
-    for _, tl in ipairs(lines) do
-      table.insert(display, tl)
-    end
-  end
-  local apparentLines = #text + breaks
   return {
-    display = display,
-    cursor_wrap = cursor_wrap,
-    breaks = breaks,
-    apparentLines = apparentLines,
+    display = self.wrapped_text,
+    cursor_wrap = self.cursor_wrap,
+    breaks = self.breaks,
+    apparentLines = #self.wrapped_text,
   }
 end
 
@@ -420,6 +404,28 @@ function InputModel:text_change()
     local ts = ev.parser.tokenize(self:get_text())
     self.tokens = ts
   end
+  self:wrap_text()
+end
+
+function InputModel:wrap_text()
+  local drawableChars = self.wrap
+  local text = self:get_text()
+  local display = {}
+  local cursor_wrap = {}
+  local breaks = 0
+  for i, l in ipairs(text) do
+    local n = math.floor(string.ulen(l) / drawableChars)
+    -- remember how many apparent lines will be overall
+    cursor_wrap[i] = n + 1
+    breaks = breaks + n
+    local lines = string.wrap_at(l, drawableChars)
+    for _, tl in ipairs(lines) do
+      table.insert(display, tl)
+    end
+  end
+  self.wrapped_text = display
+  self.cursor_wrap = cursor_wrap
+  self.n_breaks = breaks
 end
 
 function InputModel:highlight()
