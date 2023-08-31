@@ -1,9 +1,7 @@
 require("util/string")
 require("util/dequeue")
 
-return function(parserlib)
-  local lib = parserlib or 'metalua'
-
+return function(lib)
   local add_paths = {
     '',
     'lib/' .. lib .. '/?.lua',
@@ -17,59 +15,231 @@ return function(parserlib)
     package.path = package.path .. lib_paths
   end
 
-  local parsers = {
-    metalua = {
-      compiler = require 'metalua/metalua/compiler'.new(),
-      tokenize = function(code, lc)
-        local c = string.join(code, '\n')
-        local lexer = lc:src_to_lexstream(c)
-        local tokens = Dequeue:new()
-        local n
-        repeat
-          n = lexer:next()
-          tokens:append(n)
-        until n.tag == 'Eof'
-        return tokens
-      end,
-      parse = function(code, lc)
-        local c = string.join(code, '\n')
-        local parser = lc.src_to_ast
-        return pcall(parser, lc, c)
-      end,
+  local mlc = require 'metalua/metalua/compiler'.new()
 
-      get_error = function(result)
-        local err_lines = string.split(result, '\n')
-        local err_first_line = err_lines[1]
-        local colons = string.split(err_first_line, ':')
-        local ms = string.gmatch(colons[3], '%d+')
-        local line = tonumber(ms() or '0')
-        local char = tonumber(ms() or '0')
-        local errmsg = string.trim(colons[4])
-        return line, char, errmsg
-      end,
-
-      pprint = function(code)
-        local pprinter = require 'metalua/metalua/pprint'
-        local c = string.join(code, '\n')
-        return pprinter.tostring(c)
-      end,
-    }
-  }
-
-  local library = parsers[lib]
-  local lc = library.compiler
-
-  local tokenize = function(code)
-    return library.tokenize(code, lc)
+  --- Iterates over lexstream
+  ---@param stream table
+  ---@return table tokens
+  local realize_stream = function(stream)
+    local tokens = Dequeue:new()
+    local n
+    repeat
+      n = stream:next()
+      tokens:append(n)
+    until n.tag == 'Eof'
+    return tokens
   end
+
+  --- Parses text table to lexstream
+  ---@param code table
+  ---@return table lexstream
+  local stream_tokens = function(code)
+    local c = string.join(code, '\n')
+    local lexstream = mlc:src_to_lexstream(c)
+    return lexstream
+  end
+
+  --- Parses text table to tokens
+  ---@param code table
+  ---@return table
+  local tokenize = function(code)
+    local stream = stream_tokens(code)
+    return realize_stream(stream)
+  end
+
+  --- Parses lexstream to AST
+  ---@param stream table
+  ---@return boolean success
+  ---@return string? errmsg
+  local parse_stream = function(stream)
+    local parser = mlc.lexstream_to_ast
+    return pcall(parser, mlc, stream)
+  end
+
   local parse = function(code)
-    return library.parse(code, lc)
+    local stream = stream_tokens(code)
+    return parse_stream(stream)
+  end
+
+  --- Finds error location and message in parse result
+  ---@param result table
+  ---@return number line
+  ---@return number char
+  ---@return string err_msg
+  local get_error = function(result)
+    local err_lines = string.split(result, '\n')
+    local err_first_line = err_lines[1]
+    local colons = string.split(err_first_line, ':')
+    local ms = string.gmatch(colons[3], '%d+')
+    local line = tonumber(ms() or '') or 0
+    local char = tonumber(ms() or '') or 0
+    local errmsg = string.trim(colons[4])
+    return line, char, errmsg
+  end
+
+  local pprint = function(code)
+    local pprinter = require 'metalua/metalua/pprint'
+    local c = string.join(code, '\n')
+    return pprinter.tostring(c)
+  end
+
+  --- Read lexstream and determine highlighting
+  ---@param tokens table
+  ---@return table
+  local syntax_hl = function(tokens)
+    if not tokens then return {} end
+
+    local colored_tokens = {}
+    setmetatable(colored_tokens, {
+      __index = function(table, key)
+        table[key] = {}
+        return table[key]
+      end
+    })
+
+    local function getType(tag, single)
+      if tag == 'Keyword' then
+        if single then
+          return 'kw_single'
+        else
+          return 'kw_multi'
+        end
+      elseif tag == 'Number' then
+        return 'number'
+      elseif tag == 'String' then
+        return 'string'
+      elseif tag == 'Id' then
+        return 'identifier'
+      else
+        return nil
+      end
+    end
+
+    local function multiline(first, last, text, ttype, tl)
+      local ls = first.l
+      local le = last.l
+      local cs = first.c
+      local ce = last.c
+      local lines = string.lines(text)
+      local n_lines = #lines
+      local till = le + 1 - ls
+      -- if the first line has no text after the block starter,
+      -- we need to add an empty line on the front
+      if n_lines + 1 == till then
+        table.insert(lines, 1, '')
+      end
+
+      -- first line
+      for i = cs, cs + string.ulen(lines[1]) + tl do
+        colored_tokens[ls][i] = ttype
+      end
+      for i = 2, till - 1 do
+        local e = string.ulen(lines[i])
+        for j = 1, e do
+          colored_tokens[ls + i - 1][j] = ttype
+        end
+      end
+      -- last line
+      for i = 1, ce do
+        colored_tokens[le][i] = ttype
+      end
+    end
+
+    local colorize = function(t)
+      local text     = t[1]
+      local tag      = t.tag
+      local lfi      = t.lineinfo.first
+      local lla      = t.lineinfo.last
+      local first    = { l = lfi.line, c = lfi.column }
+      local last     = { l = lla.line, c = lla.column }
+      -- local first_f = lfi.facing
+      -- local last_f  = lla.facing
+      local comments = {}
+      local function add_comment(c)
+        local id = c.lineinfo.first.id
+        if not comments[id] then
+          local comment_text = c[1]
+          if string.sub(comment_text, 1, 2) == '[[' then
+            -- TODO unclosed comment block
+            -- orig_print(Debug.terse_t(c))
+          end
+
+          local cfi    = c.lineinfo.first
+          local cla    = c.lineinfo.last
+          local cfirst = { l = cfi.line, c = cfi.column }
+          local clast  = { l = cla.line, c = cla.column }
+          local li     = {
+            first = cfirst,
+            last = clast,
+            text = comment_text,
+          }
+          comments[id] = li
+        end
+      end
+      if lfi.comments then
+        for _, c in ipairs(lfi.comments) do
+          add_comment(c)
+        end
+      end
+      if lla.comments then
+        for _, c in ipairs(lla.comments) do
+          add_comment(c)
+        end
+      end
+
+      -- normal tokens
+      if first.l == last.l then
+        local l = first.l
+        local single = false
+        if string.ulen(text) == 1 then
+          single = true
+        end
+        for i = first.c, last.c do
+          colored_tokens[l][i] = getType(tag, single)
+        end
+      else
+        local tl = 2 -- a string block starts with '[['
+        multiline(first, last, text, 'string', tl)
+      end
+
+      -- comments
+      for _, co in pairs(comments) do
+        local ls = co.first.l
+        local le = co.last.l
+        local cs = co.first.c
+        local ce = co.last.c
+        if ls == le then
+          for i = cs, ce do
+            colored_tokens[ls][i] = 'comment'
+          end
+        else
+          local tl = 4 -- a block comment starts with '--[['
+          multiline(co.first, co.last, co.text, 'comment', tl)
+        end
+      end
+    end -- colorize
+
+    if tokens.next then
+      repeat
+        local t = tokens:next()
+        colorize(t)
+      until t.tag == 'Eof'
+    else
+      for _, t in pairs(tokens) do
+        colorize(t)
+      end
+    end
+    return colored_tokens
   end
 
   return {
-    tokenize = tokenize,
-    parse = parse,
-    pprint = library.pprint,
-    get_error = library.get_error
+    stream_tokens  = stream_tokens,
+    realize_stream = realize_stream,
+    tokenize       = tokenize,
+    parse          = parse,
+    parse_stream   = parse_stream,
+    pprint         = pprint,
+    get_error      = get_error,
+    syntax_hl      = syntax_hl,
   }
 end

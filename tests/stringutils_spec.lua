@@ -38,6 +38,18 @@ describe("StringUtils #string", function()
         local res = string.lines(test)
         assert.same({ test }, res)
       end)
+
+      it('preceding', function()
+        local test = '\nmultiline\ncomment'
+        local res = string.lines(test)
+        assert.same({ '', 'multiline', 'comment' }, res)
+      end)
+
+      it('succeding', function()
+        local test = 'multiline\ncomment\n\n'
+        local res = string.lines(test)
+        assert.same({ 'multiline', 'comment', '', '' }, res)
+      end)
     end)
 
     describe('multiple', function()
@@ -208,6 +220,43 @@ describe("StringUtils #string", function()
       local test1 = ''
       local res = string.wrap_at(test1, 5)
       assert.same({ test1 }, res)
+    end)
+    it('whitespace', function()
+      local test1 = ' '
+      local res = string.wrap_at(test1, 5)
+      assert.same({ test1 }, res)
+    end)
+    it('whitespace break', function()
+      local test1 = ' '
+      local res = string.wrap_at(test1 .. test1, 1)
+      assert.same({ test1, test1 }, res)
+    end)
+
+    it('unicode', function()
+      local test1 = "An expression was expected, and `�' can 't start an expression "
+      local exp = { 'An expression was expected, an'
+      , "d `�' can 't start an expressi"
+      , 'on ' }
+      local res = string.wrap_at(test1, 30)
+      assert.same(exp, res)
+    end)
+  end)
+
+  describe('determines length', function()
+    it('empty', function()
+      assert.same(0, string.ulen(''))
+    end)
+    it('space', function()
+      assert.same(1, string.ulen(' '))
+    end)
+    it('spaces', function()
+      assert.same(3, string.ulen('   '))
+    end)
+    it('test 1', function()
+      assert.same(5, string.ulen(utest1))
+    end)
+    it('test 2', function()
+      assert.same(5, string.ulen(utest2))
     end)
   end)
 end)

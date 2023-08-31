@@ -27,27 +27,36 @@ function InputView:draw(input)
   local fh = self.cfg.fh
   local fw = self.cfg.fw
   local h = self.cfg.h
-  local inLines = #input
-  local apparentLines = inLines
-  local inHeight = inLines * fh
   local drawableWidth = self.cfg.drawableWidth
   local drawableChars = self.cfg.drawableChars
-  local y = h - b - inHeight
 
+  local isError = string.is_non_empty_string(input.error)
+  local highlight = input.highlight
+  local text = (function()
+    if isError then
+      return string.wrap_at(input.error, drawableChars - 1)
+    else
+      return input.text
+    end
+  end)()
+  local inLines = #text
+  local apparentLines = inLines
+  local inHeight = inLines * fh
+  local y = h - b - inHeight
 
   local display = {}
   local cursor_wrap = {}
   local apparentHeight = inHeight
   local app = 0
   local breaks = 0
-  for i, l in ipairs(input) do
+  for i, l in ipairs(text) do
     local n = math.floor(string.ulen(l) / drawableChars)
     -- remember how many apparent lines will be overall
     cursor_wrap[i] = n + 1
     breaks = breaks + n
-    local text = string.wrap_at(l, drawableChars)
-    app = app + #text
-    for _, tl in ipairs(text) do
+    local lines = string.wrap_at(l, drawableChars)
+    app = app + #lines
+    for _, tl in ipairs(lines) do
       table.insert(display, tl)
     end
   end
@@ -58,7 +67,6 @@ function InputView:draw(input)
   local function drawCursor()
     local cursorInfo = self.controller:get_cursor_info()
     local cl, cc = cursorInfo.cursor.l, cursorInfo.cursor.c
-    local is_err = cursorInfo.err_cursor
     local x_offset = (function()
       if cc > drawableChars then
         return math.fmod(cc, drawableChars)
@@ -68,7 +76,7 @@ function InputView:draw(input)
     end)()
     local y_offset = math.floor((cc - 1) / drawableChars)
     local yh = 0
-    local n = cursor_wrap[cl]
+    local n = cursor_wrap[cl] or 0
     -- how many apparent lines we have so far?
     for i = 1, cl do
       yh = yh + cursor_wrap[i]
@@ -83,35 +91,83 @@ function InputView:draw(input)
         - (n - y_offset) * fh
     G.push('all')
     G.setColor(colors.cursor)
-    if is_err then G.setColor(colors.err_cursor) end
     G.print('|', b + (x_offset - 1.5) * fw, ch)
     G.pop()
   end
 
   local drawBackground = function()
-    G.setColor(colors.bg)
+    if isError then
+      G.setColor(colors.error_bg)
+    else
+      G.setColor(colors.bg)
+    end
     G.rectangle("fill",
       b,
       start_y,
       drawableWidth,
       apparentHeight * fh)
   end
-  local write_line = function(i, l)
-    local dy = y - (-i + 1 + breaks) * fh
-    G.print(l, b, dy)
+
+  --- Write a line of text to output
+  ---@param l number
+  ---@param str string
+  local write_line = function(l, str)
+    local dy = y - (-l + 1 + breaks) * fh
+    G.print(str, b, dy)
+  end
+  --- Write a token to output
+  ---@param l number
+  ---@param c number
+  ---@param token string
+  ---@param color table
+  local write_token = function(l, c, token, color)
+    local dy = y - (-l + 1 + breaks) * fh
+    local dx = b + (c - 1) * fw
+    G.push('all')
+    G.setColor(color)
+    G.print(token, dx, dy)
+    G.pop()
   end
 
   -- draw
   G.push('all')
-  drawBackground()
-  self.statusline:draw(status, apparentLines, time)
-  G.setColor(colors.fg)
   G.setFont(self.cfg.font_main)
-  for i, l in ipairs(display) do
-    write_line(i, l)
+  self.statusline:draw(status, apparentLines, time)
+  drawBackground()
+  if isError then
+    G.setColor(colors.error)
+  else
+    G.setColor(colors.fg)
+    if love.timer.getTime() % 1 > 0.5 then
+      drawCursor()
+    end
   end
-  if love.timer.getTime() % 1 > 0.5 then
-    drawCursor()
+  if highlight and not isError then
+    local perr = highlight.parse_err
+    local el, ec
+    if perr then
+      el = perr.l
+      ec = perr.c
+    end
+    for l, s in ipairs(display) do
+      for i = 1, string.ulen(s) do
+        local char = string.usub(s, i, i)
+        local row = highlight.hl[l] or {}
+        local ttype = row[i]
+        local color
+        if perr and l > el or
+            (l == el and i > ec) then
+          color = colors.error
+        else
+          color = colors.syntax[ttype] or colors.fg
+        end
+        write_token(l, i, char, color)
+      end
+    end
+  else
+    for l, str in ipairs(display) do
+      write_line(l, str)
+    end
   end
   G.pop()
 end

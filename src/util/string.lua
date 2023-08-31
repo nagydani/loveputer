@@ -10,9 +10,16 @@ string.trim = function(s)
   return post
 end
 
-string.is_non_empty_string = function(s)
+string.is_non_empty_string = function(s, no_trim)
   if s and type(s) == 'string' and s ~= '' then
-    if string.normalize(s) ~= '' then
+    local str = (function()
+      if no_trim then
+        return s
+      else
+        return string.normalize(s)
+      end
+    end)()
+    if str ~= '' then
       return true
     end
   end
@@ -33,7 +40,11 @@ string.is_non_empty_string_array = function(sa)
 end
 
 string.ulen = function(s)
-  return utf8.len(s or '')
+  if s then
+    return utf8.len(s)
+  else
+    return 0
+  end
 end
 
 -- original from http://lua-users.org/lists/lua-l/2014-04/msg00590.html
@@ -97,21 +108,26 @@ string.wrap_at = function(s, i)
     chunk, rem = string.split_at(rem, mod + 1)
     table.insert(res, chunk)
   end
-  if string.is_non_empty_string(rem) then
+  if string.is_non_empty_string(rem, true) then
     table.insert(res, rem)
   end
 
   return res
 end
 
-string.split = function(str, char)
+-- https://stackoverflow.com/a/51893646
+string.split = function(str, delimiter)
   if not type(str) == 'string' then return {} end
-  local pattern = string.interleave('([^', char, ']+)')
-  local words = {}
-  for word in string.gmatch(str, pattern) do
-    table.insert(words, word)
+  local result               = {}
+  local from                 = 1
+  local delim_from, delim_to = string.find(str, delimiter, from)
+  while delim_from do
+    table.insert(result, string.sub(str, from, delim_from - 1))
+    from                 = delim_to + 1
+    delim_from, delim_to = string.find(str, delimiter, from)
   end
-  return words
+  table.insert(result, string.sub(str, from))
+  return result
 end
 
 string.split_array = function(str_arr, char)
@@ -135,6 +151,7 @@ string.lines = function(s)
   end
 end
 
+
 string.join = function(strs, char)
   local res = ''
   if type(strs) == 'table' then
@@ -154,4 +171,14 @@ end
 
 string.interleave = function(prefix, text, postfix)
   return string.join({ prefix, postfix }, text)
+end
+
+string.times = function(s, n)
+  local till = n or 1
+  local str = s or ''
+  local res = ''
+  for _ = 1, till do
+    res = res .. str
+  end
+  return res
 end

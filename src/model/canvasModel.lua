@@ -10,14 +10,14 @@ CanvasModel = {}
 
 function CanvasModel:new(cfg)
   local w, h
-  if cfg.testrun then
+  if cfg.sizedebug then
     w = cfg.debugwidth * cfg.fw
     h = cfg.debugheight * cfg.fh
   else
     w = G.getWidth() - 2 * cfg.border
     h = cfg.get_drawable_height()
   end
-  local term = Terminal(w, h, cfg.font_main)
+  local term = Terminal(w, h, cfg.font_main, nil, cfg.fh * cfg.lh)
 
   local color = cfg.colors.terminal
   term:hide_cursor()
@@ -30,12 +30,6 @@ function CanvasModel:new(cfg)
   }
   setmetatable(cm, self)
   self.__index = self
-
-
-  cm.background = function()
-    G.setColor(cm.terminal.colors.bg)
-    G.rectangle("fill", 0, 0, cfg.w, cfg.h)
-  end
 
   return cm
 end

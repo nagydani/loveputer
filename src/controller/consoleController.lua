@@ -1,12 +1,12 @@
 ConsoleController = {}
 
-require("util/test_terminal")
+require("util/testTerminal")
+require("util/eval")
 
-function ConsoleController:new(m, testrun)
+function ConsoleController:new(m)
   local cc = {
     time = 0,
     model = m,
-    testrun = testrun
   }
   setmetatable(cc, self)
   self.__index = self
@@ -23,7 +23,7 @@ function ConsoleController:get_timestamp()
   return self.time
 end
 
-local function evaluate_input(input, out)
+local function evaluate_input(input)
   local text = input:get_text()
   local syntax_ok, res = input:evaluate()
   if syntax_ok then
@@ -33,9 +33,11 @@ local function evaluate_input(input, out)
       local ok, call_err = pcall(f)
       if ok then
       else
-        orig_print(call_err)
+        local e = parse_load_error(call_err)
+        input:set_error(e, true)
       end
     else
+      -- we should not see many of these, since the code is parsed prior
       orig_print(load_err)
     end
   else
@@ -63,6 +65,8 @@ function ConsoleController:keypressed(k)
       love.state.testing = false
     end
   end
+
+  input:clear_error()
 
   if love.state.testing == 'running' then
     return
@@ -161,7 +165,12 @@ function ConsoleController:get_terminal()
 end
 
 function ConsoleController:get_input()
-  return self.model.input:get_text()
+  local im = self.model.input
+  return {
+    text = im:get_text(),
+    error = im:get_error(),
+    highlight = im:highlight(),
+  }
 end
 
 function ConsoleController:get_cursor_info()

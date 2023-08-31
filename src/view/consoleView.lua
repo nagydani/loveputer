@@ -1,7 +1,7 @@
-require("view/color")
 require("view/titleView")
 require("view/canvasView")
 require("view/inputView")
+require("util/color")
 
 require("util/debug")
 
@@ -24,15 +24,14 @@ function ConsoleView:new(cfg, ctrl)
   return view
 end
 
-function ConsoleView:draw()
+function ConsoleView:draw(terminal, input)
   G.scale(self.fac, self.fac)
 
-  local terminal = self.controller:get_terminal()
   if love.DEBUG then
     self:draw_placeholder()
   end
   self.canvas:draw(terminal)
-  self.input:draw(self.controller:get_input())
+  self.input:draw(input)
 end
 
 function ConsoleView:draw_placeholder()

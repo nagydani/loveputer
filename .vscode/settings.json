@@ -8,9 +8,6 @@
   ],
   "files.exclude": {
     "**/.vscode-oss/extensions/sumneko.lua*": true,
-    "**/.bloop": true,
-    "**/.bsp": true,
-    "**/.metals": true,
-    "**/target": true,
+    ".history/**": true,
   },
 }

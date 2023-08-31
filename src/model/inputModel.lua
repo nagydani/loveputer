@@ -4,7 +4,6 @@ require("model/textEval")
 require("model/luaEval")
 require("util/dequeue")
 require("util/string")
-
 require("util/debug")
 
 InputText = {}
@@ -27,7 +26,7 @@ function InputModel:new(cfg)
     textEval = textEval,
     luaEval = luaEval,
     cursor = { c = 1, l = 1 },
-    err_cursor = false,
+    error = nil,
     wrap = cfg.drawableChars,
   }
   setmetatable(im, self)
@@ -174,7 +173,6 @@ function InputModel:move_cursor(y, x)
     c = x or cc,
     l = y or cl
   }
-  self.err_cursor = false
 end
 
 function InputModel:paste(text)
@@ -245,7 +243,6 @@ end
 function InputModel:get_cursor_info()
   return {
     cursor = self.cursor,
-    err_cursor = self.err_cursor or false,
   }
 end
 
@@ -388,7 +385,7 @@ function InputModel:_handle(eval)
       else
         local l, c, err = self:get_eval_error(result)
         self:move_cursor(l, c + 1)
-        self.err_cursor = true
+        self.error = err
       end
     else
       self:clear()
@@ -402,6 +399,45 @@ function InputModel:text_change()
   if ev.kind == 'lua' then
     local ts = ev.parser.tokenize(self:get_text())
     self.tokens = ts
+  end
+end
+
+function InputModel:highlight()
+  local ev = self.evaluator
+  if ev.kind == 'lua' then
+    local p = ev.parser
+    local text = self:get_text()
+    local lex = p.stream_tokens(text)
+    -- iterating over the stream exhausts it
+    local tokens = p.realize_stream(lex)
+    local ok, err = p.parse(text)
+    local parse_err
+    if not ok then
+      local l, c, msg = p.get_error(err)
+      parse_err = { l = l, c = c, msg = msg }
+    end
+
+    return {
+      parse_err = parse_err,
+      hl = p.syntax_hl(tokens),
+    }
+  end
+end
+
+function InputModel:clear_error()
+  self.error = nil
+end
+
+function InputModel:get_error()
+  return self.error
+end
+
+function InputModel:set_error(error, is_load_error)
+  if string.is_non_empty_string(error) then
+    self.error = error
+    if not is_load_error then
+      self:history_back()
+    end
   end
 end
 
