@@ -117,7 +117,7 @@ function ConsoleController:keypressed(k)
     end
 
     if not shift and is_enter() then
-      evaluate_input(input, out)
+      evaluate_input(input)
     end
     if not ctrl and k == "escape" then
       input:cancel()
@@ -157,7 +157,6 @@ end
 function ConsoleController:textinput(t)
   -- TODO: block with events
   self.model.input:add_text(t)
-  self.model.input:text_change()
 end
 
 function ConsoleController:_translate_to_input_grid(x, y)

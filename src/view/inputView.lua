@@ -88,7 +88,7 @@ function InputView:draw(input)
     local n = cursor_wrap[cl] or 0
     -- how many apparent lines we have so far?
     for i = 1, cl do
-      yh = yh + cursor_wrap[i]
+      yh = yh + (cursor_wrap[i] or 0)
     end
     local ch =
     -- top of the box

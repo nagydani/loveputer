@@ -98,7 +98,7 @@ string.wrap_at = function(s, i)
       not i or type(i) ~= 'number' or i < 1 then
     return { '' }
   end
-  local len = string.ulen(s)
+  local len = string.ulen(s) or 0
   local mod = math.floor(i)
   local n = math.floor(len / mod)
   local res = {}
