@@ -33,13 +33,6 @@ function CanvasModel:new(cfg)
   return cm
 end
 
-function CanvasModel:_manipulate(commands)
-  for _, c in ipairs(commands) do
-    local f = load(c)
-    if f then f() end
-  end
-end
-
 function CanvasModel:write(text)
   if string.is_non_empty_string(text) then
     self.terminal:print(text)
