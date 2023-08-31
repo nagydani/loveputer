@@ -510,15 +510,3 @@ end
 function InputModel:_get_history_entries()
   return self.history:items()
 end
-
-function InputModel:test_lua_eval()
-  local le = self.luaEval
-  local ok, res = le.apply({
-    'for i=1, 5',
-    'print(i)',
-    'end',
-  })
-  print('eval ' .. (function()
-    if ok then return 'ok' else return 'no' end
-  end)() .. '\n')
-end
