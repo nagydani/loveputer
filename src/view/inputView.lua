@@ -2,6 +2,8 @@ local G = love.graphics
 
 require("view/statusline")
 
+require("util/debug")
+
 InputView = {}
 
 function InputView:new(cfg, ctrl)
@@ -24,8 +26,7 @@ function InputView:draw(input)
   local b = self.cfg.border
   local fh = self.cfg.fh
   local fw = self.cfg.fw
-  local w = self.cfg.width
-  local h = self.cfg.height
+  local h = self.cfg.h
   local inLines = #input
   local apparentLines = inLines
   local inHeight = inLines * fh
@@ -55,10 +56,17 @@ function InputView:draw(input)
 
   local start_y = h - b - apparentLines * fh
   local function drawCursor()
-    -- TODO pass cursor position instead of querying
-    local cl, cc = self.controller.model.input:get_cursor_pos()
-    local x_offset = math.fmod(cc, drawableChars)
-    local y_offset = math.floor(cc / drawableChars)
+    local cursorInfo = self.controller:get_cursor_info()
+    local cl, cc = cursorInfo.cursor.l, cursorInfo.cursor.c
+    local is_err = cursorInfo.err_cursor
+    local x_offset = (function()
+      if cc > drawableChars then
+        return math.fmod(cc, drawableChars)
+      else
+        return cc
+      end
+    end)()
+    local y_offset = math.floor((cc - 1) / drawableChars)
     local yh = 0
     local n = cursor_wrap[cl]
     -- how many apparent lines we have so far?
@@ -73,7 +81,11 @@ function InputView:draw(input)
         -- adjust in-line: from all lines, move back
         -- the number of line wraps
         - (n - y_offset) * fh
-    G.print('|', (x_offset - 1.5) * fw, ch)
+    G.push('all')
+    G.setColor(colors.cursor)
+    if is_err then G.setColor(colors.err_cursor) end
+    G.print('|', b + (x_offset - 1.5) * fw, ch)
+    G.pop()
   end
 
   local drawBackground = function()
@@ -94,6 +106,7 @@ function InputView:draw(input)
   drawBackground()
   self.statusline:draw(status, apparentLines, time)
   G.setColor(colors.fg)
+  G.setFont(self.cfg.font_main)
   for i, l in ipairs(display) do
     write_line(i, l)
   end

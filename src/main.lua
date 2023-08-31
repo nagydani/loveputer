@@ -7,6 +7,27 @@ require("util/debug")
 local G = love.graphics
 local V
 
+local function set_print()
+  local origPrint = _G.print
+  _G.orig_print = origPrint
+  local magicPrint = function(...)
+    local arg = { ... }
+    if type(arg) == 'string' then
+      -- origPrint('s', arg)
+      M.output:push({ arg .. '\n' })
+    end
+    if type(arg) == 'table' then
+      -- origPrint('t', string.join(arg, '\t'))
+      for _, v in ipairs(arg) do
+        origPrint(v)
+        M.output:push(v)
+      end
+      -- M.output:push(arg)
+    end
+  end
+  _G.print = magicPrint
+end
+
 function love.load(args)
   local testrun = false
   for _, a in ipairs(args) do
@@ -15,7 +36,7 @@ function love.load(args)
 
   local FAC = 1
   if love.hiDPI then FAC = 2 end
-  local font_size = 16 * FAC
+  local font_size = 32.4 * FAC
   local border = 0 * FAC
 
   local font_dir = "assets/fonts/"
@@ -27,7 +48,7 @@ function love.load(args)
   -- we use a monospace font, so the width should be the same for any input
   local fw = font_main:getWidth('█')
   local w = G.getWidth() - 2 * border
-  local h = G.getHeight() + fh
+  local h = love.fixHeight
   local debugheight = 6
   local debugwidth = math.floor(debugheight * (80 / 25))
   local drawableWidth = w - 2 * border
@@ -73,6 +94,8 @@ function love.load(args)
       input = {
         bg = Color[Color.white],
         fg = Color[Color.blue + Color.bright],
+        cursor = Color[Color.white + Color.bright],
+        err_cursor = Color[Color.red],
       },
       statusline = {
         fg = Color[Color.white + Color.bright],
@@ -96,6 +119,8 @@ function love.load(args)
   M = Console:new(baseconf)
   C = ConsoleController:new(M, testrun)
   V = ConsoleView:new(baseconf, C)
+
+  set_print()
 
   if testrun then
     C:autotest()

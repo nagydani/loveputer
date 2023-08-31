@@ -24,8 +24,26 @@ function ConsoleController:get_timestamp()
 end
 
 local function evaluate_input(input, out)
-  local res = input:evaluate()
-  out:push(res)
+  local text = input:get_text()
+  local syntax_ok, res = input:evaluate()
+  if syntax_ok then
+    local code = string.join(text, '\n')
+    local f, load_err = loadstring(code)
+    if f then
+      local ok, call_err = pcall(f)
+      if ok then
+      else
+        orig_print(call_err)
+      end
+    else
+      orig_print(load_err)
+    end
+  else
+    local eval_err = input:get_eval_error(res)
+    if string.is_non_empty_string(eval_err) then
+      orig_print(eval_err)
+    end
+  end
 end
 
 function ConsoleController:keypressed(k)
@@ -115,6 +133,9 @@ function ConsoleController:keypressed(k)
         terminal_test()
         return
       end
+      if k == 'o' then
+        input:test_lua_eval()
+      end
     end
   end
 
@@ -131,9 +152,8 @@ end
 
 function ConsoleController:textinput(t)
   -- TODO: block with events
-  if not self.testrun then
-    self.model.input:add_text(t)
-  end
+  self.model.input:add_text(t)
+  self.model.input:text_change()
 end
 
 function ConsoleController:get_terminal()
@@ -142,6 +162,10 @@ end
 
 function ConsoleController:get_input()
   return self.model.input:get_text()
+end
+
+function ConsoleController:get_cursor_info()
+  return self.model.input:get_cursor_info()
 end
 
 function ConsoleController:get_status()

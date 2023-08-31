@@ -16,4 +16,6 @@ function love.conf(t)
     t.window.width = width
     t.window.height = height
   end
+  love.fixHeight = t.window.height
+  love.fixWidth = t.window.width
 end

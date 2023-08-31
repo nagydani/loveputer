@@ -1,19 +1,33 @@
 local utf8 = require("utf8")
 
 require("model/textEval")
+require("model/luaEval")
 require("util/dequeue")
 require("util/string")
 
 require("util/debug")
 
+InputText = {}
+function InputText:new(values)
+  local text = Dequeue:new(values)
+  if not values then text:append('') end
+  -- if values then print(Debug.text_table(values or {})) end
+  return text
+end
+
 InputModel = {}
 
 function InputModel:new(cfg)
+  local textEval = TextEval:new()
+  local luaEval = LuaEval:new('metalua')
   local im = {
-    entered = { '' },
+    entered = InputText:new(),
     history = Dequeue:new(),
-    evaluator = TextEval:new(),
+    evaluator = luaEval,
+    textEval = textEval,
+    luaEval = luaEval,
     cursor = { c = 1, l = 1 },
+    err_cursor = false,
     wrap = cfg.drawableChars,
   }
   setmetatable(im, self)
@@ -22,107 +36,114 @@ function InputModel:new(cfg)
   return im
 end
 
-function InputModel:remember(input)
+function InputModel:_remember(input)
   if string.is_non_empty_string_array(input) then
-    self.history:push(input)
+    self.history:append(input)
   end
 end
 
 function InputModel:add_text(text)
   if type(text) == 'string' then
-    local sl, cc = self:get_cursor_pos()
+    local sl, cc = self:_get_cursor_pos()
     local cur_line = self:get_text_line(sl)
     local pre, post = string.split_at(cur_line, cc)
     local lines = string.lines(text)
     local n_added = #lines
     if n_added == 1 then
       local nval = string.interleave(pre, text, post)
-      self:set_text_line(nval, sl, true)
-      self:advance_cursor(string.ulen(text))
+      self:_set_text_line(nval, sl, true)
+      self:_advance_cursor(string.ulen(text))
     else
       for k, line in ipairs(lines) do
         if k == 1 then
           local nval = pre .. line
-          self:set_text_line(nval, sl, true)
-          -- self:advance_cursor(0, 1)
+          self:_set_text_line(nval, sl, true)
         elseif k == n_added then
           local nval = line .. post
           local last_line_i = sl + k - 1
-          self:set_text_line(nval, last_line_i, true)
+          self:_set_text_line(nval, last_line_i, true)
           self:move_cursor(last_line_i, string.ulen(line) + 1)
         else
-          self:insert_text_line(line, sl + k - 1)
+          self:_insert_text_line(line, sl + k - 1)
         end
-        -- local last_len = string.ulen(lines[n_added])
       end
     end
+    self:text_change()
   end
 end
 
-function InputModel:set_text(text, keep_cursor)
+function InputModel:_set_text(text, keep_cursor)
+  self.entered = nil
   if type(text) == 'string' then
     local lines = string.lines(text)
     local n_added = #lines
     if n_added == 1 then
-      self.entered = { text }
-    else
+      self.entered = InputText:new({ text })
     end
     if not keep_cursor then
-      self:update_cursor(true)
+      self:_update_cursor(true)
     end
   elseif type(text) == 'table' then
-    self.entered = text
+    self.entered = InputText:new(text)
   end
   self:jump_end()
+  self:text_change()
 end
 
-function InputModel:set_text_line(text, ln, keep_cursor)
+function InputModel:_set_text_line(text, ln, keep_cursor)
   if type(text) == 'string' then
-    self.entered[ln] = text
-    if not keep_cursor then
-      self:update_cursor(true)
+    local ent = self.entered
+    if ent then
+      ent:update(text, ln)
+      if not keep_cursor then
+        self:_update_cursor(true)
+      end
+    elseif ln == 1 then
+      self.entered = InputText:new(text)
     end
   end
 end
 
-function InputModel:drop_text_line(ln)
-  table.remove(self.entered, ln)
+function InputModel:_drop_text_line(ln)
+  self.entered:remove(ln)
 end
 
-function InputModel:insert_text_line(text, li)
+function InputModel:_insert_text_line(text, li)
   local l = li or self:get_cursor_y()
-  local old = self.entered
   self.cursor.y = l + 1
-  return table.insert(old, l, text)
+  self.entered:insert(text, l)
 end
 
 function InputModel:line_feed()
-  local cl, cc = self:get_cursor_pos()
+  local cl, cc = self:_get_cursor_pos()
   local cur_line = self:get_text_line(cl)
   local pre, post = string.split_at(cur_line, cc)
-  self:set_text_line(pre, cl, true)
-  self:insert_text_line(post, cl + 1)
+  self:_set_text_line(pre, cl, true)
+  self:_insert_text_line(post, cl + 1)
   self:move_cursor(cl + 1, 1)
+  self:text_change()
 end
 
 function InputModel:get_text()
-  return self.entered or { '' }
+  return self.entered or InputText:new()
 end
 
 function InputModel:get_text_line(l)
-  return self.entered[l]
+  local ent = self.entered or InputText:new()
+  return ent:get(l)
 end
 
 function InputModel:get_n_text_lines()
-  return #self.entered
+  local ent = self.entered or InputText:new()
+  return ent:length()
 end
 
-function InputModel:get_current_line()
+function InputModel:_get_current_line()
   local cl = self:get_cursor_y() or 1
-  return self.entered[cl]
+  return self.entered:get(cl)
 end
 
-function InputModel:update_cursor(replace_line)
+function InputModel:_update_cursor(replace_line)
   local cl = self:get_cursor_y()
   local t = self:get_text()
   if replace_line then
@@ -133,8 +154,8 @@ function InputModel:update_cursor(replace_line)
   end
 end
 
-function InputModel:advance_cursor(x, y)
-  local cur_l, cur_c = self:get_cursor_pos()
+function InputModel:_advance_cursor(x, y)
+  local cur_l, cur_c = self:_get_cursor_pos()
   local move_x = x or 1
   local move_y = y or 0
   if move_y == 0 then
@@ -148,11 +169,12 @@ end
 
 function InputModel:move_cursor(y, x)
   -- TODO: bounds checks
-  local cl, cc = self:get_cursor_pos()
+  local cl, cc = self:_get_cursor_pos()
   self.cursor = {
     c = x or cc,
     l = y or cl
   }
+  self.err_cursor = false
 end
 
 function InputModel:paste(text)
@@ -160,8 +182,8 @@ function InputModel:paste(text)
 end
 
 function InputModel:backspace()
-  local line = self:get_current_line()
-  local cl, cc = self:get_cursor_pos()
+  local line = self:_get_current_line()
+  local cl, cc = self:_get_cursor_pos()
   local newcl = cl - 1
   local pre, post
 
@@ -176,22 +198,23 @@ function InputModel:backspace()
     local pre_len = string.ulen(pre)
     post = line
     local nval = pre .. post
-    self:set_text_line(nval, newcl, true)
+    self:_set_text_line(nval, newcl, true)
     self:move_cursor(newcl, pre_len + 1)
-    self:drop_text_line(cl)
+    self:_drop_text_line(cl)
   else
     -- regular merge
     pre = string.usub(line, 1, cc - 2)
     post = string.usub(line, cc)
     local nval = pre .. post
-    self:set_text_line(nval, cl, true)
+    self:_set_text_line(nval, cl, true)
     self:cursor_left()
   end
+  self:text_change()
 end
 
 function InputModel:delete()
-  local line = self:get_current_line()
-  local cl, cc = self:get_cursor_pos()
+  local line = self:_get_current_line()
+  local cl, cc = self:_get_cursor_pos()
   local pre, post
 
   local n = self:get_n_text_lines()
@@ -204,18 +227,26 @@ function InputModel:delete()
     -- line merge
     post = self:get_text_line(cl + 1)
     pre = line
-    self:drop_text_line(cl + 1)
+    self:_drop_text_line(cl + 1)
   else
     -- regular merge
     pre = string.usub(line, 1, cc - 1)
     post = string.usub(line, cc + 1)
   end
   local nval = pre .. post
-  self:set_text_line(nval, cl, true)
+  self:_set_text_line(nval, cl, true)
+  self:text_change()
 end
 
-function InputModel:get_cursor_pos()
+function InputModel:_get_cursor_pos()
   return self.cursor.l, self.cursor.c
+end
+
+function InputModel:get_cursor_info()
+  return {
+    cursor = self.cursor,
+    err_cursor = self.err_cursor or false,
+  }
 end
 
 function InputModel:get_cursor_x()
@@ -227,7 +258,7 @@ function InputModel:get_cursor_y()
 end
 
 function InputModel:cursor_vertical_move(dir)
-  local cl, cc = self:get_cursor_pos()
+  local cl, cc = self:_get_cursor_pos()
   local w = self.wrap
   local n = self:get_n_text_lines()
   local llen = string.ulen(self:get_text_line(cl))
@@ -297,35 +328,35 @@ function InputModel:cursor_vertical_move(dir)
 end
 
 function InputModel:cursor_left()
-  local cl, cc = self:get_cursor_pos()
+  local cl, cc = self:_get_cursor_pos()
   if cc > 1 then
     local next = cc - 1
-    self.cursor.c = next
+    self:move_cursor(nil, next)
   elseif cl > 1 then
     local cpl = cl - 1
     local pl = self:get_text_line(cpl)
     local cpc = 1 + string.ulen(pl)
-    self.cursor.l = cpl
-    self.cursor.c = cpc
+    self:move_cursor(cpl, cpc)
   end
 end
 
 function InputModel:cursor_right()
-  local cl, cc = self:get_cursor_pos()
+  local cl, cc = self:_get_cursor_pos()
   local line = self:get_text_line(cl)
   local len = string.ulen(line)
   local next = cc + 1
   if cc <= len then
-    self.cursor.c = next
+    self:move_cursor(nil, next)
   elseif cl < self:get_n_text_lines() then
     self:move_cursor(cl + 1, 1)
   end
 end
 
 function InputModel:clear()
-  self:set_text({ '' })
-  self:update_cursor(true)
+  self.entered = InputText:new()
+  self:_update_cursor(true)
   self.historic_index = nil
+  self.tokens = nil
 end
 
 function InputModel:get_status()
@@ -347,15 +378,38 @@ end
 function InputModel:_handle(eval)
   local ent = self:get_text()
   self.historic_index = nil
-  local result
+  local ok, result
   if string.is_non_empty_string_array(ent) then
-    self:remember(ent)
+    self:_remember(ent)
     if eval then
-      result = self.evaluator.apply(ent)
+      ok, result = self.evaluator.apply(ent)
+      if ok then
+        self:clear()
+      else
+        local l, c, err = self:get_eval_error(result)
+        self:move_cursor(l, c + 1)
+        self.err_cursor = true
+      end
+    else
+      self:clear()
     end
-    self:clear()
   end
-  return result
+  return ok, result
+end
+
+function InputModel:text_change()
+  local ev = self.evaluator
+  if ev.kind == 'lua' then
+    local ts = ev.parser.tokenize(self:get_text())
+    self.tokens = ts
+  end
+end
+
+function InputModel:get_eval_error(errors)
+  local ev = self.evaluator
+  if ev.kind == 'lua' and string.is_non_empty_string_array(self:get_text()) then
+    return ev.parser.get_error(errors)
+  end
 end
 
 function InputModel:history_back()
@@ -369,16 +423,16 @@ function InputModel:history_back()
       if string.is_non_empty_string_array(current) then
         self.history[hi] = current
       end
-      self:set_text(prev)
+      self:_set_text(prev)
       local last_line_len = string.ulen(prev[#prev])
       self.historic_index = hi - 1
       self:jump_end()
     end
   else
     self.historic_index = self.history:get_last_index()
-    self:remember(ent)
+    self:_remember(ent)
     local prev = self.history[self.historic_index] or ''
-    self:set_text(prev)
+    self:_set_text(prev)
     self:jump_end()
   end
 end
@@ -392,7 +446,7 @@ function InputModel:history_fwd()
       self.history[hi] = current
     end
     if next then
-      self:set_text(next)
+      self:_set_text(next)
       self.historic_index = hi + 1
     else
       self:clear()
@@ -404,14 +458,14 @@ function InputModel:history_fwd()
 end
 
 function InputModel:jump_home()
-  self.cursor = { c = 1, l = 1 }
+  self:move_cursor(1, 1)
 end
 
 function InputModel:jump_end()
   local ent = self:get_text()
   local last_line = #ent
   local last_char = string.ulen(ent[last_line]) + 1
-  self.cursor = { c = last_char, l = last_line }
+  self:move_cursor(last_line, last_char)
 end
 
 function InputModel:_get_history_length()
@@ -424,4 +478,16 @@ end
 
 function InputModel:_get_history_entries()
   return self.history:items()
+end
+
+function InputModel:test_lua_eval()
+  local le = self.luaEval
+  local ok, res = le.apply({
+    'for i=1, 5',
+    'print(i)',
+    'end',
+  })
+  print('eval ' .. (function()
+    if ok then return 'ok' else return 'no' end
+  end)() .. '\n')
 end
