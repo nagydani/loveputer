@@ -160,12 +160,33 @@ function ConsoleController:textinput(t)
   self.model.input:text_change()
 end
 
+function ConsoleController:_translate_to_input_grid(x, y)
+  local cfg = self.model.output.cfg
+  local h = cfg.h
+  local fh = cfg.fh
+  local fw = cfg.fw
+  local line = math.floor((h - y) / fh)
+  local a, b = math.modf((x / fw))
+  local char = a + 1
+  if b > .5 then char = char + 1 end
+  return char, line
+end
+
 function ConsoleController:mousepressed(x, y, btn)
-  orig_print(string.format('down {%d, %d}', x, y), btn)
+  if btn == 1 then
+    -- orig_print(string.format('down {%d, %d}', x, y), btn)
+  end
 end
 
 function ConsoleController:mousereleased(x, y, btn)
-  orig_print(string.format('up {%d, %d}', x, y), btn)
+  if btn == 1 then
+    local im = self.model.input
+    local n_lines = im:get_wrapped_text().apparentLines
+    local c, l = self:_translate_to_input_grid(x, y)
+    if l < n_lines then
+      im:mouse_release(n_lines - l, c)
+    end
+  end
 end
 
 function ConsoleController:get_terminal()

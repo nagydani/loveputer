@@ -132,6 +132,31 @@ function InputModel:get_n_text_lines()
   return ent:length()
 end
 
+function InputModel:get_wrapped_text()
+  local drawableChars = self.wrap
+  local text = self:get_text()
+  local display = {}
+  local cursor_wrap = {}
+  local breaks = 0
+  for i, l in ipairs(text) do
+    local n = math.floor(string.ulen(l) / drawableChars)
+    -- remember how many apparent lines will be overall
+    cursor_wrap[i] = n + 1
+    breaks = breaks + n
+    local lines = string.wrap_at(l, drawableChars)
+    for _, tl in ipairs(lines) do
+      table.insert(display, tl)
+    end
+  end
+  local apparentLines = #text + breaks
+  return {
+    display = display,
+    cursor_wrap = cursor_wrap,
+    breaks = breaks,
+    apparentLines = apparentLines,
+  }
+end
+
 function InputModel:_get_current_line()
   local cl = self:get_cursor_y() or 1
   return self.entered:get(cl)
@@ -509,4 +534,9 @@ end
 
 function InputModel:_get_history_entries()
   return self.history:items()
+end
+
+function InputModel:mouse_release(l, c)
+  -- orig_print(string.format('clicked {%d, %d}', l, c))
+  self:move_cursor(l, c)
 end
