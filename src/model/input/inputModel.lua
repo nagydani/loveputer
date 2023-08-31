@@ -16,6 +16,7 @@ function InputModel:new(cfg)
   local luaEval = LuaEval:new('metalua')
   local im = {
     entered = InputText:new(),
+    n_lines = 1,
     history = Dequeue:new(),
     evaluator = luaEval,
     textEval = textEval,
@@ -23,6 +24,10 @@ function InputModel:new(cfg)
     cursor = Cursor:new(),
     error = nil,
     wrap = cfg.drawableChars,
+    wrapped_text = {},
+    cursor_wrap = {},
+    wrap_reverse = {},
+    n_breaks = 0,
   }
   setmetatable(im, self)
   self.__index = self
@@ -133,12 +138,12 @@ function InputModel:get_n_text_lines()
 end
 
 function InputModel:get_wrapped_text()
-  return {
-    display = self.wrapped_text,
-    cursor_wrap = self.cursor_wrap,
-    breaks = self.breaks,
-    apparentLines = #self.wrapped_text,
-  }
+  return self.wrapped_text
+end
+
+function InputModel:get_wrapped_text_line(l)
+  local wt = self:get_wrapped_text()
+  return wt[l]
 end
 
 function InputModel:_get_current_line()
@@ -171,11 +176,22 @@ function InputModel:_advance_cursor(x, y)
 end
 
 function InputModel:move_cursor(y, x)
-  -- TODO: bounds checks
-  local cl, cc = self:_get_cursor_pos()
+  local prev_l, prev_c = self:_get_cursor_pos()
+  local c, l
+  if y and y > 1 and y <= self.n_lines then
+    l = y
+  else
+    l = prev_l
+  end
+  local llen = #(self:get_text_line(l))
+  if x and x > 1 and x <= llen then
+    c = x
+  else
+    c = prev_c
+  end
   self.cursor = {
-    c = x or cc,
-    l = y or cl
+    c = c,
+    l = l
   }
 end
 
@@ -400,6 +416,7 @@ end
 
 function InputModel:text_change()
   local ev = self.evaluator
+  self.n_lines = #(self.entered)
   if ev.kind == 'lua' then
     local ts = ev.parser.tokenize(self:get_text())
     self.tokens = ts
@@ -412,11 +429,18 @@ function InputModel:wrap_text()
   local text = self:get_text()
   local display = {}
   local cursor_wrap = {}
+  local wrap_reverse = {}
   local breaks = 0
+  local revi = 1
   for i, l in ipairs(text) do
     local n = math.floor(string.ulen(l) / drawableChars)
     -- remember how many apparent lines will be overall
-    cursor_wrap[i] = n + 1
+    local ap = n + 1
+    cursor_wrap[i] = ap
+    for _ = 1, ap do
+      wrap_reverse[revi] = i
+      revi = revi + 1
+    end
     breaks = breaks + n
     local lines = string.wrap_at(l, drawableChars)
     for _, tl in ipairs(lines) do
@@ -425,6 +449,7 @@ function InputModel:wrap_text()
   end
   self.wrapped_text = display
   self.cursor_wrap = cursor_wrap
+  self.wrap_reverse = wrap_reverse
   self.n_breaks = breaks
 end
 
@@ -542,7 +567,17 @@ function InputModel:_get_history_entries()
   return self.history:items()
 end
 
+function InputModel:translate_grid_to_cursor(l, c)
+  local wt       = self.wrap_reverse
+  local li       = wt[l]
+  local llen     = string.ulen(self:get_wrapped_text_line(l))
+  local c_offset = math.min(llen + 1, c)
+  local c_base   = l - li
+  local ci       = c_base * self.wrap + c_offset
+  return li, ci
+end
+
 function InputModel:mouse_release(l, c)
-  -- orig_print(string.format('clicked {%d, %d}', l, c))
-  self:move_cursor(l, c)
+  local li, ci = self:translate_grid_to_cursor(l, c)
+  self:move_cursor(li, ci)
 end

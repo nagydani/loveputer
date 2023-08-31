@@ -180,7 +180,7 @@ end
 function ConsoleController:mousereleased(x, y, btn)
   if btn == 1 then
     local im = self.model.input
-    local n_lines = im:get_wrapped_text().apparentLines
+    local n_lines = #(im:get_wrapped_text())
     local c, l = self:_translate_to_input_grid(x, y)
     if l < n_lines then
       im:mouse_release(n_lines - l, c)
