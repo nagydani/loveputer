@@ -180,14 +180,15 @@ end
 function InputModel:move_cursor(y, x, selection)
   local prev_l, prev_c = self:_get_cursor_pos()
   local c, l
-  if y and y >= 1 and y <= self.n_lines then
+  local line_limit = self.n_lines + 1 -- allow for line just being added
+  if y and y >= 1 and y <= line_limit then
     l = y
   else
     l = prev_l
   end
   local llen = #(self:get_text_line(l))
-  -- if x and x > 1 and x <= llen then
-  if x then
+  local char_limit = llen + 1
+  if x and x >= 1 and x <= char_limit then
     c = x
   else
     c = prev_c
@@ -213,8 +214,6 @@ function InputModel:backspace()
   local cl, cc = self:_get_cursor_pos()
   local newcl = cl - 1
   local pre, post
-
-  local n = self:get_n_text_lines()
 
   if cc == 1 then
     if cl == 1 then -- can't delete nothing

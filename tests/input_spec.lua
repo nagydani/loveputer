@@ -631,6 +631,7 @@ describe("input model spec #input", function()
       local h1 = model:_get_history_entry(1)
       assert.same(test1_l1, h1[1])
 
+      model:cancel()
       model:add_text(test1_l2)
       model:cursor_vertical_move('up')
       local t = model:get_text()
