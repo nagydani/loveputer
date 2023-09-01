@@ -575,8 +575,9 @@ end
 
 function InputModel:translate_grid_to_cursor(l, c)
   local wt       = self.wrap_reverse
-  local li       = wt[l]
-  local llen     = string.ulen(self:get_wrapped_text_line(l))
+  local li       = wt[l] or wt[#wt]
+  local line     = self:get_wrapped_text_line(l)
+  local llen     = string.ulen(line)
   local c_offset = math.min(llen + 1, c)
   local c_base   = l - li
   local ci       = c_base * self.wrap + c_offset
