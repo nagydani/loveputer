@@ -194,6 +194,7 @@ function ConsoleController:mousereleased(x, y, btn)
   self:_handle_mouse(x, y, btn, function(l, c)
     im:mouse_release(l, c)
   end)
+  im:release_selection()
 end
 
 function ConsoleController:mousemoved(x, y)
