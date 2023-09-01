@@ -585,11 +585,18 @@ end
 
 function InputModel:start_selection(l, c)
   self.selection.start = Cursor:new(l, c)
-  orig_print(Debug.terse_t(self.selection))
 end
 
 function InputModel:end_selection(l, c)
   self.selection.fin = Cursor:new(l, c)
+end
+
+function InputModel:hold_selection()
+  self.selection.held = true
+end
+
+function InputModel:release_selection()
+  self.selection.held = false
 end
 
 function InputModel:get_selection()
@@ -604,10 +611,21 @@ function InputModel:mouse_click(l, c)
   local li, ci = self:translate_grid_to_cursor(l, c)
   self:clear_selection()
   self:start_selection(li, ci)
+  self:hold_selection()
 end
 
 function InputModel:mouse_release(l, c)
   local li, ci = self:translate_grid_to_cursor(l, c)
+  self:release_selection()
   self:end_selection(li, ci)
   self:move_cursor(li, ci, 'keep')
+end
+
+function InputModel:mouse_drag(l, c)
+  local li, ci = self:translate_grid_to_cursor(l, c)
+  local sel = self:get_selection()
+  if sel.start and sel.held then
+    self:end_selection(li, ci)
+    self:move_cursor(li, ci, 'move')
+  end
 end

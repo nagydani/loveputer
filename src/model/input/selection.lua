@@ -7,5 +7,6 @@ function Selection:new()
     start = {},
     fin = {},
     text = '',
+    held = false,
   }
 end

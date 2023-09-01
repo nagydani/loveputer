@@ -196,6 +196,13 @@ function ConsoleController:mousereleased(x, y, btn)
   end)
 end
 
+function ConsoleController:mousemoved(x, y)
+  local im = self.model.input
+  self:_handle_mouse(x, y, 1, function(l, c)
+    im:mouse_drag(l, c)
+  end)
+end
+
 function ConsoleController:get_terminal()
   return self.model.output.terminal
 end

@@ -134,3 +134,7 @@ end
 function love.mousereleased(x, y, button)
   C:mousereleased(x, y, button)
 end
+
+function love.mousemoved(x, y, dx, dy)
+  C:mousemoved(x, y)
+end
