@@ -1,5 +1,3 @@
-local utf8 = require("utf8")
-
 require("model.input.eval.textEval")
 require("model.input.eval.luaEval")
 require("model.input.inputText")
