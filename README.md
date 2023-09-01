@@ -16,10 +16,15 @@ A console-based Lua-programmable computer for children based on [LÖVE2D] framew
 
 To run the code, [LÖVE2D] is required. It's been tested and developed on version 11.4 (Mysterious Mysteries).
 
-For unit tests, we are using the [busted] framework. The recommended way of installing is with [LuaRocks]:
+For unit tests, we are using the [busted] framework.
+Also, we need to supplement a utf-8 library, which comes with LOVE, but
+is not available for Lua 5.1 by default.
+
+The recommended way of installing these is with [LuaRocks]:
 
 ```sh
-luarocks --local install busted
+luarocks --local --lua-version 5.1 install busted
+luarocks --local --lua-version 5.1 install luautf8
 ```
 
 For information about installing [LÖVE2D] and [LuaRocks], visit their respective webpages.
