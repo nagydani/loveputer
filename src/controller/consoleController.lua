@@ -124,10 +124,25 @@ function ConsoleController:keypressed(k)
     end
   end
 
+  local function paste() input:paste(love.system.getClipboardText()) end
+  local function copy()
+    local t = input:get_selected_text()
+    love.system.setClipboardText(string.join(t, '\n'))
+  end
+  local function cut()
+    local t = input:pop_selected_text()
+    love.system.setClipboardText(string.join(t, '\n'))
+  end
   -- Ctrl held
   if ctrl then
     if k == "v" then
-      input:paste(love.system.getClipboardText())
+      paste()
+    end
+    if k == "c" or k == "insert" then
+      copy()
+    end
+    if k == "x" then
+      cut()
     end
     if k == "l" then
       out:clear()
@@ -146,11 +161,17 @@ function ConsoleController:keypressed(k)
   -- Shift held
   if shift then
     if k == "insert" then
-      input:paste(love.system.getClipboardText())
+      paste()
+    end
+    if k == "delete" then
+      cut()
     end
     if is_enter() then
       input:line_feed()
     end
+    input:hold_selection()
+  end
+end
   end
 end
 

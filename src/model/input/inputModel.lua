@@ -628,6 +628,18 @@ function InputModel:get_selection()
   return self.selection
 end
 
+function InputModel:get_selected_text()
+  return self.selection.text
+end
+
+function InputModel:pop_selected_text()
+  local t = self.selection.text
+  local from, to = self:diff_cursors(self.selection.start, self.selection.fin)
+  self.entered:traverse(from, to, { delete = true })
+  self:clear_selection()
+  return t
+end
+
 function InputModel:clear_selection()
   self.selection = Selection:new()
 end
