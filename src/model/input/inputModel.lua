@@ -584,12 +584,32 @@ function InputModel:translate_grid_to_cursor(l, c)
   return li, ci
 end
 
+function InputModel:diff_cursors(c1, c2)
+  local d = c1:compare(c2)
+  if not d or d == 0 then
+    return ''
+  else
+    local start, fin = (function()
+      if d > 0 then return c1, c2 else return c2, c1 end
+    end)()
+    if start.l == fin.l then
+      local line = self:get_text_line(start.l)
+      return string.usub(line, start.c, fin.c - 1)
+    else
+    end
+  end
+end
+
 function InputModel:start_selection(l, c)
   self.selection.start = Cursor:new(l, c)
 end
 
 function InputModel:end_selection(l, c)
-  self.selection.fin = Cursor:new(l, c)
+  local start = self.selection.start
+  local fin = Cursor:new(l, c)
+  local sel = self:diff_cursors(start, fin)
+  self.selection.fin = fin
+  self.selection.text = sel
 end
 
 function InputModel:hold_selection()
@@ -620,6 +640,7 @@ function InputModel:mouse_release(l, c)
   self:release_selection()
   self:end_selection(li, ci)
   self:move_cursor(li, ci, 'keep')
+  orig_print(Debug.terse_t(self:get_selection()))
 end
 
 function InputModel:mouse_drag(l, c)
