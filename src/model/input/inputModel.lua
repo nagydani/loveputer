@@ -149,6 +149,14 @@ function InputModel:_get_current_line()
 end
 
 function InputModel:paste(text)
+  local sel = self:get_selection()
+  local start = sel.start
+  local fin = sel.fin
+  if start and start.l and fin and fin.l and fin.c then
+    local from, to = self:diff_cursors(start, fin)
+    self.entered:traverse(from, to, { delete = true })
+    self:move_cursor(from.l, from.c)
+  end
   self:add_text(text)
   self:clear_selection()
 end
