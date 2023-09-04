@@ -295,6 +295,11 @@ function InputModel:cursor_vertical_move(dir)
   local llen = string.ulen(self:get_text_line(cl))
   local full_lines = math.floor(llen / w)
   local function move(is_inline, is_not_last_line)
+    local keep = (function()
+      if self.selection:isHeld() then
+        return 'keep'
+      end
+    end)()
     local function sgn(back, fwd)
       if dir == 'up' then
         return back()
@@ -307,7 +312,8 @@ function InputModel:cursor_vertical_move(dir)
         function() return math.max(cc - self.wrap, 0) end,
         function() return math.min(cc + self.wrap, llen + 1) end
       )
-      self:move_cursor(cl, newc)
+      self:move_cursor(cl, newc, keep)
+      if keep then self:end_selection() end
       return
     end
     if is_not_last_line() then
@@ -334,7 +340,8 @@ function InputModel:cursor_vertical_move(dir)
       else
         newc = math.min(offset, 1 + string.ulen(target_line))
       end
-      self:move_cursor(nl, newc)
+      self:move_cursor(nl, newc, keep)
+      if keep then self:end_selection() end
     else
       sgn(
         function() self:history_back() end,
@@ -668,7 +675,11 @@ end
 
 function InputModel:hold_selection()
   local cur_start = self:get_selection().start
-  self:start_selection(cur_start.l, cur_start.c)
+  if cur_start and cur_start.l and cur_start.c then
+    self:start_selection(cur_start.l, cur_start.c)
+  else
+    self:start_selection()
+  end
   self.selection.held = true
 end
 
