@@ -1,3 +1,6 @@
+--- @class Cursor
+--- @field l number
+--- @field c number
 Cursor = {
   l = 0,
   c = 0
