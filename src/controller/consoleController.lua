@@ -240,7 +240,7 @@ function ConsoleController:get_input()
     text = im:get_text(),
     error = im:get_error(),
     highlight = im:highlight(),
-    selection = im:get_selection(),
+    selection = im:get_ordered_selection(),
   }
 end
 

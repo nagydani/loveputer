@@ -184,14 +184,15 @@ function InputView:draw(input)
             local startc = sel.start.c
             local endc = sel.fin.c
             if startc and endc then
-              local sc = math.min(sel.start.c, sel.fin.c)
-              local ec = math.max(sel.start.c, sel.fin.c)
               if startl == endl then
-                if l == startl and i >= sc and i < ec then
-                  return true
-                else
-                  return false
-                end
+                local sc = math.min(sel.start.c, sel.fin.c)
+                local endi = math.max(sel.start.c, sel.fin.c)
+                return l == startl and i >= sc and i < endi
+              else
+                return
+                    (l == startl and i >= sel.start.c) or
+                    (l > startl and l < endl) or
+                    (l == endl and i < sel.fin.c)
               end
             end
           end

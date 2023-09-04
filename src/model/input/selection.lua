@@ -4,8 +4,8 @@ Selection = {}
 
 function Selection:new()
   local s = {
-    start = {},
-    fin = {},
+    start = Cursor:new(),
+    fin = Cursor:new(),
     text = { '' },
     held = false,
   }

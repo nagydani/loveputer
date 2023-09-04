@@ -680,6 +680,17 @@ function InputModel:get_selection()
   return self.selection
 end
 
+function InputModel:get_ordered_selection()
+  local sel = self.selection
+  local s, e = self:diff_cursors(sel.start, sel.fin)
+  local ret = Selection:new()
+  ret.start = s
+  ret.fin = e
+  ret.text = sel.text
+  ret.held = sel.held
+  return ret
+end
+
 function InputModel:get_selected_text()
   return self.selection.text
 end
