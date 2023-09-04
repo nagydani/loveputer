@@ -47,7 +47,12 @@ function InputText:traverse(from, to, options)
 
   if ls == le then
     if ce > cs then
-      ret:append(string.usub(lines[ls], cs, ce))
+      local l = lines[ls]
+      ret:append(string.usub(l, cs, ce))
+      if opts.delete then
+        local pre, _, post = string.splice(l, cs, ce)
+        self:update(pre .. post, ls)
+      end
     else
       ret:append('')
     end
@@ -89,8 +94,8 @@ function InputText:traverse(from, to, options)
       local lls, lle = string.split_at(ll, ce + 1)
       ret:append(lls)
       if opts.delete then
-        self[ls] = fls
-        self[le] = lle
+        self:update(fls, ls)
+        self:update(lle, le)
         for i = ls + 1, le - 1 do
           self:remove(i)
         end
