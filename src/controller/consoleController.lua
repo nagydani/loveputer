@@ -172,6 +172,11 @@ function ConsoleController:keypressed(k)
     input:hold_selection()
   end
 end
+
+function ConsoleController:keyreleased(k)
+  if k == "lshift" or k == "rshift" then
+    local im = self.model.input
+    im:release_selection()
   end
 end
 

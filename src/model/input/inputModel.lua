@@ -359,14 +359,23 @@ end
 
 function InputModel:cursor_left()
   local cl, cc = self:_get_cursor_pos()
-  if cc > 1 then
-    local next = cc - 1
-    self:move_cursor(nil, next)
-  elseif cl > 1 then
-    local cpl = cl - 1
-    local pl = self:get_text_line(cpl)
-    local cpc = 1 + string.ulen(pl)
-    self:move_cursor(cpl, cpc)
+  local nl, nc = (function()
+    if cc > 1 then
+      local next = cc - 1
+      return nil, next
+    elseif cl > 1 then
+      local cpl = cl - 1
+      local pl = self:get_text_line(cpl)
+      local cpc = 1 + string.ulen(pl)
+      return cpl, cpc
+    end
+  end)()
+
+  if self.selection:isHeld() then
+    self:move_cursor(nl, nc, 'keep')
+    self:end_selection()
+  else
+    self:move_cursor(nl, nc)
   end
 end
 
@@ -375,10 +384,19 @@ function InputModel:cursor_right()
   local line = self:get_text_line(cl)
   local len = string.ulen(line)
   local next = cc + 1
-  if cc <= len then
-    self:move_cursor(nil, next)
-  elseif cl < self:get_n_text_lines() then
-    self:move_cursor(cl + 1, 1)
+  local nl, nc = (function()
+    if cc <= len then
+      return nil, next
+    elseif cl < self:get_n_text_lines() then
+      return cl + 1, 1
+    end
+  end)()
+
+  if self.selection:isHeld() then
+    self:end_selection(cl, cc + 1)
+    self:move_cursor(nl, nc, 'keep')
+  else
+    self:move_cursor(nl, nc)
   end
 end
 
@@ -622,19 +640,34 @@ function InputModel:text_between_cursors(from, to)
 end
 
 function InputModel:start_selection(l, c)
-  self.selection.start = Cursor:new(l, c)
+  local start = (function()
+    if l and c then
+      return Cursor:new(l, c)
+    else -- default to current cursor position
+      return Cursor:new(self:_get_cursor_pos())
+    end
+  end)()
+  self.selection.start = start
 end
 
 function InputModel:end_selection(l, c)
-  local start = self.selection.start
-  local fin = Cursor:new(l, c)
-  local from, to = self:diff_cursors(start, fin)
-  local sel = self:text_between_cursors(from, to)
-  self.selection.fin = fin
+  local start         = self.selection.start
+  local fin           = (function()
+    if l and c then
+      return Cursor:new(l, c)
+    else -- default to current cursor position
+      return Cursor:new(self:_get_cursor_pos())
+    end
+  end)()
+  local from, to      = self:diff_cursors(start, fin)
+  local sel           = self:text_between_cursors(from, to)
+  self.selection.fin  = fin
   self.selection.text = sel
 end
 
 function InputModel:hold_selection()
+  local cur_start = self:get_selection().start
+  self:start_selection(cur_start.l, cur_start.c)
   self.selection.held = true
 end
 

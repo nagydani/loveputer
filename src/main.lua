@@ -115,6 +115,7 @@ function love.keyreleased(k)
       love.event.quit()
     end
   end
+  C:keyreleased(k)
 end
 
 function love.update(dt)
