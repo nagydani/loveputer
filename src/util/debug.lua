@@ -10,10 +10,7 @@ local get_indent = function(level, starter)
   return indent
 end
 
-local text = function(t)
-  if not t or type(t) ~= 'string' then return end
-  return string.format("'%s'", t)
-end
+local text = string.debug_text
 
 Debug = {
   print_t = function(t, tag, level, prev_seen)

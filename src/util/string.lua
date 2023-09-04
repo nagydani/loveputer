@@ -5,6 +5,11 @@ else
   utf8 = require("utf8")
 end
 
+string.debug_text = function(t)
+  if not t or type(t) ~= 'string' then return end
+  return string.format("'%s'", t)
+end
+
 string.normalize = function(s)
   return string.gsub(s, "%s+", "")
 end
@@ -176,6 +181,21 @@ end
 
 string.interleave = function(prefix, text, postfix)
   return string.join({ prefix, postfix }, text)
+end
+
+string.splice = function(str, si, ei)
+  if not str or type(str) ~= 'string'
+      or not string.is_non_empty_string(str, true) or si > ei then
+    return '', '', ''
+  end
+  local l = string.ulen(str)
+  local start = si or 1
+  local fin = ei or l
+  local split1 = start + 1
+  local split2 = fin - start + 1
+  local pre, rem = string.split_at(str, split1)
+  local mid, post = string.split_at(rem, split2)
+  return pre, mid, post
 end
 
 string.times = function(s, n)
