@@ -409,14 +409,27 @@ function InputModel:cursor_right()
 end
 
 function InputModel:jump_home()
-  self:move_cursor(1, 1)
+  local keep = (function()
+    if self.selection:isHeld() then
+      return 'keep'
+    end
+  end)()
+  local nl, nc = 1, 1
+  self:end_selection(nl, nc)
+  self:move_cursor(nl, nc, keep)
 end
 
 function InputModel:jump_end()
   local ent = self:get_text()
   local last_line = #ent
   local last_char = string.ulen(ent[last_line]) + 1
-  self:move_cursor(last_line, last_char)
+  local keep = (function()
+    if self.selection:isHeld() then
+      return 'keep'
+    end
+  end)()
+  self:end_selection(last_line, last_char)
+  self:move_cursor(last_line, last_char, keep)
 end
 
 ----------------
@@ -675,10 +688,16 @@ end
 
 function InputModel:hold_selection()
   local cur_start = self:get_selection().start
+  local cur_end = self:get_selection().fin
   if cur_start and cur_start.l and cur_start.c then
     self:start_selection(cur_start.l, cur_start.c)
   else
     self:start_selection()
+  end
+  if cur_end and cur_end.l and cur_end.c then
+    self:end_selection(cur_end.l, cur_end.c)
+  else
+    self:end_selection()
   end
   self.selection.held = true
 end
