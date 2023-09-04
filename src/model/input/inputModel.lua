@@ -640,7 +640,6 @@ function InputModel:mouse_release(l, c)
   self:release_selection()
   self:end_selection(li, ci)
   self:move_cursor(li, ci, 'keep')
-  orig_print(Debug.terse_t(self:get_selection()))
 end
 
 function InputModel:mouse_drag(l, c)
