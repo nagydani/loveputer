@@ -215,6 +215,67 @@ function InputModel:clear()
   self.tokens = nil
 end
 
+function InputModel:text_change()
+  local ev = self.evaluator
+  self.n_lines = #(self.entered)
+  if ev.kind == 'lua' then
+    local ts = ev.parser.tokenize(self:get_text())
+    self.tokens = ts
+  end
+  self:wrap_text()
+end
+
+function InputModel:wrap_text()
+  local drawableChars = self.wrap
+  local text = self:get_text()
+  local display = {}
+  local cursor_wrap = {}
+  local wrap_reverse = {}
+  local breaks = 0
+  local revi = 1
+  for i, l in ipairs(text) do
+    local n = math.floor(string.ulen(l) / drawableChars)
+    -- remember how many apparent lines will be overall
+    local ap = n + 1
+    cursor_wrap[i] = ap
+    for _ = 1, ap do
+      wrap_reverse[revi] = i
+      revi = revi + 1
+    end
+    breaks = breaks + n
+    local lines = string.wrap_at(l, drawableChars)
+    for _, tl in ipairs(lines) do
+      table.insert(display, tl)
+    end
+  end
+  self.wrapped_text = display
+  self.cursor_wrap = cursor_wrap
+  self.wrap_reverse = wrap_reverse
+  self.n_breaks = breaks
+end
+
+function InputModel:highlight()
+  local ev = self.evaluator
+  if ev.kind == 'lua' then
+    local p = ev.parser
+    local text = self:get_text()
+    local lex = p.stream_tokens(text)
+    -- iterating over the stream exhausts it
+    local tokens = p.realize_stream(lex)
+    local ok, err = p.parse(text)
+    local parse_err
+    if not ok then
+      local l, c, msg = p.get_error(err)
+      parse_err = { l = l, c = c, msg = msg }
+    end
+
+    return {
+      parse_err = parse_err,
+      hl = p.syntax_hl(tokens),
+    }
+  end
+end
+
 ----------------
 --   cursor   --
 ----------------
@@ -509,67 +570,6 @@ function InputModel:_remember(input)
   end
 end
 
-function InputModel:text_change()
-  local ev = self.evaluator
-  self.n_lines = #(self.entered)
-  if ev.kind == 'lua' then
-    local ts = ev.parser.tokenize(self:get_text())
-    self.tokens = ts
-  end
-  self:wrap_text()
-end
-
-function InputModel:wrap_text()
-  local drawableChars = self.wrap
-  local text = self:get_text()
-  local display = {}
-  local cursor_wrap = {}
-  local wrap_reverse = {}
-  local breaks = 0
-  local revi = 1
-  for i, l in ipairs(text) do
-    local n = math.floor(string.ulen(l) / drawableChars)
-    -- remember how many apparent lines will be overall
-    local ap = n + 1
-    cursor_wrap[i] = ap
-    for _ = 1, ap do
-      wrap_reverse[revi] = i
-      revi = revi + 1
-    end
-    breaks = breaks + n
-    local lines = string.wrap_at(l, drawableChars)
-    for _, tl in ipairs(lines) do
-      table.insert(display, tl)
-    end
-  end
-  self.wrapped_text = display
-  self.cursor_wrap = cursor_wrap
-  self.wrap_reverse = wrap_reverse
-  self.n_breaks = breaks
-end
-
-function InputModel:highlight()
-  local ev = self.evaluator
-  if ev.kind == 'lua' then
-    local p = ev.parser
-    local text = self:get_text()
-    local lex = p.stream_tokens(text)
-    -- iterating over the stream exhausts it
-    local tokens = p.realize_stream(lex)
-    local ok, err = p.parse(text)
-    local parse_err
-    if not ok then
-      local l, c, msg = p.get_error(err)
-      parse_err = { l = l, c = c, msg = msg }
-    end
-
-    return {
-      parse_err = parse_err,
-      hl = p.syntax_hl(tokens),
-    }
-  end
-end
-
 function InputModel:history_back()
   local ent = self:get_text()
   local hi = self.historic_index
@@ -593,6 +593,7 @@ function InputModel:history_back()
     self:_set_text(prev)
     self:jump_end()
   end
+  self:clear_selection()
 end
 
 function InputModel:history_fwd()
@@ -613,6 +614,7 @@ function InputModel:history_fwd()
     self:cancel()
   end
   self:jump_end() -- TODO: remember cursor pos?
+  self:clear_selection()
 end
 
 function InputModel:_get_history_length()
