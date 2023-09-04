@@ -24,14 +24,13 @@ end
 function InputText:traverse(from, to, options)
   local ls = from.l
   local le = to.l
+  -- cursor position is +1 off
   local cs = from.c
-  local ce = to.c
+  local ce = to.c - 1
   local lines = string.lines(self)
-  local till = le + 1 - ls
 
   local ret = Dequeue:new()
   local defaults = {
-    slow = false,
     delete = false,
   }
   local opts = (function()
@@ -39,7 +38,6 @@ function InputText:traverse(from, to, options)
       return defaults
     else
       return {
-        slow = options.slow,
         delete = options.delete,
       }
     end
@@ -48,9 +46,9 @@ function InputText:traverse(from, to, options)
   if ls == le then
     if ce > cs then
       local l = lines[ls]
-      ret:append(string.usub(l, cs, ce))
+      local pre, mid, post = string.splice(l, cs - 1, ce)
+      ret:append(mid)
       if opts.delete then
-        local pre, _, post = string.splice(l, cs, ce)
         self:update(pre .. post, ls)
       end
     else
@@ -59,46 +57,19 @@ function InputText:traverse(from, to, options)
   else
     local l1 = lines[ls]
     local ll = lines[le]
-    if opts.slow then
-      -- first line
-      local _l1 = ''
-      for i = cs, string.ulen(l1) do
-        _l1 = _l1 .. string.usub(l1, i, i)
-      end
-      ret:append(_l1)
-      -- intermediate lines
-      for i = 2, till - 1 do
-        local l = lines[i]
-        local e = string.ulen(l)
-        local _l = ''
-        for j = 1, e do
-          _l = _l .. string.usub(l, j, j)
-        end
-        ret:append(_l)
-      end
-      -- last line
-      local _ll = ''
-      for i = 1, ce do
-        _ll = _ll .. string.usub(ll, i, i)
-      end
-      ret:append(_ll)
-    else
-      -- first line
-      local fls, fle = string.split_at(l1, cs)
-      ret:append(fle)
-      -- intermediate lines
-      for i = ls + 1, le - 1 do
-        ret:append(lines[i])
-      end
-      -- last line
-      local lls, lle = string.split_at(ll, ce + 1)
-      ret:append(lls)
-      if opts.delete then
-        self:update(fls, ls)
-        self:update(lle, le)
-        for i = ls + 1, le - 1 do
-          self:remove(i)
-        end
+    local fls, fle = string.split_at(l1, cs)
+    ret:append(fle)
+    -- intermediate lines
+    for i = ls + 1, le - 1 do
+      ret:append(lines[i])
+    end
+    -- last line
+    local lls, lle = string.split_at(ll, ce + 1)
+    ret:append(lls)
+    if opts.delete then
+      self:update(fls .. lle, ls)
+      for i = le, ls + 1, -1 do
+        self:remove(i)
       end
     end
   end
