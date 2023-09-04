@@ -35,12 +35,9 @@ function InputModel:new(cfg)
   return im
 end
 
-function InputModel:_remember(input)
-  if string.is_non_empty_string_array(input) then
-    self.history:append(input)
-  end
-end
-
+----------------
+--  entered   --
+----------------
 function InputModel:add_text(text)
   if type(text) == 'string' then
     local sl, cc = self:_get_cursor_pos()
@@ -151,58 +148,6 @@ function InputModel:_get_current_line()
   return self.entered:get(cl)
 end
 
-function InputModel:_update_cursor(replace_line)
-  local cl = self:get_cursor_y()
-  local t = self:get_text()
-  if replace_line then
-    self.cursor.c = string.ulen(t[cl]) + 1
-    self.cursor.l = #t
-  else
-
-  end
-end
-
-function InputModel:_advance_cursor(x, y)
-  local cur_l, cur_c = self:_get_cursor_pos()
-  local move_x = x or 1
-  local move_y = y or 0
-  if move_y == 0 then
-    local next = cur_c + move_x
-    self.cursor.c = next
-  else
-    self.cursor.l = cur_l + move_y
-    -- TODO multiline
-  end
-end
-
-function InputModel:move_cursor(y, x, selection)
-  local prev_l, prev_c = self:_get_cursor_pos()
-  local c, l
-  local line_limit = self.n_lines + 1 -- allow for line just being added
-  if y and y >= 1 and y <= line_limit then
-    l = y
-  else
-    l = prev_l
-  end
-  local llen = #(self:get_text_line(l))
-  local char_limit = llen + 1
-  if x and x >= 1 and x <= char_limit then
-    c = x
-  else
-    c = prev_c
-  end
-  self.cursor = {
-    c = c,
-    l = l
-  }
-
-  if selection == 'keep' then
-  elseif selection == 'move' then
-  else
-    self:clear_selection()
-  end
-end
-
 function InputModel:paste(text)
   self:add_text(text)
 end
@@ -260,6 +205,68 @@ function InputModel:delete()
   local nval = pre .. post
   self:_set_text_line(nval, cl, true)
   self:text_change()
+end
+
+function InputModel:clear()
+  self.entered = InputText:new()
+  self:_update_cursor(true)
+  self.historic_index = nil
+  self.tokens = nil
+end
+
+----------------
+--   cursor   --
+----------------
+function InputModel:_update_cursor(replace_line)
+  local cl = self:get_cursor_y()
+  local t = self:get_text()
+  if replace_line then
+    self.cursor.c = string.ulen(t[cl]) + 1
+    self.cursor.l = #t
+  else
+
+  end
+end
+
+function InputModel:_advance_cursor(x, y)
+  local cur_l, cur_c = self:_get_cursor_pos()
+  local move_x = x or 1
+  local move_y = y or 0
+  if move_y == 0 then
+    local next = cur_c + move_x
+    self.cursor.c = next
+  else
+    self.cursor.l = cur_l + move_y
+    -- TODO multiline
+  end
+end
+
+function InputModel:move_cursor(y, x, selection)
+  local prev_l, prev_c = self:_get_cursor_pos()
+  local c, l
+  local line_limit = self.n_lines + 1 -- allow for line just being added
+  if y and y >= 1 and y <= line_limit then
+    l = y
+  else
+    l = prev_l
+  end
+  local llen = #(self:get_text_line(l))
+  local char_limit = llen + 1
+  if x and x >= 1 and x <= char_limit then
+    c = x
+  else
+    c = prev_c
+  end
+  self.cursor = {
+    c = c,
+    l = l
+  }
+
+  if selection == 'keep' then
+  elseif selection == 'move' then
+  else
+    self:clear_selection()
+  end
 end
 
 function InputModel:_get_cursor_pos()
@@ -375,13 +382,20 @@ function InputModel:cursor_right()
   end
 end
 
-function InputModel:clear()
-  self.entered = InputText:new()
-  self:_update_cursor(true)
-  self.historic_index = nil
-  self.tokens = nil
+function InputModel:jump_home()
+  self:move_cursor(1, 1)
 end
 
+function InputModel:jump_end()
+  local ent = self:get_text()
+  local last_line = #ent
+  local last_char = string.ulen(ent[last_line]) + 1
+  self:move_cursor(last_line, last_char)
+end
+
+----------------
+-- evaluation --
+----------------
 function InputModel:get_status()
   return {
     input_type = self.evaluator.kind,
@@ -418,6 +432,42 @@ function InputModel:_handle(eval)
     end
   end
   return ok, result
+end
+
+----------------
+--   error    --
+----------------
+function InputModel:clear_error()
+  self.error = nil
+end
+
+function InputModel:get_error()
+  return self.error
+end
+
+function InputModel:set_error(error, is_load_error)
+  if string.is_non_empty_string(error) then
+    self.error = error
+    if not is_load_error then
+      self:history_back()
+    end
+  end
+end
+
+function InputModel:get_eval_error(errors)
+  local ev = self.evaluator
+  if ev.kind == 'lua' and string.is_non_empty_string_array(self:get_text()) then
+    return ev.parser.get_error(errors)
+  end
+end
+
+----------------
+--  history   --
+----------------
+function InputModel:_remember(input)
+  if string.is_non_empty_string_array(input) then
+    self.history:append(input)
+  end
 end
 
 function InputModel:text_change()
@@ -481,30 +531,6 @@ function InputModel:highlight()
   end
 end
 
-function InputModel:clear_error()
-  self.error = nil
-end
-
-function InputModel:get_error()
-  return self.error
-end
-
-function InputModel:set_error(error, is_load_error)
-  if string.is_non_empty_string(error) then
-    self.error = error
-    if not is_load_error then
-      self:history_back()
-    end
-  end
-end
-
-function InputModel:get_eval_error(errors)
-  local ev = self.evaluator
-  if ev.kind == 'lua' and string.is_non_empty_string_array(self:get_text()) then
-    return ev.parser.get_error(errors)
-  end
-end
-
 function InputModel:history_back()
   local ent = self:get_text()
   local hi = self.historic_index
@@ -550,17 +576,6 @@ function InputModel:history_fwd()
   self:jump_end() -- TODO: remember cursor pos?
 end
 
-function InputModel:jump_home()
-  self:move_cursor(1, 1)
-end
-
-function InputModel:jump_end()
-  local ent = self:get_text()
-  local last_line = #ent
-  local last_char = string.ulen(ent[last_line]) + 1
-  self:move_cursor(last_line, last_char)
-end
-
 function InputModel:_get_history_length()
   return #(self.history)
 end
@@ -573,6 +588,9 @@ function InputModel:_get_history_entries()
   return self.history:items()
 end
 
+----------------
+-- selection  --
+----------------
 function InputModel:translate_grid_to_cursor(l, c)
   local wt       = self.wrap_reverse
   local li       = wt[l] or wt[#wt]
