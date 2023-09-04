@@ -150,6 +150,7 @@ end
 
 function InputModel:paste(text)
   self:add_text(text)
+  self:clear_selection()
 end
 
 function InputModel:backspace()
