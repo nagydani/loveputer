@@ -634,8 +634,12 @@ end
 
 function InputModel:pop_selected_text()
   local t = self.selection.text
-  local from, to = self:diff_cursors(self.selection.start, self.selection.fin)
+  local start = self.selection.start
+  local fin = self.selection.fin
+  local from, to = self:diff_cursors(start, fin)
   self.entered:traverse(from, to, { delete = true })
+  self:text_change()
+  self:move_cursor(from.l, from.c)
   self:clear_selection()
   return t
 end
