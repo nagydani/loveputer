@@ -178,8 +178,8 @@ function InputView:draw(input)
         end
         local selected = (function()
           local sel = input.selection
-          local startl = sel.start.l
-          local endl = sel.fin.l
+          local startl = sel.start and sel.start.l
+          local endl = sel.fin and sel.fin.l
           if startl then
             local startc = sel.start.c
             local endc = sel.fin.c
