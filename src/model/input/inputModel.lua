@@ -585,18 +585,21 @@ function InputModel:translate_grid_to_cursor(l, c)
 end
 
 function InputModel:diff_cursors(c1, c2)
-  local d = c1:compare(c2)
-  if not d or d == 0 then
-    return ''
-  else
-    local start, fin = (function()
-      if d > 0 then return c1, c2 else return c2, c1 end
-    end)()
-    if start.l == fin.l then
-      local line = self:get_text_line(start.l)
-      return string.usub(line, start.c, fin.c - 1)
+  if c1 and c2 then
+    local d = c1:compare(c2)
+    if d > 0 then
+      return c1, c2
     else
+      return c2, c1
     end
+  end
+end
+
+function InputModel:text_between_cursors(from, to)
+  if from and to then
+    return self.entered:traverse(from, to)
+  else
+    return { '' }
   end
 end
 
@@ -607,7 +610,8 @@ end
 function InputModel:end_selection(l, c)
   local start = self.selection.start
   local fin = Cursor:new(l, c)
-  local sel = self:diff_cursors(start, fin)
+  local from, to = self:diff_cursors(start, fin)
+  local sel = self:text_between_cursors(from, to)
   self.selection.fin = fin
   self.selection.text = sel
 end

@@ -6,7 +6,7 @@ function Selection:new()
   return {
     start = {},
     fin = {},
-    text = '',
+    text = { '' },
     held = false,
   }
 end

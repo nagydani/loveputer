@@ -57,5 +57,14 @@ describe('InputText', function()
     local trav_2 = text2:traverse(from, to, { delete = true })
     assert.same(exp2, trav_2)
     assert.same(rem2, text2)
+
+    local text3  = InputText:new(t)
+    from         = Cursor:new(2, 7)
+    to           = Cursor:new(2, 12)
+    local trav_3 = text3:traverse(from, to)
+    local exp3   = {
+      ' -- ac',
+    }
+    assert.same(exp3, trav_3)
   end)
 end)
