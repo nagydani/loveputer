@@ -217,6 +217,7 @@ end
 
 function InputModel:clear()
   self.entered = InputText:new()
+  self:clear_selection()
   self:_update_cursor(true)
   self.historic_index = nil
   self.tokens = nil
@@ -747,6 +748,7 @@ end
 
 function InputModel:clear_selection()
   self.selection = Selection:new()
+  self:release_selection()
 end
 
 function InputModel:mouse_click(l, c)
