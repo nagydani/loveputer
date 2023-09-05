@@ -221,6 +221,7 @@ end
 
 function InputModel:clear()
   self.entered = InputText:new()
+  self:text_change()
   self:clear_selection()
   self:_update_cursor(true)
   self.historic_index = nil
