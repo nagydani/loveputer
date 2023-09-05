@@ -134,7 +134,11 @@ function InputModel:get_n_text_lines()
 end
 
 function InputModel:get_wrapped_text()
-  return self.wrapped_text
+  return self.wrapped_text, {
+    cursor_wrap = self.cursor_wrap,
+    wrap_reverse = self.wrap_reverse,
+    breaks = self.n_breaks
+  }
 end
 
 function InputModel:get_wrapped_text_line(l)

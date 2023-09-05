@@ -29,35 +29,6 @@ function InputView:draw(input)
   local drawableWidth = self.cfg.drawableWidth
   local drawableChars = self.cfg.drawableChars
 
-  local function wrap_text(text)
-    local display = {}
-    local cursor_wrap = {}
-    local wrap_reverse = {}
-    local breaks = 0
-    local revi = 1
-    for i, l in ipairs(text) do
-      local n = math.floor(string.ulen(l) / drawableChars)
-      -- remember how many apparent lines will be overall
-      local ap = n + 1
-      cursor_wrap[i] = ap
-      for _ = 1, ap do
-        wrap_reverse[revi] = i
-        revi = revi + 1
-      end
-      breaks = breaks + n
-      local lines = string.wrap_at(l, drawableChars)
-      for _, tl in ipairs(lines) do
-        table.insert(display, tl)
-      end
-    end
-    return {
-      display = display,
-      cursor_wrap = cursor_wrap,
-      wrap_reverse = wrap_reverse,
-      breaks = breaks
-    }
-  end
-
   local isError = string.is_non_empty_string(input.error)
   local highlight = input.highlight
   local text = (function()
@@ -73,11 +44,11 @@ function InputView:draw(input)
   local y = h - b - inHeight
 
   local apparentHeight = inHeight
-  local wt = wrap_text(text)
-  local display = wt.display
-  local cursor_wrap = wt.cursor_wrap
-  local wrap_reverse = wt.wrap_reverse
-  local breaks = wt.breaks
+  local display = input.wrapped_text
+  local wt_info = input.wt_info
+  local cursor_wrap = wt_info.cursor_wrap
+  local wrap_reverse = wt_info.wrap_reverse
+  local breaks = wt_info.breaks
   apparentHeight = apparentHeight + breaks
   apparentLines = apparentLines + breaks
 

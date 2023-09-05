@@ -242,8 +242,11 @@ end
 
 function ConsoleController:get_input()
   local im = self.model.input
+  local wt, wt_info = im:get_wrapped_text()
   return {
     text = im:get_text(),
+    wrapped_text = wt,
+    wt_info = wt_info,
     error = im:get_error(),
     highlight = im:highlight(),
     selection = im:get_ordered_selection(),
