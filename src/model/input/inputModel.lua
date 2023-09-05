@@ -411,10 +411,17 @@ function InputModel:cursor_vertical_move(dir)
       self:move_cursor(nl, newc, keep)
       if keep then self:end_selection() end
     else
-      sgn(
-        function() self:history_back() end,
-        function() self:history_fwd() end
-      )
+      if self:is_selection_held() then
+        sgn(
+          function() self:jump_home() end,
+          function() self:jump_end() end
+        )
+      else
+        sgn(
+          function() self:history_back() end,
+          function() self:history_fwd() end
+        )
+      end
     end
   end
 
@@ -717,6 +724,10 @@ end
 
 function InputModel:get_selection()
   return self.selection
+end
+
+function InputModel:is_selection_held()
+  return self.selection.held
 end
 
 function InputModel:get_ordered_selection()
