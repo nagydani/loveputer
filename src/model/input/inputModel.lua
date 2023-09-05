@@ -596,7 +596,6 @@ function InputModel:history_back()
         self.history[hi] = current
       end
       self:_set_text(prev)
-      local last_line_len = string.ulen(prev[#prev])
       self.historic_index = hi - 1
       self:jump_end()
     end

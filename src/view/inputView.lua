@@ -32,11 +32,18 @@ function InputView:draw(input)
   local function wrap_text(text)
     local display = {}
     local cursor_wrap = {}
+    local wrap_reverse = {}
     local breaks = 0
+    local revi = 1
     for i, l in ipairs(text) do
       local n = math.floor(string.ulen(l) / drawableChars)
       -- remember how many apparent lines will be overall
-      cursor_wrap[i] = n + 1
+      local ap = n + 1
+      cursor_wrap[i] = ap
+      for _ = 1, ap do
+        wrap_reverse[revi] = i
+        revi = revi + 1
+      end
       breaks = breaks + n
       local lines = string.wrap_at(l, drawableChars)
       for _, tl in ipairs(lines) do
@@ -46,6 +53,7 @@ function InputView:draw(input)
     return {
       display = display,
       cursor_wrap = cursor_wrap,
+      wrap_reverse = wrap_reverse,
       breaks = breaks
     }
   end
@@ -68,6 +76,7 @@ function InputView:draw(input)
   local wt = wrap_text(text)
   local display = wt.display
   local cursor_wrap = wt.cursor_wrap
+  local wrap_reverse = wt.wrap_reverse
   local breaks = wt.breaks
   apparentHeight = apparentHeight + breaks
   apparentLines = apparentLines + breaks
@@ -167,8 +176,17 @@ function InputView:draw(input)
     for l, s in ipairs(display) do
       for i = 1, string.ulen(s) do
         local char = string.usub(s, i, i)
-        local row = highlight.hl[l] or {}
-        local ttype = row[i]
+        local hl_li = wrap_reverse[l]
+        local hl_ci = (function()
+          if cursor_wrap[hl_li] > 1 then
+            local offset = l - hl_li
+            return i + drawableChars * offset
+          else
+            return i
+          end
+        end)()
+        local row = highlight.hl[hl_li] or {}
+        local ttype = row[hl_ci]
         local color
         if perr and l > el or
             (l == el and i > ec) then
