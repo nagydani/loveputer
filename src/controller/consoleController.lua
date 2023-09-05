@@ -3,6 +3,8 @@ ConsoleController = {}
 require("util.testTerminal")
 require("util.eval")
 
+local G = love.graphics
+
 function ConsoleController:new(m)
   local cc = {
     time = 0,
@@ -30,6 +32,7 @@ local function evaluate_input(input, output)
     local code = string.join(text, '\n')
     local f, load_err = loadstring(code)
     if f then
+      G.push('all')
       output:draw_to()
       local ok, call_err = pcall(f)
       if ok then
@@ -38,6 +41,7 @@ local function evaluate_input(input, output)
         input:set_error(e, true)
       end
       output:restore_main()
+      G.pop()
     else
       -- we should not see many of these, since the code is parsed prior
       orig_print(load_err)
