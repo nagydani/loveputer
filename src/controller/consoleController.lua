@@ -23,19 +23,21 @@ function ConsoleController:get_timestamp()
   return self.time
 end
 
-local function evaluate_input(input)
+local function evaluate_input(input, output)
   local text = input:get_text()
   local syntax_ok, res = input:evaluate()
   if syntax_ok then
     local code = string.join(text, '\n')
     local f, load_err = loadstring(code)
     if f then
+      output:draw_to()
       local ok, call_err = pcall(f)
       if ok then
       else
         local e = parse_load_error(call_err)
         input:set_error(e, true)
       end
+      output:restore_main()
     else
       -- we should not see many of these, since the code is parsed prior
       orig_print(load_err)
@@ -117,7 +119,7 @@ function ConsoleController:keypressed(k)
     end
 
     if not shift and is_enter() then
-      evaluate_input(input)
+      evaluate_input(input, out)
     end
     if not ctrl and k == "escape" then
       input:cancel()

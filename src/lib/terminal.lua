@@ -353,9 +353,10 @@ local function terminal(self, width, height,
     local num_columns = math.floor(width / char_width)
     local num_rows = math.floor(height / char_height)
     local canvas
-    local ch = math.floor(custom_canvas:getHeight())
     local rh = math.floor(height)
-    if custom_canvas and ch == rh and custom_canvas:getWidth() == width
+    if custom_canvas
+        and math.floor(custom_canvas:getHeight()) == rh
+        and custom_canvas:getWidth() == width
     then
         canvas = custom_canvas
     else
