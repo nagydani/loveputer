@@ -126,7 +126,7 @@ end
 
 function InputModel:get_text_line(l)
   local ent = self.entered or InputText:new()
-  return ent:get(l)
+  return ent:get(l) or ''
 end
 
 function InputModel:get_n_text_lines()
