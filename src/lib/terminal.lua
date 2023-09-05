@@ -346,11 +346,22 @@ end
 
 
 local function terminal(self, width, height,
-                        font, custom_char_width, custom_char_height)
+                        font, custom_char_width, custom_char_height,
+                        custom_canvas)
     local char_width = custom_char_width or font:getWidth('█')
     local char_height = custom_char_height or font:getHeight()
     local num_columns = math.floor(width / char_width)
     local num_rows = math.floor(height / char_height)
+    local canvas
+    local ch = math.floor(custom_canvas:getHeight())
+    local rh = math.floor(height)
+    if custom_canvas and ch == rh and custom_canvas:getWidth() == width
+    then
+        canvas = custom_canvas
+    else
+        canvas = love.graphics.newCanvas(width, height)
+    end
+
     local instance = {
         width = math.floor(num_columns),
         height = math.floor(num_rows),
@@ -376,7 +387,7 @@ local function terminal(self, width, height,
 
         clear_color = { 0, 0, 0 },
 
-        canvas = love.graphics.newCanvas(width, height),
+        canvas = canvas,
         buffer = {},
         state_buffer = {}
     }
