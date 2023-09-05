@@ -15,7 +15,6 @@ function InputModel:new(cfg)
   local luaEval = LuaEval:new('metalua')
   local im = {
     entered = InputText:new(),
-    n_lines = 1,
     history = Dequeue:new(),
     evaluator = luaEval,
     textEval = textEval,
@@ -88,7 +87,7 @@ end
 
 function InputModel:_set_text_line(text, ln, keep_cursor)
   if type(text) == 'string' then
-    local ent = self.entered
+    local ent = self:get_text()
     if ent then
       ent:update(text, ln)
       if not keep_cursor then
@@ -101,13 +100,13 @@ function InputModel:_set_text_line(text, ln, keep_cursor)
 end
 
 function InputModel:_drop_text_line(ln)
-  self.entered:remove(ln)
+  self:get_text():remove(ln)
 end
 
 function InputModel:_insert_text_line(text, li)
   local l = li or self:get_cursor_y()
   self.cursor.y = l + 1
-  self.entered:insert(text, l)
+  self:get_text():insert(text, l)
 end
 
 function InputModel:line_feed()
@@ -125,12 +124,12 @@ function InputModel:get_text()
 end
 
 function InputModel:get_text_line(l)
-  local ent = self.entered or InputText:new()
+  local ent = self:get_text()
   return ent:get(l) or ''
 end
 
 function InputModel:get_n_text_lines()
-  local ent = self.entered or InputText:new()
+  local ent = self:get_text()
   return ent:length()
 end
 
@@ -145,7 +144,7 @@ end
 
 function InputModel:_get_current_line()
   local cl = self:get_cursor_y() or 1
-  return self.entered:get(cl)
+  return self:get_text():get(cl)
 end
 
 function InputModel:paste(text)
@@ -154,7 +153,7 @@ function InputModel:paste(text)
   local fin = sel.fin
   if start and start.l and fin and fin.l and fin.c then
     local from, to = self:diff_cursors(start, fin)
-    self.entered:traverse(from, to, { delete = true })
+    self:get_text():traverse(from, to, { delete = true })
     self:move_cursor(from.l, from.c)
   end
   self:add_text(text)
@@ -225,7 +224,6 @@ end
 
 function InputModel:text_change()
   local ev = self.evaluator
-  self.n_lines = #(self.entered)
   if ev.kind == 'lua' then
     local ts = ev.parser.tokenize(self:get_text())
     self.tokens = ts
@@ -314,7 +312,7 @@ end
 function InputModel:move_cursor(y, x, selection)
   local prev_l, prev_c = self:_get_cursor_pos()
   local c, l
-  local line_limit = self.n_lines + 1 -- allow for line just being added
+  local line_limit = self:get_n_text_lines() + 1 -- allow for line just being added
   if y and y >= 1 and y <= line_limit then
     l = y
   else
@@ -664,7 +662,7 @@ end
 
 function InputModel:text_between_cursors(from, to)
   if from and to then
-    return self.entered:traverse(from, to)
+    return self:get_text():traverse(from, to)
   else
     return { '' }
   end
@@ -740,7 +738,7 @@ function InputModel:pop_selected_text()
   local start = self.selection.start
   local fin = self.selection.fin
   local from, to = self:diff_cursors(start, fin)
-  self.entered:traverse(from, to, { delete = true })
+  self:get_text():traverse(from, to, { delete = true })
   self:text_change()
   self:move_cursor(from.l, from.c)
   self:clear_selection()
