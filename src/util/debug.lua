@@ -49,7 +49,7 @@ Debug = {
 
   text = text,
 
-  text_table = function(t, no_ln)
+  text_table = function(t, no_ln, trunc)
     local res = ''
     if t then
       for i, l in ipairs(t) do
@@ -60,6 +60,16 @@ Debug = {
             return text(l) .. '\n'
           end
         end)()
+        if trunc then
+          local tr = (function()
+            if type(trunc) == 'number' then
+              return trunc
+            else
+              return 20
+            end
+          end)()
+          line = string.usub(line, 1, tr) .. "...'\n"
+        end
         res = res .. line
       end
     end
