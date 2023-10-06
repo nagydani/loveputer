@@ -1,4 +1,4 @@
-require("model/inputModel")
+require("model.input.inputModel")
 
 if not orig_print then
   _G.orig_print = function() end
@@ -129,8 +129,8 @@ describe("input model spec #input", function()
 
     local test1 = 'когда'
     local test2 = 'あいうえお'
-    local test1_len = utf8.len(test1)
-    local test2_len = utf8.len(test2)
+    local test1_len = string.ulen(test1)
+    local test2_len = string.ulen(test2)
     local test_char1 = 'd'
     local test_char2 = 'い'
 
@@ -164,8 +164,8 @@ describe("input model spec #input", function()
       end)
     end)
 
-    local line_end = 1 + utf8.len(test2)
-    local base = line_end - utf8.len(test2)
+    local line_end = 1 + string.ulen(test2)
+    local base = line_end - string.ulen(test2)
     describe('moves cursor correctly', function()
       it('', function()
         model:clear()
@@ -252,11 +252,11 @@ describe("input model spec #input", function()
 
     local test1 = 'когда'
     local test2 = 'asdf'
-    local test1_len = utf8.len(test1)
-    local test2_len = utf8.len(test2)
+    local test1_len = string.ulen(test1)
+    local test2_len = string.ulen(test2)
 
     describe('deletes', function()
-      local line_end = 1 + utf8.len(test2)
+      local line_end = 1 + string.ulen(test2)
       it('none at the end', function()
         model:_set_text(test2)
         local cc = model:get_cursor_x()
@@ -324,7 +324,7 @@ describe("input model spec #input", function()
 
         it('jumps to the end', function()
           model:jump_end()
-          local pos = utf8.len('оа') + 1
+          local pos = string.ulen('оа') + 1
           local _, cc = model:_get_cursor_pos()
           assert.is_equal(pos, cc)
         end)
@@ -631,6 +631,7 @@ describe("input model spec #input", function()
       local h1 = model:_get_history_entry(1)
       assert.same(test1_l1, h1[1])
 
+      model:cancel()
       model:add_text(test1_l2)
       model:cursor_vertical_move('up')
       local t = model:get_text()

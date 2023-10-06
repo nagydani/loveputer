@@ -1,9 +1,9 @@
-require("util/color")
-local parser = require("model/parser")('metalua')
-local tokenHL = require("model/tokenHighlighter")
+local parser = require("model.parser")('metalua')
+local tokenHL = require("model.tokenHighlighter")
+local term = require("util.termcolor")
+require("util.color")
+require("util.debug")
 
-require("util/debug")
-local term = require("util/termcolor")
 
 if not orig_print then
   _G.orig_print = print

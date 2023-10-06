@@ -1,4 +1,4 @@
-require("util/string")
+require("util.string")
 
 describe("StringUtils #string", function()
   local utest1 = 'когда'
@@ -257,6 +257,38 @@ describe("StringUtils #string", function()
     end)
     it('test 2', function()
       assert.same(5, string.ulen(utest2))
+    end)
+  end)
+
+  describe('splices', function()
+    local function toTable(pre, mid, post)
+      return {
+        pre = pre, mid = mid, post = post
+      }
+    end
+    local empty = { pre = '', mid = '', post = '' }
+
+    it('empty', function()
+      local t = ''
+      local res = toTable(string.splice(t, 1, 2))
+      assert.same(empty, res)
+    end)
+
+    it('', function()
+      local t = 'test text'
+      local exp = { pre = 'test', mid = ' ', post = 'text' }
+      local res = toTable(string.splice(t, 4, 5))
+      assert.same(exp, res)
+    end)
+
+    it('weird indices', function()
+      local t = 'test text'
+      local res = toTable(string.splice(t, 5, 1))
+      assert.same(empty, res)
+
+      res = toTable(string.splice(t, 304, 305))
+      local exp = { pre = t, mid = '', post = '' }
+      assert.same(exp, res)
     end)
   end)
 end)

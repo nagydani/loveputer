@@ -1,8 +1,7 @@
 local G = love.graphics
 
-require("view/statusline")
-
-require("util/debug")
+require("view.statusline")
+require("util.debug")
 
 InputView = {}
 
@@ -44,22 +43,12 @@ function InputView:draw(input)
   local inHeight = inLines * fh
   local y = h - b - inHeight
 
-  local display = {}
-  local cursor_wrap = {}
   local apparentHeight = inHeight
-  local app = 0
-  local breaks = 0
-  for i, l in ipairs(text) do
-    local n = math.floor(string.ulen(l) / drawableChars)
-    -- remember how many apparent lines will be overall
-    cursor_wrap[i] = n + 1
-    breaks = breaks + n
-    local lines = string.wrap_at(l, drawableChars)
-    app = app + #lines
-    for _, tl in ipairs(lines) do
-      table.insert(display, tl)
-    end
-  end
+  local display = input.wrapped_text
+  local wt_info = input.wt_info
+  local cursor_wrap = wt_info.cursor_wrap
+  local wrap_reverse = wt_info.wrap_reverse
+  local breaks = wt_info.breaks
   apparentHeight = apparentHeight + breaks
   apparentLines = apparentLines + breaks
 
@@ -79,7 +68,7 @@ function InputView:draw(input)
     local n = cursor_wrap[cl] or 0
     -- how many apparent lines we have so far?
     for i = 1, cl do
-      yh = yh + cursor_wrap[i]
+      yh = yh + (cursor_wrap[i] or 0)
     end
     local ch =
     -- top of the box
@@ -120,11 +109,17 @@ function InputView:draw(input)
   ---@param c number
   ---@param token string
   ---@param color table
-  local write_token = function(l, c, token, color)
+  local write_token = function(l, c, token, color, selected)
     local dy = y - (-l + 1 + breaks) * fh
     local dx = b + (c - 1) * fw
     G.push('all')
-    G.setColor(color)
+    if selected then
+      G.setColor(color)
+      G.print('█', dx, dy)
+      G.setColor(colors.bg)
+    else
+      G.setColor(color)
+    end
     G.print(token, dx, dy)
     G.pop()
   end
@@ -152,8 +147,17 @@ function InputView:draw(input)
     for l, s in ipairs(display) do
       for i = 1, string.ulen(s) do
         local char = string.usub(s, i, i)
-        local row = highlight.hl[l] or {}
-        local ttype = row[i]
+        local hl_li = wrap_reverse[l]
+        local hl_ci = (function()
+          if cursor_wrap[hl_li] > 1 then
+            local offset = l - hl_li
+            return i + drawableChars * offset
+          else
+            return i
+          end
+        end)()
+        local row = highlight.hl[hl_li] or {}
+        local ttype = row[hl_ci]
         local color
         if perr and l > el or
             (l == el and i > ec) then
@@ -161,7 +165,28 @@ function InputView:draw(input)
         else
           color = colors.syntax[ttype] or colors.fg
         end
-        write_token(l, i, char, color)
+        local selected = (function()
+          local sel = input.selection
+          local startl = sel.start and sel.start.l
+          local endl = sel.fin and sel.fin.l
+          if startl then
+            local startc = sel.start.c
+            local endc = sel.fin.c
+            if startc and endc then
+              if startl == endl then
+                local sc = math.min(sel.start.c, sel.fin.c)
+                local endi = math.max(sel.start.c, sel.fin.c)
+                return l == startl and i >= sc and i < endi
+              else
+                return
+                    (l == startl and i >= sel.start.c) or
+                    (l > startl and l < endl) or
+                    (l == endl and i < sel.fin.c)
+              end
+            end
+          end
+        end)()
+        write_token(l, i, char, color, selected)
       end
     end
   else

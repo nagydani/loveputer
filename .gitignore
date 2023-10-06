@@ -4,3 +4,8 @@
 /.luarocks
 .history
 dist/*
+doc/0*.md
+doc/parse
+*.lua_
+src/assets/*.xcf
+src/assets/shot*.png

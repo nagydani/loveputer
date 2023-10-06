@@ -1,10 +1,10 @@
-require("model/consoleModel")
-local redirect_to = require("model/ioRedirect")
-require("view/consoleView")
-require("controller/consoleController")
-local colors = require("conf/colors")
+require("model.consoleModel")
+local redirect_to = require("model.ioRedirect")
+require("view.consoleView")
+require("controller.consoleController")
+local colors = require("conf.colors")
 
-require("util/debug")
+require("util.debug")
 
 local G = love.graphics
 local V
@@ -115,6 +115,7 @@ function love.keyreleased(k)
       love.event.quit()
     end
   end
+  C:keyreleased(k)
 end
 
 function love.update(dt)
@@ -125,4 +126,16 @@ function love.draw()
   local terminal = C:get_terminal()
   local input = C:get_input()
   V:draw(terminal, input)
+end
+
+function love.mousepressed(x, y, button)
+  C:mousepressed(x, y, button)
+end
+
+function love.mousereleased(x, y, button)
+  C:mousereleased(x, y, button)
+end
+
+function love.mousemoved(x, y, dx, dy)
+  C:mousemoved(x, y)
 end

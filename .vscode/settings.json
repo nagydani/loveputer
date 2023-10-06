@@ -7,7 +7,7 @@
     "${3rd}/love2d/library"
   ],
   "files.exclude": {
-    "**/.vscode-oss/extensions/sumneko.lua*": true,
+    "**/.vscode-oss/extensions/*": true,
     ".history/**": true,
   },
 }

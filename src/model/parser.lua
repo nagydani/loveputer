@@ -1,5 +1,5 @@
-require("util/string")
-require("util/dequeue")
+require("util.string")
+require("util.dequeue")
 
 return function(lib)
   local add_paths = {
@@ -15,7 +15,7 @@ return function(lib)
     package.path = package.path .. lib_paths
   end
 
-  local mlc = require 'metalua/metalua/compiler'.new()
+  local mlc = require('metalua.metalua.compiler').new()
 
   --- Iterates over lexstream
   ---@param stream table
@@ -78,7 +78,7 @@ return function(lib)
   end
 
   local pprint = function(code)
-    local pprinter = require 'metalua/metalua/pprint'
+    local pprinter = require('metalua.metalua.pprint')
     local c = string.join(code, '\n')
     return pprinter.tostring(c)
   end

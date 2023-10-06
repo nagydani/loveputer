@@ -1,7 +1,6 @@
-require("util/dequeue")
-require("util/string")
-
-local Terminal = require "lib/terminal"
+require("util.dequeue")
+require("util.string")
+local Terminal = require("lib.terminal")
 
 local G = love.graphics
 
@@ -17,7 +16,8 @@ function CanvasModel:new(cfg)
     w = G.getWidth() - 2 * cfg.border
     h = cfg.get_drawable_height()
   end
-  local term = Terminal(w, h, cfg.font_main, nil, cfg.fh * cfg.lh)
+  local canvas = love.graphics.newCanvas(w, h)
+  local term = Terminal(w, h, cfg.font_main, nil, cfg.fh * cfg.lh, canvas)
 
   local color = cfg.colors.terminal
   term:hide_cursor()
@@ -26,19 +26,13 @@ function CanvasModel:new(cfg)
   term:clear()
   local cm = {
     terminal = term,
+    canvas = canvas,
     cfg = cfg,
   }
   setmetatable(cm, self)
   self.__index = self
 
   return cm
-end
-
-function CanvasModel:_manipulate(commands)
-  for _, c in ipairs(commands) do
-    local f = load(c)
-    if f then f() end
-  end
 end
 
 function CanvasModel:write(text)
@@ -63,4 +57,16 @@ end
 
 function CanvasModel:update(dt)
   self.terminal:update(dt)
+end
+
+function CanvasModel:get_canvas()
+  return self.canvas
+end
+
+function CanvasModel:draw_to()
+  G.setCanvas(self.canvas)
+end
+
+function CanvasModel:restore_main()
+  G.setCanvas()
 end

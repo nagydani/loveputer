@@ -1,4 +1,4 @@
-require("util/string")
+require("util.string")
 
 local INDENT = '  '
 
@@ -10,10 +10,7 @@ local get_indent = function(level, starter)
   return indent
 end
 
-local text = function(t)
-  if not t or type(t) ~= 'string' then return end
-  return string.format("'%s'", t)
-end
+local text = string.debug_text
 
 Debug = {
   print_t = function(t, tag, level, prev_seen)
@@ -52,7 +49,7 @@ Debug = {
 
   text = text,
 
-  text_table = function(t, no_ln)
+  text_table = function(t, no_ln, trunc)
     local res = ''
     if t then
       for i, l in ipairs(t) do
@@ -63,6 +60,16 @@ Debug = {
             return text(l) .. '\n'
           end
         end)()
+        if trunc then
+          local tr = (function()
+            if type(trunc) == 'number' then
+              return trunc
+            else
+              return 20
+            end
+          end)()
+          line = string.usub(line, 1, tr) .. "...'\n"
+        end
         res = res .. line
       end
     end

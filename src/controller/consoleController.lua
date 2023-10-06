@@ -1,7 +1,9 @@
 ConsoleController = {}
 
-require("util/testTerminal")
-require("util/eval")
+require("util.testTerminal")
+require("util.eval")
+
+local G = love.graphics
 
 function ConsoleController:new(m)
   local cc = {
@@ -23,19 +25,23 @@ function ConsoleController:get_timestamp()
   return self.time
 end
 
-local function evaluate_input(input)
+local function evaluate_input(input, output)
   local text = input:get_text()
   local syntax_ok, res = input:evaluate()
   if syntax_ok then
     local code = string.join(text, '\n')
     local f, load_err = loadstring(code)
     if f then
+      G.push('all')
+      output:draw_to()
       local ok, call_err = pcall(f)
       if ok then
       else
         local e = parse_load_error(call_err)
         input:set_error(e, true)
       end
+      output:restore_main()
+      G.pop()
     else
       -- we should not see many of these, since the code is parsed prior
       orig_print(load_err)
@@ -124,10 +130,25 @@ function ConsoleController:keypressed(k)
     end
   end
 
+  local function paste() input:paste(love.system.getClipboardText()) end
+  local function copy()
+    local t = input:get_selected_text()
+    love.system.setClipboardText(string.join(t, '\n'))
+  end
+  local function cut()
+    local t = input:pop_selected_text()
+    love.system.setClipboardText(string.join(t, '\n'))
+  end
   -- Ctrl held
   if ctrl then
     if k == "v" then
-      input:paste(love.system.getClipboardText())
+      paste()
+    end
+    if k == "c" or k == "insert" then
+      copy()
+    end
+    if k == "x" then
+      cut()
     end
     if k == "l" then
       out:clear()
@@ -146,18 +167,73 @@ function ConsoleController:keypressed(k)
   -- Shift held
   if shift then
     if k == "insert" then
-      input:paste(love.system.getClipboardText())
+      paste()
+    end
+    if k == "delete" then
+      cut()
     end
     if is_enter() then
       input:line_feed()
     end
+    input:hold_selection()
+  end
+end
+
+function ConsoleController:keyreleased(k)
+  if k == "lshift" or k == "rshift" then
+    local im = self.model.input
+    im:release_selection()
   end
 end
 
 function ConsoleController:textinput(t)
   -- TODO: block with events
   self.model.input:add_text(t)
-  self.model.input:text_change()
+end
+
+function ConsoleController:_translate_to_input_grid(x, y)
+  local cfg = self.model.output.cfg
+  local h = cfg.h
+  local fh = cfg.fh
+  local fw = cfg.fw
+  local line = math.floor((h - y) / fh)
+  local a, b = math.modf((x / fw))
+  local char = a + 1
+  if b > .5 then char = char + 1 end
+  return char, line
+end
+
+function ConsoleController:_handle_mouse(x, y, btn, handler)
+  if btn == 1 then
+    local im = self.model.input
+    local n_lines = #(im:get_wrapped_text())
+    local c, l = self:_translate_to_input_grid(x, y)
+    if l < n_lines then
+      handler(n_lines - l, c)
+    end
+  end
+end
+
+function ConsoleController:mousepressed(x, y, btn)
+  local im = self.model.input
+  self:_handle_mouse(x, y, btn, function(l, c)
+    im:mouse_click(l, c)
+  end)
+end
+
+function ConsoleController:mousereleased(x, y, btn)
+  local im = self.model.input
+  self:_handle_mouse(x, y, btn, function(l, c)
+    im:mouse_release(l, c)
+  end)
+  im:release_selection()
+end
+
+function ConsoleController:mousemoved(x, y)
+  local im = self.model.input
+  self:_handle_mouse(x, y, 1, function(l, c)
+    im:mouse_drag(l, c)
+  end)
 end
 
 function ConsoleController:get_terminal()
@@ -166,10 +242,14 @@ end
 
 function ConsoleController:get_input()
   local im = self.model.input
+  local wt, wt_info = im:get_wrapped_text()
   return {
     text = im:get_text(),
+    wrapped_text = wt,
+    wt_info = wt_info,
     error = im:get_error(),
     highlight = im:highlight(),
+    selection = im:get_ordered_selection(),
   }
 end
 

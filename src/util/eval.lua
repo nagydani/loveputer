@@ -1,4 +1,4 @@
-require("util/string")
+require("util.string")
 
 function parse_load_error(err)
   if string.is_non_empty_string(err) then

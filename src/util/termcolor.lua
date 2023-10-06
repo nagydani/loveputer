@@ -1,4 +1,4 @@
-require("util/color")
+require("util.color")
 
 local reset = '\27[0m'
 local to_control = function(ci)

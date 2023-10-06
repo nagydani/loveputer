@@ -1,4 +1,4 @@
-require("util/dequeue")
+require("util.dequeue")
 
 
 describe('Dequeue', function()

@@ -1,4 +1,4 @@
-require("util/debug")
+require("util.debug")
 
 describe('debugger #debug', function()
   it('empty', function()
