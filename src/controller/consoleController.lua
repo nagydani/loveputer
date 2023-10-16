@@ -247,7 +247,7 @@ function ConsoleController:get_input()
     text = im:get_text(),
     wrapped_text = wt,
     wt_info = wt_info,
-    error = im:get_error(),
+    wrapped_error = im:get_wrapped_error(),
     highlight = im:highlight(),
     selection = im:get_ordered_selection(),
   }

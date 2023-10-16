@@ -20,9 +20,9 @@ function InputModel:new(cfg)
     textEval = textEval,
     luaEval = luaEval,
     cursor = Cursor:new(),
-    error = nil,
     wrap = cfg.drawableChars,
     wrapped_text = {},
+    wrapped_error = {},
     cursor_wrap = {},
     wrap_reverse = {},
     n_breaks = 0,
@@ -557,17 +557,19 @@ end
 --   error    --
 ----------------
 function InputModel:clear_error()
-  self.error = nil
+  self.wrapped_error = nil
 end
 
-function InputModel:get_error()
-  return self.error
+function InputModel:get_wrapped_error()
+  return self.wrapped_error
 end
 
-function InputModel:set_error(error, is_load_error)
+function InputModel:set_error(error, is_call_error)
   if string.is_non_empty_string(error) then
     self.error = error
-    if not is_load_error then
+    self.wrapped_error = string.wrap_at(error, self.wrap)
+    -- orig_print(self.error)
+    if not is_call_error then
       self:history_back()
     end
   end
