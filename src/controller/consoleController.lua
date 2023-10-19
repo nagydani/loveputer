@@ -54,6 +54,10 @@ local function evaluate_input(input, output)
   end
 end
 
+local function reset(model)
+  model.output:reset()
+end
+
 function ConsoleController:keypressed(k)
   local out = self.model.output
   local input = self.model.input
@@ -151,7 +155,7 @@ function ConsoleController:keypressed(k)
       cut()
     end
     if k == "l" then
-      out:clear()
+      reset(self.model)
     end
     if love.DEBUG then
       if k == 't' then

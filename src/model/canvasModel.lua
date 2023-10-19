@@ -50,7 +50,7 @@ function CanvasModel:push(newResult)
   end
 end
 
-function CanvasModel:clear()
+function CanvasModel:reset()
   self.terminal:clear()
   self.terminal:move_to(1, 1)
 end

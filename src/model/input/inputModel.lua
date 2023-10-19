@@ -219,7 +219,7 @@ function InputModel:delete()
   self:text_change()
 end
 
-function InputModel:clear()
+function InputModel:clear_input()
   self.entered = InputText:new()
   self:text_change()
   self:clear_selection()
@@ -540,14 +540,14 @@ function InputModel:_handle(eval)
     if eval then
       ok, result = self.evaluator.apply(ent)
       if ok then
-        self:clear()
+        self:clear_input()
       else
         local l, c, err = self:get_eval_error(result)
         self:move_cursor(l, c + 1)
         self.error = err
       end
     else
-      self:clear()
+      self:clear_input()
     end
   end
   return ok, result
@@ -628,7 +628,7 @@ function InputModel:history_fwd()
       self:_set_text(next)
       self.historic_index = hi + 1
     else
-      self:clear()
+      self:clear_input()
     end
   else
     self:cancel()
