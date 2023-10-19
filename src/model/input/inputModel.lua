@@ -228,6 +228,11 @@ function InputModel:clear_input()
   self.tokens = nil
 end
 
+function InputModel:reset()
+  self.history = Dequeue:new()
+  self:clear_input()
+end
+
 function InputModel:text_change()
   local ev = self.evaluator
   if ev.kind == 'lua' then

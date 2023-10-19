@@ -56,6 +56,7 @@ end
 
 local function reset(model)
   model.output:reset()
+  model.input:reset()
 end
 
 function ConsoleController:keypressed(k)
