@@ -19,4 +19,7 @@ function love.conf(t)
   end
   love.fixHeight = t.window.height
   love.fixWidth = t.window.width
+
+  -- Android: use SD card for storage
+  t.externalstorage = true
 end
