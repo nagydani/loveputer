@@ -39,11 +39,12 @@ end
 ----------------
 function InputModel:add_text(text)
   if type(text) == 'string' then
-    local sl, cc = self:_get_cursor_pos()
-    local cur_line = self:get_text_line(sl)
+    self:pop_selected_text()
+    local sl, cc    = self:_get_cursor_pos()
+    local cur_line  = self:get_text_line(sl)
     local pre, post = string.split_at(cur_line, cc)
-    local lines = string.lines(text)
-    local n_added = #lines
+    local lines     = string.lines(text)
+    local n_added   = #lines
     if n_added == 1 then
       local nval = string.interleave(pre, text, post)
       self:_set_text_line(nval, sl, true)
@@ -165,6 +166,7 @@ function InputModel:paste(text)
 end
 
 function InputModel:backspace()
+  self:pop_selected_text()
   local line = self:_get_current_line()
   local cl, cc = self:_get_cursor_pos()
   local newcl = cl - 1
@@ -194,6 +196,7 @@ function InputModel:backspace()
 end
 
 function InputModel:delete()
+  self:pop_selected_text()
   local line = self:_get_current_line()
   local cl, cc = self:_get_cursor_pos()
   local pre, post
@@ -763,12 +766,14 @@ function InputModel:pop_selected_text()
   local t = self.selection.text
   local start = self.selection.start
   local fin = self.selection.fin
-  local from, to = self:diff_cursors(start, fin)
-  self:get_text():traverse(from, to, { delete = true })
-  self:text_change()
-  self:move_cursor(from.l, from.c)
-  self:clear_selection()
-  return t
+  if start and fin then
+    local from, to = self:diff_cursors(start, fin)
+    self:get_text():traverse(from, to, { delete = true })
+    self:text_change()
+    self:move_cursor(from.l, from.c)
+    self:clear_selection()
+    return t
+  end
 end
 
 function InputModel:clear_selection()
