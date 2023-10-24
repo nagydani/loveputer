@@ -2,13 +2,17 @@ ConsoleController = {}
 
 require("util.testTerminal")
 require("util.eval")
+require("util.table")
 
 local G = love.graphics
 
 function ConsoleController:new(m)
+  local env = getfenv()
   local cc = {
     time = 0,
     model = m,
+    base_env = table.clone(env),
+    env = table.clone(env),
   }
   setmetatable(cc, self)
   self.__index = self
@@ -33,7 +37,7 @@ function ConsoleController:evaluate_input()
   local syntax_ok, res = input:evaluate()
   if syntax_ok then
     local code = string.join(text, '\n')
-    local f, load_err = loadstring(code)
+    local f, load_err = load(code, '', 't', self.env)
     if f then
       G.push('all')
       output:draw_to()
@@ -57,14 +61,14 @@ function ConsoleController:evaluate_input()
   end
 end
 
-local function reset(model)
-  model.output:reset()
-  model.input:reset()
+function ConsoleController:_reset_executor_env()
+  self.env = table.clone(self.base_env)
+end
 
 function ConsoleController:reset()
   self.model.output:reset()
   self.model.input:reset()
-  self:_reset_executor_coroutine()
+  self:_reset_executor_env()
 end
 
 function ConsoleController:keypressed(k)

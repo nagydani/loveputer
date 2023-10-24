@@ -91,10 +91,9 @@ function love.load(args)
   love.window.aspect = G.getWidth() / G.getHeight()
 
   M = Console:new(baseconf)
+  redirect_to(M)
   C = ConsoleController:new(M)
   V = ConsoleView:new(baseconf, C)
-
-  redirect_to(M)
 
   if testrun then
     C:autotest()
