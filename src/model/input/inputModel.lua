@@ -719,18 +719,20 @@ function InputModel:end_selection(l, c)
   self.selection.text = sel
 end
 
-function InputModel:hold_selection()
-  local cur_start = self:get_selection().start
-  local cur_end = self:get_selection().fin
-  if cur_start and cur_start.l and cur_start.c then
-    self:start_selection(cur_start.l, cur_start.c)
-  else
-    self:start_selection()
-  end
-  if cur_end and cur_end.l and cur_end.c then
-    self:end_selection(cur_end.l, cur_end.c)
-  else
-    self:end_selection()
+function InputModel:hold_selection(is_mouse)
+  if not is_mouse then
+    local cur_start = self:get_selection().start
+    local cur_end = self:get_selection().fin
+    if cur_start and cur_start.l and cur_start.c then
+      self:start_selection(cur_start.l, cur_start.c)
+    else
+      self:start_selection()
+    end
+    if cur_end and cur_end.l and cur_end.c then
+      self:end_selection(cur_end.l, cur_end.c)
+    else
+      self:end_selection()
+    end
   end
   self.selection.held = true
 end
@@ -785,7 +787,7 @@ function InputModel:mouse_click(l, c)
   local li, ci = self:translate_grid_to_cursor(l, c)
   self:clear_selection()
   self:start_selection(li, ci)
-  self:hold_selection()
+  self:hold_selection(true)
 end
 
 function InputModel:mouse_release(l, c)
