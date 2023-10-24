@@ -377,7 +377,7 @@ function InputModel:cursor_vertical_move(dir)
   local full_lines = math.floor(llen / w)
   local function move(is_inline, is_not_last_line)
     local keep = (function()
-      if self.selection:isHeld() then
+      if self.selection:is_held() then
         return 'keep'
       end
     end)()
@@ -467,7 +467,7 @@ function InputModel:cursor_left()
     end
   end)()
 
-  if self.selection:isHeld() then
+  if self.selection:is_held() then
     self:move_cursor(nl, nc, 'keep')
     self:end_selection()
   else
@@ -488,7 +488,7 @@ function InputModel:cursor_right()
     end
   end)()
 
-  if self.selection:isHeld() then
+  if self.selection:is_held() then
     self:end_selection(cl, cc + 1)
     self:move_cursor(nl, nc, 'keep')
   else
@@ -498,7 +498,7 @@ end
 
 function InputModel:jump_home()
   local keep = (function()
-    if self.selection:isHeld() then
+    if self.selection:is_held() then
       return 'keep'
     end
   end)()
@@ -512,7 +512,7 @@ function InputModel:jump_end()
   local last_line = #ent
   local last_char = string.ulen(ent[last_line]) + 1
   local keep = (function()
-    if self.selection:isHeld() then
+    if self.selection:is_held() then
       return 'keep'
     end
   end)()
