@@ -33,3 +33,19 @@ function Cursor:compare(other)
     end
   end
 end
+
+function Cursor:is_before(other)
+  if other and other.l and other.c then
+    return 0 < self:compare(other)
+  else
+    return false
+  end
+end
+
+function Cursor:is_after(other)
+  if other and other.l and other.c then
+    return 0 > self:compare(other)
+  else
+    return false
+  end
+end
