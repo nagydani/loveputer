@@ -54,9 +54,10 @@ function ConsoleController:evaluate_input()
       orig_print(load_err)
     end
   else
-    local eval_err = input:get_eval_error(res)
+    local l, c, eval_err = input:get_eval_error(res)
     if string.is_non_empty_string(eval_err) then
       orig_print(eval_err)
+      input:set_error(eval_err)
     end
   end
 end
@@ -89,7 +90,10 @@ function ConsoleController:keypressed(k)
     end
   end
 
-  input:clear_error()
+  if input:has_error() then
+    input:clear_error()
+    return
+  end
 
   if love.state.testing == 'running' then
     return

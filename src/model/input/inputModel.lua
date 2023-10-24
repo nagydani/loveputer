@@ -569,11 +569,14 @@ function InputModel:get_wrapped_error()
   return self.wrapped_error
 end
 
+function InputModel:has_error()
+  return string.is_non_empty_string_array(self.wrapped_error)
+end
+
 function InputModel:set_error(error, is_call_error)
   if string.is_non_empty_string(error) then
     self.error = error
     self.wrapped_error = string.wrap_at(error, self.wrap)
-    -- orig_print(self.error)
     if not is_call_error then
       self:history_back()
     end
