@@ -25,7 +25,10 @@ function ConsoleController:get_timestamp()
   return self.time
 end
 
-local function evaluate_input(input, output)
+function ConsoleController:evaluate_input()
+  local output = self.model.output
+  local input = self.model.input
+
   local text = input:get_text()
   local syntax_ok, res = input:evaluate()
   if syntax_ok then
@@ -57,6 +60,11 @@ end
 local function reset(model)
   model.output:reset()
   model.input:reset()
+
+function ConsoleController:reset()
+  self.model.output:reset()
+  self.model.input:reset()
+  self:_reset_executor_coroutine()
 end
 
 function ConsoleController:keypressed(k)
@@ -128,7 +136,7 @@ function ConsoleController:keypressed(k)
     end
 
     if not shift and is_enter() then
-      evaluate_input(input, out)
+      self:evaluate_input()
     end
     if not ctrl and k == "escape" then
       input:cancel()
@@ -156,7 +164,7 @@ function ConsoleController:keypressed(k)
       cut()
     end
     if k == "l" then
-      reset(self.model)
+      self:reset()
     end
     if love.DEBUG then
       if k == 't' then
@@ -276,6 +284,6 @@ function ConsoleController:autotest()
   for _ = 1, (w * h) do
     input:add_text(char)
   end
-  evaluate_input(input, output)
+  self:evaluate_input()
   input:add_text(char)
 end
