@@ -20,9 +20,9 @@ function InputModel:new(cfg)
     textEval = textEval,
     luaEval = luaEval,
     cursor = Cursor:new(),
-    error = nil,
     wrap = cfg.drawableChars,
     wrapped_text = {},
+    wrapped_error = {},
     cursor_wrap = {},
     wrap_reverse = {},
     n_breaks = 0,
@@ -39,11 +39,12 @@ end
 ----------------
 function InputModel:add_text(text)
   if type(text) == 'string' then
-    local sl, cc = self:_get_cursor_pos()
-    local cur_line = self:get_text_line(sl)
+    self:pop_selected_text()
+    local sl, cc    = self:_get_cursor_pos()
+    local cur_line  = self:get_text_line(sl)
     local pre, post = string.split_at(cur_line, cc)
-    local lines = string.lines(text)
-    local n_added = #lines
+    local lines     = string.lines(text)
+    local n_added   = #lines
     if n_added == 1 then
       local nval = string.interleave(pre, text, post)
       self:_set_text_line(nval, sl, true)
@@ -165,6 +166,7 @@ function InputModel:paste(text)
 end
 
 function InputModel:backspace()
+  self:pop_selected_text()
   local line = self:_get_current_line()
   local cl, cc = self:_get_cursor_pos()
   local newcl = cl - 1
@@ -194,6 +196,7 @@ function InputModel:backspace()
 end
 
 function InputModel:delete()
+  self:pop_selected_text()
   local line = self:_get_current_line()
   local cl, cc = self:_get_cursor_pos()
   local pre, post
@@ -219,13 +222,18 @@ function InputModel:delete()
   self:text_change()
 end
 
-function InputModel:clear()
+function InputModel:clear_input()
   self.entered = InputText:new()
   self:text_change()
   self:clear_selection()
   self:_update_cursor(true)
   self.historic_index = nil
   self.tokens = nil
+end
+
+function InputModel:reset()
+  self.history = Dequeue:new()
+  self:clear_input()
 end
 
 function InputModel:text_change()
@@ -369,7 +377,7 @@ function InputModel:cursor_vertical_move(dir)
   local full_lines = math.floor(llen / w)
   local function move(is_inline, is_not_last_line)
     local keep = (function()
-      if self.selection:isHeld() then
+      if self.selection:is_held() then
         return 'keep'
       end
     end)()
@@ -459,7 +467,7 @@ function InputModel:cursor_left()
     end
   end)()
 
-  if self.selection:isHeld() then
+  if self.selection:is_held() then
     self:move_cursor(nl, nc, 'keep')
     self:end_selection()
   else
@@ -480,7 +488,7 @@ function InputModel:cursor_right()
     end
   end)()
 
-  if self.selection:isHeld() then
+  if self.selection:is_held() then
     self:end_selection(cl, cc + 1)
     self:move_cursor(nl, nc, 'keep')
   else
@@ -490,7 +498,7 @@ end
 
 function InputModel:jump_home()
   local keep = (function()
-    if self.selection:isHeld() then
+    if self.selection:is_held() then
       return 'keep'
     end
   end)()
@@ -504,7 +512,7 @@ function InputModel:jump_end()
   local last_line = #ent
   local last_char = string.ulen(ent[last_line]) + 1
   local keep = (function()
-    if self.selection:isHeld() then
+    if self.selection:is_held() then
       return 'keep'
     end
   end)()
@@ -540,14 +548,14 @@ function InputModel:_handle(eval)
     if eval then
       ok, result = self.evaluator.apply(ent)
       if ok then
-        self:clear()
+        self:clear_input()
       else
         local l, c, err = self:get_eval_error(result)
         self:move_cursor(l, c + 1)
         self.error = err
       end
     else
-      self:clear()
+      self:clear_input()
     end
   end
   return ok, result
@@ -557,17 +565,22 @@ end
 --   error    --
 ----------------
 function InputModel:clear_error()
-  self.error = nil
+  self.wrapped_error = nil
 end
 
-function InputModel:get_error()
-  return self.error
+function InputModel:get_wrapped_error()
+  return self.wrapped_error
 end
 
-function InputModel:set_error(error, is_load_error)
+function InputModel:has_error()
+  return string.is_non_empty_string_array(self.wrapped_error)
+end
+
+function InputModel:set_error(error, is_call_error)
   if string.is_non_empty_string(error) then
     self.error = error
-    if not is_load_error then
+    self.wrapped_error = string.wrap_at(error, self.wrap)
+    if not is_call_error then
       self:history_back()
     end
   end
@@ -626,7 +639,7 @@ function InputModel:history_fwd()
       self:_set_text(next)
       self.historic_index = hi + 1
     else
-      self:clear()
+      self:clear_input()
     end
   else
     self:cancel()
@@ -706,18 +719,20 @@ function InputModel:end_selection(l, c)
   self.selection.text = sel
 end
 
-function InputModel:hold_selection()
-  local cur_start = self:get_selection().start
-  local cur_end = self:get_selection().fin
-  if cur_start and cur_start.l and cur_start.c then
-    self:start_selection(cur_start.l, cur_start.c)
-  else
-    self:start_selection()
-  end
-  if cur_end and cur_end.l and cur_end.c then
-    self:end_selection(cur_end.l, cur_end.c)
-  else
-    self:end_selection()
+function InputModel:hold_selection(is_mouse)
+  if not is_mouse then
+    local cur_start = self:get_selection().start
+    local cur_end = self:get_selection().fin
+    if cur_start and cur_start.l and cur_start.c then
+      self:start_selection(cur_start.l, cur_start.c)
+    else
+      self:start_selection()
+    end
+    if cur_end and cur_end.l and cur_end.c then
+      self:end_selection(cur_end.l, cur_end.c)
+    else
+      self:end_selection()
+    end
   end
   self.selection.held = true
 end
@@ -753,12 +768,14 @@ function InputModel:pop_selected_text()
   local t = self.selection.text
   local start = self.selection.start
   local fin = self.selection.fin
-  local from, to = self:diff_cursors(start, fin)
-  self:get_text():traverse(from, to, { delete = true })
-  self:text_change()
-  self:move_cursor(from.l, from.c)
-  self:clear_selection()
-  return t
+  if start and fin then
+    local from, to = self:diff_cursors(start, fin)
+    self:get_text():traverse(from, to, { delete = true })
+    self:text_change()
+    self:move_cursor(from.l, from.c)
+    self:clear_selection()
+    return t
+  end
 end
 
 function InputModel:clear_selection()
@@ -770,7 +787,7 @@ function InputModel:mouse_click(l, c)
   local li, ci = self:translate_grid_to_cursor(l, c)
   self:clear_selection()
   self:start_selection(li, ci)
-  self:hold_selection()
+  self:hold_selection(true)
 end
 
 function InputModel:mouse_release(l, c)

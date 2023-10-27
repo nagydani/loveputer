@@ -15,6 +15,6 @@ function Selection:new()
   return s
 end
 
-function Selection:isHeld()
+function Selection:is_held()
   return self.held
 end

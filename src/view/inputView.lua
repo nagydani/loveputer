@@ -29,11 +29,11 @@ function InputView:draw(input)
   local drawableWidth = self.cfg.drawableWidth
   local drawableChars = self.cfg.drawableChars
 
-  local isError = string.is_non_empty_string(input.error)
+  local isError = string.is_non_empty_string_array(input.wrapped_error)
   local highlight = input.highlight
   local text = (function()
     if isError then
-      return string.wrap_at(input.error, drawableChars - 1)
+      return input.wrapped_error
     else
       return input.text
     end
@@ -44,7 +44,13 @@ function InputView:draw(input)
   local y = h - b - inHeight
 
   local apparentHeight = inHeight
-  local display = input.wrapped_text
+  local display = (function()
+    if isError then
+      return input.wrapped_error
+    else
+      return input.wrapped_text
+    end
+  end)()
   local wt_info = input.wt_info
   local cursor_wrap = wt_info.cursor_wrap
   local wrap_reverse = wt_info.wrap_reverse

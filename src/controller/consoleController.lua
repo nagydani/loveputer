@@ -2,13 +2,17 @@ ConsoleController = {}
 
 require("util.testTerminal")
 require("util.eval")
+require("util.table")
 
 local G = love.graphics
 
 function ConsoleController:new(m)
+  local env = getfenv()
   local cc = {
     time = 0,
     model = m,
+    base_env = table.clone(env),
+    env = table.clone(env),
   }
   setmetatable(cc, self)
   self.__index = self
@@ -25,12 +29,15 @@ function ConsoleController:get_timestamp()
   return self.time
 end
 
-local function evaluate_input(input, output)
+function ConsoleController:evaluate_input()
+  local output = self.model.output
+  local input = self.model.input
+
   local text = input:get_text()
   local syntax_ok, res = input:evaluate()
   if syntax_ok then
     local code = string.join(text, '\n')
-    local f, load_err = loadstring(code)
+    local f, load_err = load(code, '', 't', self.env)
     if f then
       G.push('all')
       output:draw_to()
@@ -47,11 +54,22 @@ local function evaluate_input(input, output)
       orig_print(load_err)
     end
   else
-    local eval_err = input:get_eval_error(res)
+    local l, c, eval_err = input:get_eval_error(res)
     if string.is_non_empty_string(eval_err) then
       orig_print(eval_err)
+      input:set_error(eval_err)
     end
   end
+end
+
+function ConsoleController:_reset_executor_env()
+  self.env = table.clone(self.base_env)
+end
+
+function ConsoleController:reset()
+  self.model.output:reset()
+  self.model.input:reset()
+  self:_reset_executor_env()
 end
 
 function ConsoleController:keypressed(k)
@@ -72,7 +90,10 @@ function ConsoleController:keypressed(k)
     end
   end
 
-  input:clear_error()
+  if input:has_error() then
+    input:clear_error()
+    return
+  end
 
   if love.state.testing == 'running' then
     return
@@ -123,7 +144,7 @@ function ConsoleController:keypressed(k)
     end
 
     if not shift and is_enter() then
-      evaluate_input(input, out)
+      self:evaluate_input()
     end
     if not ctrl and k == "escape" then
       input:cancel()
@@ -151,7 +172,7 @@ function ConsoleController:keypressed(k)
       cut()
     end
     if k == "l" then
-      out:clear()
+      self:reset()
     end
     if love.DEBUG then
       if k == 't' then
@@ -247,7 +268,7 @@ function ConsoleController:get_input()
     text = im:get_text(),
     wrapped_text = wt,
     wt_info = wt_info,
-    error = im:get_error(),
+    wrapped_error = im:get_wrapped_error(),
     highlight = im:highlight(),
     selection = im:get_ordered_selection(),
   }
@@ -271,6 +292,6 @@ function ConsoleController:autotest()
   for _ = 1, (w * h) do
     input:add_text(char)
   end
-  evaluate_input(input, output)
+  self:evaluate_input()
   input:add_text(char)
 end
