@@ -272,6 +272,8 @@ local inputs = {
       ']]',
     }
   },
+  --literal
+  { compiles = false, code = { "local x = 'asd" } },
 }
 
 local parser_debug = os.getenv("PARSER_DEBUG")
