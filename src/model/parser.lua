@@ -56,13 +56,18 @@ return function(lib)
     return pcall(parser, mlc, stream)
   end
 
+
+  --- Parses code to AST
+  ---@param code table
+  ---@return boolean success
+  ---@return string? errmsg
   local parse = function(code)
     local stream = stream_tokens(code)
     return parse_stream(stream)
   end
 
   --- Finds error location and message in parse result
-  ---@param result table
+  ---@param result string
   ---@return number line
   ---@return number char
   ---@return string err_msg
