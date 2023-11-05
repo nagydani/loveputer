@@ -286,21 +286,42 @@ describe('parse #parser', function()
       -- print(Debug.text_table(input.code, true))
       -- print(Debug.terse_t(r))
       if parser_debug then
-        print(tag, string.join(input.code, '⏎ '))
         if not ok then
-          local l, c, err = parser.get_error(r)
+          print(tag, string.join(input.code, '⏎ '))
+          local l, c, err = parser.get_error(r or '')
           local error = l .. ':' .. c .. ' | ' .. err
           if string.is_non_empty_string(err) then
             term.print_c(Color.red, error)
           end
+          for ln, line in pairs(input.code) do
+            if ln == l then
+              local ll = string.ulen(line)
+              for ch = 1, ll do
+                if ch <= c then
+                  term.print_c(Color.white, string.usub(line, ch, ch), true)
+                else
+                  term.print_c(Color.magenta, string.usub(line, ch, ch), true)
+                end
+              end
+              print()
+              for _ = 1, c do io.write(' ') end
+              term.print_c(Color.red, '^')
+            elseif ln > l then
+              term.print_c(Color.magenta, line)
+            else
+              term.print_c(Color.white, line)
+            end
+          end
+          print()
         else
+          print(tag, string.join(input.code, '⏎ '))
           local pp = parser.pprint(input.code)
           if string.is_non_empty_string(pp) then
             term.print_c(Color.green, pp)
           end
         end
       end
-      assert.equals(ok, input.compiles)
+      assert.are_equal(ok, input.compiles)
     end)
   end
 end)
