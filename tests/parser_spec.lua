@@ -25,10 +25,19 @@ describe('parse #parser', function()
       local ok, r = parser.parse(input.code)
       -- print(Debug.text_table(input.code, true))
       -- print(Debug.terse_t(r))
+      local l, c, err
+      if not ok then
+        l, c, err = parser.get_error(r or '')
+        if input.error then
+          local el = input.error.l
+          local ec = input.error.c
+          assert.are_equal(l, el)
+          assert.are_equal(c, ec)
+        end
+      end
       if parser_debug then
         if not ok then
           print(tag, string.join(input.code, '⏎ '))
-          local l, c, err = parser.get_error(r or '')
           local error = l .. ':' .. c .. ' | ' .. err
           if string.is_non_empty_string(err) then
             term.print_c(Color.red, error)

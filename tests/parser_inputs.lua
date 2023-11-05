@@ -1,262 +1,234 @@
+require("model.input.cursor")
+
+
+local function test_case(code, compiles, error_loc)
+  return {
+    code = code,
+    compiles = compiles,
+    error = error_loc
+  }
+end
+
+local function valid(code)
+  return test_case(code, true)
+end
+local function invalid(code, error)
+  return test_case(code, false, error)
+end
+
 return {
-  {
-    compiles = false,
-    code = { 'úő' },
-    error = Cursor:inline(1)
-  },
-  {
-    compiles = true,
-    code = { 'local s = "úő"' }
-  },
-  { compiles = false, code = { 'local' } },
-  { compiles = true,  code = { 'local a' } },
-  { compiles = true,  code = { 'local x = 1', } },
-  { compiles = false, code = { 'local 1' } },
-  { compiles = true,  code = { 'a = 1' } },
-  { compiles = true,  code = { 'a = 1, 2' } },
-  { compiles = true,  code = { 'a, b = 1, 2' } },
-  { compiles = true,  code = { 'a.b = 1' } },
-  { compiles = true,  code = { 'a.b.c = 1' } },
-  { compiles = true,  code = { 'a[b] = 1' } },
-  { compiles = true,  code = { 'a[b][c] = 1' } },
-  { compiles = true,  code = { 'a.b[c] = 1' } },
-  { compiles = true,  code = { 'a[b].c = 1' } },
-  { compiles = false, code = { '0 =' } },
-  { compiles = false, code = { '"x" =' } },
-  { compiles = false, code = { 'true =' } },
-  { compiles = false, code = { '(a) =' } },
-  { compiles = false, code = { 'a = 1 2' } },
-  { compiles = false, code = { 'a = b = 2' } },
+  -- identifiers
+  valid({ 'local s = "úő"' }),
+  valid({ 'local a' }),
+  valid({ 'local x = 1', }),
+  valid({ 'a = 1' }),
+  valid({ 'a = 1, 2' }),
+  valid({ 'a, b = 1, 2' }),
+  valid({ 'a.b = 1' }),
+  valid({ 'a.b.c = 1' }),
+  valid({ 'a[b] = 1' }),
+  valid({ 'a[b][c] = 1' }),
+  valid({ 'a[b].c = 1' }),
+  valid({ 'a.b[c] = 1' }),
+  valid({ '(1)()' }),
+  valid({ '("foo")()' }),
+  valid({ '(a)()()' }),
+  valid({ 'a"foo"' }),
+  valid({ 'a[[foo]]' }),
+  valid({ 'do end' }),
 
-  { compiles = true,  code = { '(1)()' } },
-  { compiles = true,  code = { '("foo")()' } },
-  { compiles = true,  code = { '(a)()()' } },
-  { compiles = true,  code = { 'a"foo"' } },
-  { compiles = true,  code = { 'a[[foo]]' } },
+  -- branching
+  valid({ 'if 1 then end' }),
+  valid({ 'if 1 then return end' }),
+  valid({ 'if 1 then else end' }),
+  valid({ 'if 1 then elseif 2 then end' }),
 
-  { compiles = true,  code = { 'do end' } },
-  { compiles = false, code = { 'do do end' } },
-  { compiles = false, code = { 'do end do' } },
+  -- loops
+  valid({ 'repeat until 0' }),
+  valid({ 'for i=1, 5 do print(i) end' }),
+  valid({ 'for a in b do end' }),
+  valid({ 'for a = 1, 2 do end' }),
+  valid({
+    'for i=1,5 do',
+    '  print(i)',
+    'end',
+  }),
 
-  { compiles = false, code = { 'while 1 do 2 end' } },
-  { compiles = false, code = { 'while 1 end' } },
-  { compiles = false, code = { 'repeat until' } },
-  { compiles = true,  code = { 'repeat until 0' } },
+  -- function
+  valid({ 'function f() end' }),
+  valid({ 'function f(p) end' }),
+  valid({ 'function a.f() end' }),
+  valid({ 'function a:f() end' }),
+  valid({ 'function f(...) end' }),
+  valid({ 'function f(p, ...) end' }),
+  -- invalid({ 'function f(p,) end' } ),
+  -- invalid({ 'function f(..., end' } ),
+  valid({ 'return 1' }),
 
-  { compiles = true,  code = { 'for i=1, 5 do print(i) end' } },
-  { compiles = false, code = { 'for' } },
-  { compiles = false, code = { 'for do' } },
-  { compiles = false, code = { 'for end' } },
-  { compiles = false, code = { 'for 1' } },
-  { compiles = true,  code = { 'for a in b do end' } },
-  { compiles = false, code = { 'for a b in' } },
-  { compiles = false, code = { 'for a =' } },
-  { compiles = false, code = { 'for a, b =' } },
-  { compiles = false, code = { 'for a = 1, 2, 3, 4 do end' } },
-  { compiles = true,  code = { 'for a = 1, 2 do end' } },
-  {
-    compiles = true,
-    code = {
-      'for i=1,5 do',
-      '  print(i)',
-      'end',
-    }
-  },
-  {
-    compiles = false,
-    code = {
-      'for i=1,5',
-      '  print(i)',
-      'end',
-    }
-  },
-  {
-    compiles = false,
-    code = {
-      'for i=1,5 then',
-      '  print(i)',
-      'end',
-    }
-  },
-  {
-    compiles = false,
-    code = {
-      'for i=1,5 do',
-      '  print(i)',
-    }
-  },
-
-  { compiles = false, code = { 'return return' } },
-  -- { compiles = false, code = { 'return 1,' } },
-  { compiles = true,  code = { 'return 1' } },
-
-  { compiles = false, code = { 'if' } },
-  { compiles = false, code = { 'elseif' } },
-  { compiles = false, code = { 'then' } },
-  { compiles = false, code = { 'if then' } },
-  { compiles = true,  code = { 'if 1 then end' } },
-  { compiles = true,  code = { 'if 1 then return end' } },
-  { compiles = true,  code = { 'if 1 then else end' } },
-  { compiles = true,  code = { 'if 1 then elseif 2 then end' } },
-
-  { compiles = false, code = { 'function' } },
-  { compiles = false, code = { 'function end' } },
-  { compiles = false, code = { 'function f end' } },
-  { compiles = false, code = { 'function f( end' } },
-  { compiles = true,  code = { 'function f() end' } },
-  { compiles = true,  code = { 'function f(p) end' } },
-  -- { compiles = false, code = { 'function f(p,) end' } },
-  { compiles = true,  code = { 'function a.f() end' } },
-  { compiles = true,  code = { 'function a:f() end' } },
-  { compiles = true,  code = { 'function f(...) end' } },
-  { compiles = false, code = { 'function f(..., end' } },
-  { compiles = true,  code = { 'function f(p, ...) end' } },
   -- tables
-  { compiles = true,  code = { 'a = { a=1, b="foo", c=nil }' } },
-  { compiles = true,  code = { 'a = {  }' } },
-  { compiles = true,  code = { 'a = {{{}}}' } },
-  { compiles = false, code = { 'a = {' } },
-  { compiles = false, code = { 'a = {,}' } },
-  { compiles = true,  code = { 'a = { ["foo"]="bar" }' } },
-  { compiles = true,  code = { 'a = { [1]=a, [2]=b, }' } },
-  { compiles = true,  code = { 'a = { true, a=1; ["foo"]="bar", }' } },
+  valid({ 'a = { a=1, b="foo", c=nil }' }),
+  valid({ 'a = {  }' }),
+  valid({ 'a = {{{}}}' }),
+  valid({ 'a = { ["foo"]="bar" }' }),
+  valid({ 'a = { [1]=a, [2]=b, }' }),
+  valid({ 'a = { true, a=1; ["foo"]="bar", }' }),
+
   -- comments
-  {
-    compiles = true,
-    code = {
-      '-- this loop is rad',
-      'for i=1,5 do',
-      '  print(i)',
-      'end',
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      '--- it foos the bar',
-      '---@param bar table',
-      'function foo(bar)',
-      'end',
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      'function foo()',
-      '  -- TODO: foo the bar',
-      'end',
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      'for i=1,5 do',
-      '  print(i)',
-      'end -- done',
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      "--[[ multiline",
-      "comment",
-      'あいうえお --]]',
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      "--[[ multiline",
-      "    =-=",
-      "comment --]] -- another comment",
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      "-- comment",
-      "  --[[ multiline",
-      " |-|",
-      "comment --]]",
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      "local a = 1 --[[ multiline",
-      "comment --]] -- another comment",
-      "a = 2",
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      "local a",
-      "  -- comment",
-      "--[[ multiline",
-      "comment --]]",
-      "a = 2",
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      "print('когда') --[[ function foo()",
-      'end --]]',
-    }
-  },
-  {
-    compiles = false,
-    code = {
-      'for i=1,5 do --[[ inserting',
-      '  a multiline comment',
-      '  without closing',
-      '  fp',
-      'end',
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      '  --[[',
-      '     wtf',
-      '  --]]',
-    }
-  },
+  valid({
+    '-- this loop is rad',
+    'for i=1,5 do',
+    '  print(i)',
+    'end',
+  }),
+  valid({
+    '--- it foos the bar',
+    '---@param bar table',
+    'function foo(bar)',
+    'end',
+  }),
+  valid({
+    'function foo()',
+    '  -- TODO: foo the bar',
+    'end',
+  }),
+  valid({
+    'for i=1,5 do',
+    '  print(i)',
+    'end -- done',
+  }),
+  valid({
+    "--[[ multiline",
+    "comment",
+    'あいうえお --]]',
+  }),
+  valid({
+    "--[[ multiline",
+    "    =-=",
+    "comment --]] -- another comment",
+  }),
+  valid({
+    "-- comment",
+    "  --[[ multiline",
+    " |-|",
+    "comment --]]",
+  }),
+  valid({
+    "local a = 1 --[[ multiline",
+    "comment --]] -- another comment",
+    "a = 2",
+  }),
+  valid({
+    "local a",
+    "  -- comment",
+    "--[[ multiline",
+    "comment --]]",
+    "a = 2",
+  }),
+  valid({
+    "print('когда') --[[ function foo()",
+    'end --]]',
+  }),
+  valid({
+    '  --[[',
+    '     wtf',
+    '  --]]',
+  }),
+  valid({
+    'local ml = [[ multi',
+    '  line',
+    '  string',
+    ']]',
+  }),
+  valid({
+    'local ml = [[ multiline',
+    '  string',
+    ']] -- comment',
+  }),
+  valid({
+    '  local ml = [[',
+    '     string',
+    ']]',
+  }),
+
+  ---------------------------
+  --- invalid
+  ---------------------------
+
+  --- identifiers
+  invalid({ 'úő' }, Cursor:inline(0)),
+  invalid({ 'local' }, Cursor:inline(0)),
+  invalid({ 'local 1' }, Cursor:inline(0)),
+  invalid({ '0 =' }, Cursor:inline(3)),
+  invalid({ '"x" =' }, Cursor:inline(5)),
+  invalid({ 'true =' }, Cursor:inline(6)),
+  invalid({ '(a) =' }, Cursor:inline(5)),
+  invalid({ 'a = 1 2' }, Cursor:inline(5)),
+  invalid({ 'a = b = 2' }, Cursor:inline(5)),
+
+  invalid({ 'do do end' }, Cursor:inline(9)),
+  invalid({ 'do end do' }, Cursor:inline(9)),
+
+  -- loop
+  invalid({ 'while 1 do 2 end' }, Cursor:inline(10)),
+  invalid({ 'while 1 end' }, Cursor:inline(7)),
+  invalid({ 'repeat until' }, Cursor:inline(12)),
+
+  invalid({ 'for' }, Cursor:inline(0)),
+  invalid({ 'for do' }, Cursor:inline(0)),
+  invalid({ 'for end' }, Cursor:inline(0)),
+  invalid({ 'for 1' }, Cursor:inline(0)),
+  invalid({ 'for a b in' }, Cursor:inline(5)),
+  invalid({ 'for a =' }, Cursor:inline(7)),
+  invalid({ 'for a, do end' }, Cursor:inline(5)),
+  invalid({ 'for a, b =' }, Cursor:inline(6)),
+  invalid({ 'for a = 1, 2, 3, 4 do end' }, Cursor:inline(16)),
+  invalid({
+    'for i=1,5',
+    '  print(i)',
+    'end',
+  }, Cursor:inline(9)),
+  invalid({
+    'for i=1,5 then',
+    '  print(i)',
+    'end',
+  }, Cursor:inline(9)),
+  invalid({
+    'for i=1,5 do',
+    '  print(i)',
+  }, Cursor:new(2, 10)),
+
+  invalid({ 'function' }, Cursor:inline(0)),
+  invalid({ 'function end' }, Cursor:inline(0)),
+  invalid({ 'function f end' }, Cursor:inline(10)),
+  invalid({ 'function f( end' }, Cursor:inline(10)),
+  invalid({ 'return return' }, Cursor:inline(6)),
+  -- invalid({ 'return 1,' }),
+
+  invalid({ 'if' }, Cursor:inline(0)),
+  invalid({ 'elseif' }, Cursor:inline(0)),
+  invalid({ 'then' }, Cursor:inline(0)),
+  invalid({ 'if then' }, Cursor:inline(2)),
+
+  -- tables
+  invalid({ 'a = {' }, Cursor:inline(5)),
+  invalid({ 'a = {,}' }, Cursor:inline(5)),
+
+  -- comments
+  invalid({
+    'for i=1,5 do --[[ inserting',
+    '  a multiline comment',
+    '  without closing',
+    '  fp',
+    'end',
+  }, Cursor:inline(12)),
+
   -- multiline string
-  {
-    compiles = false,
-    code = {
-      'local ml = [[',
-      '  multiline string',
-      '  without closing',
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      'local ml = [[ multi',
-      '  line',
-      '  string',
-      ']]',
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      'local ml = [[ multiline',
-      '  string',
-      ']] -- comment',
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      '  local ml = [[',
-      '     string',
-      ']]',
-    }
-  },
-  --literal
-  { compiles = false, code = { "local x = 'asd" } },
+  invalid({
+    'local ml = [[',
+    '  multiline string',
+    '  without closing',
+  }, Cursor:inline(10)),
+
+  -- literal
+  invalid({ "local x = 'asd" }, Cursor:inline(9)),
 }
