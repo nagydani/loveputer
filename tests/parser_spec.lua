@@ -44,16 +44,20 @@ describe('parse #parser', function()
           end
           for ln, line in pairs(input.code) do
             if ln == l then
-              local ll = string.ulen(line)
-              for ch = 1, ll do
-                if ch <= c then
-                  term.print_c(Color.white, string.usub(line, ch, ch), true)
-                else
-                  term.print_c(Color.magenta, string.usub(line, ch, ch), true)
+              if c == 1 then
+                term.print_c(Color.magenta, line)
+              else
+                local ll = string.ulen(line)
+                for ch = 1, ll do
+                  if ch <= c then
+                    term.print_c(Color.white, string.usub(line, ch, ch), true)
+                  else
+                    term.print_c(Color.magenta, string.usub(line, ch, ch), true)
+                  end
                 end
+                print()
+                for _ = 1, c do io.write(' ') end
               end
-              print()
-              for _ = 1, c do io.write(' ') end
               term.print_c(Color.red, '^')
             elseif ln > l then
               term.print_c(Color.magenta, line)

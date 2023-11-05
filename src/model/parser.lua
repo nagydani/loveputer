@@ -77,19 +77,9 @@ return function(lib)
     local err_second_line = err_lines[2]
     local colons = string.split(err_first_line, ':')
     local colons2 = string.split(err_second_line, ':')
-    local match1 = string.gmatch(colons[3], '%d+')
-    local _ = tonumber(match1() or '')
-    local e_char = tonumber(match1() or '') or 0
     local match2 = string.gmatch(colons2[2] or '', '%d+')
     local line = tonumber(match2() or '') or -1
-    local char = (function()
-      local n = tonumber(match2() or '') or -1
-      if n == e_char then
-        return n - 1
-      else
-        return n
-      end
-    end)()
+    local char = tonumber(match2() or '') or -1
     local errmsg = string.trim(colons[4])
     return line, char, errmsg
   end

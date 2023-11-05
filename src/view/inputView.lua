@@ -166,7 +166,7 @@ function InputView:draw(input)
         local ttype = row[hl_ci]
         local color
         if perr and l > el or
-            (l == el and i > ec) then
+            (l == el and (i > ec or ec == 1)) then
           color = colors.error
         else
           color = colors.syntax[ttype] or colors.fg

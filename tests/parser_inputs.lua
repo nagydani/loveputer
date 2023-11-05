@@ -155,9 +155,9 @@ return {
   ---------------------------
 
   --- identifiers
-  invalid({ 'úő' }, Cursor:inline(0)),
-  invalid({ 'local' }, Cursor:inline(0)),
-  invalid({ 'local 1' }, Cursor:inline(0)),
+  invalid({ 'úő' }, Cursor:inline(1)),
+  invalid({ 'local' }, Cursor:inline(1)),
+  invalid({ 'local 1' }, Cursor:inline(1)),
   invalid({ '0 =' }, Cursor:inline(3)),
   invalid({ '"x" =' }, Cursor:inline(5)),
   invalid({ 'true =' }, Cursor:inline(6)),
@@ -173,10 +173,10 @@ return {
   invalid({ 'while 1 end' }, Cursor:inline(7)),
   invalid({ 'repeat until' }, Cursor:inline(12)),
 
-  invalid({ 'for' }, Cursor:inline(0)),
-  invalid({ 'for do' }, Cursor:inline(0)),
-  invalid({ 'for end' }, Cursor:inline(0)),
-  invalid({ 'for 1' }, Cursor:inline(0)),
+  invalid({ 'for' }, Cursor:inline(1)),
+  invalid({ 'for do' }, Cursor:inline(1)),
+  invalid({ 'for end' }, Cursor:inline(1)),
+  invalid({ 'for 1' }, Cursor:inline(1)),
   invalid({ 'for a b in' }, Cursor:inline(5)),
   invalid({ 'for a =' }, Cursor:inline(7)),
   invalid({ 'for a, do end' }, Cursor:inline(5)),
@@ -197,16 +197,16 @@ return {
     '  print(i)',
   }, Cursor:new(2, 10)),
 
-  invalid({ 'function' }, Cursor:inline(0)),
-  invalid({ 'function end' }, Cursor:inline(0)),
+  invalid({ 'function' }, Cursor:inline(1)),
+  invalid({ 'function end' }, Cursor:inline(1)),
   invalid({ 'function f end' }, Cursor:inline(10)),
   invalid({ 'function f( end' }, Cursor:inline(10)),
   invalid({ 'return return' }, Cursor:inline(6)),
   -- invalid({ 'return 1,' }),
 
-  invalid({ 'if' }, Cursor:inline(0)),
-  invalid({ 'elseif' }, Cursor:inline(0)),
-  invalid({ 'then' }, Cursor:inline(0)),
+  invalid({ 'if' }, Cursor:inline(1)),
+  invalid({ 'elseif' }, Cursor:inline(1)),
+  invalid({ 'then' }, Cursor:inline(1)),
   invalid({ 'if then' }, Cursor:inline(2)),
 
   -- tables
