@@ -22,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: "true"
 
       - uses: leafo/gh-actions-lua@v10
         with:
@@ -44,6 +46,8 @@ jobs:
       - run-busted
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: "true"
       - name: Build bare love package
         uses: love-actions/love-actions-core@v1
         with:
@@ -66,6 +70,8 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: "true"
       - name: Download love package
         uses: actions/download-artifact@v3
         with:
@@ -124,6 +130,8 @@ jobs:
       ACTIONS_STEP_DEBUG: true
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: "true"
       - name: Download love package
         uses: actions/download-artifact@v3
         with:
