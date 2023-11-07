@@ -19,9 +19,10 @@ function CanvasView:draw(terminal)
   local drawBackground = function()
     G.push('all')
     G.setColor(cfg.colors.terminal.bg)
+
     G.rectangle("fill",
       b,
-      b + cfg.get_drawable_height(),
+      b + cfg.get_drawable_height() - 2 * cfg.fac,
       cfg.w - b,
       cfg.fh
     )
