@@ -1,4 +1,4 @@
-Eval = {
+EvalBase = {
   kind = '',
   apply = function(input)
     return input
@@ -6,7 +6,7 @@ Eval = {
 }
 
 
-function Eval:inherit(kind, evaluator)
+function EvalBase:inherit(kind, evaluator)
   local e = {
     kind = kind
   }

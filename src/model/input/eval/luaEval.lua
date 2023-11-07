@@ -1,4 +1,4 @@
-require("model.input.eval.eval")
+require("model.input.eval.evalBase")
 
 require("util.string")
 require("util.debug")
@@ -12,7 +12,7 @@ function LuaEval:new(parser)
     local ok, r = luaParser.parse(code)
     return ok, r
   end
-  local ev = Eval:inherit('lua', eval)
+  local ev = EvalBase:inherit('lua', eval)
   ev.parser = luaParser
 
   return ev

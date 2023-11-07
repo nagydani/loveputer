@@ -1,9 +1,9 @@
-require("model.input.eval.eval")
+require("model.input.eval.evalBase")
 
 TextEval = {}
 
 function TextEval:new()
-  local te = Eval:inherit('text')
+  local te = EvalBase:inherit('text')
 
   return te
 end
