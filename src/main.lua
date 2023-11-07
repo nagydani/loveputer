@@ -11,7 +11,7 @@ local G = love.graphics
 local V
 
 function love.load(args)
-  _G.nativefs = nativefs
+  --- CLI arguments
   local testrun = false
   local sizedebug = false
   for _, a in ipairs(args) do
@@ -19,6 +19,7 @@ function love.load(args)
     if a == '--size' then sizedebug = true end
   end
 
+  --- Display
   local FAC = 1
   if love.hiDPI then FAC = 2 end
   local font_size = 32.4 * FAC
@@ -27,8 +28,6 @@ function love.load(args)
   local font_dir = "assets/fonts/"
   local font_main = love.graphics.newFont(
     font_dir .. "ubuntu_mono_bold_nerd.ttf", font_size)
-  local font_title = love.graphics.newFont(
-    font_dir .. "PressStart2P-Regular.ttf", font_size)
   local lh = 1.0468
   font_main:setLineHeight(lh)
   local fh = font_main:getHeight()
@@ -43,6 +42,7 @@ function love.load(args)
     drawableWidth = debugwidth * fw
   end
 
+  --- Android
   love.keyboard.setTextInput(true)
   love.keyboard.setKeyRepeat(true)
   if love.system.getOS() == 'Android' then
@@ -52,6 +52,11 @@ function love.load(args)
       fullscreentype = "exclusive",
     })
   end
+
+  _G.nativefs = nativefs
+  love.state = {
+    testing = false
+  }
 
   -- properties
   local baseconf = {
@@ -84,20 +89,14 @@ function love.load(args)
     testrun = testrun,
     sizedebug = sizedebug,
   }
-
-  love.state = {
-    testing = false
-  }
-  love.window.aspect = G.getWidth() / G.getHeight()
-
+  --- MVC wiring
   M = Console:new(baseconf)
   redirect_to(M)
   C = ConsoleController:new(M)
   V = ConsoleView:new(baseconf, C)
 
-  if testrun then
-    C:autotest()
-  end
+  --- run autotest on startup if invoked
+  if testrun then C:autotest() end
 end
 
 function love.textinput(t)
