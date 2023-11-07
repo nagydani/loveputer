@@ -8,8 +8,7 @@ LuaEval = {}
 function LuaEval:new(parser)
   local luaParser = require("model.parser")(parser)
   local eval = function(text)
-    local code = string.join(text, '\n')
-    local ok, r = luaParser.parse(code)
+    local ok, r = luaParser.parse(text)
     return ok, r
   end
   local ev = EvalBase:inherit('lua', eval)
