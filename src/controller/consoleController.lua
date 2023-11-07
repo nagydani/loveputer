@@ -172,7 +172,7 @@ function ConsoleController:keypressed(k)
       cut()
     end
     if k == "l" then
-      self:reset()
+      self.model.output:reset()
     end
     if love.DEBUG then
       if k == 't' then
@@ -197,6 +197,13 @@ function ConsoleController:keypressed(k)
       input:line_feed()
     end
     input:hold_selection()
+  end
+
+  -- Ctrl and Shift held
+  if ctrl and shift then
+    if k == "r" then
+      self:reset()
+    end
   end
 end
 
