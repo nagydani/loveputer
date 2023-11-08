@@ -44,7 +44,7 @@ function ConsoleController:evaluate_input()
       local ok, call_err = pcall(f)
       if ok then
       else
-        local e = LANG.parse_load_error(call_err)
+        local e = LANG.parse_error(call_err)
         input:set_error(e, true)
       end
       output:restore_main()
@@ -54,7 +54,7 @@ function ConsoleController:evaluate_input()
       orig_print(load_err)
     end
   else
-    local l, c, eval_err = input:get_eval_error(res)
+    local _, _, eval_err = input:get_eval_error(res)
     if string.is_non_empty_string(eval_err) then
       orig_print(eval_err)
       input:set_error(eval_err)
