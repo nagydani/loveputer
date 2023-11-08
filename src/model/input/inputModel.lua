@@ -282,7 +282,7 @@ function InputModel:highlight()
     local lex = p.stream_tokens(text)
     -- iterating over the stream exhausts it
     local tokens = p.realize_stream(lex)
-    local ok, err = p.parse(text)
+    local ok, err = p.parse_prot(text)
     local parse_err
     if not ok then
       local l, c, msg = p.get_error(err)

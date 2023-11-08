@@ -49,18 +49,26 @@ return function(lib)
 
   --- Parses lexstream to AST
   ---@param stream table
-  ---@return boolean success
-  ---@return string? errmsg
+  ---@return table|string ast|errmsg
   local parse_stream = function(stream)
-    local parser = mlc.lexstream_to_ast
-    return pcall(parser, mlc, stream)
+    return mlc:lexstream_to_ast(stream)
   end
 
 
   --- Parses code to AST
   ---@param code table
   ---@return boolean success
-  ---@return string? errmsg
+  ---@return any result
+  ---@return any ...
+  local parse_prot = function(code)
+    local stream = stream_tokens(code)
+    -- return parse_stream_prot(stream)
+    return pcall(parse_stream, stream)
+  end
+
+  --- Parses code to AST
+  ---@param code table
+  ---@return table|string ast|errmsg
   local parse = function(code)
     local stream = stream_tokens(code)
     return parse_stream(stream)
@@ -244,6 +252,7 @@ return function(lib)
     realize_stream = realize_stream,
     tokenize       = tokenize,
     parse          = parse,
+    parse_prot     = parse_prot,
     parse_stream   = parse_stream,
     pprint         = pprint,
     get_error      = get_error,

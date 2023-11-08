@@ -14,7 +14,13 @@ function EvalBase:inherit(kind, evaluator)
   self.__index = self
 
   if type(evaluator) == 'function' then
-    e.apply = evaluator
+    e.eval = evaluator
+  else
+    e.eval = function() end
+  end
+  e.apply = function(...)
+    local args = { ... }
+    return pcall(e.eval, args)
   end
 
   return e

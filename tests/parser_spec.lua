@@ -22,7 +22,7 @@ describe('parse #parser', function()
   for i, input in ipairs(inputs) do
     local tag = 'input #' .. i
     it('parses ' .. tag, function()
-      local ok, r = parser.parse(input.code)
+      local ok, r = parser.parse_prot(input.code)
       -- print(Debug.text_table(input.code, true))
       -- print(Debug.terse_t(r))
       local l, c, err

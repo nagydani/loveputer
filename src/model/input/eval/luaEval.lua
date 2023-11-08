@@ -7,10 +7,10 @@ LuaEval = {}
 
 function LuaEval:new(parser)
   local luaParser = require("model.parser")(parser)
-  local eval = function(text)
-    local ok, r = luaParser.parse(text)
-    return ok, r
+  local eval = function(args)
+    return luaParser.parse(args[1])
   end
+
   local ev = EvalBase:inherit('lua', eval)
   ev.parser = luaParser
 
