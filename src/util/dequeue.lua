@@ -96,3 +96,9 @@ end
 function Dequeue:length()
   return #self
 end
+
+--- Determine if queue is empty
+--- @return boolean
+function Dequeue:is_empty()
+  return self:length() == 0
+end
