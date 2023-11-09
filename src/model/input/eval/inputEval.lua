@@ -9,7 +9,7 @@ function InputEval:new(highlight)
   local apply = function() end
   local ie = EvalBase:inherit('input', apply, highlight)
   if highlight then
-    local luaParser = require("model.parser")('metalua')
+    local luaParser = require("model.lang.parser")('metalua')
 
     ie.parser = luaParser
   end
