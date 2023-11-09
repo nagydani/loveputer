@@ -1,4 +1,4 @@
-require("model.consoleModel")
+require("model.model")
 local redirect_to = require("model.io.redirect")
 require("view.consoleView")
 require("controller.consoleController")
@@ -8,7 +8,7 @@ local nativefs = require "lib/nativefs"
 require("util.debug")
 
 local G = love.graphics
-local V
+local M, V, C
 
 function love.load(args)
   --- CLI arguments
@@ -121,7 +121,7 @@ function love.load(args)
     sizedebug = sizedebug,
   }
   --- MVC wiring
-  M = Console:new(baseconf)
+  M = Model:new(baseconf)
   redirect_to(M)
   C = ConsoleController:new(M)
   V = ConsoleView:new(baseconf, C)
