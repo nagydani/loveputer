@@ -1,5 +1,5 @@
 require("model.consoleModel")
-local redirect_to = require("model.ioRedirect")
+local redirect_to = require("model.io.redirect")
 require("view.consoleView")
 require("controller.consoleController")
 local colors = require("conf.colors")
