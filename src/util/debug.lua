@@ -114,3 +114,10 @@ Debug = {
     return res
   end,
 }
+
+Log = (function()
+  if orig_print then
+    return orig_print
+  end
+  return print
+end)()
