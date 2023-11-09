@@ -1,6 +1,9 @@
 local messages = {
   no_projects = 'No projects available',
   list_header = 'Projects:\n─────────',
+
+  invalid_filenae = 'Filename invalid!',
+  already_exists = 'A project already exists with this name',
 }
 
 Project = {}
@@ -17,10 +20,19 @@ end
 
 ProjectService = {}
 
+
+--- Determine if the supplied string is a valid filename
+--- @return boolean
+local function validate_filename(name)
+  -- TODO
+  return true
+end
+
 function ProjectService:new(M)
   local pc = {
     path = love.paths.project_path,
     messages = messages,
+    validate_filename = validate_filename,
   }
   setmetatable(pc, self)
   self.__index = self
@@ -30,9 +42,17 @@ end
 
 ---@param name string
 ---@return boolean success
+---@return string? error
 function ProjectService:create(name)
-  -- check if it exists already
-  return true
+  if not self:validate_filename(name) then
+    return false, messages.invalid_filenae
+  end
+  local p_path = string.format('%s/%s', self.path, name)
+  if nativefs.getInfo(p_path, 'directory') then
+    return false, messages.already_exists
+  else
+    return true
+  end
 end
 
 ---@return table projects
