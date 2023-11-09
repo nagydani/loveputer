@@ -3,6 +3,7 @@ require("model.input.eval.luaEval")
 require("model.input.eval.inputEval")
 require("model.input.inputText")
 require("model.input.selection")
+require("model.input.item")
 
 require("util.dequeue")
 require("util.string")
@@ -25,6 +26,7 @@ function InputModel:new(cfg)
     textInput = textInput,
     luaInput = luaInput,
     --
+    inputs = Dequeue:new(),
     cursor = Cursor:new(),
     wrap = cfg.drawableChars,
     wrapped_text = {},
@@ -550,9 +552,10 @@ function InputModel:_handle(eval)
   self.historic_index = nil
   local ok, result
   if string.is_non_empty_string_array(ent) then
+    local ev = self.evaluator
     self:_remember(ent)
     if eval then
-      if self.evaluator.is_lua then
+      if ev.is_lua then
         ok, result = self.evaluator.apply(ent)
 
         if ok then
@@ -562,8 +565,17 @@ function InputModel:_handle(eval)
           self:move_cursor(l, c + 1)
           self.error = err
         end
-      else -- eval is not lua
-        --whatever else happens, return to lua interpreter
+      else
+        -- whatever else happens, return to lua interpreter
+        if ev.kind == 'input' then
+          local t = self:get_text()
+          if string.is_non_empty_string_array(t) then
+            local kind = (function()
+              if ev.highlight then return 'lua' else return 'text' end
+            end)()
+            self.inputs:push_back(Item:new(t, kind))
+          end
+        end
         self:switch('lua')
         self:clear_input()
       end
