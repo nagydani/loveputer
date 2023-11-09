@@ -18,8 +18,8 @@ return function(lib)
   local mlc = require('metalua.metalua.compiler').new()
 
   --- Iterates over lexstream
-  ---@param stream table
-  ---@return table tokens
+  --- @param stream table
+  --- @return table tokens
   local realize_stream = function(stream)
     local tokens = Dequeue:new()
     local n
@@ -31,8 +31,8 @@ return function(lib)
   end
 
   --- Parses text table to lexstream
-  ---@param code table
-  ---@return table lexstream
+  --- @param code table
+  --- @return table lexstream
   local stream_tokens = function(code)
     local c = string.join(code, '\n')
     local lexstream = mlc:src_to_lexstream(c)
@@ -40,26 +40,26 @@ return function(lib)
   end
 
   --- Parses text table to tokens
-  ---@param code table
-  ---@return table
+  --- @param code table
+  --- @return table
   local tokenize = function(code)
     local stream = stream_tokens(code)
     return realize_stream(stream)
   end
 
   --- Parses lexstream to AST
-  ---@param stream table
-  ---@return table|string ast|errmsg
+  --- @param stream table
+  --- @return table|string ast|errmsg
   local parse_stream = function(stream)
     return mlc:lexstream_to_ast(stream)
   end
 
 
   --- Parses code to AST
-  ---@param code table
-  ---@return boolean success
-  ---@return any result
-  ---@return any ...
+  --- @param code table
+  --- @return boolean success
+  --- @return any result
+  --- @return any ...
   local parse_prot = function(code)
     local stream = stream_tokens(code)
     -- return parse_stream_prot(stream)
@@ -67,18 +67,18 @@ return function(lib)
   end
 
   --- Parses code to AST
-  ---@param code table
-  ---@return table|string ast|errmsg
+  --- @param code table
+  --- @return table|string ast|errmsg
   local parse = function(code)
     local stream = stream_tokens(code)
     return parse_stream(stream)
   end
 
   --- Finds error location and message in parse result
-  ---@param result string
-  ---@return number line
-  ---@return number char
-  ---@return string err_msg
+  --- @param result string
+  --- @return number line
+  --- @return number char
+  --- @return string err_msg
   local get_error = function(result)
     local err_lines = string.split(result, '\n')
     local err_first_line = err_lines[1]
@@ -99,8 +99,8 @@ return function(lib)
   end
 
   --- Read lexstream and determine highlighting
-  ---@param tokens table
-  ---@return table
+  --- @param tokens table
+  --- @return table
   local syntax_hl = function(tokens)
     if not tokens then return {} end
 
