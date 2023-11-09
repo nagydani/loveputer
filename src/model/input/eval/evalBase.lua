@@ -5,10 +5,15 @@ EvalBase = {
   end,
 }
 
-
-function EvalBase:inherit(kind, evaluator)
+--- Create a new evaluator
+---@param kind string
+---@param evaluator function
+---@param highlight boolean
+---@return table
+function EvalBase:inherit(kind, evaluator, highlight)
   local e = {
-    kind = kind
+    kind = kind,
+    highlight = highlight,
   }
   setmetatable(e, self)
   self.__index = self

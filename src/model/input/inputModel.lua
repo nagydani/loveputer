@@ -12,18 +12,18 @@ require("util.debug")
 InputModel = {}
 
 function InputModel:new(cfg)
-  local luaEval = LuaEval:new('metalua')
-  local textEval = TextEval:new()
-  local inputEval = InputEval:new()
-  local im = {
+  local luaEval   = LuaEval:new('metalua')
+  local textInput = InputEval:new(false)
+  local luaInput  = InputEval:new(true)
+  local im        = {
     entered = InputText:new(),
     history = Dequeue:new(),
     -- starter
     evaluator = luaEval,
     -- available options
-    textEval = textEval,
     luaEval = luaEval,
-    inputEval = inputEval,
+    textInput = textInput,
+    luaInput = luaInput,
     --
     cursor = Cursor:new(),
     wrap = cfg.drawableChars,
@@ -282,7 +282,7 @@ end
 
 function InputModel:highlight()
   local ev = self.evaluator
-  if ev.kind == 'lua' then
+  if ev.highlight then
     local p = ev.parser
     local text = self:get_text()
     local lex = p.stream_tokens(text)
@@ -577,9 +577,9 @@ end
 
 function InputModel:switch(kind)
   local sw = {
-    ['lua'] = self.luaEval,
-    ['text'] = self.textEval,
-    ['input'] = self.inputEval,
+    ['lua']        = self.luaEval,
+    ['input-text'] = self.textInput,
+    ['input-lua']  = self.luaInput,
   }
   local new = sw[kind]
   if new then
