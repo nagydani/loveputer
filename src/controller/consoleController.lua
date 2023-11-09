@@ -6,15 +6,32 @@ require("util.table")
 
 local G = love.graphics
 
-local function prepare_env(env, IM)
+local function prepare_env(env, M)
+  local IM = M.input
   env.switch = function(kind)
     IM:switch(kind)
+  end
+
+  local P = M.projects
+  env.list_projects = function()
+    local ps = P:list()
+    if ps:is_empty() then
+      -- no projects, display a message about it
+      print(P.messages.no_projects)
+    else
+      -- list projects
+      M.output:reset()
+      print(P.messages.list_header)
+      for _, p in ipairs(ps) do
+        print(p.name)
+      end
+    end
   end
 end
 
 function ConsoleController:new(M)
   local env = getfenv()
-  prepare_env(env, M.input)
+  prepare_env(env, M)
   local cc = {
     time = 0,
     model = M,
