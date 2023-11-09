@@ -74,8 +74,11 @@ function love.load(args)
   end
   project_path = storage_path .. '/projects'
 
-  local dirs = { storage_path, project_path }
-  for _, d in ipairs(dirs) do
+  local paths = {
+    storage_path = storage_path,
+    project_path = project_path
+  }
+  for _, d in pairs(paths) do
     local ok, err = nativefs.createDirectory(d)
     if not ok then Log(err) end
   end
@@ -84,6 +87,7 @@ function love.load(args)
   love.state = {
     testing = false
   }
+  love.paths = paths
 
   -- properties
   local baseconf = {
