@@ -42,6 +42,9 @@ function love.load(args)
     drawableWidth = debugwidth * fw
   end
 
+  local id = love.filesystem.getIdentity()
+  local storage_path = ''
+  local project_path
   --- Android
   love.keyboard.setTextInput(true)
   love.keyboard.setKeyRepeat(true)
@@ -51,6 +54,30 @@ function love.load(args)
       fullscreen = true,
       fullscreentype = "exclusive",
     })
+    local base_path = '/storage'
+    local sd_uuid
+    -- TODO: detect SD card path
+    sd_uuid = 'emulated/0'
+    local sd = string.format("%s/%s", base_path, sd_uuid)
+    storage_path = string.format("%s/Documents/%s", sd, id)
+  end
+
+  -- storage
+  if love.system.getOS() ~= 'Android' then
+    -- TODO: linux assumed, check other platforms, especially love.js
+    local home = os.getenv('HOME')
+    if home and string.is_non_empty_string(home) then
+      storage_path = string.format("%s/Documents/%s", home, id)
+    else
+      storage_path = love.filesystem.getSaveDirectory()
+    end
+  end
+  project_path = storage_path .. '/projects'
+
+  local dirs = { storage_path, project_path }
+  for _, d in ipairs(dirs) do
+    local ok, err = nativefs.createDirectory(d)
+    if not ok then Log(err) end
   end
 
   _G.nativefs = nativefs
