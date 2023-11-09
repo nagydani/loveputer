@@ -54,7 +54,7 @@ function ConsoleController:evaluate_input()
         local ok, call_err = pcall(f)
         if ok then
         else
-          local e = LANG.parse_call_error(call_err)
+          local e = LANG.parse_error(call_err)
           input:set_error(e, true)
         end
         output:restore_main()
