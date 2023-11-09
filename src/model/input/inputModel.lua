@@ -1,5 +1,6 @@
 require("model.input.eval.textEval")
 require("model.input.eval.luaEval")
+require("model.input.eval.inputEval")
 require("model.input.inputText")
 require("model.input.selection")
 
@@ -11,14 +12,19 @@ require("util.debug")
 InputModel = {}
 
 function InputModel:new(cfg)
-  local textEval = TextEval:new()
   local luaEval = LuaEval:new('metalua')
+  local textEval = TextEval:new()
+  local inputEval = InputEval:new()
   local im = {
     entered = InputText:new(),
     history = Dequeue:new(),
+    -- starter
     evaluator = luaEval,
+    -- available options
     textEval = textEval,
     luaEval = luaEval,
+    inputEval = inputEval,
+    --
     cursor = Cursor:new(),
     wrap = cfg.drawableChars,
     wrapped_text = {},
@@ -546,19 +552,41 @@ function InputModel:_handle(eval)
   if string.is_non_empty_string_array(ent) then
     self:_remember(ent)
     if eval then
-      ok, result = self.evaluator.apply(ent)
-      if ok then
+      if self.evaluator.is_lua then
+        ok, result = self.evaluator.apply(ent)
+
+        if ok then
+          self:clear_input()
+        else
+          local l, c, err = self:get_eval_error(result)
+          self:move_cursor(l, c + 1)
+          self.error = err
+        end
+      else -- eval is not lua
+        --whatever else happens, return to lua interpreter
+        self:switch('lua')
         self:clear_input()
-      else
-        local l, c, err = self:get_eval_error(result)
-        self:move_cursor(l, c + 1)
-        self.error = err
       end
     else
       self:clear_input()
+      ok = true
     end
   end
   return ok, result
+end
+
+function InputModel:switch(kind)
+  local sw = {
+    ['lua'] = self.luaEval,
+    ['text'] = self.textEval,
+    ['input'] = self.inputEval,
+  }
+  local new = sw[kind]
+  if new then
+    self.evaluator = new
+  else
+    self:set_error('Invalid choice of eval', true)
+  end
 end
 
 ----------------
@@ -588,7 +616,8 @@ end
 
 function InputModel:get_eval_error(errors)
   local ev = self.evaluator
-  if ev.kind == 'lua' and string.is_non_empty_string_array(self:get_text()) then
+  local t = self:get_text()
+  if ev.is_lua and string.is_non_empty_string_array(t) then
     return ev.parser.get_error(errors)
   end
 end

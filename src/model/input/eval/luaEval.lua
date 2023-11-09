@@ -13,6 +13,7 @@ function LuaEval:new(parser)
 
   local ev = EvalBase:inherit('lua', eval)
   ev.parser = luaParser
+  ev.is_lua = true
 
   return ev
 end

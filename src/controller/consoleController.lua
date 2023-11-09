@@ -6,11 +6,18 @@ require("util.table")
 
 local G = love.graphics
 
-function ConsoleController:new(m)
+local function prepare_env(env, IM)
+  env.switch = function(kind)
+    IM:switch(kind)
+  end
+end
+
+function ConsoleController:new(M)
   local env = getfenv()
+  prepare_env(env, M.input)
   local cc = {
     time = 0,
-    model = m,
+    model = M,
     base_env = table.clone(env),
     env = table.clone(env),
   }
@@ -34,30 +41,35 @@ function ConsoleController:evaluate_input()
   local input = self.model.input
 
   local text = input:get_text()
-  local syntax_ok, res = input:evaluate()
-  if syntax_ok then
-    local code = string.join(text, '\n')
-    local f, load_err = load(code, '', 't', self.env)
-    if f then
-      G.push('all')
-      output:draw_to()
-      local ok, call_err = pcall(f)
-      if ok then
+  local eval = input.evaluator
+
+  local eval_ok, res = input:evaluate()
+  if eval.is_lua then
+    if eval_ok then
+      local code = string.join(text, '\n')
+      local f, load_err = load(code, '', 't', self.env)
+      if f then
+        G.push('all')
+        output:draw_to()
+        local ok, call_err = pcall(f)
+        if ok then
+        else
+          local e = LANG.parse_call_error(call_err)
+          input:set_error(e, true)
+        end
+        output:restore_main()
+        G.pop()
       else
-        local e = LANG.parse_error(call_err)
-        input:set_error(e, true)
+        -- this means that metalua failed to catch some invalid code
+        orig_print('Load error:', LANG.parse_error(load_err))
+        input:set_error(load_err, true)
       end
-      output:restore_main()
-      G.pop()
     else
-      -- we should not see many of these, since the code is parsed prior
-      orig_print(load_err)
-    end
-  else
-    local _, _, eval_err = input:get_eval_error(res)
-    if string.is_non_empty_string(eval_err) then
-      orig_print(eval_err)
-      input:set_error(eval_err)
+      local _, _, eval_err = input:get_eval_error(res)
+      if string.is_non_empty_string(eval_err) then
+        orig_print(eval_err)
+        input:set_error(eval_err)
+      end
     end
   end
 end

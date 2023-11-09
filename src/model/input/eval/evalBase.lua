@@ -2,7 +2,7 @@ EvalBase = {
   kind = '',
   apply = function(input)
     return input
-  end
+  end,
 }
 
 
