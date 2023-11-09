@@ -27,7 +27,7 @@ describe('parse #parser', function()
       -- print(Debug.terse_t(r))
       local l, c, err
       if not ok then
-        l, c, err = parser.get_error(r or '')
+        l, c, err = parser.get_error(string.join(r, '\n'))
         if input.error then
           local el = input.error.l
           local ec = input.error.c
