@@ -27,6 +27,15 @@ local function prepare_env(env, M)
       end
     end
   end
+
+  env.create_project = function(name)
+    local ok, err = P:create(name)
+    if not ok then
+      print(err)
+    else
+      print('Project ' .. name .. ' created!')
+    end
+  end
 end
 
 function ConsoleController:new(M)
