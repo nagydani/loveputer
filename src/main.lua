@@ -10,6 +10,32 @@ require("util.debug")
 local G = love.graphics
 local M, V, C
 
+--- Find removable and user-writable storage
+--- Assumptions are made, which are might be to the target platform/device
+---@return boolean success
+---@return string? path
+local android_storage_find = function()
+  -- Yes, I know. We are working with the limitations of Android here.
+  local quadhex = string.times('[0-9A-F]', 4)
+  local uuid_regex = quadhex .. '-' .. quadhex
+  local regex = '/dev/fuse /storage/' .. uuid_regex
+  local handle = io.popen(string.format("grep /proc/mounts -e '%s'", regex))
+  if not handle then
+    return false
+  end
+  local result = handle:read("*a")
+  handle:close()
+  local lines = string.lines(result)
+  if not string.is_non_empty_string_array(lines) then
+    return false
+  end
+  local tok = string.split(lines[1], ' ')
+  if string.is_non_empty_string_array(tok) then
+    return true, tok[2]
+  end
+  return false
+end
+
 function love.load(args)
   --- CLI arguments
   local testrun = false
@@ -44,7 +70,7 @@ function love.load(args)
 
   local id = love.filesystem.getIdentity()
   local storage_path = ''
-  local project_path
+  local project_path, has_removable
   --- Android
   love.keyboard.setTextInput(true)
   love.keyboard.setKeyRepeat(true)
@@ -54,12 +80,14 @@ function love.load(args)
       fullscreen = true,
       fullscreentype = "exclusive",
     })
-    local base_path = '/storage'
-    local sd_uuid
-    -- TODO: detect SD card path
-    sd_uuid = 'emulated/0'
-    local sd = string.format("%s/%s", base_path, sd_uuid)
-    storage_path = string.format("%s/Documents/%s", sd, id)
+    local ok, sd_path = android_storage_find()
+    if not ok then
+      print('WARN: SD card not found')
+      has_removable = false
+      sd_path = '/storage/emulated/0'
+    end
+    has_removable = true
+    storage_path = string.format("%s/Documents/%s", sd_path, id)
   end
 
   -- storage
@@ -75,6 +103,7 @@ function love.load(args)
   project_path = storage_path .. '/projects'
 
   local paths = {
+    has_removable = has_removable,
     storage_path = storage_path,
     project_path = project_path
   }
