@@ -127,14 +127,15 @@ end
 
 -- https://stackoverflow.com/a/51893646
 string.split = function(str, delimiter)
+  local del = delimiter or ' '
   if str and type(str) == 'string' and string.is_non_empty_string(str, true) then
     local result               = {}
     local from                 = 1
-    local delim_from, delim_to = string.find(str, delimiter, from)
+    local delim_from, delim_to = string.find(str, del, from)
     while delim_from do
       table.insert(result, string.sub(str, from, delim_from - 1))
       from                 = delim_to + 1
-      delim_from, delim_to = string.find(str, delimiter, from)
+      delim_from, delim_to = string.find(str, del, from)
     end
     table.insert(result, string.sub(str, from))
     return result
