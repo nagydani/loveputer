@@ -70,8 +70,8 @@ end
 --- @return boolean
 --- @return string path
 Project.isValid = function(path, name)
-  local p_path = string.format('%s/%s', path, name)
-  local ok = FS.exists(string.format('%s/%s', p_path, 'main.lua'))
+  local p_path = string.join_path(path, name)
+  local ok = FS.exists(string.join_path(p_path, 'main.lua'))
   return ok, messages.pr_does_not_exist(name)
 end
 
@@ -139,7 +139,7 @@ function ProjectService:create(name)
   if not dir_ok then
     return false, messages.write_error()
   end
-  local main = string.format('%s/%s', p_path, 'main.lua')
+  local main = string.join_path(p_path, 'main.lua')
   local example = [[
 print('Hello world!')
 ]]

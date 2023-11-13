@@ -74,7 +74,7 @@ local function prepare_env(env, M)
   end
 
   --- @param f function
-  local check_open    = function(f)
+  local check_open_pr = function(f)
     if not P.current then
       print(P.messages.no_open_project)
     else
@@ -83,7 +83,7 @@ local function prepare_env(env, M)
   end
 
   env.list_contents   = function()
-    return check_open(function()
+    return check_open_pr(function()
       local p = P.current
       local items = p:contents()
       print(P.messages.project_header(p.name))
@@ -95,7 +95,7 @@ local function prepare_env(env, M)
 
   --- @param name string
   env.readfile        = function(name)
-    return check_open(function()
+    return check_open_pr(function()
       local p = P.current
       local ex = FS.exists(string.join_path(p.path, name))
       if not ex then
