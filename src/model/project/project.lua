@@ -15,6 +15,10 @@ end
 local messages = {
   no_projects     = 'No projects available',
   list_header     = 'Projects:\n─────────',
+  project_header  = function(name)
+    local pl = 'Project ' .. name .. ':'
+    return pl .. '\n' .. string.times('─', string.ulen(pl))
+  end,
 
   invalid_filenae = error_annot('Filename invalid'),
   already_exists  = 'A project already exists with this name',
@@ -22,6 +26,7 @@ local messages = {
   does_not_exist  = function(name)
     return name .. ' is not an existing project'
   end,
+  no_open_project = 'No project is open',
 }
 
 
@@ -36,6 +41,11 @@ function Project:new(name)
   self.__index = self
 
   return p
+end
+
+--- @return table
+function Project:contents()
+  return FS.dir(string.join_path(self.path))
 end
 
 --- Validate if the path contains a valid project under the supplied name

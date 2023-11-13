@@ -10,13 +10,13 @@ local G = love.graphics
 --- @param env table
 --- @param M table
 local function prepare_env(env, M)
-  local IM = M.input
-  env.switch = function(kind)
+  local IM            = M.input
+  env.switch          = function(kind)
     IM:switch(kind)
   end
 
-  local P = M.projects
-  env.list_projects = function()
+  local P             = M.projects
+  env.list_projects   = function()
     local ps = P:list()
     if ps:is_empty() then
       -- no projects, display a message about it
@@ -26,13 +26,13 @@ local function prepare_env(env, M)
       M.output:reset()
       print(P.messages.list_header)
       for _, p in ipairs(ps) do
-        print(p.name)
+        print('> ' .. p.name)
       end
     end
   end
 
   --- @param name string
-  env.create_project = function(name)
+  env.create_project  = function(name)
     local ok, err = P:create(name)
     if not ok then
       print(err)
@@ -41,7 +41,8 @@ local function prepare_env(env, M)
     end
   end
 
-  env.open_project = function(name)
+  --- @param name string
+  env.open_project    = function(name)
     local ok, err = P:open(name)
     if not ok then
       print(err)
@@ -50,7 +51,7 @@ local function prepare_env(env, M)
     end
   end
 
-  env.close_project = function()
+  env.close_project   = function()
     local ok = P:close()
     if ok then
       print('Project closed')
@@ -61,7 +62,7 @@ local function prepare_env(env, M)
     if P.current and P.current.name then
       print('Currently open project: ' .. P.current.name)
     else
-      print('No project is open')
+      print(P.messages.no_open_project)
     end
   end
 
@@ -71,6 +72,27 @@ local function prepare_env(env, M)
 
     end
   end
+
+  --- @param f function
+  local check_open    = function(f)
+    if not P.current then
+      print(P.messages.no_open_project)
+    else
+      return f()
+    end
+  end
+
+  env.list_contents   = function()
+    return check_open(function()
+      local p = P.current
+      local items = p:contents()
+      print(P.messages.project_header(p.name))
+      for name, _ in pairs(items) do
+        print('• ' .. name)
+      end
+    end)
+  end
+
 end
 
 function ConsoleController:new(M)
