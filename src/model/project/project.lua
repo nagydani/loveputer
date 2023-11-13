@@ -13,29 +13,38 @@ local function error_annot(base)
 end
 
 local messages = {
-  no_projects     = 'No projects available',
-  list_header     = 'Projects:\n─────────',
-  project_header  = function(name)
+  no_projects         = 'No projects available',
+  list_header         = 'Projects:\n─────────',
+  project_header      = function(name)
     local pl = 'Project ' .. name .. ':'
     return pl .. '\n' .. string.times('─', string.ulen(pl))
   end,
+  file_header         = function(name, width)
+    local w = width or 64
+    local l = string.ulen(name) + 2
+    local pad = string.times('─', math.floor((w - l) / 2))
+    return string.format('%s %s %s', pad, name, pad)
+  end,
 
-  invalid_filenae = error_annot('Filename invalid'),
-  already_exists  = 'A project already exists with this name',
-  write_error     = error_annot('Cannot write target directory'),
-  does_not_exist  = function(name)
+  invalid_filenae     = error_annot('Filename invalid'),
+  already_exists      = 'A project already exists with this name',
+  write_error         = error_annot('Cannot write target directory'),
+  pr_does_not_exist   = function(name)
     return name .. ' is not an existing project'
   end,
-  no_open_project = 'No project is open',
+  file_does_not_exist = function(name)
+    return name .. ' does not exist'
+  end,
+  no_open_project     = 'No project is open',
 }
 
 
 Project = {}
 
-function Project:new(name)
+function Project:new(pname)
   local p = {
-    name = name,
-    path = string.join_path(love.paths.project_path, name)
+    name = pname,
+    path = string.join_path(love.paths.project_path, pname)
   }
   setmetatable(p, self)
   self.__index = self
@@ -48,6 +57,13 @@ function Project:contents()
   return FS.dir(string.join_path(self.path))
 end
 
+--- @param name string
+--- @return table
+function Project:readfile(name)
+  local fp = string.join_path(self.path, name)
+  return FS.lines(fp)
+end
+
 --- Validate if the path contains a valid project under the supplied name
 --- @param path string
 --- @param name string
@@ -56,7 +72,7 @@ end
 Project.isValid = function(path, name)
   local p_path = string.format('%s/%s', path, name)
   local ok = FS.exists(string.format('%s/%s', p_path, 'main.lua'))
-  return ok, messages.does_not_exist(name)
+  return ok, messages.pr_does_not_exist(name)
 end
 
 

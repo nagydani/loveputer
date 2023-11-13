@@ -93,6 +93,27 @@ local function prepare_env(env, M)
     end)
   end
 
+  --- @param name string
+  env.readfile        = function(name)
+    return check_open(function()
+      local p = P.current
+      local ex = FS.exists(string.join_path(p.path, name))
+      if not ex then
+        print(P.messages.file_does_not_exist)
+      else
+        local lines = p:readfile(name)
+        local nl = string.ulen('' .. #lines .. '  ')
+        M.output:reset()
+        local w = M.output.cfg.drawableChars - 1
+        print(P.messages.file_header(name, w))
+        for i, l in ipairs(lines) do
+          local ln = string.format("% " .. nl .. "d", i)
+          print(string.format("%s │ %s", ln, l))
+        end
+      end
+    end)
+  end
+
 end
 
 function ConsoleController:new(M)

@@ -27,6 +27,18 @@ function FS.dir(path)
 end
 
 --- @param path string
+--- @return table
+function FS.lines(path)
+  local ret = {}
+  if FS.exists(path) then
+    for l in nativefs.lines(path) do
+      table.insert(ret, l)
+    end
+  end
+  return ret
+end
+
+--- @param path string
 --- @param data string
 --- @return boolean success
 --- @return string? error
