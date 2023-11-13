@@ -102,6 +102,7 @@ function love.load(args)
   end
   project_path = storage_path .. '/projects'
 
+  --- @type PathInfo
   local paths = {
     has_removable = has_removable,
     storage_path = storage_path,
