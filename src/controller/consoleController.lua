@@ -6,6 +6,9 @@ require("util.table")
 
 local G = love.graphics
 
+--- Put API functions into the env table
+--- @param env table
+--- @param M table
 local function prepare_env(env, M)
   local IM = M.input
   env.switch = function(kind)
@@ -28,12 +31,44 @@ local function prepare_env(env, M)
     end
   end
 
+  --- @param name string
   env.create_project = function(name)
     local ok, err = P:create(name)
     if not ok then
       print(err)
     else
-      print('Project ' .. name .. ' created!')
+      print('Project ' .. name .. ' created')
+    end
+  end
+
+  env.open_project = function(name)
+    local ok, err = P:open(name)
+    if not ok then
+      print(err)
+    else
+      print('Project ' .. name .. ' opened')
+    end
+  end
+
+  env.close_project = function()
+    local ok = P:close()
+    if ok then
+      print('Project closed')
+    end
+  end
+
+  env.current_project = function()
+    if P.current and P.current.name then
+      print('Currently open project: ' .. P.current.name)
+    else
+      print('No project is open')
+    end
+  end
+
+  env.example_project = function()
+    local ok = P.deploy_example()
+    if ok then
+
     end
   end
 end
