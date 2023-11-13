@@ -3,7 +3,7 @@ local redirect_to = require("model.io.redirect")
 require("view.consoleView")
 require("controller.consoleController")
 local colors = require("conf.colors")
-local nativefs = require "lib/nativefs"
+local nativefs = require("lib/nativefs")
 
 require("util.debug")
 
