@@ -43,13 +43,5 @@ end
 --- @return boolean success
 --- @return string? error
 function FS.write(path, data)
-  local f, o_err = io.open(path, 'w')
-  if not f then
-    return false, o_err
-  end
-  local _, w_err = f:write(data)
-  if w_err then
-    return false, w_err
-  end
-  return true
+  return nativefs.write(path, data)
 end

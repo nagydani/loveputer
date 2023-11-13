@@ -114,6 +114,27 @@ local function prepare_env(env, M)
     end)
   end
 
+  --- @param name string
+  --- @param content string
+  env.writefile       = function(name, content)
+    return check_open_pr(function()
+      local p = P.current
+      local fpath = string.join_path(p.path, name)
+      local ex = FS.exists(fpath)
+      orig_print(fpath)
+      if not ex then
+        local text = string.join(content, '\n')
+        local ok, err = p:writefile(name, text)
+        if ok then
+          print(name .. ' written')
+        else
+          print(err)
+        end
+      else
+        -- TODO: confirm overwrite
+      end
+    end)
+  end
 end
 
 function ConsoleController:new(M)

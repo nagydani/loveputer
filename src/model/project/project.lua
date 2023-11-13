@@ -64,6 +64,11 @@ function Project:readfile(name)
   return FS.lines(fp)
 end
 
+function Project:writefile(name, data)
+  local fp = string.join_path(self.path, name)
+  return FS.write(fp, data)
+end
+
 --- Validate if the path contains a valid project under the supplied name
 --- @param path string
 --- @param name string
