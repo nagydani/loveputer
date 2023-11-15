@@ -97,11 +97,9 @@ local function prepare_env(env, M)
   env.readfile        = function(name)
     return check_open_pr(function()
       local p = P.current
-      local ex = FS.exists(string.join_path(p.path, name))
-      if not ex then
-        print(P.messages.file_does_not_exist)
-      else
-        local lines = p:readfile(name)
+      local ok, lines_err = p:readfile(name)
+      if ok then
+        local lines = lines_err
         local nl = string.ulen('' .. #lines .. '  ')
         M.output:reset()
         local w = M.output.cfg.drawableChars - 1
@@ -110,6 +108,8 @@ local function prepare_env(env, M)
           local ln = string.format("% " .. nl .. "d", i)
           print(string.format("%s │ %s", ln, l))
         end
+      else
+        print(lines_err)
       end
     end)
   end

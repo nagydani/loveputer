@@ -6,7 +6,7 @@ local function error_annot(base)
   return function(err)
     local msg = base
     if err then
-      msg = msg .. ' :' .. err
+      msg = msg .. ': ' .. err
     end
     return msg
   end
@@ -26,7 +26,7 @@ local messages = {
     return string.format('%s %s %s', pad, name, pad)
   end,
 
-  invalid_filenae     = error_annot('Filename invalid'),
+  invalid_filename    = error_annot('Filename invalid'),
   already_exists      = 'A project already exists with this name',
   write_error         = error_annot('Cannot write target directory'),
   pr_does_not_exist   = function(name)
@@ -38,6 +38,24 @@ local messages = {
   no_open_project     = 'No project is open',
 }
 
+--- Determine if the supplied string is a valid filename
+--- @param name string
+--- @return boolean valid
+--- @return string? error
+local function validate_filename(name)
+  if not string.is_non_empty_string(name) then
+    return false, 'Empty'
+  end
+  if string.ulen(name) > 60 then
+    return false, 'Too long'
+  end
+  if name:match('%.%.')
+      or name:match('/')
+  then
+    return false, 'Forbidden characters'
+  end
+  return true
+end
 
 Project = {}
 
@@ -64,7 +82,15 @@ function Project:readfile(name)
   return FS.lines(fp)
 end
 
+--- @param name string
+--- @param data string
+--- @return boolean success
+--- @return string? error
 function Project:writefile(name, data)
+  local valid, err = validate_filename(name)
+  if not valid then
+    return false, messages.invalid_filename(err)
+  end
   local fp = string.join_path(self.path, name)
   return FS.write(fp, data)
 end
@@ -83,25 +109,10 @@ end
 
 ProjectService = {}
 
---- Determine if the supplied string is a valid filename
---- @param name string
---- @return boolean
-local function validate_filename(name)
-  if not string.is_non_empty_string(name) then
-    return false
-  end
-  if not (string.ulen(name) < 64) then
-    return false
-  end
-  -- TODO
-  return true
-end
-
 
 --- @return ProjectService
 function ProjectService:new(M)
   ProjectService.path = love.paths.project_path
-  ProjectService.validate_filename = validate_filename
   ProjectService.messages = messages
   local pc = {
     --- @type Project?
@@ -132,7 +143,7 @@ end
 --- @return boolean success
 --- @return string? error
 function ProjectService:create(name)
-  if not ProjectService.validate_filename(name) then
+  if not validate_filename(name) then
     return false, messages.invalid_filename()
   end
   local exists, p_path = isProject(self.path, name)
