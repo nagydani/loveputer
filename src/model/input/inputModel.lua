@@ -9,7 +9,24 @@ require("util.dequeue")
 require("util.string")
 require("util.debug")
 
-
+--- @class InputModel
+--- @field entered table
+--- @field history table
+--- @field evaluator table
+--- @field luaEval table
+--- @field textInput table
+--- @field luaInput table
+--- @field inputs table
+--- @field cursor table
+--- @field wrap integer
+--- @field wrapped_text table
+--- @field wrapped_error table
+--- @field cursor_wrap table
+--- @field wrap_reverse table
+--- @field n_breaks integer
+--- @field selection table
+-- methods
+--- @todo
 InputModel = {}
 
 function InputModel:new(cfg)

@@ -2,6 +2,10 @@ require("model.input.inputModel")
 require("model.canvasModel")
 require("model.project.project")
 
+--- @class Model table
+--- @field input InputModel
+--- @field output CanvasModel
+--- @field projects ProjectService
 Model = {}
 
 function Model:new(cfg)

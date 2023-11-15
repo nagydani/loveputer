@@ -59,6 +59,12 @@ local function validate_filename(name)
   return true
 end
 
+--- @class Project
+--- @field name string
+--- @field path string
+--- @field contents function
+--- @field readfile function
+--- @field writefile function
 Project = {}
 
 function Project:new(pname)
@@ -104,6 +110,17 @@ function Project:writefile(name, data)
   return FS.write(fp, data)
 end
 
+--- @class ProjectService
+--- @field path string
+--- @field messages table
+--- @field validate_filename function
+--- @field current Project
+--- @field create function
+--- @field list function
+--- @field open function
+--- @field close function
+--- @field deploy_example function
+--- @field run function
 ProjectService = {}
 
 
