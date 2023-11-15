@@ -38,6 +38,8 @@ local messages = {
   no_open_project     = 'No project is open',
 }
 
+local MAIN = 'main.lua'
+
 --- Determine if the supplied string is a valid filename
 --- @param name string
 --- @return boolean valid
@@ -109,7 +111,7 @@ end
 --- @return string path
 Project.isValid = function(path, name)
   local p_path = string.join_path(path, name)
-  local ok = FS.exists(string.join_path(p_path, 'main.lua'))
+  local ok = FS.exists(string.join_path(p_path, MAIN))
   return ok, messages.pr_does_not_exist(name)
 end
 
@@ -139,7 +141,7 @@ local function isProject(path, name)
   if not FS.exists(p_path) then
     return false, p_path
   end
-  local main = string.join_path(p_path, 'main.lua')
+  local main = string.join_path(p_path, MAIN)
   if not FS.exists(main) then
     return false, p_path
   end
@@ -162,7 +164,7 @@ function ProjectService:create(name)
   if not dir_ok then
     return false, messages.write_error()
   end
-  local main = string.join_path(p_path, 'main.lua')
+  local main = string.join_path(p_path, MAIN)
   local example = [[
 print('Hello world!')
 ]]
