@@ -87,7 +87,7 @@ function Project:readfile(name)
   if not ex then
     return false, messages.file_does_not_exist(name)
   else
-    return FS.lines(fp)
+    return true, FS.lines(fp)
   end
 end
 
