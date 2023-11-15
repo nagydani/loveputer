@@ -46,15 +46,15 @@ local MAIN = 'main.lua'
 --- @return string? error
 local function validate_filename(name)
   if not string.is_non_empty_string(name) then
-    return false, 'Empty'
+    return false, messages.invalid_filename('Empty')
   end
   if string.ulen(name) > 60 then
-    return false, 'Too long'
+    return false, messages.invalid_filename('Too long')
   end
   if name:match('%.%.')
       or name:match('/')
   then
-    return false, 'Forbidden characters'
+    return false, messages.invalid_filename('Forbidden characters')
   end
   return true
 end
@@ -98,23 +98,11 @@ end
 function Project:writefile(name, data)
   local valid, err = validate_filename(name)
   if not valid then
-    return false, messages.invalid_filename(err)
+    return false, err
   end
   local fp = string.join_path(self.path, name)
   return FS.write(fp, data)
 end
-
---- Validate if the path contains a valid project under the supplied name
---- @param path string
---- @param name string
---- @return boolean
---- @return string path
-Project.isValid = function(path, name)
-  local p_path = string.join_path(path, name)
-  local ok = FS.exists(string.join_path(p_path, MAIN))
-  return ok, messages.pr_does_not_exist(name)
-end
-
 
 ProjectService = {}
 
@@ -134,30 +122,42 @@ function ProjectService:new(M)
 end
 
 --- @param name string
---- @return boolean success
---- @return string  path
-local function isProject(path, name)
+--- @return string? path
+--- @return string? error
+local function is_project(path, name)
   local p_path = string.join_path(path, name)
   if not FS.exists(p_path) then
-    return false, p_path
+    return nil, messages.pr_does_not_exist(name)
   end
   local main = string.join_path(p_path, MAIN)
   if not FS.exists(main) then
-    return false, p_path
+    return nil, messages.pr_does_not_exist(name)
   end
-  return true, p_path
+  return p_path
+end
+
+--- @param name string
+--- @return string? path
+--- @return string? error
+local function can_be_project(path, name)
+  local ok, n_err = validate_filename(name)
+  if not ok then
+    return nil, n_err
+  end
+  local p_path = string.join_path(path, name)
+  if FS.exists(p_path) then
+    return nil, messages.already_exists(name)
+  end
+  return p_path
 end
 
 --- @param name string
 --- @return boolean success
 --- @return string? error
 function ProjectService:create(name)
-  if not validate_filename(name) then
-    return false, messages.invalid_filename()
-  end
-  local exists, p_path = isProject(self.path, name)
-  if exists then
-    return false, messages.already_exists
+  local p_path, err = can_be_project(ProjectService.path, name)
+  if not p_path then
+    return false, err
   end
 
   local dir_ok = FS.mkdir(p_path)
@@ -181,7 +181,7 @@ function ProjectService:list()
   local ret = Dequeue:new()
   for n, f in pairs(folders) do
     if f.type and f.type == 'directory' then
-      local ok = isProject(self.path, n)
+      local ok = is_project(ProjectService.path, n)
       if ok then
         ret:push_back(Project:new(n))
       end
@@ -193,7 +193,7 @@ end
 --- @return boolean success
 --- @return string? errmsg
 function ProjectService:open(name)
-  local ok, p_err = Project.isValid(self.path, name)
+  local ok, p_err = is_project(self.path, name)
   -- TODO: noop if already open
   if ok then
     self.current = Project:new(name)
