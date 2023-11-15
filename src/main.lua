@@ -3,7 +3,6 @@ local redirect_to = require("model.io.redirect")
 require("view.consoleView")
 require("controller.consoleController")
 local colors = require("conf.colors")
-local nativefs = require("lib/nativefs")
 
 require("util.debug")
 
@@ -108,11 +107,11 @@ function love.load(args)
     project_path = project_path
   }
   for _, d in pairs(paths) do
-    local ok, err = nativefs.createDirectory(d)
+    local ok, err = FS.mkdir(d)
     if not ok then Log(err) end
   end
 
-  _G.nativefs = nativefs
+  _G.nativefs = require("lib/nativefs")
   love.state = {
     testing = false,
     has_removable = has_removable,
