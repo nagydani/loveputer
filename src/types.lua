@@ -1,4 +1,3 @@
 --- @class PathInfo table
---- @field has_removable boolean
 --- @field storage_path string
 --- @field project_path string

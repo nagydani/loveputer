@@ -104,7 +104,6 @@ function love.load(args)
 
   --- @type PathInfo
   local paths = {
-    has_removable = has_removable,
     storage_path = storage_path,
     project_path = project_path
   }
@@ -115,7 +114,8 @@ function love.load(args)
 
   _G.nativefs = nativefs
   love.state = {
-    testing = false
+    testing = false,
+    has_removable = has_removable,
   }
   love.paths = paths
 
