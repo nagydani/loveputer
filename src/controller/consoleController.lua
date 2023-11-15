@@ -121,17 +121,15 @@ local function prepare_env(env, M)
       local p = P.current
       local fpath = string.join_path(p.path, name)
       local ex = FS.exists(fpath)
-      orig_print(fpath)
-      if not ex then
-        local text = string.join(content, '\n')
-        local ok, err = p:writefile(name, text)
-        if ok then
-          print(name .. ' written')
-        else
-          print(err)
-        end
-      else
+      local text = string.join(content, '\n')
+      if ex then
         -- TODO: confirm overwrite
+      end
+      local ok, err = p:writefile(name, text)
+      if ok then
+        print(name .. ' written')
+      else
+        print(err)
       end
     end)
   end

@@ -76,10 +76,17 @@ function Project:contents()
 end
 
 --- @param name string
---- @return table
+--- @return boolean success
+--- @return table|string result|errmsg
 function Project:readfile(name)
   local fp = string.join_path(self.path, name)
-  return FS.lines(fp)
+
+  local ex = FS.exists(fp)
+  if not ex then
+    return false, messages.file_does_not_exist(name)
+  else
+    return FS.lines(fp)
+  end
 end
 
 --- @param name string
@@ -185,6 +192,7 @@ end
 --- @return string? errmsg
 function ProjectService:open(name)
   local ok, p_err = Project.isValid(self.path, name)
+  -- TODO: noop if already open
   if ok then
     self.current = Project:new(name)
     return true
