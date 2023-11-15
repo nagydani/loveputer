@@ -212,3 +212,17 @@ end
 function ProjectService:deploy_example()
   return true
 end
+
+--- @param name string
+--- @param env table
+--- @return function?
+--- @return string?
+function ProjectService:run(name, env)
+  local p_path, err = is_project(ProjectService.path, name)
+  if p_path then
+    -- load project contents
+    local main = string.join_path(p_path, MAIN)
+    return loadfile(main, 't', env)
+  end
+  return nil, err
+end

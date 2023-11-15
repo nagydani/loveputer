@@ -7,16 +7,17 @@ require("util.table")
 local G = love.graphics
 
 --- Put API functions into the env table
---- @param env table
---- @param M table
-local function prepare_env(env, M)
-  local IM            = M.input
-  env.switch          = function(kind)
+--- @param prepared table
+--- @param M Model
+--- @param runner_env table
+local function prepare_env(prepared, M, runner_env)
+  local IM                 = M.input
+  prepared.switch          = function(kind)
     IM:switch(kind)
   end
 
-  local P             = M.projects
-  env.list_projects   = function()
+  local P                  = M.projects
+  prepared.list_projects   = function()
     local ps = P:list()
     if ps:is_empty() then
       -- no projects, display a message about it
@@ -32,7 +33,7 @@ local function prepare_env(env, M)
   end
 
   --- @param name string
-  env.create_project  = function(name)
+  prepared.create_project  = function(name)
     local ok, err = P:create(name)
     if not ok then
       print(err)
@@ -42,7 +43,7 @@ local function prepare_env(env, M)
   end
 
   --- @param name string
-  env.open_project    = function(name)
+  prepared.open_project    = function(name)
     local ok, err = P:open(name)
     if not ok then
       print(err)
@@ -51,14 +52,14 @@ local function prepare_env(env, M)
     end
   end
 
-  env.close_project   = function()
+  prepared.close_project   = function()
     local ok = P:close()
     if ok then
       print('Project closed')
     end
   end
 
-  env.current_project = function()
+  prepared.current_project = function()
     if P.current and P.current.name then
       print('Currently open project: ' .. P.current.name)
     else
@@ -66,7 +67,7 @@ local function prepare_env(env, M)
     end
   end
 
-  env.example_project = function()
+  prepared.example_project = function()
     local ok = P.deploy_example()
     if ok then
 
@@ -74,7 +75,7 @@ local function prepare_env(env, M)
   end
 
   --- @param f function
-  local check_open_pr = function(f)
+  local check_open_pr      = function(f)
     if not P.current then
       print(P.messages.no_open_project)
     else
@@ -82,7 +83,7 @@ local function prepare_env(env, M)
     end
   end
 
-  env.list_contents   = function()
+  prepared.list_contents   = function()
     return check_open_pr(function()
       local p = P.current
       local items = p:contents()
@@ -94,7 +95,7 @@ local function prepare_env(env, M)
   end
 
   --- @param name string
-  env.readfile        = function(name)
+  prepared.readfile        = function(name)
     return check_open_pr(function()
       local p = P.current
       local ok, lines_err = p:readfile(name)
@@ -116,7 +117,7 @@ local function prepare_env(env, M)
 
   --- @param name string
   --- @param content string
-  env.writefile       = function(name, content)
+  prepared.writefile       = function(name, content)
     return check_open_pr(function()
       local p = P.current
       local fpath = string.join_path(p.path, name)
@@ -133,16 +134,28 @@ local function prepare_env(env, M)
       end
     end)
   end
+
+  prepared.run_project     = function(name)
+    local f, err = P:run(name, runner_env)
+    if f then
+      f()
+      print('Running ' .. name .. ' finished')
+    else
+      print(err)
+    end
+  end
 end
 
 function ConsoleController:new(M)
   local env = getfenv()
-  prepare_env(env, M)
+  local project_env = getfenv()
+  prepare_env(env, M, project_env)
   local cc = {
-    time = 0,
-    model = M,
-    base_env = table.clone(env),
-    env = table.clone(env),
+    time        = 0,
+    model       = M,
+    base_env    = table.clone(env),
+    env         = table.clone(env),
+    project_env = project_env,
   }
   setmetatable(cc, self)
   self.__index = self
