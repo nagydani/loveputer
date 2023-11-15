@@ -4,7 +4,36 @@ require("util.testTerminal")
 require("util.eval")
 require("util.table")
 
-local G = love.graphics
+
+--- @param f function
+--- @param M Model
+--- @return boolean success
+--- @return string? errmsg
+local function run_user_code(f, M, extra_path)
+  local G = love.graphics
+  local output = M.output
+
+
+
+  G.push('all')
+  output:draw_to()
+  local old_path = package.path
+  local ok, call_err
+  if extra_path then
+    package.path = string.format('%s;%s/?.lua', package.path, extra_path)
+    ok, call_err = pcall(f)
+    package.path = old_path
+  else
+    ok, call_err = pcall(f)
+  end
+  output:restore_main()
+  G.pop()
+  if not ok then
+    local e = LANG.parse_error(call_err)
+    return false, e
+  end
+  return true
+end
 
 --- Put API functions into the env table
 --- @param prepared table
@@ -136,10 +165,14 @@ local function prepare_env(prepared, M, runner_env)
   end
 
   prepared.run_project     = function(name)
-    local f, err = P:run(name, runner_env)
+    local f, err, path = P:run(name, runner_env)
     if f then
-      f()
-      print('Running ' .. name .. ' finished')
+      local ok, run_err = run_user_code(f, M, path)
+      if ok then
+        orig_print('Running ' .. name .. ' finished')
+      else
+        orig_print('Error: ', run_err)
+      end
     else
       print(err)
     end
@@ -173,7 +206,6 @@ function ConsoleController:get_timestamp()
 end
 
 function ConsoleController:evaluate_input()
-  local output = self.model.output
   local input = self.model.input
 
   local text = input:get_text()
@@ -185,16 +217,10 @@ function ConsoleController:evaluate_input()
       local code = string.join(text, '\n')
       local f, load_err = load(code, '', 't', self.env)
       if f then
-        G.push('all')
-        output:draw_to()
-        local ok, call_err = pcall(f)
-        if ok then
-        else
-          local e = LANG.parse_error(call_err)
-          input:set_error(e, true)
+        local err = run_user_code(f, self.model)
+        if err then
+          input:set_error(err, true)
         end
-        output:restore_main()
-        G.pop()
       else
         -- this means that metalua failed to catch some invalid code
         orig_print('Load error:', LANG.parse_error(load_err))

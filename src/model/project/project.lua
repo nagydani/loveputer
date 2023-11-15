@@ -233,13 +233,13 @@ end
 --- @param name string
 --- @param env table
 --- @return function?
---- @return string?
+--- @return string? error
+--- @return string? path
 function ProjectService:run(name, env)
   local p_path, err = is_project(ProjectService.path, name)
   if p_path then
-    -- load project contents
     local main = string.join_path(p_path, MAIN)
-    return loadfile(main, 't', env)
+    return loadfile(main, 't', env), nil, p_path
   end
   return nil, err
 end
