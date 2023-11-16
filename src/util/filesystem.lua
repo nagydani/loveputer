@@ -1,6 +1,17 @@
 local nativefs = require("lib/nativefs")
 
-FS = {}
+require("util.string")
+
+FS = {
+  messages = {
+    enoent = function(name, type)
+      if type == 'directory' or type == 'dir' then
+        return name .. ' is not a directory'
+      end
+      return name .. ' does not exist'
+    end
+  }
+}
 
 --- @param path string
 --- @return boolean
@@ -44,4 +55,71 @@ end
 --- @return string? error
 function FS.write(path, data)
   return nativefs.write(path, data)
+end
+
+--- @param source string
+--- @param target string
+--- @return boolean success
+--- @return string? error
+function FS.cp(source, target)
+  local srcinfo = nativefs.getInfo(source)
+  local tgtinfo = nativefs.getInfo(target)
+  local to
+  if not srcinfo or srcinfo.type ~= 'file' then
+    return false, FS.messages.enoent('source')
+  end
+  if not tgtinfo then
+    return false, FS.messages.enoent('target')
+  end
+  if tgtinfo.type ~= 'file' then
+    to = target
+  end
+  if tgtinfo.type ~= 'directory' then
+    local parts = string.split(source, '/')
+    local fn = parts[#parts]
+    to = string.join_path(target, fn)
+  end
+  if not to then
+    return false, FS.messages.enoent('target')
+  end
+
+  local src = io.open(source, "r")
+  if not src then
+    return false
+  end
+  local content = src:read("*a")
+  src:close()
+
+  local out = io.open(target, "w")
+  if not out then
+    return false
+  end
+  out:write(content)
+  out:close()
+  return true
+end
+
+--- @param source string
+--- @param target string
+--- @return boolean success
+--- @return string? error
+function FS.cp_r(source, target)
+  local srcinfo = nativefs.getInfo(source)
+  local tgtinfo = nativefs.getInfo(target)
+  if not srcinfo or srcinfo.type ~= 'directory' then
+    return false, FS.messages.enoent('source', 'dir')
+  end
+  if not tgtinfo or tgtinfo.type ~= 'directory' then
+    return false, FS.messages.enoent('target', 'dir')
+  end
+
+  FS.mkdir(target)
+  local items = nativefs.getDirectoryItemsInfo(source)
+  for _, i in pairs(items) do
+    local s = string.join_path(source, i.name)
+    local t = string.join_path(target, i.name)
+    FS.cp(s, t)
+  end
+
+  return true
 end
