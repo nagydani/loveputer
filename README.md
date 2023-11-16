@@ -37,6 +37,9 @@ A *project* is a folder in the application's storage which contains at least a
 * `run_project(proj?)`
 
     Run either *proj* or the currently open project if no arguments are passed.
+* `example_projects()`
+
+    Copy the included example projects to the projects folder.
 
 ### Files
 

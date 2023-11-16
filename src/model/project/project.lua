@@ -227,6 +227,14 @@ end
 
 --- @return boolean success
 function ProjectService:deploy_examples()
+  local ex_base = 'src/examples'
+  for n, i in pairs(FS.dir(ex_base)) do
+    if i and i.type == 'directory' then
+      local s_path = string.join_path(ex_base, n)
+      local t_path = string.join_path(ProjectService.path, n)
+      FS.cp_r(s_path, t_path)
+    end
+  end
   return true
 end
 
