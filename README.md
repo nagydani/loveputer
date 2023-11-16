@@ -11,60 +11,44 @@ A console-based Lua-programmable computer for children based on [LÖVE2D] framew
 * Share software in source package form
 * Minimize frustration
 
+# Usage
 
-## Development
+Rather than the default LÖVE storage locations (save directory, cache, etc), the
+application uses a folder under *Documents* to store projects. Ideally, this is
+located on removable storage to enable sharing programs the user writes.
 
-To run the code, [LÖVE2D] is required. It's been tested and developed on version 11.4 (Mysterious Mysteries).
+### Projects
 
-For unit tests, we are using the [busted] framework.
-Also, we need to supplement a utf-8 library, which comes with LOVE, but
-is not available for Lua 5.1 by default.
+A *project* is a folder in the application's storage which contains at least a
+`main.lua` file.
 
-The recommended way of installing these is with [LuaRocks]:
+* `list_projects()`
 
-```sh
-luarocks --local --lua-version 5.1 install busted
-luarocks --local --lua-version 5.1 install luautf8
-```
+    List available projects.
+* `create_project(proj)`
 
-For information about installing [LÖVE2D] and [LuaRocks], visit their respective webpages.
+    Create a new project with some example code.
+* `open_project(proj)`
 
+    Open project *proj*.
+* `current_project()`
 
-### Running unit tests
+    Print the currently open project's name (if any).
+* `run_project(proj?)`
 
-```sh
-busted tests
-```
+    Run either *proj* or the currently open project if no arguments are passed.
 
-### Test mode
+### Files
 
-The game can be run with the `--test` flag, which causes it to launch in test mode.
+Once a project is open, file operations are available on it's contents.
 
-```sh
-love src --test
-```
+* `list_contents()`
 
-This is currently used for testing the canvas terminal, therefore it causes the terminal to be smaller (so overflows are clearly visible), and pre-fills it with characters.
+    List files in the project.
+* `readfile(file)`
 
-### Debug mode
+    Open *file* and display it's contents.
+* `writefile(file, content)`
 
-Certain diagnostic key combinations are only available in debug mode,
-to access this, run the project with the `DEBUG` environment variable set
-(it's value doesn't matter, just that it's set):
-```sh
-DEBUG=1 love src
-```
-
-In this mode, a VT-100 terminal test can be activated with ^T (C-t, or Ctrl+t).
-
-### HiDPI
-
-Similarly, to set double scaling, set the `HIDPI` variable to `true`
-```sh
-HIDPI=true love src
-```
-
-
-[löve2d]: https://love2d.org
-[busted]: https://lunarmodules.github.io/busted/
-[LuaRocks]: https://luarocks.org/
+    Write to *file* the text supplied as the *content* parameter. This can be
+    either a string, or an array of strings.
