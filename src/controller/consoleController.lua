@@ -103,7 +103,10 @@ local function prepare_env(prepared, M, runner_env)
   end
 
   prepared.example_projects = function()
-    return P:deploy_examples()
+    local ok, err = P:deploy_examples()
+    if not ok then
+      print('err: ' .. err)
+    end
   end
 
   --- @param f function

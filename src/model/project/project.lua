@@ -226,16 +226,28 @@ function ProjectService:close()
 end
 
 --- @return boolean success
+--- @return string? error
 function ProjectService:deploy_examples()
-  local ex_base = 'src/examples'
-  for n, i in pairs(FS.dir(ex_base)) do
+  local cp_ok = true
+  local cp_err
+  local ex_base = 'examples'
+  local examples = FS.dir(ex_base, 'directory', true)
+  if #examples == 0 then
+    return false, 'No examples'
+  end
+  for _, i in ipairs(examples) do
     if i and i.type == 'directory' then
-      local s_path = string.join_path(ex_base, n)
-      local t_path = string.join_path(ProjectService.path, n)
-      FS.cp_r(s_path, t_path)
+      local s_path = string.join_path(ex_base, i.name)
+      local t_path = string.join_path(ProjectService.path, i.name)
+      local ok, err = FS.cp_r(s_path, t_path, true)
+      if not ok then
+        cp_ok = false
+        cp_err = err
+      end
     end
   end
-  return true
+
+  return cp_ok, cp_err
 end
 
 --- @param name string
