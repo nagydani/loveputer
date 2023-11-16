@@ -119,7 +119,7 @@ end
 --- @field list function
 --- @field open function
 --- @field close function
---- @field deploy_example function
+--- @field deploy_examples function
 --- @field run function
 ProjectService = {}
 
@@ -226,7 +226,7 @@ function ProjectService:close()
 end
 
 --- @return boolean success
-function ProjectService:deploy_example()
+function ProjectService:deploy_examples()
   return true
 end
 

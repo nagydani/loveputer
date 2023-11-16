@@ -40,15 +40,19 @@ end
 --- @param M Model
 --- @param runner_env table
 local function prepare_env(prepared, M, runner_env)
-  local IM                 = M.input
-  prepared.switch          =
+  local IM = M.input
+
+
+  prepared.G                = love.graphics
+
+  prepared.switch           =
   --- @param kind EvalType
       function(kind)
         IM:switch(kind)
       end
 
-  local P                  = M.projects
-  prepared.list_projects   = function()
+  local P                   = M.projects
+  prepared.list_projects    = function()
     local ps = P:list()
     if ps:is_empty() then
       -- no projects, display a message about it
@@ -64,7 +68,7 @@ local function prepare_env(prepared, M, runner_env)
   end
 
   --- @param name string
-  prepared.create_project  = function(name)
+  prepared.create_project   = function(name)
     local ok, err = P:create(name)
     if not ok then
       print(err)
@@ -74,7 +78,7 @@ local function prepare_env(prepared, M, runner_env)
   end
 
   --- @param name string
-  prepared.open_project    = function(name)
+  prepared.open_project     = function(name)
     local ok, err = P:open(name)
     if not ok then
       print(err)
@@ -83,14 +87,14 @@ local function prepare_env(prepared, M, runner_env)
     end
   end
 
-  prepared.close_project   = function()
+  prepared.close_project    = function()
     local ok = P:close()
     if ok then
       print('Project closed')
     end
   end
 
-  prepared.current_project = function()
+  prepared.current_project  = function()
     if P.current and P.current.name then
       print('Currently open project: ' .. P.current.name)
     else
@@ -106,7 +110,7 @@ local function prepare_env(prepared, M, runner_env)
   end
 
   --- @param f function
-  local check_open_pr      = function(f)
+  local check_open_pr       = function(f)
     if not P.current then
       print(P.messages.no_open_project)
     else
@@ -114,7 +118,7 @@ local function prepare_env(prepared, M, runner_env)
     end
   end
 
-  prepared.list_contents   = function()
+  prepared.list_contents    = function()
     return check_open_pr(function()
       local p = P.current
       local items = p:contents()
@@ -126,7 +130,7 @@ local function prepare_env(prepared, M, runner_env)
   end
 
   --- @param name string
-  prepared.readfile        = function(name)
+  prepared.readfile         = function(name)
     return check_open_pr(function()
       local p = P.current
       local ok, lines_err = p:readfile(name)
@@ -148,7 +152,7 @@ local function prepare_env(prepared, M, runner_env)
 
   --- @param name string
   --- @param content string
-  prepared.writefile       = function(name, content)
+  prepared.writefile        = function(name, content)
     return check_open_pr(function()
       local p = P.current
       local fpath = string.join_path(p.path, name)
@@ -166,7 +170,7 @@ local function prepare_env(prepared, M, runner_env)
     end)
   end
 
-  prepared.run_project     = function(name)
+  prepared.run_project      = function(name)
     local f, err, path = P:run(name, runner_env)
     if f then
       local ok, run_err = run_user_code(f, M, path)
