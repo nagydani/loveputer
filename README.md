@@ -52,3 +52,14 @@ Once a project is open, file operations are available on it's contents.
 
     Write to *file* the text supplied as the *content* parameter. This can be
     either a string, or an array of strings.
+
+
+### Plumbing
+
+* `switch(eval)`
+
+    Change the active interpreter to *eval*
+    *eval* is one of
+    * `lua` - the default lua interpreter
+    * `input-text` - plaintext user input
+    * `input-lua` - syntax highlighted lua input

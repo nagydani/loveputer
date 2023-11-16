@@ -604,6 +604,7 @@ function InputModel:_handle(eval)
   return ok, result
 end
 
+--- @param kind EvalType
 function InputModel:switch(kind)
   local sw = {
     ['lua']        = self.luaEval,
