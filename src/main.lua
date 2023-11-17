@@ -156,6 +156,17 @@ function love.load(args)
   C = ConsoleController:new(M)
   CV = ConsoleView:new(baseconf, C)
 
+  -- Ensure the user can get back to the console
+  love.handlers.keypressed = function(k)
+    local ctrl  = love.keyboard.isDown("lctrl", "rctrl")
+    local shift = love.keyboard.isDown("lshift", "rshift")
+    if ctrl and shift then
+      if k == "q" then
+        C:quit_project()
+      end
+    end
+    if love.keypressed then return love.keypressed(k) end
+  end
   table.protect(love.handlers)
 
 
