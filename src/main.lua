@@ -1,6 +1,7 @@
 require("model.model")
 local redirect_to = require("model.io.redirect")
 require("view.consoleView")
+require("controller.controller")
 require("controller.consoleController")
 require("view.view")
 local colors = require("conf.colors")
@@ -159,12 +160,10 @@ function love.load(args)
   if testrun then C:autotest() end
 end
 
+Controller.set_default_handlers()
+
 function love.textinput(t)
   C:textinput(t)
-end
-
-function love.keypressed(k)
-  C:keypressed(k)
 end
 
 function love.keyreleased(k)
