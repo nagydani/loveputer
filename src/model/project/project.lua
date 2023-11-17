@@ -260,6 +260,7 @@ function ProjectService:run(name, env)
   if not name then
     if self.current then
       p_path = self.current.path
+      nativefs.setWorkingDirectory(p_path)
     else
       return nil, messages.no_open_project
     end
