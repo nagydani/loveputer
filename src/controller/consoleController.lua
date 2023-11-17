@@ -175,9 +175,9 @@ local function prepare_env(prepared, M, runner_env)
     if f then
       local ok, run_err = run_user_code(f, M, path)
       if ok then
-        orig_print('Running ' .. name .. ' finished')
+        Log('Running \'' .. name .. '\' finished')
       else
-        orig_print('Error: ', run_err)
+        print('Error: ', run_err)
       end
     else
       print(err)

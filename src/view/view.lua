@@ -7,10 +7,8 @@ View = {
     G.pop()
   end,
   set_love_draw = function()
-    (function()
-      function love.draw()
-        View.draw()
-      end
-    end)()
+    function love.draw()
+      View.draw()
+    end
   end,
 }
