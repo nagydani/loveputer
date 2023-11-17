@@ -254,6 +254,7 @@ end
 function ConsoleController:reset()
   self.model.output:reset()
   self.model.input:reset()
+  View.set_love_draw()
   self:_reset_executor_env()
 end
 

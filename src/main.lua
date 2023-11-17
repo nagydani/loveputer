@@ -2,12 +2,12 @@ require("model.model")
 local redirect_to = require("model.io.redirect")
 require("view.consoleView")
 require("controller.consoleController")
+require("view.view")
 local colors = require("conf.colors")
 
 require("util.debug")
 
-local G = love.graphics
-local M, V, C
+G = love.graphics
 
 --- Find removable and user-writable storage
 --- Assumptions are made, which are might be to the target platform/device
@@ -153,7 +153,7 @@ function love.load(args)
   M = Model:new(baseconf)
   redirect_to(M)
   C = ConsoleController:new(M)
-  V = ConsoleView:new(baseconf, C)
+  CV = ConsoleView:new(baseconf, C)
 
   --- run autotest on startup if invoked
   if testrun then C:autotest() end
@@ -183,9 +183,7 @@ function love.update(dt)
 end
 
 function love.draw()
-  local terminal = C:get_terminal()
-  local input = C:get_input()
-  V:draw(terminal, input)
+  View.draw()
 end
 
 function love.mousepressed(x, y, button)
