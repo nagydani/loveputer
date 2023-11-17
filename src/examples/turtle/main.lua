@@ -1,7 +1,8 @@
-local width, height = love.graphics.getDimensions()
+local width, height = G.getDimensions()
 local midx = width / 2
 local midy = height / 2
 
+local points = {}
 local x, y = midx, midy
 local incr = 5
 
@@ -45,25 +46,43 @@ local function drawTurtle(x, y)
   G.pop()
 end
 
+local function drawPoints()
+  G.push('all')
+  G.setPointSize(4)
+  G.setColor(Color[Color.yellow + Color.bright])
+  for _, p in pairs(points) do
+    -- G.points(p.x, p.y)
+    G.circle("fill", p.x, p.y, 5, 100)
+  end
+  G.pop()
+end
+
 function love.draw()
   drawTurtle(x, y)
+  drawPoints()
 end
 
 function love.keypressed(key)
-  if key == 'w' then
+  if key == 'w' or key == 'up' then
     y = y - incr
   end
-  if key == 's' then
+  if key == 's' or key == 'down' then
     y = y + incr
   end
-  if key == 'a' then
+  if key == 'a' or key == 'left' then
     x = x - (2 * incr)
   end
-  if key == 'd' then
+  if key == 'd' or key == 'right' then
     x = x + (2 * incr)
   end
 
   if key == 'r' then
     x, y = midx, midy
+  end
+end
+
+function love.mousereleased(x, y, button)
+  if button == 1 then
+    table.insert(points, { x = x, y = y })
   end
 end
