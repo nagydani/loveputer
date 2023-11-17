@@ -48,3 +48,22 @@ end
 function love.draw()
   drawTurtle(x, y)
 end
+
+function love.keypressed(key)
+  if key == 'w' then
+    y = y - incr
+  end
+  if key == 's' then
+    y = y + incr
+  end
+  if key == 'a' then
+    x = x - (2 * incr)
+  end
+  if key == 'd' then
+    x = x + (2 * incr)
+  end
+
+  if key == 'r' then
+    x, y = midx, midy
+  end
+end
