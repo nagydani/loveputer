@@ -133,6 +133,8 @@ function InputView:draw(input)
   -- draw
   G.push('all')
   G.setFont(self.cfg.font_main)
+  G.setBackgroundColor(self.cfg.colors.input.bg)
+  G.setColor(self.cfg.colors.input.fg)
   self.statusline:draw(status, apparentLines, time)
   drawBackground()
   if isError then
