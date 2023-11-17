@@ -174,37 +174,11 @@ function love.load(args)
   if testrun then C:autotest() end
 end
 
+
 Controller.set_default_handlers()
-
-function love.textinput(t)
-  C:textinput(t)
-end
-
-function love.keyreleased(k)
-  local ctrl = love.keyboard.isDown("lctrl", "rctrl")
-  -- Ctrl held
-  if ctrl then
-    if k == "escape" then
-      love.event.quit()
-    end
-  end
-  C:keyreleased(k)
-end
 
 function love.update(dt)
   C:pass_time(dt)
-end
-
-function love.mousepressed(x, y, button)
-  C:mousepressed(x, y, button)
-end
-
-function love.mousereleased(x, y, button)
-  C:mousereleased(x, y, button)
-end
-
-function love.mousemoved(x, y, dx, dy)
-  C:mousemoved(x, y)
 end
 
 View.set_love_draw()
