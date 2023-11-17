@@ -54,5 +54,11 @@ Controller = {
     Controller.set_love_mousemoved()
     Controller.set_love_mousepressed()
     Controller.set_love_mousereleased()
+  end,
+
+  set_love_update = function()
+    function love.update(dt)
+      C:pass_time(dt)
+    end
   end
 }

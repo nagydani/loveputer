@@ -168,17 +168,12 @@ function love.load(args)
     if love.keypressed then return love.keypressed(k) end
   end
   table.protect(love.handlers)
-
+  Controller.set_love_update()
 
   --- run autotest on startup if invoked
   if testrun then C:autotest() end
 end
 
-
 Controller.set_default_handlers()
-
-function love.update(dt)
-  C:pass_time(dt)
-end
 
 View.set_love_draw()
