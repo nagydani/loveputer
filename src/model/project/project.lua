@@ -196,11 +196,11 @@ end
 function ProjectService:list()
   local folders = FS.dir(self.path)
   local ret = Dequeue:new()
-  for n, f in pairs(folders) do
+  for _, f in pairs(folders) do
     if f.type and f.type == 'directory' then
-      local ok = is_project(ProjectService.path, n)
+      local ok = is_project(ProjectService.path, f.name)
       if ok then
-        ret:push_back(Project:new(n))
+        ret:push_back(Project:new(f.name))
       end
     end
   end
