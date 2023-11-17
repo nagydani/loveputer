@@ -156,6 +156,9 @@ function love.load(args)
   C = ConsoleController:new(M)
   CV = ConsoleView:new(baseconf, C)
 
+  table.protect(love.handlers)
+
+
   --- run autotest on startup if invoked
   if testrun then C:autotest() end
 end
