@@ -182,10 +182,6 @@ function love.update(dt)
   C:pass_time(dt)
 end
 
-function love.draw()
-  View.draw()
-end
-
 function love.mousepressed(x, y, button)
   C:mousepressed(x, y, button)
 end
@@ -197,3 +193,5 @@ end
 function love.mousemoved(x, y, dx, dy)
   C:mousemoved(x, y)
 end
+
+View.set_love_draw()
