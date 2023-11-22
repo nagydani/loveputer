@@ -123,8 +123,8 @@ local function prepare_env(prepared, M, runner_env)
       local p = P.current
       local items = p:contents()
       print(P.messages.project_header(p.name))
-      for name, _ in pairs(items) do
-        print('• ' .. name)
+      for _, f in pairs(items) do
+        print('• ' .. f.name)
       end
     end)
   end
