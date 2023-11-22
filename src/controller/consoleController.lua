@@ -228,7 +228,7 @@ function ConsoleController:evaluate_input()
       local code = string.join(text, '\n')
       local f, load_err = load(code, '', 't', self.env)
       if f then
-        local err = run_user_code(f, self.model, project_path)
+        local _, err = run_user_code(f, self.model, project_path)
         if err then
           input:set_error(err, true)
         end
