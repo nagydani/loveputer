@@ -17,10 +17,22 @@ Rather than the default LÖVE storage locations (save directory, cache, etc), th
 application uses a folder under *Documents* to store projects. Ideally, this is
 located on removable storage to enable sharing programs the user writes.
 
+## Keys
+
+| Command                                 |         Keymap         |
+| :-------------------------------------- | :---------------------: |
+| clear terminal                          | <kbd>Ctrl-Shift-L</kbd> |
+| quit project                            | <kbd>Ctrl-Shift-Q</kbd> |
+| reset                                   | <kbd>Ctrl-Shift-R</kbd> |
+|                                         |                         |
+| Clear terminal                          | <kbd>Ctrl-L</kbd>       |
+
 ### Projects
 
 A *project* is a folder in the application's storage which contains at least a
 `main.lua` file.
+Projects can be loaded and ran. At any time, pressing <kbd>Ctrl-Shift-Q</kbd>
+quits and returns to the console
 
 * `list_projects()`
 
@@ -62,6 +74,7 @@ Once a project is open, file operations are available on it's contents.
 * `switch(eval)`
 
     Change the active interpreter to *eval*
+
     *eval* is one of
     * `lua` - the default lua interpreter
     * `input-text` - plaintext user input
