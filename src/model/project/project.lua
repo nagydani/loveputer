@@ -239,6 +239,7 @@ function ProjectService:deploy_examples()
     if i and i.type == 'directory' then
       local s_path = string.join_path(ex_base, i.name)
       local t_path = string.join_path(ProjectService.path, i.name)
+      Log('INFO: copying example' .. i.name .. ' to ' .. t_path)
       local ok, err = FS.cp_r(s_path, t_path, true)
       if not ok then
         cp_ok = false
