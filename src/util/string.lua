@@ -165,7 +165,9 @@ string.lines = function(s)
   end
 end
 
-
+--- @param strs string|table
+--- @param char string
+--- @return string
 string.join = function(strs, char)
   local res = ''
   if type(strs) == 'table' then
@@ -183,6 +185,7 @@ string.join = function(strs, char)
   return res
 end
 
+--- @return string
 string.join_path = function(...)
   local sep = '/' -- TODO? win support
   local args = { ... }
