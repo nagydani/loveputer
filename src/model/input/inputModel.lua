@@ -256,8 +256,11 @@ function InputModel:clear_input()
   self.tokens = nil
 end
 
-function InputModel:reset()
-  self.history = Dequeue:new()
+--- @param history boolean
+function InputModel:reset(history)
+  if history then
+    self.history = Dequeue:new()
+  end
   self:clear_input()
 end
 

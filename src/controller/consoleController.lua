@@ -252,8 +252,14 @@ function ConsoleController:_reset_executor_env()
 end
 
 function ConsoleController:reset()
+  self:quit_project()
+  self.model.input:reset(true) -- clear history
+end
+
+function ConsoleController:quit_project()
   self.model.output:reset()
   self.model.input:reset()
+  nativefs.setWorkingDirectory(love.filesystem.getSourceBaseDirectory())
   View.set_love_draw()
   self:_reset_executor_env()
 end
@@ -387,6 +393,9 @@ function ConsoleController:keypressed(k)
 
   -- Ctrl and Shift held
   if ctrl and shift then
+    if k == "q" then
+      self:quit_project()
+    end
     if k == "r" then
       self:reset()
     end
