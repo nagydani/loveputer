@@ -17,15 +17,26 @@ Rather than the default LÖVE storage locations (save directory, cache, etc), th
 application uses a folder under *Documents* to store projects. Ideally, this is
 located on removable storage to enable sharing programs the user writes.
 
+For simplicity and security reasons, the user is only allowed to access files
+inside a project. To interact with the filesystem, a project must be selected
+first.
+
 ## Keys
 
-| Command                                 |         Keymap         |
-| :-------------------------------------- | :---------------------: |
-| clear terminal                          | <kbd>Ctrl-Shift-L</kbd> |
-| quit project                            | <kbd>Ctrl-Shift-Q</kbd> |
-| reset                                   | <kbd>Ctrl-Shift-R</kbd> |
-|                                         |                         |
-| Clear terminal                          | <kbd>Ctrl-L</kbd>       |
+| Command                            |                  Keymap                       |
+| :--------------------------------- | :-------------------------------------------: |
+| Clear terminal                     | <kbd>Ctrl</kbd>+<kbd>L</kbd>                  |
+| Quit project                       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Q</kbd> |
+| Reset application to initial state | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> |
+| Exit application                   | <kbd>Ctrl</kbd>+<kbd>Esc</kbd>                |
+|                                     **Input**                                      |
+| Move cursor                     | <kbd>⇦</kbd><kbd>⇧</kbd><kbd>⇨</kbd><kbd>⇩</kbd> |
+| Go back in command history              | <kbd>PageUp</kbd>                        |
+| Go forward in command history           | <kbd>PageDown</kbd>                      |
+| Move in history (if in first/last line) | <kbd>⇧</kbd><kbd>⇩</kbd>                 |
+| Jump to start                           | <kbd>Home</kbd>                          |
+| Jump to end                             | <kbd>End</kbd>                           |
+| Insert newline                          | <kbd>Shift</kbd>+<kbd>Enter</kbd>        |
 
 ### Projects
 
