@@ -88,6 +88,7 @@ function love.load(args)
     end
     has_removable = true
     storage_path = string.format("%s/Documents/%s", sd_path, id)
+    print('INFO: Project path: ' .. storage_path)
   end
 
   -- storage
