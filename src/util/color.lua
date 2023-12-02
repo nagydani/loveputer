@@ -14,14 +14,14 @@ Color = {
     return Color[oc]
   end,
 
-  black = 0,
-  blue = 1,
-  red = 2,
-  magenta = 3,
-  green = 4,
-  cyan = 5,
-  yellow = 6,
-  white = 7,
+  black = 0,   -- #000000
+  blue = 1,    -- #0000bf #0000ff
+  red = 2,     -- #bf0000 #ff0000
+  magenta = 3, -- #bf01bf #ff01ff
+  green = 4,   -- #01bf01 #01ff01
+  cyan = 5,    -- #00bfbf #00ffff
+  yellow = 6,  -- #bfbf00 #ffff00
+  white = 7,   -- #bfbfbf #ffffff
   bright = 8,
 }
 

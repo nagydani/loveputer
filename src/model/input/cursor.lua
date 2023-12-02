@@ -16,6 +16,10 @@ function Cursor:new(l, c)
   return cur
 end
 
+function Cursor:inline(c)
+  return Cursor:new(1, c)
+end
+
 function Cursor:compare(other)
   if other and other.l and other.c then
     if self.l > other.l then

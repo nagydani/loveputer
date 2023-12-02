@@ -1,24 +1,49 @@
 require("model.input.eval.textEval")
 require("model.input.eval.luaEval")
+require("model.input.eval.inputEval")
 require("model.input.inputText")
 require("model.input.selection")
+require("model.input.item")
 
 require("util.dequeue")
 require("util.string")
 require("util.debug")
 
-
+--- @class InputModel
+--- @field entered table
+--- @field history table
+--- @field evaluator table
+--- @field luaEval table
+--- @field textInput table
+--- @field luaInput table
+--- @field inputs table
+--- @field cursor table
+--- @field wrap integer
+--- @field wrapped_text table
+--- @field wrapped_error table
+--- @field cursor_wrap table
+--- @field wrap_reverse table
+--- @field n_breaks integer
+--- @field selection table
+-- methods
+--- @todo
 InputModel = {}
 
 function InputModel:new(cfg)
-  local textEval = TextEval:new()
-  local luaEval = LuaEval:new('metalua')
-  local im = {
+  local luaEval   = LuaEval:new('metalua')
+  local textInput = InputEval:new(false)
+  local luaInput  = InputEval:new(true)
+  local im        = {
     entered = InputText:new(),
     history = Dequeue:new(),
+    -- starter
     evaluator = luaEval,
-    textEval = textEval,
+    -- available options
     luaEval = luaEval,
+    textInput = textInput,
+    luaInput = luaInput,
+    --
+    inputs = Dequeue:new(),
     cursor = Cursor:new(),
     wrap = cfg.drawableChars,
     wrapped_text = {},
@@ -231,8 +256,11 @@ function InputModel:clear_input()
   self.tokens = nil
 end
 
-function InputModel:reset()
-  self.history = Dequeue:new()
+--- @param history boolean
+function InputModel:reset(history)
+  if history then
+    self.history = Dequeue:new()
+  end
   self:clear_input()
 end
 
@@ -276,13 +304,13 @@ end
 
 function InputModel:highlight()
   local ev = self.evaluator
-  if ev.kind == 'lua' then
+  if ev.highlight then
     local p = ev.parser
     local text = self:get_text()
     local lex = p.stream_tokens(text)
     -- iterating over the stream exhausts it
     local tokens = p.realize_stream(lex)
-    local ok, err = p.parse(text)
+    local ok, err = p.parse_prot(text)
     local parse_err
     if not ok then
       local l, c, msg = p.get_error(err)
@@ -544,21 +572,54 @@ function InputModel:_handle(eval)
   self.historic_index = nil
   local ok, result
   if string.is_non_empty_string_array(ent) then
+    local ev = self.evaluator
     self:_remember(ent)
     if eval then
-      ok, result = self.evaluator.apply(ent)
-      if ok then
-        self:clear_input()
+      if ev.is_lua then
+        ok, result = self.evaluator.apply(ent)
+
+        if ok then
+          self:clear_input()
+        else
+          local l, c, err = self:get_eval_error(result)
+          self:move_cursor(l, c + 1)
+          self.error = err
+        end
       else
-        local l, c, err = self:get_eval_error(result)
-        self:move_cursor(l, c + 1)
-        self.error = err
+        -- whatever else happens, return to lua interpreter
+        if ev.kind == 'input' then
+          local t = self:get_text()
+          if string.is_non_empty_string_array(t) then
+            local kind = (function()
+              if ev.highlight then return 'lua' else return 'text' end
+            end)()
+            self.inputs:push_back(Item:new(t, kind))
+          end
+        end
+        self:switch('lua')
+        self:clear_input()
       end
     else
       self:clear_input()
+      ok = true
     end
   end
   return ok, result
+end
+
+--- @param kind EvalType
+function InputModel:switch(kind)
+  local sw = {
+    ['lua']        = self.luaEval,
+    ['input-text'] = self.textInput,
+    ['input-lua']  = self.luaInput,
+  }
+  local new = sw[kind]
+  if new then
+    self.evaluator = new
+  else
+    self:set_error('Invalid choice of eval', true)
+  end
 end
 
 ----------------
@@ -588,7 +649,8 @@ end
 
 function InputModel:get_eval_error(errors)
   local ev = self.evaluator
-  if ev.kind == 'lua' and string.is_non_empty_string_array(self:get_text()) then
+  local t = self:get_text()
+  if ev.is_lua and string.is_non_empty_string_array(t) then
     return ev.parser.get_error(errors)
   end
 end

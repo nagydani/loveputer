@@ -4,6 +4,17 @@ local Terminal = require("lib.terminal")
 
 local G = love.graphics
 
+--- @class CanvasModel
+--- @field terminal table
+--- @field canvas love.Canvas
+--- @field cfg table
+--- @field write function
+--- @field push function
+--- @field reset function
+--- @field update function
+--- @field get_canvas function
+--- @field draw_to function
+--- @field restore_main function
 CanvasModel = {}
 
 

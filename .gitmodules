@@ -1,0 +1,3 @@
+[submodule "src/lib/metalua"]
+	path = src/lib/metalua
+	url = git@github.com:aldum/metalua.git

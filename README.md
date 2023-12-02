@@ -11,60 +11,82 @@ A console-based Lua-programmable computer for children based on [LÖVE2D] framew
 * Share software in source package form
 * Minimize frustration
 
+# Usage
 
-## Development
+Rather than the default LÖVE storage locations (save directory, cache, etc), the
+application uses a folder under *Documents* to store projects. Ideally, this is
+located on removable storage to enable sharing programs the user writes.
 
-To run the code, [LÖVE2D] is required. It's been tested and developed on version 11.4 (Mysterious Mysteries).
+For simplicity and security reasons, the user is only allowed to access files
+inside a project. To interact with the filesystem, a project must be selected
+first.
 
-For unit tests, we are using the [busted] framework.
-Also, we need to supplement a utf-8 library, which comes with LOVE, but
-is not available for Lua 5.1 by default.
+## Keys
 
-The recommended way of installing these is with [LuaRocks]:
+| Command                            |                  Keymap                       |
+| :--------------------------------- | :-------------------------------------------: |
+| Clear terminal                     | <kbd>Ctrl</kbd>+<kbd>L</kbd>                  |
+| Quit project                       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Q</kbd> |
+| Reset application to initial state | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> |
+| Exit application                   | <kbd>Ctrl</kbd>+<kbd>Esc</kbd>                |
+|                                     **Input**                                      |
+| Move cursor                     | <kbd>⇦</kbd><kbd>⇧</kbd><kbd>⇨</kbd><kbd>⇩</kbd> |
+| Go back in command history              | <kbd>PageUp</kbd>                        |
+| Go forward in command history           | <kbd>PageDown</kbd>                      |
+| Move in history (if in first/last line) | <kbd>⇧</kbd><kbd>⇩</kbd>                 |
+| Jump to start                           | <kbd>Home</kbd>                          |
+| Jump to end                             | <kbd>End</kbd>                           |
+| Insert newline                          | <kbd>Shift</kbd>+<kbd>Enter</kbd>        |
 
-```sh
-luarocks --local --lua-version 5.1 install busted
-luarocks --local --lua-version 5.1 install luautf8
-```
+### Projects
 
-For information about installing [LÖVE2D] and [LuaRocks], visit their respective webpages.
+A *project* is a folder in the application's storage which contains at least a
+`main.lua` file.
+Projects can be loaded and ran. At any time, pressing <kbd>Ctrl-Shift-Q</kbd>
+quits and returns to the console
+
+* `list_projects()`
+
+    List available projects.
+* `create_project(proj)`
+
+    Create a new project with some example code.
+* `open_project(proj)`
+
+    Open project *proj*.
+* `current_project()`
+
+    Print the currently open project's name (if any).
+* `run_project(proj?)`
+
+    Run either *proj* or the currently open project if no arguments are passed.
+* `example_projects()`
+
+    Copy the included example projects to the projects folder.
+
+### Files
+
+Once a project is open, file operations are available on it's contents.
+
+* `list_contents()`
+
+    List files in the project.
+* `readfile(file)`
+
+    Open *file* and display it's contents.
+* `writefile(file, content)`
+
+    Write to *file* the text supplied as the *content* parameter. This can be
+    either a string, or an array of strings.
 
 
-### Running unit tests
+### Plumbing
 
-```sh
-busted tests
-```
+* `switch(eval)`
 
-### Test mode
+    Change the active interpreter to *eval*
 
-The game can be run with the `--test` flag, which causes it to launch in test mode.
-
-```sh
-love src --test
-```
-
-This is currently used for testing the canvas terminal, therefore it causes the terminal to be smaller (so overflows are clearly visible), and pre-fills it with characters.
-
-### Debug mode
-
-Certain diagnostic key combinations are only available in debug mode,
-to access this, run the project with the `DEBUG` environment variable set
-(it's value doesn't matter, just that it's set):
-```sh
-DEBUG=1 love src
-```
-
-In this mode, a VT-100 terminal test can be activated with ^T (C-t, or Ctrl+t).
-
-### HiDPI
-
-Similarly, to set double scaling, set the `HIDPI` variable to `true`
-```sh
-HIDPI=true love src
-```
-
-
-[löve2d]: https://love2d.org
-[busted]: https://lunarmodules.github.io/busted/
-[LuaRocks]: https://luarocks.org/
+    *eval* is one of
+    * `lua` - the default lua interpreter
+    * `input-text` - plaintext user input
+    * `input-lua` - syntax highlighted lua input

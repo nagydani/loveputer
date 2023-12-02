@@ -4,15 +4,197 @@ require("util.testTerminal")
 require("util.eval")
 require("util.table")
 
-local G = love.graphics
 
-function ConsoleController:new(m)
+--- @param f function
+--- @param M Model
+--- @return boolean success
+--- @return string? errmsg
+local function run_user_code(f, M, extra_path)
+  local G = love.graphics
+  local output = M.output
+
+
+
+  G.push('all')
+  output:draw_to()
+  local old_path = package.path
+  local ok, call_err
+  if extra_path then
+    package.path = string.format('%s;%s/?.lua', package.path, extra_path)
+    ok, call_err = pcall(f)
+    package.path = old_path
+  else
+    ok, call_err = pcall(f)
+  end
+  output:restore_main()
+  G.pop()
+  if not ok then
+    local e = LANG.parse_error(call_err)
+    return false, e
+  end
+  return true
+end
+
+--- Put API functions into the env table
+--- @param prepared table
+--- @param M Model
+--- @param runner_env table
+local function prepare_env(prepared, M, runner_env)
+  local IM = M.input
+
+
+  prepared.G                = love.graphics
+
+  prepared.switch           =
+  --- @param kind EvalType
+      function(kind)
+        IM:switch(kind)
+      end
+
+  local P                   = M.projects
+  prepared.list_projects    = function()
+    local ps = P:list()
+    if ps:is_empty() then
+      -- no projects, display a message about it
+      print(P.messages.no_projects)
+    else
+      -- list projects
+      M.output:reset()
+      print(P.messages.list_header)
+      for _, p in ipairs(ps) do
+        print('> ' .. p.name)
+      end
+    end
+  end
+
+  --- @param name string
+  prepared.create_project   = function(name)
+    local ok, err = P:create(name)
+    if not ok then
+      print(err)
+    else
+      print('Project ' .. name .. ' created')
+    end
+  end
+
+  --- @param name string
+  prepared.open_project     = function(name)
+    local ok, err = P:open(name)
+    if not ok then
+      print(err)
+    else
+      print('Project ' .. name .. ' opened')
+    end
+  end
+
+  prepared.close_project    = function()
+    local ok = P:close()
+    if ok then
+      print('Project closed')
+    end
+  end
+
+  prepared.current_project  = function()
+    if P.current and P.current.name then
+      print('Currently open project: ' .. P.current.name)
+    else
+      print(P.messages.no_open_project)
+    end
+  end
+
+  prepared.example_projects = function()
+    local ok, err = P:deploy_examples()
+    if not ok then
+      print('err: ' .. err)
+    end
+  end
+
+  --- @param f function
+  local check_open_pr       = function(f)
+    if not P.current then
+      print(P.messages.no_open_project)
+    else
+      return f()
+    end
+  end
+
+  prepared.list_contents    = function()
+    return check_open_pr(function()
+      local p = P.current
+      local items = p:contents()
+      print(P.messages.project_header(p.name))
+      for _, f in pairs(items) do
+        print('• ' .. f.name)
+      end
+    end)
+  end
+
+  --- @param name string
+  prepared.readfile         = function(name)
+    return check_open_pr(function()
+      local p = P.current
+      local ok, lines_err = p:readfile(name)
+      if ok then
+        local lines = lines_err
+        local nl = string.ulen('' .. #lines .. '  ')
+        M.output:reset()
+        local w = M.output.cfg.drawableChars - 1
+        print(P.messages.file_header(name, w))
+        for i, l in ipairs(lines) do
+          local ln = string.format("% " .. nl .. "d", i)
+          print(string.format("%s │ %s", ln, l))
+        end
+      else
+        print(lines_err)
+      end
+    end)
+  end
+
+  --- @param name string
+  --- @param content string
+  prepared.writefile        = function(name, content)
+    return check_open_pr(function()
+      local p = P.current
+      local fpath = string.join_path(p.path, name)
+      local ex = FS.exists(fpath)
+      local text = string.join(content, '\n')
+      if ex then
+        -- TODO: confirm overwrite
+      end
+      local ok, err = p:writefile(name, text)
+      if ok then
+        print(name .. ' written')
+      else
+        print(err)
+      end
+    end)
+  end
+
+  prepared.run_project      = function(name)
+    local f, err, path = P:run(name, runner_env)
+    if f then
+      local ok, run_err = run_user_code(f, M, path)
+      if ok then
+        Log('Running \'' .. name .. '\' finished')
+      else
+        print('Error: ', run_err)
+      end
+    else
+      print(err)
+    end
+  end
+end
+
+function ConsoleController:new(M)
   local env = getfenv()
+  local project_env = getfenv()
+  prepare_env(env, M, project_env)
   local cc = {
-    time = 0,
-    model = m,
-    base_env = table.clone(env),
-    env = table.clone(env),
+    time        = 0,
+    model       = M,
+    base_env    = table.clone(env),
+    env         = table.clone(env),
+    project_env = project_env,
   }
   setmetatable(cc, self)
   self.__index = self
@@ -30,34 +212,37 @@ function ConsoleController:get_timestamp()
 end
 
 function ConsoleController:evaluate_input()
-  local output = self.model.output
   local input = self.model.input
+  local P = self.model.projects
+  local project_path
+  if P.current then
+    project_path = P.current.path
+  end
 
   local text = input:get_text()
-  local syntax_ok, res = input:evaluate()
-  if syntax_ok then
-    local code = string.join(text, '\n')
-    local f, load_err = load(code, '', 't', self.env)
-    if f then
-      G.push('all')
-      output:draw_to()
-      local ok, call_err = pcall(f)
-      if ok then
+  local eval = input.evaluator
+
+  local eval_ok, res = input:evaluate()
+  if eval.is_lua then
+    if eval_ok then
+      local code = string.join(text, '\n')
+      local f, load_err = load(code, '', 't', self.env)
+      if f then
+        local _, err = run_user_code(f, self.model, project_path)
+        if err then
+          input:set_error(err, true)
+        end
       else
-        local e = parse_load_error(call_err)
-        input:set_error(e, true)
+        -- this means that metalua failed to catch some invalid code
+        orig_print('Load error:', LANG.parse_error(load_err))
+        input:set_error(load_err, true)
       end
-      output:restore_main()
-      G.pop()
     else
-      -- we should not see many of these, since the code is parsed prior
-      orig_print(load_err)
-    end
-  else
-    local l, c, eval_err = input:get_eval_error(res)
-    if string.is_non_empty_string(eval_err) then
-      orig_print(eval_err)
-      input:set_error(eval_err)
+      local _, _, eval_err = input:get_eval_error(res)
+      if string.is_non_empty_string(eval_err) then
+        orig_print(eval_err)
+        input:set_error(eval_err)
+      end
     end
   end
 end
@@ -67,8 +252,17 @@ function ConsoleController:_reset_executor_env()
 end
 
 function ConsoleController:reset()
+  self:quit_project()
+  self.model.input:reset(true) -- clear history
+end
+
+function ConsoleController:quit_project()
   self.model.output:reset()
   self.model.input:reset()
+  nativefs.setWorkingDirectory(love.filesystem.getSourceBaseDirectory())
+  Controller.set_default_handlers()
+  Controller.set_love_update()
+  View.set_love_draw()
   self:_reset_executor_env()
 end
 
@@ -172,7 +366,7 @@ function ConsoleController:keypressed(k)
       cut()
     end
     if k == "l" then
-      self:reset()
+      self.model.output:reset()
     end
     if love.DEBUG then
       if k == 't' then
@@ -197,6 +391,16 @@ function ConsoleController:keypressed(k)
       input:line_feed()
     end
     input:hold_selection()
+  end
+
+  -- Ctrl and Shift held
+  if ctrl and shift then
+    if k == "q" then
+      self:quit_project()
+    end
+    if k == "r" then
+      self:reset()
+    end
   end
 end
 
@@ -286,12 +490,7 @@ function ConsoleController:autotest()
   local input = self.model.input
   local output = self.model.output
   local term = output.terminal
-  local w = term.width
-  local h = term.height
-  local char = 'x'
-  for _ = 1, (w * h) do
-    input:add_text(char)
-  end
+  input:add_text('list_projects()')
   self:evaluate_input()
-  input:add_text(char)
+  input:add_text('run_project("turtle")')
 end

@@ -1,9 +1,10 @@
-require("model.input.eval.eval")
+require("model.input.eval.evalBase")
 
 TextEval = {}
 
 function TextEval:new()
-  local te = Eval:inherit('text')
+  local ret = function(i) return i end
+  local te = EvalBase:inherit('text', ret, false)
 
   return te
 end

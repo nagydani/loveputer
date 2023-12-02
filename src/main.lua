@@ -1,17 +1,43 @@
-require("model.consoleModel")
-local redirect_to = require("model.ioRedirect")
+require("model.model")
+local redirect_to = require("model.io.redirect")
 require("view.consoleView")
+require("controller.controller")
 require("controller.consoleController")
+require("view.view")
 local colors = require("conf.colors")
-local nativefs = require "lib/nativefs"
 
 require("util.debug")
 
-local G = love.graphics
-local V
+G = love.graphics
+
+--- Find removable and user-writable storage
+--- Assumptions are made, which are might be to the target platform/device
+---@return boolean success
+---@return string? path
+local android_storage_find = function()
+  -- Yes, I know. We are working with the limitations of Android here.
+  local quadhex = string.times('[0-9A-F]', 4)
+  local uuid_regex = quadhex .. '-' .. quadhex
+  local regex = '/dev/fuse /storage/' .. uuid_regex
+  local handle = io.popen(string.format("grep /proc/mounts -e '%s'", regex))
+  if not handle then
+    return false
+  end
+  local result = handle:read("*a")
+  handle:close()
+  local lines = string.lines(result)
+  if not string.is_non_empty_string_array(lines) then
+    return false
+  end
+  local tok = string.split(lines[1], ' ')
+  if string.is_non_empty_string_array(tok) then
+    return true, tok[2]
+  end
+  return false
+end
 
 function love.load(args)
-  _G.nativefs = nativefs
+  --- CLI arguments
   local testrun = false
   local sizedebug = false
   for _, a in ipairs(args) do
@@ -19,6 +45,7 @@ function love.load(args)
     if a == '--size' then sizedebug = true end
   end
 
+  --- Display
   local FAC = 1
   if love.hiDPI then FAC = 2 end
   local font_size = 32.4 * FAC
@@ -27,8 +54,6 @@ function love.load(args)
   local font_dir = "assets/fonts/"
   local font_main = love.graphics.newFont(
     font_dir .. "ubuntu_mono_bold_nerd.ttf", font_size)
-  local font_title = love.graphics.newFont(
-    font_dir .. "PressStart2P-Regular.ttf", font_size)
   local lh = 1.0468
   font_main:setLineHeight(lh)
   local fh = font_main:getHeight()
@@ -43,6 +68,10 @@ function love.load(args)
     drawableWidth = debugwidth * fw
   end
 
+  local id = love.filesystem.getIdentity()
+  local storage_path = ''
+  local project_path, has_removable
+  --- Android
   love.keyboard.setTextInput(true)
   love.keyboard.setKeyRepeat(true)
   if love.system.getOS() == 'Android' then
@@ -51,7 +80,45 @@ function love.load(args)
       fullscreen = true,
       fullscreentype = "exclusive",
     })
+    local ok, sd_path = android_storage_find()
+    if not ok then
+      print('WARN: SD card not found')
+      has_removable = false
+      sd_path = '/storage/emulated/0'
+    end
+    has_removable = true
+    storage_path = string.format("%s/Documents/%s", sd_path, id)
+    print('INFO: Project path: ' .. storage_path)
   end
+
+  -- storage
+  if love.system.getOS() ~= 'Android' then
+    -- TODO: linux assumed, check other platforms, especially love.js
+    local home = os.getenv('HOME')
+    if home and string.is_non_empty_string(home) then
+      storage_path = string.format("%s/Documents/%s", home, id)
+    else
+      storage_path = love.filesystem.getSaveDirectory()
+    end
+  end
+  project_path = storage_path .. '/projects'
+
+  --- @type PathInfo
+  local paths = {
+    storage_path = storage_path,
+    project_path = project_path
+  }
+  for _, d in pairs(paths) do
+    local ok, err = FS.mkdir(d)
+    if not ok then Log(err) end
+  end
+
+  _G.nativefs = require("lib/nativefs")
+  love.state = {
+    testing = false,
+    has_removable = has_removable,
+  }
+  love.paths = paths
 
   -- properties
   local baseconf = {
@@ -84,59 +151,30 @@ function love.load(args)
     testrun = testrun,
     sizedebug = sizedebug,
   }
-
-  love.state = {
-    testing = false
-  }
-  love.window.aspect = G.getWidth() / G.getHeight()
-
-  M = Console:new(baseconf)
+  --- MVC wiring
+  M = Model:new(baseconf)
   redirect_to(M)
   C = ConsoleController:new(M)
-  V = ConsoleView:new(baseconf, C)
+  CV = ConsoleView:new(baseconf, C)
 
-  if testrun then
-    C:autotest()
-  end
-end
-
-function love.textinput(t)
-  C:textinput(t)
-end
-
-function love.keypressed(k)
-  C:keypressed(k)
-end
-
-function love.keyreleased(k)
-  local ctrl = love.keyboard.isDown("lctrl", "rctrl")
-  -- Ctrl held
-  if ctrl then
-    if k == "escape" then
-      love.event.quit()
+  -- Ensure the user can get back to the console
+  love.handlers.keypressed = function(k)
+    local ctrl  = love.keyboard.isDown("lctrl", "rctrl")
+    local shift = love.keyboard.isDown("lshift", "rshift")
+    if ctrl and shift then
+      if k == "q" then
+        C:quit_project()
+      end
     end
+    if love.keypressed then return love.keypressed(k) end
   end
-  C:keyreleased(k)
+  table.protect(love.handlers)
+  Controller.set_love_update()
+
+  --- run autotest on startup if invoked
+  if testrun then C:autotest() end
 end
 
-function love.update(dt)
-  C:pass_time(dt)
-end
+Controller.set_default_handlers()
 
-function love.draw()
-  local terminal = C:get_terminal()
-  local input = C:get_input()
-  V:draw(terminal, input)
-end
-
-function love.mousepressed(x, y, button)
-  C:mousepressed(x, y, button)
-end
-
-function love.mousereleased(x, y, button)
-  C:mousereleased(x, y, button)
-end
-
-function love.mousemoved(x, y, dx, dy)
-  C:mousemoved(x, y)
-end
+View.set_love_draw()

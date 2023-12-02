@@ -1,19 +1,22 @@
-require("model.input.eval.eval")
+require("model.input.eval.evalBase")
 
 require("util.string")
 require("util.debug")
 
 LuaEval = {}
 
+--- Create a new evaluator
+---@param parser string
+---@return table
 function LuaEval:new(parser)
-  local luaParser = require("model.parser")(parser)
-  local eval = function(text)
-    local code = string.join(text, '\n')
-    local ok, r = luaParser.parse(code)
-    return ok, r
+  local luaParser = require("model.lang.parser")(parser)
+  local eval = function(args)
+    return luaParser.parse(args[1])
   end
-  local ev = Eval:inherit('lua', eval)
+
+  local ev = EvalBase:inherit('lua', eval, true)
   ev.parser = luaParser
+  ev.is_lua = true
 
   return ev
 end

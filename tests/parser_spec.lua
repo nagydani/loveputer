@@ -1,9 +1,10 @@
-local parser = require("model.parser")('metalua')
-local tokenHL = require("model.tokenHighlighter")
+local parser = require("model.lang.parser")('metalua')
+local tokenHL = require("model.lang.tokenHighlighter")
 local term = require("util.termcolor")
 require("util.color")
 require("util.debug")
 
+local inputs = require("tests.parser_inputs")
 
 if not orig_print then
   _G.orig_print = print
@@ -14,267 +15,6 @@ if not _G.unpack then
   _G.unpack = table.unpack
 end
 
-local inputs = {
-  {
-    compiles = false,
-    code = { 'úő' }
-  },
-  {
-    compiles = true,
-    code = { 'local s = "úő"' }
-  },
-  { compiles = false, code = { 'local' } },
-  { compiles = true,  code = { 'local a' } },
-  { compiles = true,  code = { 'local x = 1', } },
-  { compiles = false, code = { 'local 1' } },
-  { compiles = true,  code = { 'a = 1' } },
-  { compiles = true,  code = { 'a = 1, 2' } },
-  { compiles = true,  code = { 'a, b = 1, 2' } },
-  { compiles = true,  code = { 'a.b = 1' } },
-  { compiles = true,  code = { 'a.b.c = 1' } },
-  { compiles = true,  code = { 'a[b] = 1' } },
-  { compiles = true,  code = { 'a[b][c] = 1' } },
-  { compiles = true,  code = { 'a.b[c] = 1' } },
-  { compiles = true,  code = { 'a[b].c = 1' } },
-  { compiles = false, code = { '0 =' } },
-  { compiles = false, code = { '"x" =' } },
-  { compiles = false, code = { 'true =' } },
-  { compiles = false, code = { '(a) =' } },
-  { compiles = false, code = { 'a = 1 2' } },
-  { compiles = false, code = { 'a = b = 2' } },
-
-  { compiles = true,  code = { '(1)()' } },
-  { compiles = true,  code = { '("foo")()' } },
-  { compiles = true,  code = { '(a)()()' } },
-  { compiles = true,  code = { 'a"foo"' } },
-  { compiles = true,  code = { 'a[[foo]]' } },
-
-  { compiles = true,  code = { 'do end' } },
-  { compiles = false, code = { 'do do end' } },
-  { compiles = false, code = { 'do end do' } },
-
-  { compiles = false, code = { 'while 1 do 2 end' } },
-  { compiles = false, code = { 'while 1 end' } },
-  { compiles = false, code = { 'repeat until' } },
-  { compiles = true,  code = { 'repeat until 0' } },
-
-  { compiles = true,  code = { 'for i=1, 5 do print(i) end' } },
-  { compiles = false, code = { 'for' } },
-  { compiles = false, code = { 'for do' } },
-  { compiles = false, code = { 'for end' } },
-  { compiles = false, code = { 'for 1' } },
-  { compiles = true,  code = { 'for a in b do end' } },
-  { compiles = false, code = { 'for a b in' } },
-  { compiles = false, code = { 'for a =' } },
-  { compiles = false, code = { 'for a, b =' } },
-  { compiles = false, code = { 'for a = 1, 2, 3, 4 do end' } },
-  { compiles = true,  code = { 'for a = 1, 2 do end' } },
-  {
-    compiles = true,
-    code = {
-      'for i=1,5 do',
-      '  print(i)',
-      'end',
-    }
-  },
-  {
-    compiles = false,
-    code = {
-      'for i=1,5',
-      '  print(i)',
-      'end',
-    }
-  },
-  {
-    compiles = false,
-    code = {
-      'for i=1,5 then',
-      '  print(i)',
-      'end',
-    }
-  },
-  {
-    compiles = false,
-    code = {
-      'for i=1,5 do',
-      '  print(i)',
-    }
-  },
-
-  { compiles = false, code = { 'return return' } },
-  -- { compiles = false, code = { 'return 1,' } },
-  { compiles = true,  code = { 'return 1' } },
-
-  { compiles = false, code = { 'if' } },
-  { compiles = false, code = { 'elseif' } },
-  { compiles = false, code = { 'then' } },
-  { compiles = false, code = { 'if then' } },
-  { compiles = true,  code = { 'if 1 then end' } },
-  { compiles = true,  code = { 'if 1 then return end' } },
-  { compiles = true,  code = { 'if 1 then else end' } },
-  { compiles = true,  code = { 'if 1 then elseif 2 then end' } },
-
-  { compiles = false, code = { 'function' } },
-  { compiles = false, code = { 'function end' } },
-  { compiles = false, code = { 'function f end' } },
-  { compiles = false, code = { 'function f( end' } },
-  { compiles = true,  code = { 'function f() end' } },
-  { compiles = true,  code = { 'function f(p) end' } },
-  -- { compiles = false, code = { 'function f(p,) end' } },
-  { compiles = true,  code = { 'function a.f() end' } },
-  { compiles = true,  code = { 'function a:f() end' } },
-  { compiles = true,  code = { 'function f(...) end' } },
-  { compiles = false, code = { 'function f(..., end' } },
-  { compiles = true,  code = { 'function f(p, ...) end' } },
-  -- tables
-  { compiles = true,  code = { 'a = { a=1, b="foo", c=nil }' } },
-  { compiles = true,  code = { 'a = {  }' } },
-  { compiles = true,  code = { 'a = {{{}}}' } },
-  { compiles = false, code = { 'a = {' } },
-  { compiles = false, code = { 'a = {,}' } },
-  { compiles = true,  code = { 'a = { ["foo"]="bar" }' } },
-  { compiles = true,  code = { 'a = { [1]=a, [2]=b, }' } },
-  { compiles = true,  code = { 'a = { true, a=1; ["foo"]="bar", }' } },
-  -- comments
-  {
-    compiles = true,
-    code = {
-      '-- this loop is rad',
-      'for i=1,5 do',
-      '  print(i)',
-      'end',
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      '--- it foos the bar',
-      '---@param bar table',
-      'function foo(bar)',
-      'end',
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      'function foo()',
-      '  -- TODO: foo the bar',
-      'end',
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      'for i=1,5 do',
-      '  print(i)',
-      'end -- done',
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      "--[[ multiline",
-      "comment",
-      'あいうえお --]]',
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      "--[[ multiline",
-      "    =-=",
-      "comment --]] -- another comment",
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      "-- comment",
-      "  --[[ multiline",
-      " |-|",
-      "comment --]]",
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      "local a = 1 --[[ multiline",
-      "comment --]] -- another comment",
-      "a = 2",
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      "local a",
-      "  -- comment",
-      "--[[ multiline",
-      "comment --]]",
-      "a = 2",
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      "print('когда') --[[ function foo()",
-      'end --]]',
-    }
-  },
-  {
-    compiles = false,
-    code = {
-      'for i=1,5 do --[[ inserting',
-      '  a multiline comment',
-      '  without closing',
-      '  fp',
-      'end',
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      '  --[[',
-      '     wtf',
-      '  --]]',
-    }
-  },
-  -- multiline string
-  {
-    compiles = false,
-    code = {
-      'local ml = [[',
-      '  multiline string',
-      '  without closing',
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      'local ml = [[ multi',
-      '  line',
-      '  string',
-      ']]',
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      'local ml = [[ multiline',
-      '  string',
-      ']] -- comment',
-    }
-  },
-  {
-    compiles = true,
-    code = {
-      '  local ml = [[',
-      '     string',
-      ']]',
-    }
-  },
-  --literal
-  { compiles = false, code = { "local x = 'asd" } },
-}
 
 local parser_debug = os.getenv("PARSER_DEBUG")
 describe('parse #parser', function()
@@ -282,25 +22,59 @@ describe('parse #parser', function()
   for i, input in ipairs(inputs) do
     local tag = 'input #' .. i
     it('parses ' .. tag, function()
-      local ok, r = parser.parse(input.code)
+      local ok, r = parser.parse_prot(input.code)
       -- print(Debug.text_table(input.code, true))
       -- print(Debug.terse_t(r))
+      local l, c, err
+      if not ok then
+        l, c, err = parser.get_error(string.join(r, '\n'))
+        if input.error then
+          local el = input.error.l
+          local ec = input.error.c
+          assert.are_equal(l, el)
+          assert.are_equal(c, ec)
+        end
+      end
       if parser_debug then
-        print(tag, string.join(input.code, '⏎ '))
         if not ok then
-          local l, c, err = parser.get_error(r)
+          print(tag, string.join(input.code, '⏎ '))
           local error = l .. ':' .. c .. ' | ' .. err
           if string.is_non_empty_string(err) then
             term.print_c(Color.red, error)
           end
+          for ln, line in pairs(input.code) do
+            if ln == l then
+              if c == 1 then
+                term.print_c(Color.magenta, line)
+              else
+                local ll = string.ulen(line)
+                for ch = 1, ll do
+                  if ch <= c then
+                    term.print_c(Color.white, string.usub(line, ch, ch), true)
+                  else
+                    term.print_c(Color.magenta, string.usub(line, ch, ch), true)
+                  end
+                end
+                print()
+                for _ = 1, c do io.write(' ') end
+              end
+              term.print_c(Color.red, '^')
+            elseif ln > l then
+              term.print_c(Color.magenta, line)
+            else
+              term.print_c(Color.white, line)
+            end
+          end
+          print()
         else
+          print(tag, string.join(input.code, '⏎ '))
           local pp = parser.pprint(input.code)
           if string.is_non_empty_string(pp) then
             term.print_c(Color.green, pp)
           end
         end
       end
-      assert.equals(ok, input.compiles)
+      assert.are_equal(ok, input.compiles)
     end)
   end
 end)
