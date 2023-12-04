@@ -12,8 +12,8 @@ return {
   border = Color[Color.black + Color.bright],
   debug = Color[Color.yellow],
   terminal = {
-    fg = Color[Color.white + Color.bright],
-    bg = Color[Color.blue],
+    fg = Color[Color.black],
+    bg = Color[Color.white],
   },
   input = {
     bg = Color[Color.white],
