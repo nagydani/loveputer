@@ -20,8 +20,9 @@ function CanvasView:draw(terminal)
     G.setCanvas()
     G.translate(b, b)
     G.push('all')
-    G.setBackgroundColor(cfg.colors.terminal.bg)
-    G.setColor(cfg.colors.terminal.fg)
+
+    terminal:set_cursor_color(unpack(cfg.colors.terminal.fg))
+    terminal:set_cursor_backcolor(unpack(cfg.colors.terminal.bg))
     terminal:draw()
     G.pop()
   end
