@@ -67,23 +67,14 @@ local function prepare_env(prepared, M, runner_env)
     end
   end
 
-  --- @param name string
-  prepared.create_project   = function(name)
-    local ok, err = P:create(name)
-    if not ok then
-      print(err)
-    else
-      print('Project ' .. name .. ' created')
-    end
-  end
-
-  --- @param name string
-  prepared.open_project     = function(name)
-    local ok, err = P:open(name)
-    if not ok then
-      print(err)
-    else
+  prepared.project          = function(name)
+    local open, create, err = P:opreate(name)
+    if open then
       print('Project ' .. name .. ' opened')
+    elseif create then
+      print('Project ' .. name .. ' created')
+    else
+      print(err)
     end
   end
 
