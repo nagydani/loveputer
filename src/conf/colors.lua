@@ -8,6 +8,7 @@ local syntax_i = {
   error      = Color.red,
 }
 
+--- @class Colors
 return {
   border = Color[Color.black + Color.bright],
   debug = Color[Color.yellow],
