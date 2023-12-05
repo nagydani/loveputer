@@ -13,7 +13,7 @@ function Statusline:new(cfg)
 end
 
 function Statusline:draw(status, nLines, time)
-  local cf = self.cfg
+  local cf = self.cfg.view
   local b = cf.border
   local h = cf.h
   local w = cf.w
@@ -22,7 +22,7 @@ function Statusline:draw(status, nLines, time)
 
   G.push('all')
   G.setColor(colors.statusline.bg)
-  G.setFont(cf.font_main)
+  G.setFont(cf.font)
   local sy = h - b - (1 + nLines) * fh
   local start_box = { x = 0, y = sy }
   local start_text = {

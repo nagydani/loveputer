@@ -16,7 +16,7 @@ function ConsoleView:new(cfg, ctrl)
     input = InputView:new(cfg, ctrl),
     controller = ctrl,
     cfg = cfg,
-    drawable_height = ViewUtils.get_drawable_height(cfg),
+    drawable_height = ViewUtils.get_drawable_height(cfg.view),
   }
 
   setmetatable(view, self)
