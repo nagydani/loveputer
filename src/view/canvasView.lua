@@ -12,7 +12,7 @@ function CanvasView:new(cfg)
   return cv
 end
 
-function CanvasView:draw(terminal)
+function CanvasView:draw(terminal, drawable_height)
   local cfg = self.cfg
   local b = cfg.border
 
@@ -30,9 +30,10 @@ function CanvasView:draw(terminal)
     G.push('all')
     G.setColor(cfg.colors.terminal.bg)
 
+    local dh = drawable_height
     G.rectangle("fill",
       b,
-      b + cfg.get_drawable_height() - 2 * cfg.fac,
+      b + dh - 2 * cfg.fac,
       cfg.w - b,
       cfg.fh
     )

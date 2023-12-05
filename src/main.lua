@@ -130,18 +130,6 @@ function love.load(args)
     fac = FAC,
     w = w,
     h = h,
-    get_drawable_height = function()
-      local ch = fh * lh
-      local d = h - border -- top border
-          - border         -- statusline border
-          - fh             -- statusline
-          - border         -- statusline bottom border
-          - fh             -- input line
-          - border         -- bottom border
-      local n_lines = math.floor(d / ch)
-      local res = n_lines * ch
-      return res
-    end,
     colors = colors,
 
     debugheight = debugheight,

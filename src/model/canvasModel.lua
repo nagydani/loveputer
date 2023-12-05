@@ -1,5 +1,6 @@
 require("util.dequeue")
 require("util.string")
+require("util.view")
 local Terminal = require("lib.terminal")
 
 local G = love.graphics
@@ -17,7 +18,6 @@ local G = love.graphics
 --- @field restore_main function
 CanvasModel = {}
 
-
 function CanvasModel:new(cfg)
   local w, h
   if cfg.sizedebug then
@@ -25,7 +25,7 @@ function CanvasModel:new(cfg)
     h = cfg.debugheight * cfg.fh
   else
     w = G.getWidth() - 2 * cfg.border
-    h = cfg.get_drawable_height()
+    h = ViewUtils.get_drawable_height(cfg)
   end
   local canvas = love.graphics.newCanvas(w, h)
   local term = Terminal(w, h, cfg.font_main, nil, cfg.fh * cfg.lh, canvas)

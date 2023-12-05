@@ -2,6 +2,7 @@ require("view.titleView")
 require("view.canvasView")
 require("view.inputView")
 require("util.color")
+require("util.view")
 require("util.debug")
 
 local G = love.graphics
@@ -15,6 +16,7 @@ function ConsoleView:new(cfg, ctrl)
     input = InputView:new(cfg, ctrl),
     controller = ctrl,
     cfg = cfg,
+    drawable_height = ViewUtils.get_drawable_height(cfg),
   }
 
   setmetatable(view, self)
@@ -29,7 +31,7 @@ function ConsoleView:draw(terminal, input)
   if love.DEBUG then
     self:draw_placeholder()
   end
-  self.canvas:draw(terminal)
+  self.canvas:draw(terminal, self.drawable_height)
   self.input:draw(input)
 end
 
