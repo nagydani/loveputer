@@ -166,7 +166,7 @@ string.lines = function(s)
 end
 
 --- @param strs string|table
---- @param char string
+--- @param char string?
 --- @return string
 string.join = function(strs, char)
   local res = ''
