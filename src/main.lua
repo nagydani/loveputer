@@ -121,8 +121,9 @@ function love.load(args)
   love.paths = paths
 
   -- properties
-  local baseconf = {
-    font_main = font_main,
+  --- @class ViewConfig
+  local viewconf = {
+    font = font_main,
     border = border,
     fh = fh,
     fw = fw,
@@ -131,6 +132,9 @@ function love.load(args)
     w = w,
     h = h,
     colors = colors,
+  }
+  local baseconf = {
+    view = viewconf,
 
     debugheight = debugheight,
     debugwidth = debugwidth,

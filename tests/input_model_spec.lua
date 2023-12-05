@@ -6,6 +6,7 @@ end
 
 describe("input model spec #input", function()
   local mockConf = {
+    view = {},
     drawableChars = 80,
   }
 

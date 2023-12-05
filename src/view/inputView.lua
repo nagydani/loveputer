@@ -21,11 +21,11 @@ function InputView:draw(input)
   local time = self.controller:get_timestamp()
   local status = self.controller:get_status()
 
-  local colors = self.cfg.colors.input
-  local b = self.cfg.border
-  local fh = self.cfg.fh
-  local fw = self.cfg.fw
-  local h = self.cfg.h
+  local colors = self.cfg.view.colors
+  local b = self.cfg.view.border
+  local fh = self.cfg.view.fh
+  local fw = self.cfg.view.fw
+  local h = self.cfg.view.h
   local drawableWidth = self.cfg.drawableWidth
   local drawableChars = self.cfg.drawableChars
 
@@ -85,16 +85,16 @@ function InputView:draw(input)
         -- the number of line wraps
         - (n - y_offset) * fh
     G.push('all')
-    G.setColor(colors.cursor)
+    G.setColor(colors.input.cursor)
     G.print('|', b + (x_offset - 1.5) * fw, ch)
     G.pop()
   end
 
   local drawBackground = function()
     if isError then
-      G.setColor(colors.error_bg)
+      G.setColor(colors.input.error_bg)
     else
-      G.setColor(colors.bg)
+      G.setColor(colors.input.bg)
     end
     G.rectangle("fill",
       b,
@@ -132,15 +132,15 @@ function InputView:draw(input)
 
   -- draw
   G.push('all')
-  G.setFont(self.cfg.font_main)
-  G.setBackgroundColor(self.cfg.colors.input.bg)
-  G.setColor(self.cfg.colors.input.fg)
+  G.setFont(self.cfg.view.font)
+  G.setBackgroundColor(colors.input.bg)
+  G.setColor(colors.input.fg)
   self.statusline:draw(status, apparentLines, time)
   drawBackground()
   if isError then
-    G.setColor(colors.error)
+    G.setColor(colors.input.error)
   else
-    G.setColor(colors.fg)
+    G.setColor(colors.input.fg)
     if love.timer.getTime() % 1 > 0.5 then
       drawCursor()
     end
@@ -169,9 +169,9 @@ function InputView:draw(input)
         local color
         if perr and l > el or
             (l == el and (i > ec or ec == 1)) then
-          color = colors.error
+          color = colors.input.error
         else
-          color = colors.syntax[ttype] or colors.fg
+          color = colors.input.syntax[ttype] or colors.input.fg
         end
         local selected = (function()
           local sel = input.selection

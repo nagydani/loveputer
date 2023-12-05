@@ -402,9 +402,9 @@ end
 
 function ConsoleController:_translate_to_input_grid(x, y)
   local cfg = self.model.output.cfg
-  local h = cfg.h
-  local fh = cfg.fh
-  local fw = cfg.fw
+  local h = cfg.view.h
+  local fh = cfg.view.fh
+  local fw = cfg.view.fw
   local line = math.floor((h - y) / fh)
   local a, b = math.modf((x / fw))
   local char = a + 1
