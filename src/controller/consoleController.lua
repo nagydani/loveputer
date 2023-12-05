@@ -136,14 +136,7 @@ local function prepare_env(prepared, M, runner_env)
       local ok, lines_err = p:readfile(name)
       if ok then
         local lines = lines_err
-        local nl = string.ulen('' .. #lines .. '  ')
-        M.output:reset()
-        local w = M.output.cfg.drawableChars - 1
-        print(P.messages.file_header(name, w))
-        for i, l in ipairs(lines) do
-          local ln = string.format("% " .. nl .. "d", i)
-          print(string.format("%s │ %s", ln, l))
-        end
+        return lines
       else
         print(lines_err)
       end
