@@ -9,6 +9,8 @@ local G = love.graphics
 
 ConsoleView = {}
 
+---@param cfg Config
+---@param ctrl ConsoleController
 function ConsoleView:new(cfg, ctrl)
   local view = {
     title = TitleView,
@@ -25,6 +27,8 @@ function ConsoleView:new(cfg, ctrl)
   return view
 end
 
+---@param terminal table
+---@param input InputDTO
 function ConsoleView:draw(terminal, input)
   G.scale(self.fac, self.fac)
 

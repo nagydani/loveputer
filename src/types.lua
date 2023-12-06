@@ -41,3 +41,10 @@
 --- @field input_type string
 --- @field cursor Cursor
 --- @field n_lines integer
+
+--- @class InputDTO table
+--- @field text table
+--- @field wt string[]
+--- @field wt_info table
+--- @field highlight table
+--- @field selection table

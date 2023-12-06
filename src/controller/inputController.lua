@@ -103,6 +103,7 @@ function InputController:keyreleased(k)
   end
 end
 
+--- @return InputDTO
 function InputController:get_input()
   local im = self.model
   local wt, wt_info = im:get_wrapped_text()
