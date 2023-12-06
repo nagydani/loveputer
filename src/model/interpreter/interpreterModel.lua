@@ -16,6 +16,7 @@ require("util.debug")
 --- @field luaInput table
 --- @field input InputModel
 -- methods
+--- @field new function
 --- @field get_entered_text function
 --- @todo
 InterpreterModel = {}
@@ -110,6 +111,8 @@ function InterpreterModel:has_error()
   return string.is_non_empty_string_array(self.wrapped_error)
 end
 
+--- @param error string?
+--- @param is_call_error boolean
 function InterpreterModel:set_error(error, is_call_error)
   if string.is_non_empty_string(error) then
     self.error = error
@@ -185,10 +188,12 @@ function InterpreterModel:history_fwd()
   self.input:clear_selection()
 end
 
+--- @return integer
 function InterpreterModel:_get_history_length()
   return #(self.history)
 end
 
+--- @param i integer
 function InterpreterModel:_get_history_entry(i)
   return self.history[i]
 end

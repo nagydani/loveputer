@@ -104,17 +104,18 @@ function InputView:draw(input)
   end
 
   --- Write a line of text to output
-  ---@param l number
-  ---@param str string
+  --- @param l number
+  --- @param str string
   local write_line = function(l, str)
     local dy = y - (-l + 1 + breaks) * fh
     G.print(str, b, dy)
   end
+
   --- Write a token to output
-  ---@param l number
-  ---@param c number
-  ---@param token string
-  ---@param color table
+  --- @param l number
+  --- @param c number
+  --- @param token string
+  --- @param color table
   local write_token = function(l, c, token, color, selected)
     local dy = y - (-l + 1 + breaks) * fh
     local dx = b + (c - 1) * fw
