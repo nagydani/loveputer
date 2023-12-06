@@ -28,6 +28,15 @@
 --- @field h integer
 --- @field w integer
 
+--- @class Config table
+--- @field view ViewConfig
+--- @field debugheight integer
+--- @field debugwidth integer
+--- @field drawableWidth number
+--- @field drawableChars integer
+--- @field testrun boolean
+--- @field sizedebug boolean
+
 --- @class Status table
 --- @field input_type string
 --- @field cursor Cursor

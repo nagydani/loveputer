@@ -1,7 +1,12 @@
 require("model.input.cursor")
 require("util.dequeue")
 
+
+--- @class InputText : Dequeue table
+--- @field new function
+--- @field traverse function
 InputText = {}
+
 function InputText:new(values)
   local text = Dequeue:new(values)
   if not values or values == '' then

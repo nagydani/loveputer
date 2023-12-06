@@ -49,7 +49,7 @@ function InterpreterModel:reset(history)
   self.input:clear_input()
 end
 
---- @return string[]
+--- @return InputText
 function InterpreterModel:get_entered_text()
   return self.input:get_text()
 end
@@ -173,7 +173,7 @@ function InterpreterModel:history_fwd()
       self.history[hi] = current
     end
     if next then
-      self.input:_set_text(next)
+      self.input:_set_text(next, false)
       self.historic_index = hi + 1
     else
       self.input:clear_input()
