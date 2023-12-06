@@ -1,5 +1,5 @@
-require("model.input.eval.textEval")
-require("model.input.eval.luaEval")
+require("model.interpreter.eval.textEval")
+require("model.interpreter.eval.luaEval")
 
 describe('TextEval #eval', function()
   local eval = TextEval:new()

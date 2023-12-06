@@ -1,4 +1,4 @@
-require("model.input.inputModel")
+require("model.interpreter.interpreterModel")
 require("model.canvasModel")
 require("model.project.project")
 
@@ -10,7 +10,7 @@ Model = {}
 
 function Model:new(cfg)
   local c = {
-    input = InputModel:new(cfg),
+    input = InterpreterModel:new(cfg),
     output = CanvasModel:new(cfg),
     projects = ProjectService:new(),
   }

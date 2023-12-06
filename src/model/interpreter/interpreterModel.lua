@@ -9,8 +9,7 @@ require("util.dequeue")
 require("util.string")
 require("util.debug")
 
---- @class InputModel
---- @field entered table
+--- @class InterpreterModel
 --- @field history table
 --- @field evaluator table
 --- @field luaEval table
@@ -27,9 +26,9 @@ require("util.debug")
 --- @field selection table
 -- methods
 --- @todo
-InputModel = {}
+InterpreterModel = {}
 
-function InputModel:new(cfg)
+function InterpreterModel:new(cfg)
   local luaEval   = LuaEval:new('metalua')
   local textInput = InputEval:new(false)
   local luaInput  = InputEval:new(true)
@@ -62,7 +61,7 @@ end
 ----------------
 --  entered   --
 ----------------
-function InputModel:add_text(text)
+function InterpreterModel:add_text(text)
   if type(text) == 'string' then
     self:pop_selected_text()
     local sl, cc    = self:_get_cursor_pos()
@@ -93,7 +92,7 @@ function InputModel:add_text(text)
   end
 end
 
-function InputModel:_set_text(text, keep_cursor)
+function InterpreterModel:_set_text(text, keep_cursor)
   self.entered = nil
   if type(text) == 'string' then
     local lines = string.lines(text)
@@ -111,7 +110,7 @@ function InputModel:_set_text(text, keep_cursor)
   self:text_change()
 end
 
-function InputModel:_set_text_line(text, ln, keep_cursor)
+function InterpreterModel:_set_text_line(text, ln, keep_cursor)
   if type(text) == 'string' then
     local ent = self:get_text()
     if ent then
@@ -125,17 +124,17 @@ function InputModel:_set_text_line(text, ln, keep_cursor)
   end
 end
 
-function InputModel:_drop_text_line(ln)
+function InterpreterModel:_drop_text_line(ln)
   self:get_text():remove(ln)
 end
 
-function InputModel:_insert_text_line(text, li)
+function InterpreterModel:_insert_text_line(text, li)
   local l = li or self:get_cursor_y()
   self.cursor.y = l + 1
   self:get_text():insert(text, l)
 end
 
-function InputModel:line_feed()
+function InterpreterModel:line_feed()
   local cl, cc = self:_get_cursor_pos()
   local cur_line = self:get_text_line(cl)
   local pre, post = string.split_at(cur_line, cc)
@@ -145,21 +144,21 @@ function InputModel:line_feed()
   self:text_change()
 end
 
-function InputModel:get_text()
+function InterpreterModel:get_text()
   return self.entered or InputText:new()
 end
 
-function InputModel:get_text_line(l)
+function InterpreterModel:get_text_line(l)
   local ent = self:get_text()
   return ent:get(l) or ''
 end
 
-function InputModel:get_n_text_lines()
+function InterpreterModel:get_n_text_lines()
   local ent = self:get_text()
   return ent:length()
 end
 
-function InputModel:get_wrapped_text()
+function InterpreterModel:get_wrapped_text()
   return self.wrapped_text, {
     cursor_wrap = self.cursor_wrap,
     wrap_reverse = self.wrap_reverse,
@@ -167,17 +166,17 @@ function InputModel:get_wrapped_text()
   }
 end
 
-function InputModel:get_wrapped_text_line(l)
+function InterpreterModel:get_wrapped_text_line(l)
   local wt = self:get_wrapped_text()
   return wt[l]
 end
 
-function InputModel:_get_current_line()
+function InterpreterModel:_get_current_line()
   local cl = self:get_cursor_y() or 1
   return self:get_text():get(cl)
 end
 
-function InputModel:paste(text)
+function InterpreterModel:paste(text)
   local sel = self:get_selection()
   local start = sel.start
   local fin = sel.fin
@@ -190,7 +189,7 @@ function InputModel:paste(text)
   self:clear_selection()
 end
 
-function InputModel:backspace()
+function InterpreterModel:backspace()
   self:pop_selected_text()
   local line = self:_get_current_line()
   local cl, cc = self:_get_cursor_pos()
@@ -220,7 +219,7 @@ function InputModel:backspace()
   self:text_change()
 end
 
-function InputModel:delete()
+function InterpreterModel:delete()
   self:pop_selected_text()
   local line = self:_get_current_line()
   local cl, cc = self:_get_cursor_pos()
@@ -247,7 +246,7 @@ function InputModel:delete()
   self:text_change()
 end
 
-function InputModel:clear_input()
+function InterpreterModel:clear_input()
   self.entered = InputText:new()
   self:text_change()
   self:clear_selection()
@@ -257,14 +256,14 @@ function InputModel:clear_input()
 end
 
 --- @param history boolean
-function InputModel:reset(history)
+function InterpreterModel:reset(history)
   if history then
     self.history = Dequeue:new()
   end
   self:clear_input()
 end
 
-function InputModel:text_change()
+function InterpreterModel:text_change()
   local ev = self.evaluator
   if ev.kind == 'lua' then
     local ts = ev.parser.tokenize(self:get_text())
@@ -273,7 +272,7 @@ function InputModel:text_change()
   self:wrap_text()
 end
 
-function InputModel:wrap_text()
+function InterpreterModel:wrap_text()
   local drawableChars = self.wrap
   local text = self:get_text()
   local display = {}
@@ -302,7 +301,7 @@ function InputModel:wrap_text()
   self.n_breaks = breaks
 end
 
-function InputModel:highlight()
+function InterpreterModel:highlight()
   local ev = self.evaluator
   if ev.highlight then
     local p = ev.parser
@@ -327,7 +326,7 @@ end
 ----------------
 --   cursor   --
 ----------------
-function InputModel:_update_cursor(replace_line)
+function InterpreterModel:_update_cursor(replace_line)
   local cl = self:get_cursor_y()
   local t = self:get_text()
   if replace_line then
@@ -338,7 +337,7 @@ function InputModel:_update_cursor(replace_line)
   end
 end
 
-function InputModel:_advance_cursor(x, y)
+function InterpreterModel:_advance_cursor(x, y)
   local cur_l, cur_c = self:_get_cursor_pos()
   local move_x = x or 1
   local move_y = y or 0
@@ -351,7 +350,7 @@ function InputModel:_advance_cursor(x, y)
   end
 end
 
-function InputModel:move_cursor(y, x, selection)
+function InterpreterModel:move_cursor(y, x, selection)
   local prev_l, prev_c = self:_get_cursor_pos()
   local c, l
   local line_limit = self:get_n_text_lines() + 1 -- allow for line just being added
@@ -379,25 +378,25 @@ function InputModel:move_cursor(y, x, selection)
   end
 end
 
-function InputModel:_get_cursor_pos()
+function InterpreterModel:_get_cursor_pos()
   return self.cursor.l, self.cursor.c
 end
 
-function InputModel:get_cursor_info()
+function InterpreterModel:get_cursor_info()
   return {
     cursor = self.cursor,
   }
 end
 
-function InputModel:get_cursor_x()
+function InterpreterModel:get_cursor_x()
   return self.cursor.c
 end
 
-function InputModel:get_cursor_y()
+function InterpreterModel:get_cursor_y()
   return self.cursor.l
 end
 
-function InputModel:cursor_vertical_move(dir)
+function InterpreterModel:cursor_vertical_move(dir)
   local cl, cc = self:_get_cursor_pos()
   local w = self.wrap
   local n = self:get_n_text_lines()
@@ -481,7 +480,7 @@ function InputModel:cursor_vertical_move(dir)
   end
 end
 
-function InputModel:cursor_left()
+function InterpreterModel:cursor_left()
   local cl, cc = self:_get_cursor_pos()
   local nl, nc = (function()
     if cc > 1 then
@@ -503,7 +502,7 @@ function InputModel:cursor_left()
   end
 end
 
-function InputModel:cursor_right()
+function InterpreterModel:cursor_right()
   local cl, cc = self:_get_cursor_pos()
   local line = self:get_text_line(cl)
   local len = string.ulen(line)
@@ -524,7 +523,7 @@ function InputModel:cursor_right()
   end
 end
 
-function InputModel:jump_home()
+function InterpreterModel:jump_home()
   local keep = (function()
     if self.selection:is_held() then
       return 'keep'
@@ -535,7 +534,7 @@ function InputModel:jump_home()
   self:move_cursor(nl, nc, keep)
 end
 
-function InputModel:jump_end()
+function InterpreterModel:jump_end()
   local ent = self:get_text()
   local last_line = #ent
   local last_char = string.ulen(ent[last_line]) + 1
@@ -551,7 +550,7 @@ end
 ----------------
 -- evaluation --
 ----------------
-function InputModel:get_status()
+function InterpreterModel:get_status()
   return {
     input_type = self.evaluator.kind,
     cursor = self.cursor,
@@ -559,15 +558,15 @@ function InputModel:get_status()
   }
 end
 
-function InputModel:evaluate()
+function InterpreterModel:evaluate()
   return self:_handle(true)
 end
 
-function InputModel:cancel()
+function InterpreterModel:cancel()
   self:_handle(false)
 end
 
-function InputModel:_handle(eval)
+function InterpreterModel:_handle(eval)
   local ent = self:get_text()
   self.historic_index = nil
   local ok, result
@@ -608,7 +607,7 @@ function InputModel:_handle(eval)
 end
 
 --- @param kind EvalType
-function InputModel:switch(kind)
+function InterpreterModel:switch(kind)
   local sw = {
     ['lua']        = self.luaEval,
     ['input-text'] = self.textInput,
@@ -625,19 +624,19 @@ end
 ----------------
 --   error    --
 ----------------
-function InputModel:clear_error()
+function InterpreterModel:clear_error()
   self.wrapped_error = nil
 end
 
-function InputModel:get_wrapped_error()
+function InterpreterModel:get_wrapped_error()
   return self.wrapped_error
 end
 
-function InputModel:has_error()
+function InterpreterModel:has_error()
   return string.is_non_empty_string_array(self.wrapped_error)
 end
 
-function InputModel:set_error(error, is_call_error)
+function InterpreterModel:set_error(error, is_call_error)
   if string.is_non_empty_string(error) then
     self.error = error
     self.wrapped_error = string.wrap_at(error, self.wrap)
@@ -647,7 +646,7 @@ function InputModel:set_error(error, is_call_error)
   end
 end
 
-function InputModel:get_eval_error(errors)
+function InterpreterModel:get_eval_error(errors)
   local ev = self.evaluator
   local t = self:get_text()
   if ev.is_lua and string.is_non_empty_string_array(t) then
@@ -658,13 +657,13 @@ end
 ----------------
 --  history   --
 ----------------
-function InputModel:_remember(input)
+function InterpreterModel:_remember(input)
   if string.is_non_empty_string_array(input) then
     self.history:append(input)
   end
 end
 
-function InputModel:history_back()
+function InterpreterModel:history_back()
   local ent = self:get_text()
   local hi = self.historic_index
   -- TODO: remember cursor pos?
@@ -689,7 +688,7 @@ function InputModel:history_back()
   self:clear_selection()
 end
 
-function InputModel:history_fwd()
+function InterpreterModel:history_fwd()
   if self.historic_index then
     local hi = self.historic_index
     local next = self.history[hi + 1]
@@ -710,22 +709,22 @@ function InputModel:history_fwd()
   self:clear_selection()
 end
 
-function InputModel:_get_history_length()
+function InterpreterModel:_get_history_length()
   return #(self.history)
 end
 
-function InputModel:_get_history_entry(i)
+function InterpreterModel:_get_history_entry(i)
   return self.history[i]
 end
 
-function InputModel:_get_history_entries()
+function InterpreterModel:_get_history_entries()
   return self.history:items()
 end
 
 ----------------
 -- selection  --
 ----------------
-function InputModel:translate_grid_to_cursor(l, c)
+function InterpreterModel:translate_grid_to_cursor(l, c)
   local wt       = self.wrap_reverse
   local li       = wt[l] or wt[#wt]
   local line     = self:get_wrapped_text_line(l)
@@ -736,7 +735,7 @@ function InputModel:translate_grid_to_cursor(l, c)
   return li, ci
 end
 
-function InputModel:diff_cursors(c1, c2)
+function InterpreterModel:diff_cursors(c1, c2)
   if c1 and c2 then
     local d = c1:compare(c2)
     if d > 0 then
@@ -747,7 +746,7 @@ function InputModel:diff_cursors(c1, c2)
   end
 end
 
-function InputModel:text_between_cursors(from, to)
+function InterpreterModel:text_between_cursors(from, to)
   if from and to then
     return self:get_text():traverse(from, to)
   else
@@ -755,7 +754,7 @@ function InputModel:text_between_cursors(from, to)
   end
 end
 
-function InputModel:start_selection(l, c)
+function InterpreterModel:start_selection(l, c)
   local start = (function()
     if l and c then
       return Cursor:new(l, c)
@@ -766,7 +765,7 @@ function InputModel:start_selection(l, c)
   self.selection.start = start
 end
 
-function InputModel:end_selection(l, c)
+function InterpreterModel:end_selection(l, c)
   local start         = self.selection.start
   local fin           = (function()
     if l and c then
@@ -781,7 +780,7 @@ function InputModel:end_selection(l, c)
   self.selection.text = sel
 end
 
-function InputModel:hold_selection(is_mouse)
+function InterpreterModel:hold_selection(is_mouse)
   if not is_mouse then
     local cur_start = self:get_selection().start
     local cur_end = self:get_selection().fin
@@ -799,19 +798,19 @@ function InputModel:hold_selection(is_mouse)
   self.selection.held = true
 end
 
-function InputModel:release_selection()
+function InterpreterModel:release_selection()
   self.selection.held = false
 end
 
-function InputModel:get_selection()
+function InterpreterModel:get_selection()
   return self.selection
 end
 
-function InputModel:is_selection_held()
+function InterpreterModel:is_selection_held()
   return self.selection.held
 end
 
-function InputModel:get_ordered_selection()
+function InterpreterModel:get_ordered_selection()
   local sel = self.selection
   local s, e = self:diff_cursors(sel.start, sel.fin)
   local ret = Selection:new()
@@ -822,11 +821,11 @@ function InputModel:get_ordered_selection()
   return ret
 end
 
-function InputModel:get_selected_text()
+function InterpreterModel:get_selected_text()
   return self.selection.text
 end
 
-function InputModel:pop_selected_text()
+function InterpreterModel:pop_selected_text()
   local t = self.selection.text
   local start = self.selection.start
   local fin = self.selection.fin
@@ -840,26 +839,26 @@ function InputModel:pop_selected_text()
   end
 end
 
-function InputModel:clear_selection()
+function InterpreterModel:clear_selection()
   self.selection = Selection:new()
   self:release_selection()
 end
 
-function InputModel:mouse_click(l, c)
+function InterpreterModel:mouse_click(l, c)
   local li, ci = self:translate_grid_to_cursor(l, c)
   self:clear_selection()
   self:start_selection(li, ci)
   self:hold_selection(true)
 end
 
-function InputModel:mouse_release(l, c)
+function InterpreterModel:mouse_release(l, c)
   local li, ci = self:translate_grid_to_cursor(l, c)
   self:release_selection()
   self:end_selection(li, ci)
   self:move_cursor(li, ci, 'keep')
 end
 
-function InputModel:mouse_drag(l, c)
+function InterpreterModel:mouse_drag(l, c)
   local li, ci = self:translate_grid_to_cursor(l, c)
   local sel = self:get_selection()
   if sel.start and sel.held then
