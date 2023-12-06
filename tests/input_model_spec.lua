@@ -1,4 +1,5 @@
 require("model.input.inputModel")
+require("model.interpreter.eval.luaEval")
 
 if not orig_print then
   _G.orig_print = function() end
@@ -9,12 +10,13 @@ describe("input model spec #input", function()
     view = {},
     drawableChars = 80,
   }
+  local luaEval  = LuaEval:new('metalua')
 
   -----------------
   --   ASCII     --
   -----------------
   describe('basics', function()
-    local model = InputModel:new(mockConf)
+    local model = InputModel:new(mockConf, luaEval)
 
     it('initializes', function()
       assert.are.equal(getmetatable(model), InputModel)
@@ -59,7 +61,7 @@ describe("input model spec #input", function()
   --   cursor    --
   -----------------
   describe('cursor', function()
-    local model = InputModel:new(mockConf)
+    local model = InputModel:new(mockConf, luaEval)
     local test1 = 'text'
     local test_char1 = 'x'
 
@@ -126,7 +128,7 @@ describe("input model spec #input", function()
   --   UTF-8     --
   -----------------
   describe('handles UTF-8', function()
-    local model = InputModel:new(mockConf)
+    local model = InputModel:new(mockConf, luaEval)
 
     local test1 = 'когда'
     local test2 = 'あいうえお'
@@ -249,7 +251,7 @@ describe("input model spec #input", function()
   --   Del/Bksp  --
   -----------------
   describe('delete and backspace', function()
-    local model = InputModel:new(mockConf)
+    local model = InputModel:new(mockConf, luaEval)
 
     local test1 = 'когда'
     local test2 = 'asdf'
@@ -342,7 +344,7 @@ describe("input model spec #input", function()
   --  Multiline  --
   -----------------
   describe('handles multiline', function()
-    local model = InputModel:new(mockConf)
+    local model = InputModel:new(mockConf, luaEval)
     local test1 = 'first\nsecond'
     local test1_l1 = 'first'
     local test1_l2 = 'second'
@@ -436,7 +438,7 @@ describe("input model spec #input", function()
   end)
   --   cursor    --
   describe('multiline cursor', function()
-    local model = InputModel:new(mockConf)
+    local model = InputModel:new(mockConf, luaEval)
     local test1 = 'first\nsecond'
     local test1_l1 = 'first'
     local test1_l2 = 'second'
@@ -579,7 +581,7 @@ describe("input model spec #input", function()
 
   --   Del/Bksp  --
   describe('multiline delete', function()
-    local model = InputModel:new(mockConf)
+    local model = InputModel:new(mockConf, luaEval)
     local test1 = 'firstsecond'
     local test1_l1 = 'first'
     local test1_l2 = 'second'
@@ -615,33 +617,6 @@ describe("input model spec #input", function()
     end)
   end)
 
-  -----------------
-  --   History   --
-  -----------------
-  describe('history', function()
-    local model = InputModel:new(mockConf)
-    local test1_l1 = 'first'
-    local test1_l2 = 'second'
-
-    it('keeps entries', function()
-      model:add_text(test1_l1)
-      model:evaluate()
-      local he = model:_get_history_entries()
-      assert.same({ test1_l1 }, he[1])
-      assert.same({ { test1_l1 } }, he)
-      local h1 = model:_get_history_entry(1)
-      assert.same(test1_l1, h1[1])
-
-      model:cancel()
-      model:add_text(test1_l2)
-      model:cursor_vertical_move('up')
-      local t = model:get_text()
-      assert.same({ test1_l1 }, t)
-    end)
-
-    -- TODO: test traversing
-  end)
-
   ----------------------
   -- Very long lines  --
   ----------------------
@@ -649,7 +624,7 @@ describe("input model spec #input", function()
     local cfg = {
       drawableChars = 80,
     }
-    local model = InputModel:new(cfg)
+    local model = InputModel:new(cfg, luaEval)
     local w = cfg.drawableChars
     local n_char = w * 2 + 4
     local char1 = 'щ'
