@@ -196,7 +196,7 @@ function ConsoleController:get_timestamp()
 end
 
 function ConsoleController:evaluate_input()
-  local input = self.model.input
+  local input = self.model.interpreter
   local P = self.model.projects
   local project_path
   if P.current then
@@ -237,12 +237,12 @@ end
 
 function ConsoleController:reset()
   self:quit_project()
-  self.model.input:reset(true) -- clear history
+  self.model.interpreter:reset(true) -- clear history
 end
 
 function ConsoleController:quit_project()
   self.model.output:reset()
-  self.model.input:reset()
+  self.model.interpreter:reset()
   nativefs.setWorkingDirectory(love.filesystem.getSourceBaseDirectory())
   Controller.set_default_handlers()
   Controller.set_love_update()
@@ -252,7 +252,7 @@ end
 
 function ConsoleController:keypressed(k)
   local out = self.model.output
-  local input = self.model.input
+  local input = self.model.interpreter
   local function is_enter()
     return k == "return" or k == 'kpenter'
   end
@@ -390,14 +390,14 @@ end
 
 function ConsoleController:keyreleased(k)
   if k == "lshift" or k == "rshift" then
-    local im = self.model.input
+    local im = self.model.interpreter
     im:release_selection()
   end
 end
 
 function ConsoleController:textinput(t)
   -- TODO: block with events
-  self.model.input:add_text(t)
+  self.model.interpreter:add_text(t)
 end
 
 function ConsoleController:_translate_to_input_grid(x, y)
@@ -414,7 +414,7 @@ end
 
 function ConsoleController:_handle_mouse(x, y, btn, handler)
   if btn == 1 then
-    local im = self.model.input
+    local im = self.model.interpreter
     local n_lines = #(im:get_wrapped_text())
     local c, l = self:_translate_to_input_grid(x, y)
     if l < n_lines then
@@ -424,14 +424,14 @@ function ConsoleController:_handle_mouse(x, y, btn, handler)
 end
 
 function ConsoleController:mousepressed(x, y, btn)
-  local im = self.model.input
+  local im = self.model.interpreter
   self:_handle_mouse(x, y, btn, function(l, c)
     im:mouse_click(l, c)
   end)
 end
 
 function ConsoleController:mousereleased(x, y, btn)
-  local im = self.model.input
+  local im = self.model.interpreter
   self:_handle_mouse(x, y, btn, function(l, c)
     im:mouse_release(l, c)
   end)
@@ -439,7 +439,7 @@ function ConsoleController:mousereleased(x, y, btn)
 end
 
 function ConsoleController:mousemoved(x, y)
-  local im = self.model.input
+  local im = self.model.interpreter
   self:_handle_mouse(x, y, 1, function(l, c)
     im:mouse_drag(l, c)
   end)
@@ -450,7 +450,7 @@ function ConsoleController:get_terminal()
 end
 
 function ConsoleController:get_input()
-  local im = self.model.input
+  local im = self.model.interpreter
   local wt, wt_info = im:get_wrapped_text()
   return {
     text = im:get_text(),
@@ -463,15 +463,15 @@ function ConsoleController:get_input()
 end
 
 function ConsoleController:get_cursor_info()
-  return self.model.input:get_cursor_info()
+  return self.model.interpreter:get_cursor_info()
 end
 
 function ConsoleController:get_status()
-  return self.model.input:get_status()
+  return self.model.interpreter:get_status()
 end
 
 function ConsoleController:autotest()
-  local input = self.model.input
+  local input = self.model.interpreter
   local output = self.model.output
   local term = output.terminal
   input:add_text('list_projects()')

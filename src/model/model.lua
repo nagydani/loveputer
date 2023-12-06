@@ -10,7 +10,7 @@ Model = {}
 
 function Model:new(cfg)
   local c = {
-    input = InterpreterModel:new(cfg),
+    interpreter = InterpreterModel:new(cfg),
     output = CanvasModel:new(cfg),
     projects = ProjectService:new(),
   }
