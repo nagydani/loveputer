@@ -1,4 +1,18 @@
 --- @class Dequeue table
+--- @field new function
+--- @field push_front function
+--- @field prepend function
+--- @field push_back function
+--- @field append function
+--- @field push function
+--- @field insert function
+--- @field update function
+--- @field get function
+--- @field remove function
+--- @field get_last_index function
+--- @field items function
+--- @field length function
+--- @field is_empty function
 Dequeue = {}
 
 --- Create a new double-ended queue
