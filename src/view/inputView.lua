@@ -122,7 +122,7 @@ function InputView:draw(input)
     if selected then
       G.setColor(color)
       G.print('█', dx, dy)
-      G.setColor(colors.bg)
+      G.setColor(colors.input.bg)
     else
       G.setColor(color)
     end
