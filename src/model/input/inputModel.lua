@@ -1,6 +1,3 @@
-require("model.interpreter.eval.textEval")
-require("model.interpreter.eval.luaEval")
-require("model.interpreter.eval.inputEval")
 require("model.interpreter.item")
 require("model.input.inputText")
 require("model.input.selection")
@@ -11,12 +8,6 @@ require("util.debug")
 
 --- @class InputModel
 --- @field entered table
---- @field history table
---- @field evaluator table
---- @field luaEval table
---- @field textInput table
---- @field luaInput table
---- @field inputs table
 --- @field cursor table
 --- @field wrap integer
 --- @field wrapped_text table
@@ -29,20 +20,11 @@ require("util.debug")
 --- @todo
 InputModel = {}
 
-function InputModel:new(cfg)
-  local luaEval   = LuaEval:new('metalua')
-  local textInput = InputEval:new(false)
-  local luaInput  = InputEval:new(true)
-  local im        = {
+function InputModel:new(cfg, eval)
+  local im = {
     entered = InputText:new(),
     history = Dequeue:new(),
-    -- starter
-    evaluator = luaEval,
-    -- available options
-    luaEval = luaEval,
-    textInput = textInput,
-    luaInput = luaInput,
-    --
+    evaluator = eval,
     inputs = Dequeue:new(),
     cursor = Cursor:new(),
     wrap = cfg.drawableChars,
