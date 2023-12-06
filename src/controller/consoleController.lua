@@ -193,6 +193,7 @@ function ConsoleController:get_timestamp()
 end
 
 function ConsoleController:evaluate_input()
+  --- @type InterpreterModel
   local interpreter = self.model.interpreter
   local input = interpreter.input
   local P = self.model.projects
@@ -212,18 +213,18 @@ function ConsoleController:evaluate_input()
       if f then
         local _, err = run_user_code(f, self.model, project_path)
         if err then
-          input:set_error(err, true)
+          interpreter:set_error(err, true)
         end
       else
         -- this means that metalua failed to catch some invalid code
         orig_print('Load error:', LANG.parse_error(load_err))
-        input:set_error(load_err, true)
+        interpreter:set_error(load_err, true)
       end
     else
-      local _, _, eval_err = input:get_eval_error(res)
+      local _, _, eval_err = interpreter:get_eval_error(res)
       if string.is_non_empty_string(eval_err) then
         orig_print(eval_err)
-        input:set_error(eval_err)
+        interpreter:set_error(eval_err, false)
       end
     end
   end
