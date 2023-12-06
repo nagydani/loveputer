@@ -275,7 +275,22 @@ function ConsoleController:keypressed(k)
     return
   end
 
-  self.input:keypressed(k)
+  if k == "pageup" then
+    interpreter:history_back()
+  end
+  if k == "pagedown" then
+    interpreter:history_fwd()
+  end
+
+  local limit = self.input:keypressed(k)
+  if limit then
+    if k == "up" then
+      interpreter:history_back()
+    end
+    if k == "down" then
+      interpreter:history_fwd()
+    end
+  end
   if not Key.shift() and Key.is_enter(k) then
     self:evaluate_input()
   end

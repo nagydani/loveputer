@@ -33,10 +33,12 @@ function InputController:keypressed(k)
   end
 
   if k == "up" then
-    input:cursor_vertical_move('up')
+    local l = input:cursor_vertical_move('up')
+    return l
   end
   if k == "down" then
-    input:cursor_vertical_move('down')
+    local l = input:cursor_vertical_move('down')
+    return l
   end
   if k == "left" then
     input:cursor_left()

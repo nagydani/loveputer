@@ -453,22 +453,25 @@ function InputModel:cursor_vertical_move(dir)
           function() self:jump_end() end
         )
       end
+      return true
     end
   end
 
+  local limit
   if dir == 'up' then
-    move(
+    limit = move(
       function() return cc - w > 0 end,
       function() return cl > 1 end
     )
   elseif dir == 'down' then
-    move(
+    limit = move(
       function() return cc <= full_lines * w end,
       function() return cl < n end
     )
   else
     return
   end
+  return limit
 end
 
 function InputModel:cursor_left()
