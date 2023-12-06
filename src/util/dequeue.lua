@@ -1,3 +1,4 @@
+--- @class Dequeue table
 Dequeue = {}
 
 --- Create a new double-ended queue

@@ -54,6 +54,7 @@ function InterpreterModel:get_entered_text()
   return self.input:get_text()
 end
 
+--- @return Status
 function InterpreterModel:get_status()
   return self.input:get_status()
 end
@@ -149,7 +150,7 @@ function InterpreterModel:history_back()
       if string.is_non_empty_string_array(current) then
         self.history[hi] = current
       end
-      self.input:_set_text(prev)
+      self.input:_set_text(prev, false)
       self.historic_index = hi - 1
       self.input:jump_end()
     end
@@ -157,7 +158,7 @@ function InterpreterModel:history_back()
     self.historic_index = self.history:get_last_index()
     self:_remember(ent)
     local prev = self.history[self.historic_index] or ''
-    self.input:_set_text(prev)
+    self.input:_set_text(prev, false)
     self.input:jump_end()
   end
   self.input:clear_selection()

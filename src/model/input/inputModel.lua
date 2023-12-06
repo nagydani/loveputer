@@ -136,7 +136,7 @@ function InputModel:line_feed()
   self:text_change()
 end
 
---- @return string[]
+--- @return Dequeue
 function InputModel:get_text()
   return self.entered or InputText:new()
 end
