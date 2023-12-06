@@ -1,3 +1,5 @@
+require("util.key")
+
 InputController = {}
 
 --- @param M Model
@@ -14,7 +16,92 @@ end
 
 function InputController:textinput(t)
   -- TODO: block with events
-  self.model.interpreter:add_text(t)
+  self.model:add_text(t)
+end
+
+function InputController:keypressed(k)
+  local input = self.model
+
+  if k == "backspace" then
+    input:backspace()
+  end
+  if k == "delete" then
+    input:delete()
+  end
+
+  if k == "up" then
+    input:cursor_vertical_move('up')
+  end
+  if k == "down" then
+    input:cursor_vertical_move('down')
+  end
+  if k == "left" then
+    input:cursor_left()
+  end
+  if k == "right" then
+    input:cursor_right()
+  end
+
+  if k == "pageup" then
+    input:history_back()
+  end
+  if k == "pagedown" then
+    input:history_fwd()
+  end
+
+  if k == "home" then
+    input:jump_home()
+  end
+  if k == "end" then
+    input:jump_end()
+  end
+
+  if not Key.ctrl() and k == "escape" then
+    input:cancel()
+  end
+  local function paste() input:paste(love.system.getClipboardText()) end
+  local function copy()
+    local t = input:get_selected_text()
+    love.system.setClipboardText(string.join(t, '\n'))
+  end
+  local function cut()
+    local t = input:pop_selected_text()
+    love.system.setClipboardText(string.join(t, '\n'))
+  end
+
+  -- Ctrl held
+  if Key.ctrl() then
+    if k == "v" then
+      paste()
+    end
+    if k == "c" or k == "insert" then
+      copy()
+    end
+    if k == "x" then
+      cut()
+    end
+  end
+
+  -- Shift held
+  if Key.shift() then
+    if k == "insert" then
+      paste()
+    end
+    if k == "delete" then
+      cut()
+    end
+    if Key.is_enter(k) then
+      input:line_feed()
+    end
+    input:hold_selection()
+  end
+end
+
+function InputController:keyreleased(k)
+  if k == "lshift" or k == "rshift" then
+    local im = self.model
+    im:release_selection()
+  end
 end
 
 function InputController:get_input()
