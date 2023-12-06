@@ -1,6 +1,7 @@
 require("controller.inputController")
 
 require("util.testTerminal")
+require("util.key")
 require("util.eval")
 require("util.table")
 
@@ -256,15 +257,12 @@ end
 
 function ConsoleController:keypressed(k)
   local out = self.model.output
-  local input = self.model.interpreter
-  local function is_enter()
-    return k == "return" or k == 'kpenter'
-  end
+  local interpreter = self.model.interpreter
 
   local function terminal_test()
     if not love.state.testing then
       love.state.testing = 'running'
-      input:cancel()
+      interpreter:cancel()
       TerminalTest:test(out.terminal)
     elseif love.state.testing == 'waiting' then
       TerminalTest:reset(out.terminal)
@@ -272,8 +270,8 @@ function ConsoleController:keypressed(k)
     end
   end
 
-  if input:has_error() then
-    input:clear_error()
+  if interpreter:has_error() then
+    interpreter:clear_error()
     return
   end
 
@@ -285,74 +283,13 @@ function ConsoleController:keypressed(k)
     return
   end
 
-  local ctrl, shift
-  ctrl  = love.keyboard.isDown("lctrl", "rctrl")
-  shift = love.keyboard.isDown("lshift", "rshift")
-
-  -- input controls
-  do
-    if k == "backspace" then
-      input:backspace()
-    end
-    if k == "delete" then
-      input:delete()
-    end
-
-    if k == "up" then
-      input:cursor_vertical_move('up')
-    end
-    if k == "down" then
-      input:cursor_vertical_move('down')
-    end
-    if k == "left" then
-      input:cursor_left()
-    end
-    if k == "right" then
-      input:cursor_right()
-    end
-
-    if k == "pageup" then
-      input:history_back()
-    end
-    if k == "pagedown" then
-      input:history_fwd()
-    end
-
-    if k == "home" then
-      input:jump_home()
-    end
-    if k == "end" then
-      input:jump_end()
-    end
-
-    if not shift and is_enter() then
-      self:evaluate_input()
-    end
-    if not ctrl and k == "escape" then
-      input:cancel()
-    end
+  self.input:keypressed(k)
+  if not Key.shift() and Key.is_enter(k) then
+    self:evaluate_input()
   end
 
-  local function paste() input:paste(love.system.getClipboardText()) end
-  local function copy()
-    local t = input:get_selected_text()
-    love.system.setClipboardText(string.join(t, '\n'))
-  end
-  local function cut()
-    local t = input:pop_selected_text()
-    love.system.setClipboardText(string.join(t, '\n'))
-  end
   -- Ctrl held
-  if ctrl then
-    if k == "v" then
-      paste()
-    end
-    if k == "c" or k == "insert" then
-      copy()
-    end
-    if k == "x" then
-      cut()
-    end
+  if Key.ctrl() then
     if k == "l" then
       self.model.output:reset()
     end
@@ -362,27 +299,12 @@ function ConsoleController:keypressed(k)
         return
       end
       if k == 'o' then
-        input:test_lua_eval()
+        interpreter:test_lua_eval()
       end
     end
   end
-
-  -- Shift held
-  if shift then
-    if k == "insert" then
-      paste()
-    end
-    if k == "delete" then
-      cut()
-    end
-    if is_enter() then
-      input:line_feed()
-    end
-    input:hold_selection()
-  end
-
   -- Ctrl and Shift held
-  if ctrl and shift then
+  if Key.ctrl() and Key.shift() then
     if k == "q" then
       self:quit_project()
     end
@@ -393,15 +315,7 @@ function ConsoleController:keypressed(k)
 end
 
 function ConsoleController:keyreleased(k)
-  if k == "lshift" or k == "rshift" then
-    local im = self.model.interpreter
-    im:release_selection()
-  end
-end
-
-function ConsoleController:textinput(t)
-  -- TODO: block with events
-  self.model.interpreter:add_text(t)
+  self.input:keyreleased(k)
 end
 
 function ConsoleController:get_terminal()
