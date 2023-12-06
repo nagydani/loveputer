@@ -36,9 +36,9 @@ function ConsoleView:draw(terminal, input)
 end
 
 function ConsoleView:draw_placeholder()
-  local band = self.cfg.fh
-  local w = self.cfg.w
-  local h = self.cfg.h
+  local band = self.cfg.view.fh
+  local w    = self.cfg.view.w
+  local h    = self.cfg.view.h
   G.push('all')
   love.graphics.setColor(Color[Color.yellow])
   for o = -h, w, 2 * band do

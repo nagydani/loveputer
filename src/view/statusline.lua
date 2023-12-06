@@ -14,7 +14,7 @@ end
 
 ---@param status Status
 ---@param nLines integer
----@param time number
+---@param time number?
 function Statusline:draw(status, nLines, time)
   local cf = self.cfg.view
   local b = cf.border
@@ -46,7 +46,9 @@ function Statusline:draw(status, nLines, time)
     if love.state.testing then
       G.print('testing', midX - (8 * cf.fw + cf.border), start_text.y)
     end
-    G.print(time, midX, start_text.y)
+    if time then
+      G.print(tostring(time), midX, start_text.y)
+    end
     G.setColor(colors.statusline.fg)
   end
   if status.cursor then
