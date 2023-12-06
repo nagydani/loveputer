@@ -14,11 +14,14 @@ function InputController:new(M)
   return ic
 end
 
+--- @param t string
 function InputController:textinput(t)
   -- TODO: block with events
   self.model:add_text(t)
 end
 
+--- @param k string
+--- @return boolean? limit
 function InputController:keypressed(k)
   local input = self.model
 
@@ -40,13 +43,6 @@ function InputController:keypressed(k)
   end
   if k == "right" then
     input:cursor_right()
-  end
-
-  if k == "pageup" then
-    input:history_back()
-  end
-  if k == "pagedown" then
-    input:history_fwd()
   end
 
   if k == "home" then
@@ -97,6 +93,7 @@ function InputController:keypressed(k)
   end
 end
 
+--- @param k string
 function InputController:keyreleased(k)
   if k == "lshift" or k == "rshift" then
     local im = self.model
@@ -117,6 +114,7 @@ function InputController:get_input()
   }
 end
 
+--- @return CursorInfo
 function InputController:get_cursor_info()
   return self.model:get_cursor_info()
 end

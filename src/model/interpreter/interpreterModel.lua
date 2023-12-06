@@ -20,6 +20,7 @@ require("util.debug")
 --- @todo
 InterpreterModel = {}
 
+--- @return InterpreterModel
 function InterpreterModel:new(cfg)
   local luaEval   = LuaEval:new('metalua')
   local textInput = InputEval:new(false)
@@ -98,7 +99,6 @@ function InterpreterModel:_handle(eval)
             -- self.inputs:push_back(Item:new(t, kind))
           end
         end
-        self:switch('lua')
         self.input:clear_input()
       end
     else
@@ -107,21 +107,6 @@ function InterpreterModel:_handle(eval)
     end
   end
   return ok, result
-end
-
---- @param kind EvalType
-function InterpreterModel:switch(kind)
-  local sw = {
-    ['lua']        = self.luaEval,
-    ['input-text'] = self.textInput,
-    ['input-lua']  = self.luaInput,
-  }
-  local new = sw[kind]
-  if new then
-    self.evaluator = new
-  else
-    self:set_error('Invalid choice of eval', true)
-  end
 end
 
 ----------------
@@ -160,6 +145,8 @@ end
 ----------------
 --  history   --
 ----------------
+
+--- @param input string[]
 function InterpreterModel:_remember(input)
   if string.is_non_empty_string_array(input) then
     self.history:append(input)
