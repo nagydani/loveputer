@@ -54,12 +54,13 @@ function InterpreterModel:get_entered_text()
   return self.input:get_text()
 end
 
-----------------
--- evaluation --
-----------------
 function InterpreterModel:get_status()
   return self.input:get_status()
 end
+
+----------------
+-- evaluation --
+----------------
 
 function InterpreterModel:evaluate()
   return self:_handle(true)
@@ -77,29 +78,13 @@ function InterpreterModel:_handle(eval)
     local ev = self.evaluator
     self:_remember(ent)
     if eval then
-      if ev.is_lua then
-        ok, result = self.evaluator.apply(ent)
-
-        if ok then
-          self.input:clear_input()
-        else
-          local l, c, err = self:get_eval_error(result)
-          self.input:move_cursor(l, c + 1)
-          self.error = err
-        end
-      else
-        -- whatever else happens, return to lua interpreter
-        if ev.kind == 'input' then
-          local t = self:get_entered_text()
-          if string.is_non_empty_string_array(t) then
-            -- TODO
-            -- local kind = (function()
-            --   if ev.highlight then return 'lua' else return 'text' end
-            -- end)()
-            -- self.inputs:push_back(Item:new(t, kind))
-          end
-        end
+      ok, result = self.evaluator.apply(ent)
+      if ok then
         self.input:clear_input()
+      else
+        local l, c, err = self:get_eval_error(result)
+        self.input:move_cursor(l, c + 1)
+        self.error = err
       end
     else
       self.input:clear_input()
@@ -137,7 +122,7 @@ end
 function InterpreterModel:get_eval_error(errors)
   local ev = self.evaluator
   local t = self:get_entered_text()
-  if ev.is_lua and string.is_non_empty_string_array(t) then
+  if string.is_non_empty_string_array(t) then
     return ev.parser.get_error(errors)
   end
 end

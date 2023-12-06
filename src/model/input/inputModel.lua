@@ -538,9 +538,6 @@ function InputModel:jump_end()
   self:move_cursor(last_line, last_char, keep)
 end
 
-----------------
--- evaluation --
-----------------
 function InputModel:get_status()
   return {
     input_type = self.evaluator.kind,
@@ -549,39 +546,18 @@ function InputModel:get_status()
   }
 end
 
-function InputModel:evaluate()
-  return self:_handle(true)
+----------------
+-- evaluation --
+----------------
+
+--- @return string[]
+function InputModel:finish()
+  local ent = self:get_text()
+  return ent
 end
 
 function InputModel:cancel()
-  self:_handle(false)
-end
-
-function InputModel:_handle(eval)
-  local ent = self:get_text()
-  local ok, result
-  if string.is_non_empty_string_array(ent) then
-    local ev = self.evaluator
-    if eval then
-      if ev.is_lua then
-        ok, result = self.evaluator.apply(ent)
-
-        if ok then
-          self:clear_input()
-        else
-          local l, c, err = self:get_eval_error(result)
-          self:move_cursor(l, c + 1)
-          self.error = err
-        end
-      else
-        self:clear_input()
-      end
-    else
-      self:clear_input()
-      ok = true
-    end
-  end
-  return ok, result
+  self:clear_input()
 end
 
 ----------------
