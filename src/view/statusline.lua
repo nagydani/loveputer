@@ -12,6 +12,9 @@ function Statusline:new(cfg)
   return s
 end
 
+---@param status Status
+---@param nLines integer
+---@param time number
 function Statusline:draw(status, nLines, time)
   local cf = self.cfg.view
   local b = cf.border

@@ -187,6 +187,7 @@ function ConsoleController:pass_time(dt)
   self.model.output.terminal:update(dt)
 end
 
+---@return number
 function ConsoleController:get_timestamp()
   return self.time
 end

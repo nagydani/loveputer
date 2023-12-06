@@ -27,3 +27,8 @@
 --- @field FAC Fac
 --- @field h integer
 --- @field w integer
+
+--- @class Status table
+--- @field input_type string
+--- @field cursor Cursor
+--- @field n_lines integer
