@@ -192,8 +192,8 @@ function ConsoleController:get_timestamp()
 end
 
 function ConsoleController:evaluate_input()
-  local model = self.model.interpreter
-  local input = model.input
+  local interpreter = self.model.interpreter
+  local input = interpreter.input
   local P = self.model.projects
   local project_path
   if P.current then
@@ -203,7 +203,7 @@ function ConsoleController:evaluate_input()
   local text = input:get_text()
   local eval = input.evaluator
 
-  local eval_ok, res = input:evaluate()
+  local eval_ok, res = interpreter:evaluate()
   if eval.is_lua then
     if eval_ok then
       local code = string.join(text, '\n')
