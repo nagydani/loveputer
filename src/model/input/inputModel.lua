@@ -18,7 +18,14 @@ require("util.debug")
 --- @field n_breaks integer
 --- @field selection table
 -- methods
---- @todo
+--- @field new function
+--- @field add_text function
+--- @field line_feed function
+--- @field get_text function
+--- @field get_text_line function
+--- @field get_n_text_lines function
+--- @field get_wrapped_text function
+--- @field get_wrapped_text_line function
 InputModel = {}
 
 --- @param cfg table
@@ -141,12 +148,14 @@ function InputModel:get_text()
   return self.entered or InputText:new()
 end
 
+--- @param l integer
 --- @return string
 function InputModel:get_text_line(l)
   local ent = self:get_text()
   return ent:get(l) or ''
 end
 
+--- @return integer
 function InputModel:get_n_text_lines()
   local ent = self:get_text()
   return ent:length()
@@ -160,6 +169,8 @@ function InputModel:get_wrapped_text()
   }
 end
 
+--- @param l integer
+--- @return string
 function InputModel:get_wrapped_text_line(l)
   local wt = self:get_wrapped_text()
   return wt[l]
