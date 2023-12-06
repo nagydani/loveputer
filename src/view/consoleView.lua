@@ -1,6 +1,6 @@
 require("view.titleView")
 require("view.canvasView")
-require("view.inputView")
+require("view.interpreterView")
 require("util.color")
 require("util.view")
 require("util.debug")
@@ -15,7 +15,7 @@ function ConsoleView:new(cfg, ctrl)
   local view = {
     title = TitleView,
     canvas = CanvasView:new(cfg),
-    input = InputView:new(cfg, ctrl),
+    interpreter = InterpreterView:new(cfg, ctrl),
     controller = ctrl,
     cfg = cfg,
     drawable_height = ViewUtils.get_drawable_height(cfg.view),
@@ -30,13 +30,13 @@ end
 ---@param terminal table
 ---@param input InputDTO
 function ConsoleView:draw(terminal, input)
-  G.scale(self.fac, self.fac)
+  G.scale(self.cfg.view.fac, self.cfg.view.fac)
 
   if love.DEBUG then
     self:draw_placeholder()
   end
   self.canvas:draw(terminal, self.drawable_height)
-  self.input:draw(input)
+  self.interpreter:draw(input)
 end
 
 function ConsoleView:draw_placeholder()
