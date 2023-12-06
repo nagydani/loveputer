@@ -1,9 +1,10 @@
-ConsoleController = {}
+require("controller.inputController")
 
 require("util.testTerminal")
 require("util.eval")
 require("util.table")
 
+ConsoleController = {}
 
 --- @param f function
 --- @param M Model
@@ -173,12 +174,14 @@ function ConsoleController:new(M)
   local env = getfenv()
   local project_env = getfenv()
   prepare_env(env, M, project_env)
+  local IC = InputController:new(M.interpreter.input)
   local cc = {
     time        = 0,
     model       = M,
     base_env    = table.clone(env),
     env         = table.clone(env),
     project_env = project_env,
+    input       = IC
   }
   setmetatable(cc, self)
   self.__index = self
@@ -196,7 +199,8 @@ function ConsoleController:get_timestamp()
 end
 
 function ConsoleController:evaluate_input()
-  local input = self.model.interpreter
+  local model = self.model.interpreter
+  local input = model.input
   local P = self.model.projects
   local project_path
   if P.current then
@@ -400,70 +404,8 @@ function ConsoleController:textinput(t)
   self.model.interpreter:add_text(t)
 end
 
-function ConsoleController:_translate_to_input_grid(x, y)
-  local cfg = self.model.output.cfg
-  local h = cfg.view.h
-  local fh = cfg.view.fh
-  local fw = cfg.view.fw
-  local line = math.floor((h - y) / fh)
-  local a, b = math.modf((x / fw))
-  local char = a + 1
-  if b > .5 then char = char + 1 end
-  return char, line
-end
-
-function ConsoleController:_handle_mouse(x, y, btn, handler)
-  if btn == 1 then
-    local im = self.model.interpreter
-    local n_lines = #(im:get_wrapped_text())
-    local c, l = self:_translate_to_input_grid(x, y)
-    if l < n_lines then
-      handler(n_lines - l, c)
-    end
-  end
-end
-
-function ConsoleController:mousepressed(x, y, btn)
-  local im = self.model.interpreter
-  self:_handle_mouse(x, y, btn, function(l, c)
-    im:mouse_click(l, c)
-  end)
-end
-
-function ConsoleController:mousereleased(x, y, btn)
-  local im = self.model.interpreter
-  self:_handle_mouse(x, y, btn, function(l, c)
-    im:mouse_release(l, c)
-  end)
-  im:release_selection()
-end
-
-function ConsoleController:mousemoved(x, y)
-  local im = self.model.interpreter
-  self:_handle_mouse(x, y, 1, function(l, c)
-    im:mouse_drag(l, c)
-  end)
-end
-
 function ConsoleController:get_terminal()
   return self.model.output.terminal
-end
-
-function ConsoleController:get_input()
-  local im = self.model.interpreter
-  local wt, wt_info = im:get_wrapped_text()
-  return {
-    text = im:get_text(),
-    wrapped_text = wt,
-    wt_info = wt_info,
-    wrapped_error = im:get_wrapped_error(),
-    highlight = im:highlight(),
-    selection = im:get_ordered_selection(),
-  }
-end
-
-function ConsoleController:get_cursor_info()
-  return self.model.interpreter:get_cursor_info()
 end
 
 function ConsoleController:get_status()

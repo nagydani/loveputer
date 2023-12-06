@@ -60,7 +60,7 @@ function InputView:draw(input)
 
   local start_y = h - b - apparentLines * fh
   local function drawCursor()
-    local cursorInfo = self.controller:get_cursor_info()
+    local cursorInfo = self.controller.input:get_cursor_info()
     local cl, cc = cursorInfo.cursor.l, cursorInfo.cursor.c
     local x_offset = (function()
       if cc > drawableChars then
