@@ -23,10 +23,10 @@ InputModel = {}
 function InputModel:new(cfg, eval)
   local im = {
     entered = InputText:new(),
-    history = Dequeue:new(),
     evaluator = eval,
     inputs = Dequeue:new(),
     cursor = Cursor:new(),
+    -- TODO: factor out WrappedText
     wrap = cfg.drawableChars,
     wrapped_text = {},
     wrapped_error = {},
@@ -234,15 +234,10 @@ function InputModel:clear_input()
   self:text_change()
   self:clear_selection()
   self:_update_cursor(true)
-  self.historic_index = nil
   self.tokens = nil
 end
 
---- @param history boolean
-function InputModel:reset(history)
-  if history then
-    self.history = Dequeue:new()
-  end
+function InputModel:reset()
   self:clear_input()
 end
 
@@ -439,11 +434,6 @@ function InputModel:cursor_vertical_move(dir)
           function() self:jump_home() end,
           function() self:jump_end() end
         )
-      else
-        sgn(
-          function() self:history_back() end,
-          function() self:history_fwd() end
-        )
       end
     end
   end
@@ -551,11 +541,9 @@ end
 
 function InputModel:_handle(eval)
   local ent = self:get_text()
-  self.historic_index = nil
   local ok, result
   if string.is_non_empty_string_array(ent) then
     local ev = self.evaluator
-    self:_remember(ent)
     if eval then
       if ev.is_lua then
         ok, result = self.evaluator.apply(ent)
@@ -568,17 +556,6 @@ function InputModel:_handle(eval)
           self.error = err
         end
       else
-        -- whatever else happens, return to lua interpreter
-        if ev.kind == 'input' then
-          local t = self:get_text()
-          if string.is_non_empty_string_array(t) then
-            local kind = (function()
-              if ev.highlight then return 'lua' else return 'text' end
-            end)()
-            self.inputs:push_back(Item:new(t, kind))
-          end
-        end
-        self:switch('lua')
         self:clear_input()
       end
     else
@@ -635,73 +612,6 @@ function InputModel:get_eval_error(errors)
   if ev.is_lua and string.is_non_empty_string_array(t) then
     return ev.parser.get_error(errors)
   end
-end
-
-----------------
---  history   --
-----------------
-function InputModel:_remember(input)
-  if string.is_non_empty_string_array(input) then
-    self.history:append(input)
-  end
-end
-
-function InputModel:history_back()
-  local ent = self:get_text()
-  local hi = self.historic_index
-  -- TODO: remember cursor pos?
-  if hi and hi > 0 then
-    local prev = self.history[hi - 1]
-    if prev then
-      local current = self:get_text()
-      if string.is_non_empty_string_array(current) then
-        self.history[hi] = current
-      end
-      self:_set_text(prev)
-      self.historic_index = hi - 1
-      self:jump_end()
-    end
-  else
-    self.historic_index = self.history:get_last_index()
-    self:_remember(ent)
-    local prev = self.history[self.historic_index] or ''
-    self:_set_text(prev)
-    self:jump_end()
-  end
-  self:clear_selection()
-end
-
-function InputModel:history_fwd()
-  if self.historic_index then
-    local hi = self.historic_index
-    local next = self.history[hi + 1]
-    local current = self:get_text()
-    if string.is_non_empty_string_array(current) then
-      self.history[hi] = current
-    end
-    if next then
-      self:_set_text(next)
-      self.historic_index = hi + 1
-    else
-      self:clear_input()
-    end
-  else
-    self:cancel()
-  end
-  self:jump_end() -- TODO: remember cursor pos?
-  self:clear_selection()
-end
-
-function InputModel:_get_history_length()
-  return #(self.history)
-end
-
-function InputModel:_get_history_entry(i)
-  return self.history[i]
-end
-
-function InputModel:_get_history_entries()
-  return self.history:items()
 end
 
 ----------------

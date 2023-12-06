@@ -1,25 +1,24 @@
-require("model.input.inputModel")
-require("model.interpreter.eval.luaEval")
+require("model.interpreter.interpreterModel")
 
 if not orig_print then
   _G.orig_print = function() end
 end
 
-describe("input model spec #input", function()
+describe("interpreter model spec #interpreter", function()
   local mockConf = {
     view = {},
     drawableChars = 80,
   }
-  local luaEval  = LuaEval:new('metalua')
+
 
   -----------------
   --   ASCII     --
   -----------------
   describe('basics', function()
-    local model = InputModel:new(mockConf, luaEval)
+    local model = InterpreterModel:new(mockConf)
 
     it('initializes', function()
-      assert.are.equal(getmetatable(model), InputModel)
+      assert.are.equal(getmetatable(model), InterpreterModel)
     end)
     local test1 = 'asdf'
     local test_char1 = 'd'
@@ -61,7 +60,7 @@ describe("input model spec #input", function()
   --   cursor    --
   -----------------
   describe('cursor', function()
-    local model = InputModel:new(mockConf, luaEval)
+    local model = InterpreterModel:new(mockConf)
     local test1 = 'text'
     local test_char1 = 'x'
 
@@ -128,7 +127,7 @@ describe("input model spec #input", function()
   --   UTF-8     --
   -----------------
   describe('handles UTF-8', function()
-    local model = InputModel:new(mockConf, luaEval)
+    local model = InterpreterModel:new(mockConf)
 
     local test1 = 'когда'
     local test2 = 'あいうえお'
@@ -251,7 +250,7 @@ describe("input model spec #input", function()
   --   Del/Bksp  --
   -----------------
   describe('delete and backspace', function()
-    local model = InputModel:new(mockConf, luaEval)
+    local model = InterpreterModel:new(mockConf)
 
     local test1 = 'когда'
     local test2 = 'asdf'
@@ -344,7 +343,7 @@ describe("input model spec #input", function()
   --  Multiline  --
   -----------------
   describe('handles multiline', function()
-    local model = InputModel:new(mockConf, luaEval)
+    local model = InterpreterModel:new(mockConf)
     local test1 = 'first\nsecond'
     local test1_l1 = 'first'
     local test1_l2 = 'second'
@@ -438,7 +437,7 @@ describe("input model spec #input", function()
   end)
   --   cursor    --
   describe('multiline cursor', function()
-    local model = InputModel:new(mockConf, luaEval)
+    local model = InterpreterModel:new(mockConf)
     local test1 = 'first\nsecond'
     local test1_l1 = 'first'
     local test1_l2 = 'second'
@@ -529,6 +528,24 @@ describe("input model spec #input", function()
       assert.same(cc, 1)         -- first char
     end)
 
+    it('pages history down', function()
+      model:cursor_vertical_move('down')
+      local t = model:get_text()
+      assert.same({ '' }, t) -- next is empty
+    end)
+    it('pages history up', function()
+      model:cursor_vertical_move('up')
+      local t = model:get_text()
+      local cl, cc = model:_get_cursor_pos()
+      local ent = model:get_text()
+      local len = #ent                       -- number of lines
+      local ll = string.ulen(ent[len])       -- last line length
+      assert.same({ test2_l1, test2_l2 }, t) -- brings it back
+      assert.same(cc, 1 + string.ulen(test2_l2))
+      assert.same(1 + ll, 1 + string.ulen(test2_l2))
+      assert.same(cl, #string.lines(test2))
+    end)
+
     it('traverses over line breaks', function()
       model:jump_home()
       model:cursor_vertical_move('down')
@@ -563,7 +580,7 @@ describe("input model spec #input", function()
 
   --   Del/Bksp  --
   describe('multiline delete', function()
-    local model = InputModel:new(mockConf, luaEval)
+    local model = InterpreterModel:new(mockConf)
     local test1 = 'firstsecond'
     local test1_l1 = 'first'
     local test1_l2 = 'second'
@@ -599,6 +616,7 @@ describe("input model spec #input", function()
     end)
   end)
 
+
   ----------------------
   -- Very long lines  --
   ----------------------
@@ -606,11 +624,11 @@ describe("input model spec #input", function()
     local cfg = {
       drawableChars = 80,
     }
-    local model = InputModel:new(cfg, luaEval)
+    local model = InterpreterModel:new(cfg)
     local w = cfg.drawableChars
     local n_char = w * 2 + 4
     local char1 = 'щ'
-    describe('cursor', function()
+    describe('cursor and history', function()
       for _ = 1, n_char do
         model:add_text(char1)
       end
@@ -622,14 +640,20 @@ describe("input model spec #input", function()
         model:cursor_vertical_move('up')
         local cl, cc = model:_get_cursor_pos()
         assert.same(1, cl)
-        -- TODO
-        -- assert.same(n_char + 1 - w, cc)
+        assert.same(n_char + 1 - w, cc)
+        model:cursor_vertical_move('up')
+        cl, cc = model:_get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(n_char + 1 - w - w, cc)
+        -- -- history action
         -- model:cursor_vertical_move('up')
         -- cl, cc = model:_get_cursor_pos()
         -- assert.same(1, cl)
-        -- assert.same(n_char + 1 - w - w, cc)
+        -- assert.same(1, cc)
       end)
       it('moves down inside long line', function()
+        -- -- history action
+        -- model:cursor_vertical_move('down')
         model:jump_home()
         local cl, cc = model:_get_cursor_pos()
         assert.same(1, cl)
@@ -637,16 +661,68 @@ describe("input model spec #input", function()
         model:cursor_vertical_move('down')
         cl, cc = model:_get_cursor_pos()
         assert.same(1, cl)
-        -- TODO
-        -- assert.same(1 + w, cc)
-        -- model:cursor_vertical_move('down')
-        -- cl, cc = model:_get_cursor_pos()
-        -- assert.same(1, cl)
-        -- assert.same(1 + w + w, cc)
+        assert.same(1 + w, cc)
+        model:cursor_vertical_move('down')
+        cl, cc = model:_get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(1 + w + w, cc)
+        -- history action
+        model:cursor_vertical_move('down')
+        cl, cc = model:_get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(1, cc)
       end)
 
       model:cancel()
       assert.same({ '' }, model:get_text())
+      it('moves up in history on first line', function()
+        model:cursor_vertical_move('up')
+        local cl, cc = model:_get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(n_char + 1, cc)
+        -- model:cursor_vertical_move('up')
+      end)
+      it('moves down in history on last line', function()
+        local t2 = 'text2 Привет'
+        model:cancel()
+        model:add_text(t2)
+        model:history_back()
+        local cl, cc = model:_get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(n_char + 1, cc)
+        model:cursor_vertical_move('down') -- should result in history_fwd
+        assert.same({ t2 }, model:get_text())
+        cl, cc = model:_get_cursor_pos()
+        assert.same(1, cl)
+        assert.same(string.ulen(t2) + 1, cc)
+      end)
     end)
+  end)
+
+  -----------------
+  --   History   --
+  -----------------
+  describe('history', function()
+    local model = InterpreterModel:new(mockConf)
+    local test1_l1 = 'first'
+    local test1_l2 = 'second'
+
+    it('keeps entries', function()
+      model:add_text(test1_l1)
+      model:evaluate()
+      local he = model:_get_history_entries()
+      assert.same({ test1_l1 }, he[1])
+      assert.same({ { test1_l1 } }, he)
+      local h1 = model:_get_history_entry(1)
+      assert.same(test1_l1, h1[1])
+
+      model:cancel()
+      model:add_text(test1_l2)
+      model:cursor_vertical_move('up')
+      local t = model:get_text()
+      assert.same({ test1_l1 }, t)
+    end)
+
+    -- TODO: test traversing
   end)
 end)
