@@ -22,7 +22,7 @@ Controller = {
   set_love_textinput = function()
     --- @diagnostic disable-next-line: duplicate-set-field
     function love.textinput(t)
-      C:textinput(t)
+      C.input:textinput(t)
     end
   end,
 
@@ -30,19 +30,19 @@ Controller = {
   set_love_mousepressed = function()
     --- @diagnostic disable-next-line: duplicate-set-field
     function love.mousepressed(x, y, button)
-      C:mousepressed(x, y, button)
+      C.input:mousepressed(x, y, button)
     end
   end,
   set_love_mousereleased = function()
     --- @diagnostic disable-next-line: duplicate-set-field
     function love.mousereleased(x, y, button)
-      C:mousereleased(x, y, button)
+      C.input:mousereleased(x, y, button)
     end
   end,
   set_love_mousemoved = function()
     --- @diagnostic disable-next-line: duplicate-set-field
     function love.mousemoved(x, y, dx, dy)
-      C:mousemoved(x, y)
+      C.input:mousemoved(x, y)
     end
   end,
 

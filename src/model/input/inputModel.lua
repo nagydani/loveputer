@@ -8,6 +8,7 @@ require("util.debug")
 
 --- @class InputModel
 --- @field entered table
+--- @field evaluator table
 --- @field cursor table
 --- @field wrap integer
 --- @field wrapped_text table
@@ -20,6 +21,8 @@ require("util.debug")
 --- @todo
 InputModel = {}
 
+--- @param cfg table
+--- @param eval table
 function InputModel:new(cfg, eval)
   local im = {
     entered = InputText:new(),
@@ -33,7 +36,9 @@ function InputModel:new(cfg, eval)
     cursor_wrap = {},
     wrap_reverse = {},
     n_breaks = 0,
-    selection = Selection:new()
+    selection = Selection:new(),
+
+    cfg = cfg,
   }
   setmetatable(im, self)
   self.__index = self
