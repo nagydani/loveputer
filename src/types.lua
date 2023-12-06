@@ -2,6 +2,13 @@
 --- @field storage_path string
 --- @field project_path string
 
+--- @class CursorInfo table
+--- @field cursor Cursor
+
+---@alias VerticalDir
+---| 'up'
+---| 'down'
+
 ---@alias EvalType
 ---| '"lua"'        # the default lua interpreter
 ---| '"input-text"' # plaintext user input

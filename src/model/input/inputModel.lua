@@ -49,6 +49,8 @@ end
 ----------------
 --  entered   --
 ----------------
+
+--- @param text string
 function InputModel:add_text(text)
   if type(text) == 'string' then
     self:pop_selected_text()
@@ -80,6 +82,8 @@ function InputModel:add_text(text)
   end
 end
 
+--- @param text string
+--- @param keep_cursor boolean
 function InputModel:_set_text(text, keep_cursor)
   self.entered = nil
   if type(text) == 'string' then
@@ -132,10 +136,12 @@ function InputModel:line_feed()
   self:text_change()
 end
 
+--- @return string[]
 function InputModel:get_text()
   return self.entered or InputText:new()
 end
 
+--- @return string
 function InputModel:get_text_line(l)
   local ent = self:get_text()
   return ent:get(l) or ''
@@ -365,6 +371,7 @@ function InputModel:_get_cursor_pos()
   return self.cursor.l, self.cursor.c
 end
 
+--- @return CursorInfo
 function InputModel:get_cursor_info()
   return {
     cursor = self.cursor,
@@ -379,12 +386,18 @@ function InputModel:get_cursor_y()
   return self.cursor.l
 end
 
+--- @param dir VerticalDir
+--- @return boolean? limit
 function InputModel:cursor_vertical_move(dir)
   local cl, cc = self:_get_cursor_pos()
   local w = self.wrap
   local n = self:get_n_text_lines()
   local llen = string.ulen(self:get_text_line(cl))
   local full_lines = math.floor(llen / w)
+
+  --- @param is_inline function
+  --- @param is_not_last_line function
+  --- @return boolean? limit
   local function move(is_inline, is_not_last_line)
     local keep = (function()
       if self.selection:is_held() then

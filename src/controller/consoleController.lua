@@ -42,16 +42,7 @@ end
 --- @param M Model
 --- @param runner_env table
 local function prepare_env(prepared, M, runner_env)
-  local IM = M.input
-
-
   prepared.G                = love.graphics
-
-  prepared.switch           =
-  --- @param kind EvalType
-      function(kind)
-        IM:switch(kind)
-      end
 
   local P                   = M.projects
   prepared.list_projects    = function()
@@ -69,6 +60,7 @@ local function prepare_env(prepared, M, runner_env)
     end
   end
 
+  --- @param name string
   prepared.project          = function(name)
     local open, create, err = P:opreate(name)
     if open then
