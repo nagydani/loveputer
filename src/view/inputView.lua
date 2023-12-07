@@ -3,6 +3,11 @@ local G = love.graphics
 require("view.statusline")
 require("util.debug")
 
+
+--- @class InputView
+--- @field controller InputController
+--- @field cfg Config
+--- @field draw function
 InputView = {}
 
 function InputView:new(cfg, ctrl)
@@ -60,7 +65,7 @@ function InputView:draw(input)
 
   local start_y = h - b - apparentLines * fh
   local function drawCursor()
-    local cursorInfo = self.controller.input:get_cursor_info()
+    local cursorInfo = self.controller:get_cursor_info()
     local cl, cc = cursorInfo.cursor.l, cursorInfo.cursor.c
     local x_offset = (function()
       if cc > drawableChars then

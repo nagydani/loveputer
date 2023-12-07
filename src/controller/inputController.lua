@@ -119,6 +119,10 @@ function InputController:get_input()
   }
 end
 
+function InputController:get_status()
+  return self.model:get_status()
+end
+
 --- @return CursorInfo
 function InputController:get_cursor_info()
   return self.model:get_cursor_info()

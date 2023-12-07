@@ -336,8 +336,11 @@ function ConsoleController:get_terminal()
   return self.model.output.terminal
 end
 
-function ConsoleController:get_status()
-  return self.model.interpreter:get_status()
+--- @return ViewData
+function ConsoleController:get_viewdata()
+  return {
+    w_error = self.model.interpreter:get_wrapped_error(),
+  }
 end
 
 function ConsoleController:autotest()

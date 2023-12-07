@@ -17,6 +17,7 @@ require("util.debug")
 --- @field wrap_reverse table
 --- @field n_breaks integer
 --- @field selection table
+--- @field cfg Config
 -- methods
 --- @field new function
 --- @field add_text function

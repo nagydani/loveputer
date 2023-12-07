@@ -15,6 +15,7 @@ require("util.debug")
 --- @field luaEval table
 --- @field textInput table
 --- @field luaInput table
+--- @field wrapped_error string[]?
 -- methods
 --- @field new function
 --- @field get_entered_text function
@@ -35,6 +36,8 @@ function InterpreterModel:new(cfg)
     luaEval = luaEval,
     textInput = textInput,
     luaInput = luaInput,
+
+    wrapped_error = nil
   }
   setmetatable(im, self)
   self.__index = self
@@ -53,11 +56,6 @@ end
 --- @return InputText
 function InterpreterModel:get_entered_text()
   return self.input:get_text()
-end
-
---- @return Status
-function InterpreterModel:get_status()
-  return self.input:get_status()
 end
 
 ----------------
