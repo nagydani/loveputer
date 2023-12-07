@@ -9,12 +9,12 @@ require("util.string")
 require("util.debug")
 
 --- @class InterpreterModel
+--- @field input InputModel
 --- @field history table
 --- @field evaluator table
 --- @field luaEval table
 --- @field textInput table
 --- @field luaInput table
---- @field input InputModel
 -- methods
 --- @field new function
 --- @field get_entered_text function
@@ -42,7 +42,7 @@ function InterpreterModel:new(cfg)
   return im
 end
 
---- @param history boolean
+--- @param history boolean?
 function InterpreterModel:reset(history)
   if history then
     self.history = Dequeue:new()

@@ -3,7 +3,7 @@ require("model.canvasModel")
 require("model.project.project")
 
 --- @class Model table
---- @field input InputModel
+--- @field interpreter InterpreterModel
 --- @field output CanvasModel
 --- @field projects ProjectService
 Model = {}

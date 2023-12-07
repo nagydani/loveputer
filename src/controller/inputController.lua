@@ -1,8 +1,10 @@
 require("util.key")
 
+--- @class InputController
+--- @field model InputModel
 InputController = {}
 
---- @param M Model
+--- @param M InputModel
 function InputController:new(M)
   local ic = {
     model = M

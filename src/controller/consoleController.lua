@@ -6,6 +6,12 @@ require("util.eval")
 require("util.table")
 
 --- @class ConsoleController
+--- @field time number
+--- @field model Model
+--- @field base_env table
+--- @field env table
+--- @field project_env table
+--- @field input InputController
 ConsoleController = {}
 
 --- @param f function
@@ -164,6 +170,7 @@ local function prepare_env(prepared, M, runner_env)
   end
 end
 
+--- @param M Model
 function ConsoleController:new(M)
   local env = getfenv()
   local project_env = getfenv()
@@ -308,9 +315,6 @@ function ConsoleController:keypressed(k)
         terminal_test()
         return
       end
-      if k == 'o' then
-        interpreter:test_lua_eval()
-      end
     end
   end
   -- Ctrl and Shift held
@@ -337,9 +341,7 @@ function ConsoleController:get_status()
 end
 
 function ConsoleController:autotest()
-  local input = self.model.interpreter
-  local output = self.model.output
-  local term = output.terminal
+  local input = self.model.interpreter.input
   input:add_text('list_projects()')
   self:evaluate_input()
   input:add_text('run_project("turtle")')
