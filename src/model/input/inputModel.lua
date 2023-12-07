@@ -302,6 +302,7 @@ function InputModel:wrap_text()
   self.n_breaks = breaks
 end
 
+--- @return Highlight?
 function InputModel:highlight()
   local ev = self.evaluator
   if ev.highlight then
