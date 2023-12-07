@@ -130,13 +130,14 @@ function InputView:draw(input, time)
 
   -- draw
   G.push('all')
+  G.scale(self.cfg.view.fac, self.cfg.view.fac)
   G.setFont(self.cfg.view.font)
   G.setBackgroundColor(colors.input.bg)
   G.setColor(colors.input.fg)
   self.statusline:draw(status, apparentLines, time)
   drawBackground()
   if isError then
-    G.setColor(colors.input.error)
+    -- G.setColor(colors.input.error)
   else
     G.setColor(colors.input.fg)
     if love.timer.getTime() % 1 > 0.5 then
