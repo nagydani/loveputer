@@ -2,12 +2,14 @@ local G = love.graphics
 
 require("view.statusline")
 require("util.debug")
+require("util.view")
 
 
 --- @class InputView
 --- @field controller InputController
 --- @field cfg Config
 --- @field draw function
+--- @field statusline table
 InputView = {}
 
 function InputView:new(cfg, ctrl)
@@ -22,10 +24,8 @@ function InputView:new(cfg, ctrl)
   return iv
 end
 
-function InputView:draw(input)
-  local time = self.controller:get_timestamp()
+function InputView:draw(input, time)
   local status = self.controller:get_status()
-
   local colors = self.cfg.view.colors
   local b = self.cfg.view.border
   local fh = self.cfg.view.fh
@@ -106,14 +106,6 @@ function InputView:draw(input)
       start_y,
       drawableWidth,
       apparentHeight * fh)
-  end
-
-  --- Write a line of text to output
-  --- @param l number
-  --- @param str string
-  local write_line = function(l, str)
-    local dy = y - (-l + 1 + breaks) * fh
-    G.print(str, b, dy)
   end
 
   --- Write a token to output
@@ -205,7 +197,7 @@ function InputView:draw(input)
     end
   else
     for l, str in ipairs(display) do
-      write_line(l, str)
+      ViewUtils.write_line(l, str, { y = y, breaks = breaks }, self.cfg.view)
     end
   end
   G.pop()
