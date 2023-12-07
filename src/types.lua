@@ -46,8 +46,12 @@
 --- @field text table
 --- @field wt string[]
 --- @field wt_info table
---- @field highlight table
+--- @field highlight Highlight
 --- @field selection table
 
 --- @class ViewData table
 --- @field w_error string[]
+
+--- @class Highlight table
+--- @field parse_err table
+--- @field hl table
