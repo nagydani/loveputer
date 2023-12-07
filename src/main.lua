@@ -158,6 +158,7 @@ function love.load(args)
   CV = ConsoleView:new(baseconf, C)
 
   -- Ensure the user can get back to the console
+  --- @diagnostic disable-next-line: undefined-field
   love.handlers.keypressed = function(k)
     local ctrl  = love.keyboard.isDown("lctrl", "rctrl")
     local shift = love.keyboard.isDown("lshift", "rshift")
@@ -168,6 +169,7 @@ function love.load(args)
     end
     if love.keypressed then return love.keypressed(k) end
   end
+  --- @diagnostic disable-next-line: undefined-field
   table.protect(love.handlers)
   Controller.set_love_update()
 

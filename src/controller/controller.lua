@@ -57,6 +57,7 @@ Controller = {
   end,
 
   set_love_update = function()
+    --- @diagnostic disable-next-line: duplicate-set-field
     function love.update(dt)
       C:pass_time(dt)
     end
