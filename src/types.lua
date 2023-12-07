@@ -48,3 +48,6 @@
 --- @field wt_info table
 --- @field highlight table
 --- @field selection table
+
+--- @class ViewData table
+--- @field w_error string[]
