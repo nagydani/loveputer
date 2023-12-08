@@ -58,8 +58,8 @@ local function drawPoints()
 end
 
 function love.draw()
-  drawTurtle(x, y)
   drawPoints()
+  drawTurtle(x, y)
 end
 
 function love.keypressed(key)
