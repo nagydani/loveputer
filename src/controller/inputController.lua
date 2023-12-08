@@ -95,6 +95,10 @@ function InputController:keypressed(k)
     end
     input:hold_selection()
   end
+
+  if not Key.shift() and Key.is_enter(k) then
+    input:finish()
+  end
 end
 
 --- @param k string
@@ -166,7 +170,7 @@ function InputController:mousereleased(x, y, btn)
   im:release_selection()
 end
 
-function InputController:mousemoved(x, y)
+function InputController:mousemoved(x, y, dx, dy)
   local im = self.model
   self:_handle_mouse(x, y, 1, function(l, c)
     im:mouse_drag(l, c)

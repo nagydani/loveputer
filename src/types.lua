@@ -54,3 +54,8 @@
 --- @class Highlight table
 --- @field parse_err table
 --- @field hl table
+
+--- @class UserInput table
+--- @field M InputModel
+--- @field V InputView
+--- @field C InputController

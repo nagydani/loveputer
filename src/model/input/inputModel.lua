@@ -7,6 +7,7 @@ require("util.string")
 require("util.debug")
 
 --- @class InputModel
+--- @field oneshot boolean
 --- @field entered table
 --- @field evaluator EvalBase
 --- @field cursor Cursor
@@ -31,8 +32,10 @@ InputModel = {}
 
 --- @param cfg Config
 --- @param eval EvalBase
-function InputModel:new(cfg, eval)
+--- @param oneshot boolean?
+function InputModel:new(cfg, eval, oneshot)
   local im = {
+    oneshot = oneshot,
     entered = InputText:new(),
     evaluator = eval,
     inputs = Dequeue:new(),
@@ -569,6 +572,7 @@ end
 --- @return string[]
 function InputModel:finish()
   local ent = self:get_text()
+  if self.oneshot then love.event.push('userinput', ent) end
   return ent
 end
 
