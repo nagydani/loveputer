@@ -135,7 +135,7 @@ end
 
 function InputModel:_insert_text_line(text, li)
   local l = li or self:get_cursor_y()
-  self.cursor.y = l + 1
+  self.cursor.l = l + 1
   self:get_text():insert(text, l)
 end
 
