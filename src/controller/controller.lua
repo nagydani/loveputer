@@ -46,6 +46,14 @@ Controller = {
     end
   end,
 
+  -- update
+  set_love_update = function()
+    --- @diagnostic disable-next-line: duplicate-set-field
+    function love.update(dt)
+      C:pass_time(dt)
+    end
+  end,
+
   set_default_handlers = function()
     Controller.set_love_keypressed()
     Controller.set_love_keyreleased()
@@ -54,12 +62,26 @@ Controller = {
     Controller.set_love_mousemoved()
     Controller.set_love_mousepressed()
     Controller.set_love_mousereleased()
+
+    Controller.set_love_update()
   end,
 
-  set_love_update = function()
-    --- @diagnostic disable-next-line: duplicate-set-field
-    function love.update(dt)
-      C:pass_time(dt)
+  --- @param C ConsoleController
+  setup_callback_handlers = function(C)
+
+    --- @diagnostic disable-next-line: undefined-field
+    love.handlers.keypressed = function(k)
+      -- Ensure the user can get back to the console
+      if Key.ctrl() and Key.shift() then
+        if k == "q" then
+          C:quit_project()
+        end
+      end
     end
+
+    end
+
+    --- @diagnostic disable-next-line: undefined-field
+    table.protect(love.handlers)
   end
 }
