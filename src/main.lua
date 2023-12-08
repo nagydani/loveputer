@@ -150,20 +150,7 @@ function love.load(args)
   C = ConsoleController:new(M)
   CV = ConsoleView:new(baseconf, C)
 
-  -- Ensure the user can get back to the console
-  --- @diagnostic disable-next-line: undefined-field
-  love.handlers.keypressed = function(k)
-    if Key.ctrl() and Key.shift() then
-      if k == "q" then
-        C:quit_project()
-      end
-    end
-    if love.keypressed then return love.keypressed(k) end
-  end
-  --- @diagnostic disable-next-line: undefined-field
-  table.protect(love.handlers)
-  Controller.set_love_update()
-
+  Controller.setup_callback_handlers(C)
   --- run autotest on startup if invoked
   if testrun then C:autotest() end
 end
