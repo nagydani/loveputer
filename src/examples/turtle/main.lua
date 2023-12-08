@@ -78,6 +78,7 @@ function love.keypressed(key)
 
   if key == 'r' then
     x, y = midx, midy
+    points = {}
   end
 end
 
