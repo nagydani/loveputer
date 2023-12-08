@@ -43,7 +43,7 @@
 
 --- @class InputDTO table
 --- @field text table
---- @field wt string[]
+--- @field wrapped_text string[]
 --- @field wt_info table
 --- @field highlight Highlight
 --- @field selection table

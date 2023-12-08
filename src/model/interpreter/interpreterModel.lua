@@ -72,6 +72,7 @@ function InterpreterModel:cancel()
   self:_handle(false)
 end
 
+--- @param eval boolean
 function InterpreterModel:_handle(eval)
   local ent = self:get_entered_text()
   self.historic_index = nil
@@ -80,7 +81,7 @@ function InterpreterModel:_handle(eval)
     local ev = self.evaluator
     self:_remember(ent)
     if eval then
-      ok, result = self.evaluator.apply(ent)
+      ok, result = ev.apply(ent)
       if ok then
         self.input:clear_input()
       else

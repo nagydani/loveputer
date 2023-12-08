@@ -18,6 +18,7 @@ function InterpreterView:new(cfg, ctrl)
   return iv
 end
 
+--- @param input InputDTO
 function InterpreterView:draw(input)
   local vd = self.controller:get_viewdata()
   local time = self.controller:get_timestamp()
