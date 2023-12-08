@@ -24,6 +24,7 @@ function InputView:new(cfg, ctrl)
   return iv
 end
 
+--- @param input InputDTO
 function InputView:draw(input, time)
   local status = self.controller:get_status()
   local colors = self.cfg.view.colors
@@ -34,28 +35,15 @@ function InputView:draw(input, time)
   local drawableWidth = self.cfg.drawableWidth
   local drawableChars = self.cfg.drawableChars
 
-  local isError = string.is_non_empty_string_array(input.wrapped_error)
   local highlight = input.highlight
-  local text = (function()
-    if isError then
-      return input.wrapped_error
-    else
-      return input.text
-    end
-  end)()
+  local text = input.text
   local inLines = #text
   local apparentLines = inLines
   local inHeight = inLines * fh
   local y = h - b - inHeight
 
   local apparentHeight = inHeight
-  local display = (function()
-    if isError then
-      return input.wrapped_error
-    else
-      return input.wrapped_text
-    end
-  end)()
+  local display = input.wrapped_text
   local wt_info = input.wt_info
   local cursor_wrap = wt_info.cursor_wrap
   local wrap_reverse = wt_info.wrap_reverse
@@ -136,15 +124,12 @@ function InputView:draw(input, time)
   G.setColor(colors.input.fg)
   self.statusline:draw(status, apparentLines, time)
   drawBackground()
-  if isError then
-    -- G.setColor(colors.input.error)
-  else
-    G.setColor(colors.input.fg)
-    if love.timer.getTime() % 1 > 0.5 then
-      drawCursor()
-    end
+
+  G.setColor(colors.input.fg)
+  if love.timer.getTime() % 1 > 0.5 then
+    drawCursor()
   end
-  if highlight and not isError then
+  if highlight then
     local perr = highlight.parse_err
     local el, ec
     if perr then

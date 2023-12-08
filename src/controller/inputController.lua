@@ -113,12 +113,12 @@ function InputController:get_input()
     text = im:get_text(),
     wrapped_text = wt,
     wt_info = wt_info,
-    -- wrapped_error = im:get_wrapped_error(),
     highlight = im:highlight(),
     selection = im:get_ordered_selection(),
   }
 end
 
+--- @return Status
 function InputController:get_status()
   return self.model:get_status()
 end
