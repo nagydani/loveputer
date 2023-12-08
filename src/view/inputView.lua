@@ -84,11 +84,7 @@ function InputView:draw(input, time)
   end
 
   local drawBackground = function()
-    if isError then
-      G.setColor(colors.input.error_bg)
-    else
-      G.setColor(colors.input.bg)
-    end
+    G.setColor(colors.input.bg)
     G.rectangle("fill",
       b,
       start_y,
