@@ -1,3 +1,5 @@
+require("util.string")
+
 local get_user_input = function()
   return love.state.user_input
 end

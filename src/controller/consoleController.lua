@@ -169,7 +169,8 @@ local function prepare_env(prepared, M, runner_env)
   end
 
   --- @param type InputType
-  local input               = function(type)
+  --- @param result any
+  local input               = function(type, result)
     local cfg = M.interpreter.cfg
     local eval
     if type == 'lua' then
@@ -180,19 +181,20 @@ local function prepare_env(prepared, M, runner_env)
       Log('Invalid input type!')
       return
     end
+    local cb = function(v) table.insert(result, 1, v) end
     local input = InputModel:new(cfg, eval, true)
-    local controller = InputController:new(input)
+    local controller = InputController:new(input, cb)
     local view = InputView:new(cfg, controller)
     love.state.user_input = {
       M = input, C = controller, V = view
     }
   end
 
-  prepared.input_code       = function()
-    return input('lua')
+  prepared.input_code       = function(result)
+    return input('lua', result)
   end
-  prepared.input_text       = function()
-    return input('text')
+  prepared.input_text       = function(result)
+    return input('text', result)
   end
 end
 

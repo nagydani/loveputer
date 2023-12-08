@@ -185,6 +185,12 @@ string.join = function(strs, char)
   return res
 end
 
+--- @param strs string|table
+--- @return string
+string.unlines = function(strs)
+  return string.join(strs, '\n')
+end
+
 --- @return string
 string.join_path = function(...)
   local sep = '/' -- TODO? win support
