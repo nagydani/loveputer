@@ -40,7 +40,6 @@ function InputModel:new(cfg, eval, oneshot)
     entered = InputText:new(),
     evaluator = eval,
     type = eval.kind,
-    inputs = Dequeue:new(),
     cursor = Cursor:new(),
     -- TODO: factor out WrappedText
     wrap = cfg.drawableChars,
@@ -574,6 +573,7 @@ end
 --- @return string[]
 function InputModel:finish()
   local ent = self:get_text()
+  --- @diagnostic disable-next-line: param-type-mismatch
   if self.oneshot then love.event.push('userinput', ent) end
   return ent
 end

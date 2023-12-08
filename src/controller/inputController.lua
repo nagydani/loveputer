@@ -2,12 +2,15 @@ require("util.key")
 
 --- @class InputController
 --- @field model InputModel
+--- @field result function
 InputController = {}
 
 --- @param M InputModel
-function InputController:new(M)
+--- @param result function
+function InputController:new(M, result)
   local ic = {
-    model = M
+    model = M,
+    result = result,
   }
 
   setmetatable(ic, self)
@@ -98,6 +101,10 @@ function InputController:keypressed(k)
 
   if not Key.shift() and Key.is_enter(k) then
     input:finish()
+    local res = self.result
+    if res and type(res) == "function" then
+      res(string.unlines(input:get_text()))
+    end
   end
 end
 
