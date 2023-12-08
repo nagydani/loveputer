@@ -22,8 +22,6 @@ local function run_user_code(f, M, extra_path)
   local G = love.graphics
   local output = M.output
 
-
-
   G.push('all')
   output:draw_to()
   local old_path = package.path
@@ -122,6 +120,7 @@ local function prepare_env(prepared, M, runner_env)
   end
 
   --- @param name string
+  --- @return string[]?
   prepared.readfile         = function(name)
     return check_open_pr(function()
       local p = P.current
@@ -168,6 +167,33 @@ local function prepare_env(prepared, M, runner_env)
       print(err)
     end
   end
+
+  --- @param type InputType
+  local input               = function(type)
+    local cfg = M.interpreter.cfg
+    local eval
+    if type == 'lua' then
+      eval = M.interpreter.luaInput
+    elseif type == 'text' then
+      eval = M.interpreter.textInput
+    else
+      Log('Invalid input type!')
+      return
+    end
+    local input = InputModel:new(cfg, eval, true)
+    local controller = InputController:new(input)
+    local view = InputView:new(cfg, controller)
+    love.state.user_input = {
+      M = input, C = controller, V = view
+    }
+  end
+
+  prepared.input_code       = function()
+    return input('lua')
+  end
+  prepared.input_text       = function()
+    return input('text')
+  end
 end
 
 --- @param M Model
@@ -182,7 +208,7 @@ function ConsoleController:new(M)
     base_env    = table.clone(env),
     env         = table.clone(env),
     project_env = project_env,
-    input       = IC
+    input       = IC,
   }
   setmetatable(cc, self)
   self.__index = self
@@ -253,6 +279,7 @@ function ConsoleController:quit_project()
   nativefs.setWorkingDirectory(love.filesystem.getSourceBaseDirectory())
   Controller.set_default_handlers()
   Controller.set_love_update()
+  love.state.user_input = nil
   View.set_love_draw()
   self:_reset_executor_env()
 end
@@ -291,7 +318,6 @@ function ConsoleController:keypressed(k)
   if k == "pagedown" then
     interpreter:history_fwd()
   end
-
   local limit = self.input:keypressed(k)
   if limit then
     if k == "up" then

@@ -1,3 +1,7 @@
+local get_user_input = function()
+  return love.state.user_input
+end
+
 Controller = {
   -- keyboard
   set_love_keypressed = function()
@@ -50,6 +54,19 @@ Controller = {
   set_love_update = function()
     --- @diagnostic disable-next-line: duplicate-set-field
     function love.update(dt)
+      local ddr = View.prev_draw
+      local ldr = love.draw
+      if ldr ~= ddr then
+        local function draw()
+          ldr()
+          local user_input = get_user_input()
+          if user_input then
+            user_input.V:draw(user_input.C:get_input())
+          end
+        end
+        View.prev_draw = draw
+        love.draw = draw
+      end
       C:pass_time(dt)
     end
   end,
@@ -68,17 +85,79 @@ Controller = {
 
   --- @param C ConsoleController
   setup_callback_handlers = function(C)
+    local clear_user_input = function()
+      love.state.user_input = nil
+    end
 
     --- @diagnostic disable-next-line: undefined-field
-    love.handlers.keypressed = function(k)
+    local handlers = love.handlers
+
+    handlers.keypressed = function(k)
       -- Ensure the user can get back to the console
       if Key.ctrl() and Key.shift() then
         if k == "q" then
           C:quit_project()
         end
       end
+
+      local user_input = get_user_input()
+      if user_input then
+        user_input.C:keypressed(k)
+      else
+        if love.keypressed then return love.keypressed(k) end
+      end
     end
 
+    handlers.textinput = function(t)
+      local user_input = get_user_input()
+      if user_input then
+        user_input.C:textinput(t)
+      else
+        if love.textinput then return love.textinput(t) end
+      end
+    end
+
+    handlers.keyreleased = function(k)
+      local user_input = get_user_input()
+      if user_input then
+        user_input.C:keyreleased(k)
+      else
+        if love.keyreleased then return love.keyreleased(k) end
+      end
+    end
+
+    handlers.mousepressed = function(x, y, btn)
+      local user_input = get_user_input()
+      if user_input then
+        user_input.C:mousepressed(x, y, btn)
+      else
+        if love.mousepressed then return love.mousepressed(x, y, btn) end
+      end
+    end
+
+    handlers.mousereleased = function(x, y, btn)
+      local user_input = get_user_input()
+      if user_input then
+        user_input.C:mousereleased(x, y, btn)
+      else
+        if love.mousereleased then return love.mousereleased(x, y, btn) end
+      end
+    end
+
+    handlers.mousemoved = function(x, y, dx, dy)
+      local user_input = get_user_input()
+      if user_input then
+        user_input.C:mousemoved(x, y, dx, dy)
+      else
+        if love.mousemoved then return love.mousemoved(x, y, dx, dy) end
+      end
+    end
+
+    handlers.userinput = function(input)
+      local user_input = get_user_input()
+      if user_input then
+        clear_user_input()
+      end
     end
 
     --- @diagnostic disable-next-line: undefined-field

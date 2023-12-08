@@ -30,6 +30,7 @@ function InterpreterModel:new(cfg)
   local textInput = InputEval:new(false)
   local luaInput  = InputEval:new(true)
   local im        = {
+    cfg = cfg,
     input = InputModel:new(cfg, luaEval),
     history = Dequeue:new(),
     -- starter
