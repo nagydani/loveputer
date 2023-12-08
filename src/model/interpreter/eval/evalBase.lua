@@ -1,3 +1,4 @@
+--- @class EvalBase
 EvalBase = {
   kind = '',
   apply = function(input)

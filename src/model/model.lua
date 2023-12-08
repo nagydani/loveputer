@@ -8,6 +8,7 @@ require("model.project.project")
 --- @field projects ProjectService
 Model = {}
 
+--- @param cfg Config
 function Model:new(cfg)
   local c = {
     interpreter = InterpreterModel:new(cfg),
