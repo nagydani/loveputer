@@ -99,7 +99,7 @@ end
 
 --- @param k string
 function InputController:keyreleased(k)
-  if k == "lshift" or k == "rshift" then
+  if Key.shift() then
     local im = self.model
     im:release_selection()
   end

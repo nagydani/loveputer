@@ -6,6 +6,7 @@ require("controller.consoleController")
 require("view.view")
 local colors = require("conf.colors")
 
+require("util.key")
 require("util.debug")
 
 G = love.graphics
@@ -152,9 +153,7 @@ function love.load(args)
   -- Ensure the user can get back to the console
   --- @diagnostic disable-next-line: undefined-field
   love.handlers.keypressed = function(k)
-    local ctrl  = love.keyboard.isDown("lctrl", "rctrl")
-    local shift = love.keyboard.isDown("lshift", "rshift")
-    if ctrl and shift then
+    if Key.ctrl() and Key.shift() then
       if k == "q" then
         C:quit_project()
       end
