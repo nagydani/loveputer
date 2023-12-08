@@ -10,6 +10,7 @@ require("util.debug")
 --- @field oneshot boolean
 --- @field entered table
 --- @field evaluator EvalBase
+--- @field type InputType
 --- @field cursor Cursor
 --- @field wrap integer
 --- @field wrapped_text table
@@ -38,6 +39,7 @@ function InputModel:new(cfg, eval, oneshot)
     oneshot = oneshot,
     entered = InputText:new(),
     evaluator = eval,
+    type = eval.kind,
     inputs = Dequeue:new(),
     cursor = Cursor:new(),
     -- TODO: factor out WrappedText
@@ -559,7 +561,7 @@ end
 
 function InputModel:get_status()
   return {
-    input_type = self.evaluator.kind,
+    input_type = self.type,
     cursor = self.cursor,
     n_lines = self:get_n_text_lines(),
   }
