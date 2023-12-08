@@ -9,10 +9,9 @@
 ---| 'up'
 ---| 'down'
 
----@alias EvalType
----| '"lua"'        # the default lua interpreter
----| '"input-text"' # plaintext user input
----| '"input-lua"'  # syntax highlighted lua input
+---@alias InputType
+---| '"lua"'
+---| '"text"'
 
 ---@alias Fac # scaling
 ---| 1

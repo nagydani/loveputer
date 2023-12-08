@@ -9,6 +9,7 @@ require("util.string")
 require("util.debug")
 
 --- @class InterpreterModel
+--- @field cfg Config
 --- @field input InputModel
 --- @field history table
 --- @field evaluator table
@@ -23,6 +24,7 @@ require("util.debug")
 InterpreterModel = {}
 
 --- @return InterpreterModel
+--- @param cfg Config
 function InterpreterModel:new(cfg)
   local luaEval   = LuaEval:new('metalua')
   local textInput = InputEval:new(false)

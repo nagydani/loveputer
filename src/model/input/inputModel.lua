@@ -8,8 +8,8 @@ require("util.debug")
 
 --- @class InputModel
 --- @field entered table
---- @field evaluator table
---- @field cursor table
+--- @field evaluator EvalBase
+--- @field cursor Cursor
 --- @field wrap integer
 --- @field wrapped_text table
 --- @field wrapped_error table
@@ -29,8 +29,8 @@ require("util.debug")
 --- @field get_wrapped_text_line function
 InputModel = {}
 
---- @param cfg table
---- @param eval table
+--- @param cfg Config
+--- @param eval EvalBase
 function InputModel:new(cfg, eval)
   local im = {
     entered = InputText:new(),
