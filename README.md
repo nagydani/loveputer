@@ -48,12 +48,10 @@ quits and returns to the console
 * `list_projects()`
 
     List available projects.
-* `create_project(proj)`
+* `project(proj)`
 
-    Create a new project with some example code.
-* `open_project(proj)`
-
-    Open project *proj*.
+    Open project *proj* or create a new one if it doesn't exist.
+    New projects are supplied with example code to demonstrate the structure.
 * `current_project()`
 
     Print the currently open project's name (if any).
