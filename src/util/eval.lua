@@ -5,7 +5,9 @@ LANG = {}
 local function parse_error(err)
   if string.is_non_empty_string(err) then
     local colons = string.split(err, ':')
-    return string.trim(colons[3]) or ''
+    table.remove(colons, 1)
+    table.remove(colons, 1)
+    return string.trim(string.join(colons, ':')) or ''
   end
 end
 

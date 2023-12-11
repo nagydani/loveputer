@@ -56,3 +56,10 @@ function table.protect(t, fields)
   t = proxy
   return t, orig
 end
+
+function table.pack(...)
+  --- @class t
+  local t = { ... }
+  t.n = #t
+  return t
+end

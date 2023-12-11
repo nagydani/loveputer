@@ -1,3 +1,7 @@
+--- @class EvalBase
+--- @field kind string
+--- @field is_lua boolean
+--- @field apply function
 EvalBase = {
   kind = '',
   apply = function(input)
@@ -9,7 +13,7 @@ EvalBase = {
 ---@param kind string
 ---@param evaluator function
 ---@param highlight boolean
----@return table
+---@return EvalBase
 function EvalBase:inherit(kind, evaluator, highlight)
   local e = {
     kind = kind,

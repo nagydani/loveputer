@@ -219,6 +219,21 @@ function ProjectService:open(name)
   return false, p_err
 end
 
+function ProjectService:opreate(name)
+  local ook, _ = self:open(name)
+  if ook then
+    return ook, false
+  else
+    local cok, c_err = self:create(name)
+    if cok then
+      self:open(name)
+      return false, cok
+    else
+      return false, c_err
+    end
+  end
+end
+
 --- @return boolean success
 function ProjectService:close()
   self.current = nil

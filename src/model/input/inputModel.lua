@@ -1,23 +1,17 @@
-require("model.input.eval.textEval")
-require("model.input.eval.luaEval")
-require("model.input.eval.inputEval")
+require("model.interpreter.item")
 require("model.input.inputText")
 require("model.input.selection")
-require("model.input.item")
 
 require("util.dequeue")
 require("util.string")
 require("util.debug")
 
 --- @class InputModel
+--- @field oneshot boolean
 --- @field entered table
---- @field history table
---- @field evaluator table
---- @field luaEval table
---- @field textInput table
---- @field luaInput table
---- @field inputs table
---- @field cursor table
+--- @field evaluator EvalBase
+--- @field type InputType
+--- @field cursor Cursor
 --- @field wrap integer
 --- @field wrapped_text table
 --- @field wrapped_error table
@@ -25,33 +19,38 @@ require("util.debug")
 --- @field wrap_reverse table
 --- @field n_breaks integer
 --- @field selection table
+--- @field cfg Config
 -- methods
---- @todo
+--- @field new function
+--- @field add_text function
+--- @field line_feed function
+--- @field get_text function
+--- @field get_text_line function
+--- @field get_n_text_lines function
+--- @field get_wrapped_text function
+--- @field get_wrapped_text_line function
 InputModel = {}
 
-function InputModel:new(cfg)
-  local luaEval   = LuaEval:new('metalua')
-  local textInput = InputEval:new(false)
-  local luaInput  = InputEval:new(true)
-  local im        = {
+--- @param cfg Config
+--- @param eval EvalBase
+--- @param oneshot boolean?
+function InputModel:new(cfg, eval, oneshot)
+  local im = {
+    oneshot = oneshot,
     entered = InputText:new(),
-    history = Dequeue:new(),
-    -- starter
-    evaluator = luaEval,
-    -- available options
-    luaEval = luaEval,
-    textInput = textInput,
-    luaInput = luaInput,
-    --
-    inputs = Dequeue:new(),
+    evaluator = eval,
+    type = eval.kind,
     cursor = Cursor:new(),
+    -- TODO: factor out WrappedText
     wrap = cfg.drawableChars,
     wrapped_text = {},
     wrapped_error = {},
     cursor_wrap = {},
     wrap_reverse = {},
     n_breaks = 0,
-    selection = Selection:new()
+    selection = Selection:new(),
+
+    cfg = cfg,
   }
   setmetatable(im, self)
   self.__index = self
@@ -62,6 +61,8 @@ end
 ----------------
 --  entered   --
 ----------------
+
+--- @param text string
 function InputModel:add_text(text)
   if type(text) == 'string' then
     self:pop_selected_text()
@@ -93,6 +94,8 @@ function InputModel:add_text(text)
   end
 end
 
+--- @param text string
+--- @param keep_cursor boolean
 function InputModel:_set_text(text, keep_cursor)
   self.entered = nil
   if type(text) == 'string' then
@@ -131,7 +134,7 @@ end
 
 function InputModel:_insert_text_line(text, li)
   local l = li or self:get_cursor_y()
-  self.cursor.y = l + 1
+  self.cursor.l = l + 1
   self:get_text():insert(text, l)
 end
 
@@ -145,15 +148,19 @@ function InputModel:line_feed()
   self:text_change()
 end
 
+--- @return InputText
 function InputModel:get_text()
   return self.entered or InputText:new()
 end
 
+--- @param l integer
+--- @return string
 function InputModel:get_text_line(l)
   local ent = self:get_text()
   return ent:get(l) or ''
 end
 
+--- @return integer
 function InputModel:get_n_text_lines()
   local ent = self:get_text()
   return ent:length()
@@ -167,6 +174,8 @@ function InputModel:get_wrapped_text()
   }
 end
 
+--- @param l integer
+--- @return string
 function InputModel:get_wrapped_text_line(l)
   local wt = self:get_wrapped_text()
   return wt[l]
@@ -252,15 +261,10 @@ function InputModel:clear_input()
   self:text_change()
   self:clear_selection()
   self:_update_cursor(true)
-  self.historic_index = nil
   self.tokens = nil
 end
 
---- @param history boolean
-function InputModel:reset(history)
-  if history then
-    self.history = Dequeue:new()
-  end
+function InputModel:reset()
   self:clear_input()
 end
 
@@ -302,6 +306,7 @@ function InputModel:wrap_text()
   self.n_breaks = breaks
 end
 
+--- @return Highlight?
 function InputModel:highlight()
   local ev = self.evaluator
   if ev.highlight then
@@ -383,6 +388,7 @@ function InputModel:_get_cursor_pos()
   return self.cursor.l, self.cursor.c
 end
 
+--- @return CursorInfo
 function InputModel:get_cursor_info()
   return {
     cursor = self.cursor,
@@ -397,12 +403,18 @@ function InputModel:get_cursor_y()
   return self.cursor.l
 end
 
+--- @param dir VerticalDir
+--- @return boolean? limit
 function InputModel:cursor_vertical_move(dir)
   local cl, cc = self:_get_cursor_pos()
   local w = self.wrap
   local n = self:get_n_text_lines()
   local llen = string.ulen(self:get_text_line(cl))
   local full_lines = math.floor(llen / w)
+
+  --- @param is_inline function
+  --- @param is_not_last_line function
+  --- @return boolean? limit
   local function move(is_inline, is_not_last_line)
     local keep = (function()
       if self.selection:is_held() then
@@ -457,28 +469,26 @@ function InputModel:cursor_vertical_move(dir)
           function() self:jump_home() end,
           function() self:jump_end() end
         )
-      else
-        sgn(
-          function() self:history_back() end,
-          function() self:history_fwd() end
-        )
       end
+      return true
     end
   end
 
+  local limit
   if dir == 'up' then
-    move(
+    limit = move(
       function() return cc - w > 0 end,
       function() return cl > 1 end
     )
   elseif dir == 'down' then
-    move(
+    limit = move(
       function() return cc <= full_lines * w end,
       function() return cl < n end
     )
   else
     return
   end
+  return limit
 end
 
 function InputModel:cursor_left()
@@ -548,178 +558,28 @@ function InputModel:jump_end()
   self:move_cursor(last_line, last_char, keep)
 end
 
-----------------
--- evaluation --
-----------------
 function InputModel:get_status()
   return {
-    input_type = self.evaluator.kind,
+    input_type = self.type,
     cursor = self.cursor,
     n_lines = self:get_n_text_lines(),
   }
 end
 
-function InputModel:evaluate()
-  return self:_handle(true)
+----------------
+-- evaluation --
+----------------
+
+--- @return string[]
+function InputModel:finish()
+  local ent = self:get_text()
+  --- @diagnostic disable-next-line: param-type-mismatch
+  if self.oneshot then love.event.push('userinput', ent) end
+  return ent
 end
 
 function InputModel:cancel()
-  self:_handle(false)
-end
-
-function InputModel:_handle(eval)
-  local ent = self:get_text()
-  self.historic_index = nil
-  local ok, result
-  if string.is_non_empty_string_array(ent) then
-    local ev = self.evaluator
-    self:_remember(ent)
-    if eval then
-      if ev.is_lua then
-        ok, result = self.evaluator.apply(ent)
-
-        if ok then
-          self:clear_input()
-        else
-          local l, c, err = self:get_eval_error(result)
-          self:move_cursor(l, c + 1)
-          self.error = err
-        end
-      else
-        -- whatever else happens, return to lua interpreter
-        if ev.kind == 'input' then
-          local t = self:get_text()
-          if string.is_non_empty_string_array(t) then
-            local kind = (function()
-              if ev.highlight then return 'lua' else return 'text' end
-            end)()
-            self.inputs:push_back(Item:new(t, kind))
-          end
-        end
-        self:switch('lua')
-        self:clear_input()
-      end
-    else
-      self:clear_input()
-      ok = true
-    end
-  end
-  return ok, result
-end
-
---- @param kind EvalType
-function InputModel:switch(kind)
-  local sw = {
-    ['lua']        = self.luaEval,
-    ['input-text'] = self.textInput,
-    ['input-lua']  = self.luaInput,
-  }
-  local new = sw[kind]
-  if new then
-    self.evaluator = new
-  else
-    self:set_error('Invalid choice of eval', true)
-  end
-end
-
-----------------
---   error    --
-----------------
-function InputModel:clear_error()
-  self.wrapped_error = nil
-end
-
-function InputModel:get_wrapped_error()
-  return self.wrapped_error
-end
-
-function InputModel:has_error()
-  return string.is_non_empty_string_array(self.wrapped_error)
-end
-
-function InputModel:set_error(error, is_call_error)
-  if string.is_non_empty_string(error) then
-    self.error = error
-    self.wrapped_error = string.wrap_at(error, self.wrap)
-    if not is_call_error then
-      self:history_back()
-    end
-  end
-end
-
-function InputModel:get_eval_error(errors)
-  local ev = self.evaluator
-  local t = self:get_text()
-  if ev.is_lua and string.is_non_empty_string_array(t) then
-    return ev.parser.get_error(errors)
-  end
-end
-
-----------------
---  history   --
-----------------
-function InputModel:_remember(input)
-  if string.is_non_empty_string_array(input) then
-    self.history:append(input)
-  end
-end
-
-function InputModel:history_back()
-  local ent = self:get_text()
-  local hi = self.historic_index
-  -- TODO: remember cursor pos?
-  if hi and hi > 0 then
-    local prev = self.history[hi - 1]
-    if prev then
-      local current = self:get_text()
-      if string.is_non_empty_string_array(current) then
-        self.history[hi] = current
-      end
-      self:_set_text(prev)
-      self.historic_index = hi - 1
-      self:jump_end()
-    end
-  else
-    self.historic_index = self.history:get_last_index()
-    self:_remember(ent)
-    local prev = self.history[self.historic_index] or ''
-    self:_set_text(prev)
-    self:jump_end()
-  end
-  self:clear_selection()
-end
-
-function InputModel:history_fwd()
-  if self.historic_index then
-    local hi = self.historic_index
-    local next = self.history[hi + 1]
-    local current = self:get_text()
-    if string.is_non_empty_string_array(current) then
-      self.history[hi] = current
-    end
-    if next then
-      self:_set_text(next)
-      self.historic_index = hi + 1
-    else
-      self:clear_input()
-    end
-  else
-    self:cancel()
-  end
-  self:jump_end() -- TODO: remember cursor pos?
-  self:clear_selection()
-end
-
-function InputModel:_get_history_length()
-  return #(self.history)
-end
-
-function InputModel:_get_history_entry(i)
-  return self.history[i]
-end
-
-function InputModel:_get_history_entries()
-  return self.history:items()
+  self:clear_input()
 end
 
 ----------------
