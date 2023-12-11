@@ -157,10 +157,11 @@ local function prepare_env(prepared, M, runner_env)
 
   prepared.run_project      = function(name)
     local f, err, path = P:run(name, runner_env)
+    local n = name or P.current.name or 'project'
     if f then
       local ok, run_err = run_user_code(f, M, path)
       if ok then
-        Log('Running \'' .. name or 'project' .. '\' finished')
+        Log('Running \'' .. n .. '\' finished')
       else
         print('Error: ', run_err)
       end
