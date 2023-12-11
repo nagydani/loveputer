@@ -6,7 +6,7 @@ require("util.key")
 InputController = {}
 
 --- @param M InputModel
---- @param result function
+--- @param result function?
 function InputController:new(M, result)
   local ic = {
     model = M,
