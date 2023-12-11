@@ -160,7 +160,7 @@ local function prepare_env(prepared, M, runner_env)
     if f then
       local ok, run_err = run_user_code(f, M, path)
       if ok then
-        Log('Running \'' .. name .. '\' finished')
+        Log('Running \'' .. name or 'project' .. '\' finished')
       else
         print('Error: ', run_err)
       end

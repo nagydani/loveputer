@@ -226,6 +226,7 @@ function ProjectService:opreate(name)
   else
     local cok, c_err = self:create(name)
     if cok then
+      self:open(name)
       return false, cok
     else
       return false, c_err
