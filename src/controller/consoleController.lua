@@ -23,6 +23,7 @@ local function run_user_code(f, M, extra_path)
   local output = M.output
 
   G.push('all')
+  G.setColor(Color[Color.black])
   output:draw_to()
   local old_path = package.path
   local ok, call_err
