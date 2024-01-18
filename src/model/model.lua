@@ -1,16 +1,17 @@
-require("model.input.inputModel")
+require("model.interpreter.interpreterModel")
 require("model.canvasModel")
 require("model.project.project")
 
 --- @class Model table
---- @field input InputModel
+--- @field interpreter InterpreterModel
 --- @field output CanvasModel
 --- @field projects ProjectService
 Model = {}
 
+--- @param cfg Config
 function Model:new(cfg)
   local c = {
-    input = InputModel:new(cfg),
+    interpreter = InterpreterModel:new(cfg),
     output = CanvasModel:new(cfg),
     projects = ProjectService:new(),
   }

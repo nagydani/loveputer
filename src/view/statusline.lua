@@ -12,8 +12,11 @@ function Statusline:new(cfg)
   return s
 end
 
+---@param status Status
+---@param nLines integer
+---@param time number?
 function Statusline:draw(status, nLines, time)
-  local cf = self.cfg
+  local cf = self.cfg.view
   local b = cf.border
   local h = cf.h
   local w = cf.w
@@ -22,7 +25,7 @@ function Statusline:draw(status, nLines, time)
 
   G.push('all')
   G.setColor(colors.statusline.bg)
-  G.setFont(cf.font_main)
+  G.setFont(cf.font)
   local sy = h - b - (1 + nLines) * fh
   local start_box = { x = 0, y = sy }
   local start_text = {
@@ -43,7 +46,9 @@ function Statusline:draw(status, nLines, time)
     if love.state.testing then
       G.print('testing', midX - (8 * cf.fw + cf.border), start_text.y)
     end
-    G.print(time, midX, start_text.y)
+    if time then
+      G.print(tostring(time), midX, start_text.y)
+    end
     G.setColor(colors.statusline.fg)
   end
   if status.cursor then

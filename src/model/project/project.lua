@@ -80,7 +80,7 @@ end
 
 --- @return table
 function Project:contents()
-  return FS.dir(string.join_path(self.path))
+  return FS.dir(self.path)
 end
 
 --- @param name string
@@ -219,6 +219,21 @@ function ProjectService:open(name)
   return false, p_err
 end
 
+function ProjectService:opreate(name)
+  local ook, _ = self:open(name)
+  if ook then
+    return ook, false
+  else
+    local cok, c_err = self:create(name)
+    if cok then
+      self:open(name)
+      return false, cok
+    else
+      return false, c_err
+    end
+  end
+end
+
 --- @return boolean success
 function ProjectService:close()
   self.current = nil
@@ -239,9 +254,10 @@ function ProjectService:deploy_examples()
     if i and i.type == 'directory' then
       local s_path = string.join_path(ex_base, i.name)
       local t_path = string.join_path(ProjectService.path, i.name)
-      Log('INFO: copying example' .. i.name .. ' to ' .. t_path)
+      Log('INFO: copying example ' .. i.name .. ' to ' .. t_path)
       local ok, err = FS.cp_r(s_path, t_path, true)
       if not ok then
+        Log('ERR: ' .. err)
         cp_ok = false
         cp_err = err
       end

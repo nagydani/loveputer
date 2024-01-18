@@ -1,8 +1,11 @@
-require("model.input.eval.evalBase")
+require("model.interpreter.eval.evalBase")
 
 require("util.string")
 require("util.debug")
 
+--- @class LuaEval: EvalBase
+--- @field parse table
+--- @field is_lua boolean
 LuaEval = {}
 
 --- Create a new evaluator
@@ -14,6 +17,7 @@ function LuaEval:new(parser)
     return luaParser.parse(args[1])
   end
 
+  --- @type LuaEval
   local ev = EvalBase:inherit('lua', eval, true)
   ev.parser = luaParser
   ev.is_lua = true

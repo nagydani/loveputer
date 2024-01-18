@@ -1,5 +1,6 @@
 require("util.dequeue")
 require("util.string")
+require("util.view")
 local Terminal = require("lib.terminal")
 
 local G = love.graphics
@@ -17,20 +18,19 @@ local G = love.graphics
 --- @field restore_main function
 CanvasModel = {}
 
-
 function CanvasModel:new(cfg)
   local w, h
   if cfg.sizedebug then
     w = cfg.debugwidth * cfg.fw
     h = cfg.debugheight * cfg.fh
   else
-    w = G.getWidth() - 2 * cfg.border
-    h = cfg.get_drawable_height()
+    w = G.getWidth() - 2 * cfg.view.border
+    h = ViewUtils.get_drawable_height(cfg.view)
   end
   local canvas = love.graphics.newCanvas(w, h)
-  local term = Terminal(w, h, cfg.font_main, nil, cfg.fh * cfg.lh, canvas)
+  local term = Terminal(w, h, cfg.view.font, nil, cfg.view.fh * cfg.view.lh, canvas)
 
-  local color = cfg.colors.terminal
+  local color = cfg.view.colors.terminal
   term:hide_cursor()
   term:set_cursor_color(unpack(color.fg))
   term:set_cursor_backcolor(unpack(color.bg))

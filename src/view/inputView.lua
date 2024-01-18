@@ -2,7 +2,14 @@ local G = love.graphics
 
 require("view.statusline")
 require("util.debug")
+require("util.view")
 
+
+--- @class InputView
+--- @field controller InputController
+--- @field cfg Config
+--- @field draw function
+--- @field statusline table
 InputView = {}
 
 function InputView:new(cfg, ctrl)
@@ -17,40 +24,26 @@ function InputView:new(cfg, ctrl)
   return iv
 end
 
-function InputView:draw(input)
-  local time = self.controller:get_timestamp()
+--- @param input InputDTO
+function InputView:draw(input, time)
   local status = self.controller:get_status()
-
-  local colors = self.cfg.colors.input
-  local b = self.cfg.border
-  local fh = self.cfg.fh
-  local fw = self.cfg.fw
-  local h = self.cfg.h
+  local colors = self.cfg.view.colors
+  local b = self.cfg.view.border
+  local fh = self.cfg.view.fh
+  local fw = self.cfg.view.fw
+  local h = self.cfg.view.h
   local drawableWidth = self.cfg.drawableWidth
   local drawableChars = self.cfg.drawableChars
 
-  local isError = string.is_non_empty_string_array(input.wrapped_error)
   local highlight = input.highlight
-  local text = (function()
-    if isError then
-      return input.wrapped_error
-    else
-      return input.text
-    end
-  end)()
+  local text = input.text
   local inLines = #text
   local apparentLines = inLines
   local inHeight = inLines * fh
   local y = h - b - inHeight
 
   local apparentHeight = inHeight
-  local display = (function()
-    if isError then
-      return input.wrapped_error
-    else
-      return input.wrapped_text
-    end
-  end)()
+  local display = input.wrapped_text
   local wt_info = input.wt_info
   local cursor_wrap = wt_info.cursor_wrap
   local wrap_reverse = wt_info.wrap_reverse
@@ -85,17 +78,13 @@ function InputView:draw(input)
         -- the number of line wraps
         - (n - y_offset) * fh
     G.push('all')
-    G.setColor(colors.cursor)
+    G.setColor(colors.input.cursor)
     G.print('|', b + (x_offset - 1.5) * fw, ch)
     G.pop()
   end
 
   local drawBackground = function()
-    if isError then
-      G.setColor(colors.error_bg)
-    else
-      G.setColor(colors.bg)
-    end
+    G.setColor(colors.input.bg)
     G.rectangle("fill",
       b,
       start_y,
@@ -103,18 +92,11 @@ function InputView:draw(input)
       apparentHeight * fh)
   end
 
-  --- Write a line of text to output
-  ---@param l number
-  ---@param str string
-  local write_line = function(l, str)
-    local dy = y - (-l + 1 + breaks) * fh
-    G.print(str, b, dy)
-  end
   --- Write a token to output
-  ---@param l number
-  ---@param c number
-  ---@param token string
-  ---@param color table
+  --- @param l number
+  --- @param c number
+  --- @param token string
+  --- @param color table
   local write_token = function(l, c, token, color, selected)
     local dy = y - (-l + 1 + breaks) * fh
     local dx = b + (c - 1) * fw
@@ -122,7 +104,7 @@ function InputView:draw(input)
     if selected then
       G.setColor(color)
       G.print('█', dx, dy)
-      G.setColor(colors.bg)
+      G.setColor(colors.input.bg)
     else
       G.setColor(color)
     end
@@ -132,20 +114,18 @@ function InputView:draw(input)
 
   -- draw
   G.push('all')
-  G.setFont(self.cfg.font_main)
-  G.setBackgroundColor(self.cfg.colors.input.bg)
-  G.setColor(self.cfg.colors.input.fg)
+  G.scale(self.cfg.view.fac, self.cfg.view.fac)
+  G.setFont(self.cfg.view.font)
+  G.setBackgroundColor(colors.input.bg)
+  G.setColor(colors.input.fg)
   self.statusline:draw(status, apparentLines, time)
   drawBackground()
-  if isError then
-    G.setColor(colors.error)
-  else
-    G.setColor(colors.fg)
-    if love.timer.getTime() % 1 > 0.5 then
-      drawCursor()
-    end
+
+  G.setColor(colors.input.fg)
+  if love.timer.getTime() % 1 > 0.5 then
+    drawCursor()
   end
-  if highlight and not isError then
+  if highlight then
     local perr = highlight.parse_err
     local el, ec
     if perr then
@@ -169,9 +149,9 @@ function InputView:draw(input)
         local color
         if perr and l > el or
             (l == el and (i > ec or ec == 1)) then
-          color = colors.error
+          color = colors.input.error
         else
-          color = colors.syntax[ttype] or colors.fg
+          color = colors.input.syntax[ttype] or colors.input.fg
         end
         local selected = (function()
           local sel = input.selection
@@ -199,7 +179,7 @@ function InputView:draw(input)
     end
   else
     for l, str in ipairs(display) do
-      write_line(l, str)
+      ViewUtils.write_line(l, str, { y = y, breaks = breaks }, self.cfg.view)
     end
   end
   G.pop()

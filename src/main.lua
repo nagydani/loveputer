@@ -6,6 +6,7 @@ require("controller.consoleController")
 require("view.view")
 local colors = require("conf.colors")
 
+require("util.key")
 require("util.debug")
 
 G = love.graphics
@@ -120,9 +121,9 @@ function love.load(args)
   }
   love.paths = paths
 
-  -- properties
-  local baseconf = {
-    font_main = font_main,
+  --- @class ViewConfig
+  local viewconf = {
+    font = font_main,
     border = border,
     fh = fh,
     fw = fw,
@@ -130,19 +131,11 @@ function love.load(args)
     fac = FAC,
     w = w,
     h = h,
-    get_drawable_height = function()
-      local ch = fh * lh
-      local d = h - border -- top border
-          - border         -- statusline border
-          - fh             -- statusline
-          - border         -- statusline bottom border
-          - fh             -- input line
-          - border         -- bottom border
-      local n_lines = math.floor(d / ch)
-      local res = n_lines * ch
-      return res
-    end,
     colors = colors,
+  }
+  --- @class Config
+  local baseconf = {
+    view = viewconf,
 
     debugheight = debugheight,
     debugwidth = debugwidth,
@@ -157,20 +150,7 @@ function love.load(args)
   C = ConsoleController:new(M)
   CV = ConsoleView:new(baseconf, C)
 
-  -- Ensure the user can get back to the console
-  love.handlers.keypressed = function(k)
-    local ctrl  = love.keyboard.isDown("lctrl", "rctrl")
-    local shift = love.keyboard.isDown("lshift", "rshift")
-    if ctrl and shift then
-      if k == "q" then
-        C:quit_project()
-      end
-    end
-    if love.keypressed then return love.keypressed(k) end
-  end
-  table.protect(love.handlers)
-  Controller.set_love_update()
-
+  Controller.setup_callback_handlers(C)
   --- run autotest on startup if invoked
   if testrun then C:autotest() end
 end
