@@ -59,3 +59,8 @@
 --- @field M InputModel
 --- @field V InputView
 --- @field C InputController
+
+--- @class LoveState table
+--- @field testing boolean
+--- @field has_removable boolean
+--- @field user_input UserInput?

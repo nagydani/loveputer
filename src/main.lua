@@ -115,9 +115,11 @@ function love.load(args)
   end
 
   _G.nativefs = require("lib/nativefs")
+  --- @type LoveState
   love.state = {
     testing = false,
     has_removable = has_removable,
+    user_input = nil,
   }
   love.paths = paths
 

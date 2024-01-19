@@ -4,8 +4,7 @@ require("util.string")
 require("util.debug")
 
 --- @class LuaEval: EvalBase
---- @field parse table
---- @field is_lua boolean
+--- @field parser table
 LuaEval = {}
 
 --- Create a new evaluator
