@@ -9,17 +9,26 @@ _G.keys = function(t)
   return keys
 end
 
+--- @param obj table
+--- @param seen table?
+--- @param omit table?
 -- https://gist.github.com/tylerneylon/81333721109155b2d244
-function table.clone(obj, seen)
+function table.clone(obj, seen, omit)
   -- Handle non-tables and previously-seen tables.
   if type(obj) ~= 'table' then return obj end
   if seen and seen[obj] then return seen[obj] end
+  -- if omit and omit[obj] then return {} end
 
   -- New table; mark it as seen and copy recursively.
   local s = seen or {}
   local res = {}
   s[obj] = res
-  for k, v in pairs(obj) do res[table.clone(k, s)] = table.clone(v, s) end
+  for k, v in pairs(obj) do
+    -- omiting keys only on the main level
+    if not omit or (omit and not omit[k]) then
+      res[table.clone(k, s)] = table.clone(v, s)
+    end
+  end
   return setmetatable(res, getmetatable(obj))
 end
 
