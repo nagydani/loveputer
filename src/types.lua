@@ -60,7 +60,16 @@
 --- @field V InputView
 --- @field C InputController
 
+---@alias AppState
+---| 'starting'
+---| 'title'
+---| 'ready'
+---| 'project_open'
+---| 'running'
+---| 'inspect'
+
 --- @class LoveState table
 --- @field testing boolean
 --- @field has_removable boolean
 --- @field user_input UserInput?
+--- @field app_state AppState

@@ -120,6 +120,7 @@ function love.load(args)
     testing = false,
     has_removable = has_removable,
     user_input = nil,
+    app_state = 'ready'
   }
   love.paths = paths
 
