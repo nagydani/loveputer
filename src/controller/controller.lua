@@ -77,10 +77,31 @@ Controller = {
     Controller.set_love_keypressed()
     Controller.set_love_keyreleased()
     Controller.set_love_textinput()
+    -- SKIPPED textedited - IME support, TODO?
 
     Controller.set_love_mousemoved()
     Controller.set_love_mousepressed()
     Controller.set_love_mousereleased()
+    -- SKIPPED wheelmoved - TODO
+
+    -- SKIPPED touchpressed  - target device doesn't support touch
+    -- SKIPPED touchreleased - target device doesn't support touch
+    -- SKIPPED touchmoved    - target device doesn't support touch
+
+    -- SKIPPED joystick and gamepad support
+
+    -- SKIPPED focus       - intented to run as kiosk app
+    -- SKIPPED mousefocus  - intented to run as kiosk app
+    -- SKIPPED visible     - intented to run as kiosk app
+
+    -- SKIPPED quit        - intented to run as kiosk app
+    -- SKIPPED threaderror - no threading support
+
+    -- SKIPPED resize           - intented to run as kiosk app
+    -- SKIPPED filedropped      - intented to run as kiosk app
+    -- SKIPPED directorydropped - intented to run as kiosk app
+    -- SKIPPED lowmemory
+    -- SKIPPED displayrotated   - target device has laptop form factor
 
     Controller.set_love_update()
   end,
