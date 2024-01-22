@@ -210,10 +210,14 @@ end
 --- @return boolean success
 --- @return string? errmsg
 function ProjectService:open(name)
-  local ok, p_err = is_project(self.path, name)
-  -- TODO: noop if already open
-  if ok then
+  local path, p_err = is_project(self.path, name)
+  -- noop if already open
+  if self.current == name then
+    return true
+  end
+  if path then
     self.current = Project:new(name)
+    nativefs.setWorkingDirectory(path)
     return true
   end
   return false, p_err
@@ -277,7 +281,6 @@ function ProjectService:run(name, env)
   if not name then
     if self.current then
       p_path = self.current.path
-      nativefs.setWorkingDirectory(p_path)
     else
       return nil, messages.no_open_project
     end
@@ -286,6 +289,7 @@ function ProjectService:run(name, env)
   end
   if p_path then
     local main = string.join_path(p_path, MAIN)
+    self:open(name or self.current.name)
     return loadfile(main, 't', env), nil, p_path
   end
   return nil, err
