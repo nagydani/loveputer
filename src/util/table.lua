@@ -1,10 +1,15 @@
 --- Create a sequence from the table keys
 --- @param t table
+--- @param hash boolean?
 --- @return table keys
-_G.keys = function(t)
+_G.keys = function(t, hash)
   local keys = {}
   for k, _ in pairs(t) do
-    table.insert(keys, k)
+    if hash then
+      keys[k] = k
+    else
+      table.insert(keys, k)
+    end
   end
   return keys
 end
