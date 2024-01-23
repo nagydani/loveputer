@@ -8,9 +8,9 @@ require("util.table")
 --- @class ConsoleController
 --- @field time number
 --- @field model Model
---- @field base_env table
---- @field env table
---- @field project_env table
+--- @field pre_env LuaEnv
+--- @field base_env LuaEnv
+--- @field project_env LuaEnv
 --- @field input InputController
 ConsoleController = {}
 
@@ -43,31 +43,12 @@ local function run_user_code(f, M, extra_path)
   return true
 end
 
---- @param M Model
---- @param runner_env table
---- @param base_env table
---- @param msg string?
-local function suspend_run(M, runner_env, base_env, msg)
-  if love.state.app_state ~= 'running' then
-    return
-  end
-  Log('Suspending project run')
-  love.state.app_state = 'inspect'
-  if msg then
-    M.interpreter:set_error(tostring(msg), true)
-  end
-
-  -- reset handlers and suspend
-end
-
---- Put API functions into the env table
---- @param prepared table
---- @param M Model
---- @param runner_env table
-local function prepare_env(prepared, M, runner_env, base_env)
+--- API functions for the user
+function ConsoleController:prepare_env(cc)
+  local prepared            = cc.base_env
   prepared.G                = love.graphics
 
-  local P                   = M.projects
+  local P                   = cc.model.projects
 
   --- @param f function
   local check_open_pr       = function(f)
@@ -190,7 +171,10 @@ local function prepare_env(prepared, M, runner_env, base_env)
   end
 
 
-  prepared.stop       = 'stub'
+  --- @param msg string?
+  prepared.stop       = function(msg)
+    self:suspend_run(msg)
+  end
   prepared.continue   = function()
     if love.state.app_state == 'inspect' then
       -- resume
@@ -226,35 +210,44 @@ local function prepare_env(prepared, M, runner_env, base_env)
   prepared.input_text = function(result)
     return input('text', result)
   end
-
-
-  --- @param msg string?
-  prepared.stop = function(msg)
-    suspend_run(M, runner_env, prepared, msg)
-  end
 end
 
 --- @param M Model
 function ConsoleController:new(M)
-  local env         = getfenv()
-  local project_env = getfenv()
-  local base_env    = table.clone(env)
-  prepare_env(env, M, project_env, base_env)
+  local env = getfenv()
+  local pre_env = table.clone(env)
   local IC = InputController:new(M.interpreter.input)
   local cc = {
     time        = 0,
     model       = M,
-    base_env    = base_env,
-    env         = table.clone(env),
-    project_env = project_env,
     input       = IC,
+    -- the main application's env where we make the API available
+    base_env    = env,
+    -- copy of the application's env before the prep
+    pre_env     = pre_env,
+    -- this is the env in which the user project runs
+    -- subject to change, for example when switching projects
+    project_env = {},
   }
   setmetatable(cc, self)
   self.__index = self
+  -- initialize the stub env tables
+  self:prepare_env(cc)
 
   return cc
 end
 
+---@return LuaEnv
+function ConsoleController:get_project_env()
+  return self.project_env
+end
+
+---@return LuaEnv
+function ConsoleController:get_base_env()
+  return self.base_env
+end
+
+---@param dt number
 function ConsoleController:pass_time(dt)
   self.time = self.time + dt
   self.model.output.terminal:update(dt)
@@ -310,6 +303,20 @@ end
 function ConsoleController:reset()
   self:quit_project()
   self.model.interpreter:reset(true) -- clear history
+end
+
+--- @param msg string?
+function ConsoleController:suspend_run(msg)
+  local base_env   = self:get_base_env()
+  local runner_env = self:get_project_env()
+  if love.state.app_state ~= 'running' then
+    return
+  end
+  Log('Suspending project run')
+  love.state.app_state = 'inspect'
+  if msg then
+    M.interpreter:set_error(tostring(msg), true)
+  end
 end
 
 function ConsoleController:quit_project()
@@ -377,7 +384,7 @@ function ConsoleController:keypressed(k)
       self.model.output:reset()
     end
     if k == "pause" then
-      suspend_run(self.model, self.project_env, self.env)
+      self:suspend_run()
     end
     if love.DEBUG then
       if k == 't' then

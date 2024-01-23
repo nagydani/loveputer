@@ -73,3 +73,5 @@
 --- @field has_removable boolean
 --- @field user_input UserInput?
 --- @field app_state AppState
+
+--- @class LuaEnv table
