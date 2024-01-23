@@ -1,4 +1,5 @@
 require("util.string")
+local tc = require("util.termcolor")
 
 local INDENT = '  '
 
@@ -115,9 +116,48 @@ Debug = {
   end,
 }
 
-Log = (function()
+local printer = (function()
   if orig_print then
     return orig_print
   end
   return print
 end)()
+
+local annot = function(tag, color, args)
+  local ret = tc.to_control(color)
+  ret = ret .. tag .. ': '
+  for _, s in ipairs(args) do
+    ret = ret .. tostring(s) .. '\t'
+  end
+  ret = ret .. tc.reset
+  return ret
+end
+
+-- todo: make this a table, and have this be the __call
+Log = {
+  info = function(...)
+    local args = { ... }
+    local s = annot('INFO ', Color.cyan, args)
+    printer(s)
+  end,
+  warning = function(...)
+    local args = { ... }
+    local s = annot('WARN ', Color.yellow, args)
+    printer(s)
+  end,
+  error = function(...)
+    local args = { ... }
+    local s = annot('ERROR', Color.red, args)
+    printer(s)
+  end,
+
+  debug = function(...)
+    local args = { ... }
+    local s = annot('DEBUG ', Color.blue, args)
+    printer(s)
+  end,
+}
+
+setmetatable(Log, {
+  __call = printer
+})
