@@ -1,6 +1,7 @@
 View = {
   prev_draw = nil,
-  draw = function()
+  --- @param C ConsoleController
+  draw = function(C)
     G.push('all')
     local terminal = C:get_terminal()
     local input = C.input:get_input()
@@ -8,10 +9,11 @@ View = {
     G.pop()
   end,
 
-  set_love_draw = function()
+  --- @param C ConsoleController
+  set_love_draw = function(C)
     --- @diagnostic disable-next-line: duplicate-set-field
     function love.draw()
-      View.draw()
+      View.draw(C)
     end
 
     View.prev_draw = love.draw

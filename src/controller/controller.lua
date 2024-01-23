@@ -7,13 +7,16 @@ end
 
 Controller = {
   -- keyboard
-  set_love_keypressed = function()
+
+  --- @param C ConsoleController
+  set_love_keypressed = function(C)
     --- @diagnostic disable-next-line: duplicate-set-field
     function love.keypressed(k)
       C:keypressed(k)
     end
   end,
-  set_love_keyreleased = function()
+  --- @param C ConsoleController
+  set_love_keyreleased = function(C)
     --- @diagnostic disable-next-line: duplicate-set-field
     function love.keyreleased(k)
       -- Ctrl held
@@ -25,7 +28,8 @@ Controller = {
       C:keyreleased(k)
     end
   end,
-  set_love_textinput = function()
+  --- @param C ConsoleController
+  set_love_textinput = function(C)
     --- @diagnostic disable-next-line: duplicate-set-field
     function love.textinput(t)
       C.input:textinput(t)
@@ -33,19 +37,23 @@ Controller = {
   end,
 
   -- mouse
-  set_love_mousepressed = function()
+
+  --- @param C ConsoleController
+  set_love_mousepressed = function(C)
     --- @diagnostic disable-next-line: duplicate-set-field
     function love.mousepressed(x, y, button)
       C.input:mousepressed(x, y, button)
     end
   end,
-  set_love_mousereleased = function()
+  --- @param C ConsoleController
+  set_love_mousereleased = function(C)
     --- @diagnostic disable-next-line: duplicate-set-field
     function love.mousereleased(x, y, button)
       C.input:mousereleased(x, y, button)
     end
   end,
-  set_love_mousemoved = function()
+  --- @param C ConsoleController
+  set_love_mousemoved = function(C)
     --- @diagnostic disable-next-line: duplicate-set-field
     function love.mousemoved(x, y, dx, dy)
       C.input:mousemoved(x, y)
@@ -53,7 +61,9 @@ Controller = {
   end,
 
   -- update
-  set_love_update = function()
+
+  --- @param C ConsoleController
+  set_love_update = function(C)
     --- @diagnostic disable-next-line: duplicate-set-field
     function love.update(dt)
       local ddr = View.prev_draw
@@ -73,15 +83,16 @@ Controller = {
     end
   end,
 
-  set_default_handlers = function()
-    Controller.set_love_keypressed()
-    Controller.set_love_keyreleased()
-    Controller.set_love_textinput()
+  --- @param C ConsoleController
+  set_default_handlers = function(C)
+    Controller.set_love_keypressed(C)
+    Controller.set_love_keyreleased(C)
+    Controller.set_love_textinput(C)
     -- SKIPPED textedited - IME support, TODO?
 
-    Controller.set_love_mousemoved()
-    Controller.set_love_mousepressed()
-    Controller.set_love_mousereleased()
+    Controller.set_love_mousemoved(C)
+    Controller.set_love_mousepressed(C)
+    Controller.set_love_mousereleased(C)
     -- SKIPPED wheelmoved - TODO
 
     -- SKIPPED touchpressed  - target device doesn't support touch
@@ -103,7 +114,7 @@ Controller = {
     -- SKIPPED lowmemory
     -- SKIPPED displayrotated   - target device has laptop form factor
 
-    Controller.set_love_update()
+    Controller.set_love_update(C)
   end,
 
   --- @param C ConsoleController
@@ -118,7 +129,6 @@ Controller = {
     handlers.keypressed = function(k)
       if Key.ctrl() then
         if k == "pause" then
-          -- C:suspend_run(self.model, self.project_env, self.env)
           C:suspend_run()
         end
         if Key.shift() then

@@ -150,14 +150,13 @@ function love.load(args)
   --- MVC wiring
   M = Model:new(baseconf)
   redirect_to(M)
-  C = ConsoleController:new(M)
+  local C = ConsoleController:new(M)
   CV = ConsoleView:new(baseconf, C)
 
   Controller.setup_callback_handlers(C)
+  Controller.set_default_handlers(C)
+  View.set_love_draw(C)
   --- run autotest on startup if invoked
   if testrun then C:autotest() end
 end
 
-Controller.set_default_handlers()
-
-View.set_love_draw()

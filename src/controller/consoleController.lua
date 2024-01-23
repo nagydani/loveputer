@@ -323,10 +323,10 @@ function ConsoleController:quit_project()
   self.model.output:reset()
   self.model.interpreter:reset()
   nativefs.setWorkingDirectory(love.filesystem.getSourceBaseDirectory())
-  Controller.set_default_handlers()
-  Controller.set_love_update()
+  Controller.set_default_handlers(self)
+  Controller.set_love_update(self)
   love.state.user_input = nil
-  View.set_love_draw()
+  View.set_love_draw(self)
   -- TODO clean this up immediately, or leave it for inspection?
   self:_reset_executor_env()
 end
