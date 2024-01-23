@@ -66,7 +66,7 @@ function ConsoleController:prepare_env(cc)
       print(P.messages.no_projects)
     else
       -- list projects
-      M.output:reset()
+      self.model.output:reset()
       print(P.messages.list_header)
       for _, p in ipairs(ps) do
         print('> ' .. p.name)
@@ -157,7 +157,7 @@ function ConsoleController:prepare_env(cc)
   prepared.run_project      = function(name)
     local f, err, path = P:run(name, runner_env)
     if f then
-      local ok, run_err = run_user_code(f, M, path)
+      local ok, run_err = run_user_code(f, cc.model, path)
       if ok then
         local n = name or P.current.name or 'project'
         Log('Running \'' .. n .. '\'')
@@ -170,6 +170,7 @@ function ConsoleController:prepare_env(cc)
     end
   end
 
+  local interpreter      = cc.model.interpreter
 
   --- @param msg string?
   prepared.stop       = function(msg)
@@ -186,11 +187,12 @@ function ConsoleController:prepare_env(cc)
   --- @param result any
   local input         = function(type, result)
     local cfg = M.interpreter.cfg
+    local cfg = interpreter.cfg
     local eval
     if type == 'lua' then
-      eval = M.interpreter.luaInput
+      eval = interpreter.luaInput
     elseif type == 'text' then
-      eval = M.interpreter.textInput
+      eval = interpreter.textInput
     else
       Log('Invalid input type!')
       return
@@ -315,7 +317,7 @@ function ConsoleController:suspend_run(msg)
   Log('Suspending project run')
   love.state.app_state = 'inspect'
   if msg then
-    M.interpreter:set_error(tostring(msg), true)
+    self.model.interpreter:set_error(tostring(msg), true)
   end
 end
 
