@@ -1,4 +1,5 @@
 require("util.string")
+require("util.key")
 
 local get_user_input = function()
   return love.state.user_input
@@ -15,9 +16,8 @@ Controller = {
   set_love_keyreleased = function()
     --- @diagnostic disable-next-line: duplicate-set-field
     function love.keyreleased(k)
-      local ctrl = love.keyboard.isDown("lctrl", "rctrl")
       -- Ctrl held
-      if ctrl then
+      if Key.ctrl() then
         if k == "escape" then
           love.event.quit()
         end
@@ -94,7 +94,7 @@ Controller = {
     -- SKIPPED mousefocus  - intented to run as kiosk app
     -- SKIPPED visible     - intented to run as kiosk app
 
-    -- SKIPPED quit        - intented to run as kiosk app
+    -- SKIPPED quit        - intented to run as kiosk app - TODO
     -- SKIPPED threaderror - no threading support
 
     -- SKIPPED resize           - intented to run as kiosk app
@@ -116,10 +116,16 @@ Controller = {
     local handlers = love.handlers
 
     handlers.keypressed = function(k)
-      -- Ensure the user can get back to the console
-      if Key.ctrl() and Key.shift() then
-        if k == "q" then
-          C:quit_project()
+      if Key.ctrl() then
+        if k == "pause" then
+          -- C:suspend_run(self.model, self.project_env, self.env)
+          C:suspend_run()
+        end
+        if Key.shift() then
+          -- Ensure the user can get back to the console
+          if k == "q" then
+            C:quit_project()
+          end
         end
       end
 
