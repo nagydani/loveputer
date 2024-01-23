@@ -43,14 +43,41 @@ local function run_user_code(f, M, extra_path)
   return true
 end
 
+--- @param M Model
+--- @param runner_env table
+--- @param base_env table
+--- @param msg string?
+local function suspend_run(M, runner_env, base_env, msg)
+  if love.state.app_state ~= 'running' then
+    return
+  end
+  Log('Suspending project run')
+  love.state.app_state = 'inspect'
+  if msg then
+    M.interpreter:set_error(tostring(msg), true)
+  end
+
+  -- reset handlers and suspend
+end
+
 --- Put API functions into the env table
 --- @param prepared table
 --- @param M Model
 --- @param runner_env table
-local function prepare_env(prepared, M, runner_env)
+local function prepare_env(prepared, M, runner_env, base_env)
   prepared.G                = love.graphics
 
   local P                   = M.projects
+
+  --- @param f function
+  local check_open_pr       = function(f)
+    if not P.current then
+      print(P.messages.no_open_project)
+    else
+      return f()
+    end
+  end
+
   prepared.list_projects    = function()
     local ps = P:list()
     if ps:is_empty() then
@@ -97,15 +124,6 @@ local function prepare_env(prepared, M, runner_env)
     local ok, err = P:deploy_examples()
     if not ok then
       print('err: ' .. err)
-    end
-  end
-
-  --- @param f function
-  local check_open_pr       = function(f)
-    if not P.current then
-      print(P.messages.no_open_project)
-    else
-      return f()
     end
   end
 
@@ -157,11 +175,12 @@ local function prepare_env(prepared, M, runner_env)
 
   prepared.run_project      = function(name)
     local f, err, path = P:run(name, runner_env)
-    local n = name or P.current.name or 'project'
     if f then
       local ok, run_err = run_user_code(f, M, path)
       if ok then
-        Log('Running \'' .. n .. '\' finished')
+        local n = name or P.current.name or 'project'
+        Log('Running \'' .. n .. '\'')
+        love.state.app_state = 'running'
       else
         print('Error: ', run_err)
       end
@@ -170,9 +189,18 @@ local function prepare_env(prepared, M, runner_env)
     end
   end
 
+
+  prepared.stop       = 'stub'
+  prepared.continue   = function()
+    if love.state.app_state == 'inspect' then
+      -- resume
+      love.state.app_state = 'running'
+    end
+  end
+
   --- @param type InputType
   --- @param result any
-  local input               = function(type, result)
+  local input         = function(type, result)
     local cfg = M.interpreter.cfg
     local eval
     if type == 'lua' then
@@ -192,24 +220,31 @@ local function prepare_env(prepared, M, runner_env)
     }
   end
 
-  prepared.input_code       = function(result)
+  prepared.input_code = function(result)
     return input('lua', result)
   end
-  prepared.input_text       = function(result)
+  prepared.input_text = function(result)
     return input('text', result)
+  end
+
+
+  --- @param msg string?
+  prepared.stop = function(msg)
+    suspend_run(M, runner_env, prepared, msg)
   end
 end
 
 --- @param M Model
 function ConsoleController:new(M)
-  local env = getfenv()
+  local env         = getfenv()
   local project_env = getfenv()
-  prepare_env(env, M, project_env)
+  local base_env    = table.clone(env)
+  prepare_env(env, M, project_env, base_env)
   local IC = InputController:new(M.interpreter.input)
   local cc = {
     time        = 0,
     model       = M,
-    base_env    = table.clone(env),
+    base_env    = base_env,
     env         = table.clone(env),
     project_env = project_env,
     input       = IC,
@@ -285,6 +320,7 @@ function ConsoleController:quit_project()
   Controller.set_love_update()
   love.state.user_input = nil
   View.set_love_draw()
+  -- TODO clean this up immediately, or leave it for inspection?
   self:_reset_executor_env()
 end
 
@@ -339,6 +375,9 @@ function ConsoleController:keypressed(k)
   if Key.ctrl() then
     if k == "l" then
       self.model.output:reset()
+    end
+    if k == "pause" then
+      suspend_run(self.model, self.project_env, self.env)
     end
     if love.DEBUG then
       if k == 't' then
