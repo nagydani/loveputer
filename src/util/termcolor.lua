@@ -1,6 +1,9 @@
 require("util.color")
 
 local reset = '\27[0m'
+
+---@param ci number
+---@return string
 local to_control = function(ci)
   if not ci or type(ci) ~= 'number' or ci < 0 or ci > 15 then
     return reset
@@ -24,15 +27,31 @@ local to_control = function(ci)
   return "\27[" .. bright .. fg[i] .. "m"
 end
 
+---@param ci number
+---@param s string
+---@param part boolean?
+---@return string
+local colorize = function(ci, s, part)
+  if part then
+    return (to_control(ci) .. s)
+  else
+    return (to_control(ci) .. s .. reset)
+  end
+end
+
 return {
   reset = reset,
   to_control = to_control,
 
+  colorize = colorize,
+  ---@param ci number
+  ---@param s string
+  ---@param part boolean?
   print_c = function(ci, s, part)
     if part then
-      io.write(to_control(ci) .. s)
+      io.write(colorize(ci, s, part))
     else
-      print(to_control(ci) .. s .. reset)
+      print(colorize(ci, s, part))
     end
   end
 }
