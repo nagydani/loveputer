@@ -9,22 +9,28 @@ local to_control = function(ci)
     return reset
   end
   local bright = ''
-  local i = ci
   if ci > Color.bright then
     bright = '1;'
-    i = ci - Color.bright
   end
   local fg = {
-    [Color.black]   = '38;5;238', -- a bit of cheating, so it's visible
-    [Color.red]     = '31',
-    [Color.green]   = '32',
-    [Color.yellow]  = '33',
-    [Color.blue]    = '34',
-    [Color.magenta] = '35',
-    [Color.cyan]    = '36',
-    [Color.white]   = '37',
+    [Color.black]                  = '38;5;238', -- a bit of cheating, so it's visible
+    [Color.red]                    = '31',
+    [Color.green]                  = '32',
+    [Color.yellow]                 = '33',
+    [Color.blue]                   = '34',
+    [Color.magenta]                = '35',
+    [Color.cyan]                   = '36',
+    [Color.white]                  = '37',
+    [Color.bright + Color.black]   = '90', -- a bit of cheating, so it's visible
+    [Color.bright + Color.red]     = '91',
+    [Color.bright + Color.green]   = '92',
+    [Color.bright + Color.yellow]  = '93',
+    [Color.bright + Color.blue]    = '94',
+    [Color.bright + Color.magenta] = '95',
+    [Color.bright + Color.cyan]    = '96',
+    [Color.bright + Color.white]   = '97',
   }
-  return "\27[" .. bright .. fg[i] .. "m"
+  return "\27[" .. bright .. fg[ci] .. "m"
 end
 
 ---@param ci number
@@ -44,6 +50,30 @@ return {
   to_control = to_control,
 
   colorize = colorize,
+  --- Colorize memory addresses for easier visual comparison.
+  ---
+  --- This will not support UTF-8, you're supposed to feed it hex strings
+  ---@param a string
+  ---@return string
+  colorize_memaddress = function(a)
+    local ret = reset
+    for i = 1, string.len(a) do
+      local c = string.sub(a, i, i)
+      local cc = ''
+
+      local b = string.byte(c)
+      if b > 47 and b < 58 then -- 0-9
+        cc = to_control(b - 48)
+        ret = ret .. cc .. c .. reset
+      elseif b > 96 and b < 103 then -- a-f
+        cc = to_control(b - 97 + 10)
+        ret = ret .. cc .. c .. reset
+      else
+        ret = ret .. c
+      end
+    end
+    return ret
+  end,
   ---@param ci number
   ---@param s string
   ---@param part boolean?
