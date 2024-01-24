@@ -4,7 +4,8 @@
     "describe",
     "it",
     "pending",
-    "lfs"
+    "lfs",
+    "input_text",
   ],
   "workspace.library": [
     "${3rd}/love2d/library",
