@@ -114,6 +114,15 @@ Debug = {
 
     return res
   end,
+
+  mem = function(o)
+    -- TODO: match on color or '0x' and don't pass the label in
+    local addr = tostring(o)
+    local colons = string.split(addr, ':')
+    local typetag = colons[1] or ''
+    local mems = tc.colorize_memaddress(colons[2] or '')
+    return typetag .. ':' .. mems
+  end
 }
 
 local printer = (function()
