@@ -8,11 +8,39 @@ require("util.table")
 --- @class ConsoleController
 --- @field time number
 --- @field model Model
+--- @field env LuaEnv
 --- @field pre_env LuaEnv
 --- @field base_env LuaEnv
 --- @field project_env LuaEnv
 --- @field input InputController
 ConsoleController = {}
+
+--- @param M Model
+function ConsoleController:new(M)
+  local env = getfenv()
+  local pre_env = table.clone(env)
+  local IC = InputController:new(M.interpreter.input)
+  local cc = {
+    time        = 0,
+    model       = M,
+    input       = IC,
+    env         = env,
+    -- copy of the application's env before the prep
+    pre_env     = pre_env,
+    -- the project env where we make the API available
+    base_env    = {},
+    -- this is the env in which the user project runs
+    -- subject to change, for example when switching projects
+    project_env = {},
+  }
+  setmetatable(cc, self)
+  self.__index = self
+  -- initialize the stub env tables
+  self:prepare_env(cc)
+  self:prepare_project_env(cc)
+
+  return cc
+end
 
 --- @param f function
 --- @param M Model
@@ -43,9 +71,8 @@ local function run_user_code(f, M, extra_path)
   return true
 end
 
---- API functions for the user
 function ConsoleController:prepare_env(cc)
-  local prepared            = cc.base_env
+  local prepared            = cc.env
   prepared.G                = love.graphics
 
   local P                   = cc.model.projects
@@ -155,12 +182,13 @@ function ConsoleController:prepare_env(cc)
   end
 
   prepared.run_project      = function(name)
+    local runner_env = self:get_project_env()
     local f, err, path = P:run(name, runner_env)
     if f then
-      local ok, run_err = run_user_code(f, cc.model, path)
+      local n = name or P.current.name or 'project'
+      Log.info('Running \'' .. n .. '\'')
+      local ok, run_err = run_user_code(f, cc.model, runner_env, path)
       if ok then
-        local n = name or P.current.name or 'project'
-        Log('Running \'' .. n .. '\'')
         love.state.app_state = 'running'
       else
         print('Error: ', run_err)
@@ -169,14 +197,22 @@ function ConsoleController:prepare_env(cc)
       print(err)
     end
   end
+end
 
+--- API functions for the user
+function ConsoleController:prepare_project_env(cc)
   local interpreter      = cc.model.interpreter
+  ---@type table
+  local project_env      = cc:get_pre_env_c()
+  -- Log.debug('cc proj_env', cc.project_env)
+  -- Log.debug('cc proj_env', project_env)
+  project_env.G          = love.graphics
 
   --- @param msg string?
-  prepared.stop       = function(msg)
+  project_env.stop       = function(msg)
     self:suspend_run(msg)
   end
-  prepared.continue   = function()
+  project_env.continue   = function()
     if love.state.app_state == 'inspect' then
       -- resume
       love.state.app_state = 'running'
@@ -185,8 +221,7 @@ function ConsoleController:prepare_env(cc)
 
   --- @param type InputType
   --- @param result any
-  local input         = function(type, result)
-    local cfg = M.interpreter.cfg
+  local input            = function(type, result)
     local cfg = interpreter.cfg
     local eval
     if type == 'lua' then
@@ -206,47 +241,15 @@ function ConsoleController:prepare_env(cc)
     }
   end
 
-  prepared.input_code = function(result)
+  project_env.input_code = function(result)
     return input('lua', result)
   end
-  prepared.input_text = function(result)
+  project_env.input_text = function(result)
     return input('text', result)
   end
-end
 
---- @param M Model
-function ConsoleController:new(M)
-  local env = getfenv()
-  local pre_env = table.clone(env)
-  local IC = InputController:new(M.interpreter.input)
-  local cc = {
-    time        = 0,
-    model       = M,
-    input       = IC,
-    -- the main application's env where we make the API available
-    base_env    = env,
-    -- copy of the application's env before the prep
-    pre_env     = pre_env,
-    -- this is the env in which the user project runs
-    -- subject to change, for example when switching projects
-    project_env = {},
-  }
-  setmetatable(cc, self)
-  self.__index = self
-  -- initialize the stub env tables
-  self:prepare_env(cc)
-
-  return cc
-end
-
----@return LuaEnv
-function ConsoleController:get_project_env()
-  return self.project_env
-end
-
----@return LuaEnv
-function ConsoleController:get_base_env()
-  return self.base_env
+  self:_set_base_env(table.clone(project_env))
+  self:_set_project_env(table.clone(project_env))
 end
 
 ---@param dt number
@@ -277,7 +280,7 @@ function ConsoleController:evaluate_input()
   if eval.is_lua then
     if eval_ok then
       local code = string.join(text, '\n')
-      local f, load_err = load(code, '', 't', self.env)
+      local f, load_err = load(code, '', 't', self:get_env())
       if f then
         local _, err = run_user_code(f, self.model, project_path)
         if err then
@@ -299,7 +302,7 @@ function ConsoleController:evaluate_input()
 end
 
 function ConsoleController:_reset_executor_env()
-  self.env = table.clone(self.base_env)
+  self:_set_project_env(table.clone(self.base_env))
 end
 
 function ConsoleController:reset()
@@ -307,9 +310,39 @@ function ConsoleController:reset()
   self.model.interpreter:reset(true) -- clear history
 end
 
+---@return LuaEnv
+function ConsoleController:get_env()
+  return table.clone(self.env)
+end
+
+---@return LuaEnv
+function ConsoleController:get_pre_env_c()
+  return table.clone(self.pre_env)
+end
+
+---@return LuaEnv
+function ConsoleController:get_project_env()
+  return self.project_env
+end
+
+---@return LuaEnv
+function ConsoleController:get_base_env_c()
+  return table.clone(self.base_env)
+end
+
+---@param t LuaEnv
+function ConsoleController:_set_project_env(t)
+  self.project_env = t
+end
+
+---@param t LuaEnv
+function ConsoleController:_set_base_env(t)
+  self.base_env = t
+end
+
 --- @param msg string?
 function ConsoleController:suspend_run(msg)
-  local base_env   = self:get_base_env()
+  local base_env   = self:get_base_env_c()
   local runner_env = self:get_project_env()
   if love.state.app_state ~= 'running' then
     return
