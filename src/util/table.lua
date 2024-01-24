@@ -1,3 +1,4 @@
+-- TODO: move to table.keys
 --- Create a sequence from the table keys
 --- @param t table
 --- @param hash boolean?
@@ -71,6 +72,7 @@ function table.protect(t, fields)
   return t, orig
 end
 
+--- @diagnostic disable-next-line: duplicate-set-field
 function table.pack(...)
   --- @class t
   local t = { ... }

@@ -255,6 +255,7 @@ function ProjectService:deploy_examples()
     return false, 'No examples'
   end
   for _, i in ipairs(examples) do
+    -- TODO: remove linter magic (@diagnostic disable-next-line:)
     if i and i.type == 'directory' then
       local s_path = string.join_path(ex_base, i.name)
       local t_path = string.join_path(ProjectService.path, i.name)
