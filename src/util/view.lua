@@ -1,3 +1,5 @@
+--- @param cfg ViewConfig
+--- @return number
 local get_drawable_height = function(cfg)
   local ch = cfg.fh * cfg.lh
   local d = cfg.h - cfg.border -- top border

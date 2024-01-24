@@ -7,6 +7,13 @@ require("util.debug")
 
 local G = love.graphics
 
+--- @class ConsoleView
+--- @field title table
+--- @field canvas CanvasView
+--- @field interpreter InterpreterView
+--- @field controller ConsoleController
+--- @field cfg Config
+--- @field drawable_height number
 ConsoleView = {}
 
 --- @param cfg Config
