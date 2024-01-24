@@ -11,10 +11,10 @@ View = {
 
   --- @param C ConsoleController
   set_love_draw = function(C)
-    --- @diagnostic disable-next-line: duplicate-set-field
-    function love.draw()
+    local function draw()
       View.draw(C)
     end
+    love.draw = draw
 
     View.prev_draw = love.draw
   end,

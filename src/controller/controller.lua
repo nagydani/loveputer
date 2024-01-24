@@ -6,19 +6,23 @@ local get_user_input = function()
 end
 
 Controller = {
-  -- keyboard
+  _defaults = {},
+  ----------------
+  --  keyboard  --
+  ----------------
 
   --- @param C ConsoleController
   set_love_keypressed = function(C)
-    --- @diagnostic disable-next-line: duplicate-set-field
-    function love.keypressed(k)
+    local function keypressed(k)
       C:keypressed(k)
     end
+    Controller._defaults.keypressed = keypressed
+    love.keypressed = keypressed
   end,
   --- @param C ConsoleController
   set_love_keyreleased = function(C)
     --- @diagnostic disable-next-line: duplicate-set-field
-    function love.keyreleased(k)
+    local function keyreleased(k)
       -- Ctrl held
       if Key.ctrl() then
         if k == "escape" then
@@ -27,50 +31,62 @@ Controller = {
       end
       C:keyreleased(k)
     end
+    Controller._defaults.keyreleased = keyreleased
+    love.keyreleased = keyreleased
   end,
   --- @param C ConsoleController
   set_love_textinput = function(C)
-    --- @diagnostic disable-next-line: duplicate-set-field
-    function love.textinput(t)
+    local function textinput(t)
       C.input:textinput(t)
     end
+    Controller._defaults.textinput = textinput
+    love.textinput = textinput
   end,
 
-  -- mouse
+  -------------
+  --  mouse  --
+  -------------
 
   --- @param C ConsoleController
   set_love_mousepressed = function(C)
-    --- @diagnostic disable-next-line: duplicate-set-field
-    function love.mousepressed(x, y, button)
+    local function mousepressed(x, y, button)
       C.input:mousepressed(x, y, button)
     end
+
+    Controller._defaults.mousepressed = mousepressed
+    love.mousepressed = mousepressed
   end,
   --- @param C ConsoleController
   set_love_mousereleased = function(C)
-    --- @diagnostic disable-next-line: duplicate-set-field
-    function love.mousereleased(x, y, button)
+    local function mousereleased(x, y, button)
       C.input:mousereleased(x, y, button)
     end
+
+    Controller._defaults.mousereleased = mousereleased
+    love.mousereleased = mousereleased
   end,
   --- @param C ConsoleController
   set_love_mousemoved = function(C)
-    --- @diagnostic disable-next-line: duplicate-set-field
-    function love.mousemoved(x, y, dx, dy)
+    local function mousemoved(x, y, dx, dy)
       C.input:mousemoved(x, y)
     end
+
+    Controller._defaults.mousemoved = mousemoved
+    love.mousemoved = mousemoved
   end,
 
-  -- update
+  --------------
+  --  update  --
+  --------------
 
   --- @param C ConsoleController
   set_love_update = function(C)
-    --- @diagnostic disable-next-line: duplicate-set-field
-    function love.update(dt)
+    local function update(dt)
       local ddr = View.prev_draw
       local ldr = love.draw
       if ldr ~= ddr then
         local function draw()
-          ldr()
+          if ldr then ldr() end
           local user_input = get_user_input()
           if user_input then
             user_input.V:draw(user_input.C:get_input())
@@ -81,7 +97,16 @@ Controller = {
       end
       C:pass_time(dt)
     end
+
+    Controller._defaults.update = update
+    love.update = update
   end,
+
+
+
+  ---------------
+  --  setters  --
+  ---------------
 
   --- @param C ConsoleController
   set_default_handlers = function(C)
