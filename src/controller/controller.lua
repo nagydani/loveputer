@@ -165,6 +165,7 @@ Controller = {
 
     user_update = false
     Controller.set_love_update(C)
+    View.set_love_draw(C) -- TODO should this be in the View?
   end,
 
   --- @param C ConsoleController
@@ -254,8 +255,7 @@ Controller = {
   end,
 
   --- @param userlove table
-  --- @param C ConsoleController
-  set_user_handlers = function(userlove, C)
+  set_user_handlers = function(userlove)
     --- @param key string
     local function hook_if_differs(key)
       local orig = Controller._defaults[key]
@@ -281,5 +281,26 @@ Controller = {
     if draw ~= View.main_draw then
       love.draw = draw
     end
-  end
+  end,
+
+  --- @param userlove table
+  --- @param C ConsoleController
+  save_user_handlers = function(userlove)
+    --- @param key string
+    local function save_if_differs(key)
+      local orig = Controller._defaults[key]
+      local new = userlove[key]
+      if orig and new and orig ~= new then
+        Controller._userhandlers[key] = new
+      end
+    end
+
+    -- input hooks
+    for _, a in pairs(_supported) do
+      save_if_differs(a)
+    end
+    save_if_differs('draw')
+    for k, a in pairs(Controller._userhandlers) do
+    end
+  end,
 }
