@@ -4,7 +4,7 @@ require("util.key")
 local get_user_input = function()
   return love.state.user_input
 end
---- @type function
+--- @type boolean
 local user_update
 
 local _supported = {
@@ -18,7 +18,10 @@ local _supported = {
 }
 
 Controller = {
+  --- @type table
   _defaults = {},
+  --- @type table
+  _userhandlers = {},
 
   ----------------
   --  keyboard  --
@@ -109,7 +112,12 @@ Controller = {
         love.draw = draw
       end
       C:pass_time(dt)
-      if user_update then user_update(dt) end
+
+      local uup = Controller._userhandlers.update
+      if user_update and uup
+      then
+        uup(dt)
+      end
     end
 
     if not Controller._defaults.update then
@@ -155,6 +163,7 @@ Controller = {
     -- SKIPPED lowmemory
     -- SKIPPED displayrotated   - target device has laptop form factor
 
+    user_update = false
     Controller.set_love_update(C)
   end,
 
@@ -263,7 +272,8 @@ Controller = {
     -- update - special handling, inner updates
     local up = userlove.update
     if up ~= Controller._defaults.update then
-      user_update = up
+      user_update = true
+      Controller._userhandlers.update = up
     end
 
     -- drawing - separate table
