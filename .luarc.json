@@ -6,6 +6,8 @@
     "pending",
     "lfs",
     "input_text",
+    "stop",
+    "continue",
   ],
   "workspace.library": [
     "${3rd}/love2d/library",
