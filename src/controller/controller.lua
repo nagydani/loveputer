@@ -4,9 +4,22 @@ require("util.key")
 local get_user_input = function()
   return love.state.user_input
 end
+--- @type function
+local user_update
+
+local _supported = {
+  'keypressed',
+  'keyreleased',
+  'textinput',
+
+  'mousemoved',
+  'mousepressed',
+  'mousereleased',
+}
 
 Controller = {
   _defaults = {},
+
   ----------------
   --  keyboard  --
   ----------------
@@ -96,9 +109,12 @@ Controller = {
         love.draw = draw
       end
       C:pass_time(dt)
+      if user_update then user_update(dt) end
     end
 
-    Controller._defaults.update = update
+    if not Controller._defaults.update then
+      Controller._defaults.update = update
+    end
     love.update = update
   end,
 
@@ -226,5 +242,34 @@ Controller = {
 
     --- @diagnostic disable-next-line: undefined-field
     table.protect(love.handlers)
+  end,
+
+  --- @param userlove table
+  --- @param C ConsoleController
+  set_user_handlers = function(userlove, C)
+    --- @param key string
+    local function hook_if_differs(key)
+      local orig = Controller._defaults[key]
+      local new = userlove[key]
+      if orig and new and orig ~= new then
+        love[key] = new
+      end
+    end
+
+    -- input hooks
+    for _, k in ipairs(_supported) do
+      hook_if_differs(k)
+    end
+    -- update - special handling, inner updates
+    local up = userlove.update
+    if up ~= Controller._defaults.update then
+      user_update = up
+    end
+
+    -- drawing - separate table
+    local draw = userlove.draw
+    if draw ~= View.main_draw then
+      love.draw = draw
+    end
   end
 }

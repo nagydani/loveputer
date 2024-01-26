@@ -1,5 +1,6 @@
 View = {
   prev_draw = nil,
+  main_draw = nil,
   --- @param C ConsoleController
   draw = function(C)
     G.push('all')
@@ -17,5 +18,6 @@ View = {
     love.draw = draw
 
     View.prev_draw = love.draw
+    View.main_draw = love.draw
   end,
 }
