@@ -7,11 +7,11 @@ local noon = 12 * 60 * 60 * 60
 local midnight = 24 * 60 * 60 * 60
 local s = 0
 
-
+local color = Color.cyan
 local font = G.newFont(72)
 
 function love.draw()
-  G.setColor(Color[Color.cyan + Color.bright])
+  G.setColor(Color[color + Color.bright])
   G.setBackgroundColor(Color[Color.black])
   G.setFont(font)
   local m = 60
@@ -40,4 +40,14 @@ function love.update(dt)
   t = t + dt
   s = math.floor(t)
   if s > midnight then s = 0 end
+end
+
+function love.keyreleased(k)
+  if k == 'space' then
+    if color > 7 then
+      color = 1
+    else
+      color = color + 1
+    end
+  end
 end
