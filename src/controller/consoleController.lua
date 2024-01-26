@@ -43,25 +43,30 @@ function ConsoleController:new(M)
 end
 
 --- @param f function
---- @param M Model
+--- @param C ConsoleController
+--- @param M Model -- TODO figure out the init order
+--- @param project_path string?
 --- @return boolean success
 --- @return string? errmsg
-local function run_user_code(f, M, extra_path)
+local function run_user_code(f, C, M, project_path)
   local G = love.graphics
   local output = M.output
+  local env = C.base_env
 
   G.push('all')
   G.setColor(Color[Color.black])
   output:draw_to()
   local old_path = package.path
   local ok, call_err
-  if extra_path then
-    package.path = string.format('%s;%s/?.lua', package.path, extra_path)
-    ok, call_err = pcall(f)
-    package.path = old_path
-  else
-    ok, call_err = pcall(f)
+  if project_path then
+    package.path = string.format('%s;%s/?.lua', package.path, project_path)
+    env = C.project_env
   end
+  ok, call_err = pcall(f)
+  if project_path then -- user project exec
+    Controller.set_user_handlers(env['love'], C)
+  end
+  package.path = old_path
   output:restore_main()
   G.pop()
   if not ok then
@@ -187,7 +192,7 @@ function ConsoleController:prepare_env(cc)
     if f then
       local n = name or P.current.name or 'project'
       Log.info('Running \'' .. n .. '\'')
-      local ok, run_err = run_user_code(f, cc.model, runner_env, path)
+      local ok, run_err = run_user_code(f, self, cc.model, path)
       if ok then
         love.state.app_state = 'running'
       else
@@ -204,8 +209,6 @@ function ConsoleController:prepare_project_env(cc)
   local interpreter      = cc.model.interpreter
   ---@type table
   local project_env      = cc:get_pre_env_c()
-  -- Log.debug('cc proj_env', cc.project_env)
-  -- Log.debug('cc proj_env', project_env)
   project_env.G          = love.graphics
 
   --- @param msg string?
@@ -264,10 +267,12 @@ function ConsoleController:get_timestamp()
 end
 
 function ConsoleController:evaluate_input()
+  --- @type Model
+  local M = self.model
   --- @type InterpreterModel
-  local interpreter = self.model.interpreter
+  local interpreter = M.interpreter
   local input = interpreter.input
-  local P = self.model.projects
+  local P = M.projects
   local project_path
   if P.current then
     project_path = P.current.path
@@ -282,7 +287,8 @@ function ConsoleController:evaluate_input()
       local code = string.join(text, '\n')
       local f, load_err = load(code, '', 't', self:get_env())
       if f then
-        local _, err = run_user_code(f, self.model, project_path)
+        -- TODO: distinguish paused project run and normal console
+        local _, err = run_user_code(f, self, M)
         if err then
           interpreter:set_error(err, true)
         end
