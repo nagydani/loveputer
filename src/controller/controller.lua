@@ -1,6 +1,8 @@
 require("util.string")
 require("util.key")
 
+local key_break_msg = "BREAK into program"
+
 local get_user_input = function()
   return love.state.user_input
 end
@@ -180,7 +182,7 @@ Controller = {
     handlers.keypressed = function(k)
       if Key.ctrl() then
         if k == "pause" then
-          C:suspend_run()
+          C:suspend_run(key_break_msg)
         end
         if Key.shift() then
           -- Ensure the user can get back to the console
