@@ -10,6 +10,7 @@ require("util.view")
 --- @field cfg Config
 --- @field draw function
 --- @field statusline table
+--- @field oneshot boolean
 InputView = {}
 
 function InputView:new(cfg, ctrl)
@@ -17,6 +18,7 @@ function InputView:new(cfg, ctrl)
     cfg = cfg,
     controller = ctrl,
     statusline = Statusline:new(cfg),
+    oneshot = ctrl.model.oneshot
   }
   setmetatable(iv, self)
   self.__index = self
@@ -25,9 +27,17 @@ function InputView:new(cfg, ctrl)
 end
 
 --- @param input InputDTO
+--- @param time number
 function InputView:draw(input, time)
   local status = self.controller:get_status()
   local colors = self.cfg.view.colors
+  local fg, bg = (function()
+    if self.oneshot then
+      return
+          colors.input.user.fg, colors.input.user.bg
+    end
+    return colors.input.fg, colors.input.bg
+  end)()
   local b = self.cfg.view.border
   local fh = self.cfg.view.fh
   local fw = self.cfg.view.fw
@@ -84,7 +94,7 @@ function InputView:draw(input, time)
   end
 
   local drawBackground = function()
-    G.setColor(colors.input.bg)
+    G.setColor(bg)
     G.rectangle("fill",
       b,
       start_y,
@@ -117,11 +127,11 @@ function InputView:draw(input, time)
   G.scale(self.cfg.view.fac, self.cfg.view.fac)
   G.setFont(self.cfg.view.font)
   G.setBackgroundColor(colors.input.bg)
-  G.setColor(colors.input.fg)
-  self.statusline:draw(status, apparentLines, time)
+  G.setColor(fg)
+  self.statusline:draw(status, apparentLines, time, self.oneshot)
   drawBackground()
 
-  G.setColor(colors.input.fg)
+  G.setColor(fg)
   if love.timer.getTime() % 1 > 0.5 then
     drawCursor()
   end

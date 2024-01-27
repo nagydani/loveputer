@@ -19,6 +19,10 @@ return {
   input = {
     bg = Color[Color.white],
     fg = Color[Color.blue + Color.bright],
+    user = {
+      bg = Color[Color.black + Color.bright],
+      fg = Color[Color.white],
+    },
     cursor = Color[Color.white + Color.bright],
     error = Color[Color.red],
     error_bg = Color[Color.black],
@@ -34,6 +38,10 @@ return {
   statusline = {
     fg = Color[Color.white + Color.bright],
     bg = Color[Color.black],
+    user = {
+      bg = Color[Color.blue],
+      fg = Color[Color.white],
+    },
     indicator = Color[Color.cyan + Color.bright],
   },
 }
