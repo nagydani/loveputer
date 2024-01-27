@@ -19,6 +19,35 @@ local _supported = {
   'mousereleased',
 }
 
+--- @param userlove table
+local set_handlers = function(userlove)
+  --- @param key string
+  local function hook_if_differs(key)
+    local orig = Controller._defaults[key]
+    local new = userlove[key]
+    if orig and new and orig ~= new then
+      love[key] = new
+    end
+  end
+
+  -- input hooks
+  for _, k in ipairs(_supported) do
+    hook_if_differs(k)
+  end
+  -- update - special handling, inner updates
+  local up = userlove.update
+  if up ~= Controller._defaults.update then
+    user_update = true
+    Controller._userhandlers.update = up
+  end
+
+  -- drawing - separate table
+  local draw = userlove.draw
+  if draw ~= View.main_draw then
+    love.draw = draw
+  end
+end
+
 Controller = {
   --- @type table
   _defaults = {},
@@ -168,6 +197,7 @@ Controller = {
     user_update = false
     Controller.set_love_update(C)
     View.set_love_draw(C) -- TODO should this be in the View?
+    Controller._defaults.draw = View.main_draw
   end,
 
   --- @param C ConsoleController
@@ -256,34 +286,7 @@ Controller = {
     table.protect(love.handlers)
   end,
 
-  --- @param userlove table
-  set_user_handlers = function(userlove)
-    --- @param key string
-    local function hook_if_differs(key)
-      local orig = Controller._defaults[key]
-      local new = userlove[key]
-      if orig and new and orig ~= new then
-        love[key] = new
-      end
-    end
-
-    -- input hooks
-    for _, k in ipairs(_supported) do
-      hook_if_differs(k)
-    end
-    -- update - special handling, inner updates
-    local up = userlove.update
-    if up ~= Controller._defaults.update then
-      user_update = true
-      Controller._userhandlers.update = up
-    end
-
-    -- drawing - separate table
-    local draw = userlove.draw
-    if draw ~= View.main_draw then
-      love.draw = draw
-    end
-  end,
+  set_user_handlers = set_handlers,
 
   --- @param userlove table
   save_user_handlers = function(userlove)
@@ -303,5 +306,9 @@ Controller = {
     save_if_differs('draw')
     for k, a in pairs(Controller._userhandlers) do
     end
+  end,
+
+  restore_user_handlers = function()
+    set_handlers(Controller._userhandlers)
   end,
 }

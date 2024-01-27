@@ -218,6 +218,7 @@ function ConsoleController.prepare_env(cc)
     if love.state.app_state == 'inspect' then
       -- resume
       love.state.app_state = 'running'
+      Controller.restore_user_handlers()
     end
   end
 end
