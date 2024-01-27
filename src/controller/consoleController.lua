@@ -50,13 +50,12 @@ end
 
 --- @param f function
 --- @param C ConsoleController
---- @param M Model -- TODO figure out the init order
 --- @param project_path string?
 --- @return boolean success
 --- @return string? errmsg
-local function run_user_code(f, C, M, project_path)
+local function run_user_code(f, C, project_path)
   local G = love.graphics
-  local output = M.output
+  local output = C.model.output
   local env = C:get_base_env()
 
   G.push('all')
@@ -104,7 +103,7 @@ function ConsoleController.prepare_env(cc)
       print(P.messages.no_projects)
     else
       -- list projects
-      self.model.output:reset()
+      cc.model.output:reset()
       print(P.messages.list_header)
       for _, p in ipairs(ps) do
         print('> ' .. p.name)
@@ -198,7 +197,7 @@ function ConsoleController.prepare_env(cc)
     if f then
       local n = name or P.current.name or 'project'
       Log.info('Running \'' .. n .. '\'')
-      local ok, run_err = run_user_code(f, self, cc.model, path)
+      local ok, run_err = run_user_code(f, cc, path)
       if ok then
         love.state.app_state = 'running'
       else
@@ -300,13 +299,13 @@ function ConsoleController:evaluate_input()
       local f, load_err = load(code, '', 't', self:get_env())
       if f then
         -- TODO: distinguish paused project run and normal console
-        local _, err = run_user_code(f, self, M)
+        local _, err = run_user_code(f, self)
         if err then
           interpreter:set_error(err, true)
         end
       else
         -- this means that metalua failed to catch some invalid code
-        orig_print('Load error:', LANG.parse_error(load_err))
+        Log.error('Load error:', LANG.parse_error(load_err))
         interpreter:set_error(load_err, true)
       end
     else
