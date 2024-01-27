@@ -1,3 +1,6 @@
+--- @type love.Image?
+local canvas_snapshot = nil
+
 View = {
   prev_draw = nil,
   main_draw = nil,
@@ -19,5 +22,16 @@ View = {
 
     View.prev_draw = love.draw
     View.main_draw = love.draw
+  end,
+
+  snap_canvas = function()
+    -- G.captureScreenshot(os.time() .. ".png")
+    G.captureScreenshot(function(img)
+      canvas_snapshot = G.newImage(img)
+    end)
+  end,
+
+  clear_snapshot = function()
+    canvas_snapshot = nil
   end,
 }

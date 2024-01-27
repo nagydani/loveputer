@@ -8,6 +8,7 @@ local get_user_input = function()
 end
 --- @type boolean
 local user_update
+local user_draw
 
 local _supported = {
   'keypressed',
@@ -45,6 +46,7 @@ local set_handlers = function(userlove)
   local draw = userlove.draw
   if draw ~= View.main_draw then
     love.draw = draw
+    user_draw = true
   end
 end
 
@@ -149,6 +151,9 @@ Controller = {
       then
         uup(dt)
       end
+      if user_draw then
+        View.snap_canvas()
+      end
     end
 
     if not Controller._defaults.update then
@@ -197,6 +202,7 @@ Controller = {
     user_update = false
     Controller.set_love_update(C)
     View.set_love_draw(C) -- TODO should this be in the View?
+    user_draw = false
     Controller._defaults.draw = View.main_draw
   end,
 
