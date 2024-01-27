@@ -1,5 +1,8 @@
 local G = love.graphics
 
+--- @class CanvasView
+--- @field cfg Config
+--- @field draw function
 CanvasView = {}
 
 function CanvasView:new(cfg)
@@ -12,8 +15,6 @@ function CanvasView:new(cfg)
   return cv
 end
 
---- @class CanvasView
--- TODO
 function CanvasView:draw(terminal, drawable_height)
   local cfg = self.cfg
   local b = cfg.view.border
