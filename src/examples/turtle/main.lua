@@ -1,10 +1,9 @@
 local width, height = G.getDimensions()
 local midx = width / 2
 local midy = height / 2
-
-local x, y = midx, midy
 local incr = 5
 
+local tx, ty = midx, midy
 local r = {}
 
 local function drawTurtle(x, y)
@@ -56,27 +55,27 @@ end
 local function eval()
   local input = r[1]
   if input == 'forward' or input == 'f' then
-    y = y - incr
+    ty = ty - incr
   end
   if input == 'back' or input == 'b' then
-    y = y + incr
+    ty = ty + incr
   end
   if input == 'left' or input == 'l' then
-    x = x - (2 * incr)
+    tx = tx - (2 * incr)
   end
   if input == 'right' or input == 'r' then
-    x = x + (2 * incr)
+    tx = tx + (2 * incr)
   end
 end
 
 function love.draw()
   drawHelp()
-  drawTurtle(x, y)
+  drawTurtle(tx, ty)
 end
 
 function love.keypressed(key)
   if key == 'r' then
-    x, y = midx, midy
+    tx, ty = midx, midy
   end
 end
 
