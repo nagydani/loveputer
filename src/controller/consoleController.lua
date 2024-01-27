@@ -192,7 +192,13 @@ function ConsoleController.prepare_env(cc)
   end
 
   prepared.run_project      = function(name)
-    local runner_env = self:get_project_env()
+    if love.state.app_state == 'inspect' or
+        love.state.app_state == 'running'
+    then
+      cc.model.interpreter:set_error("There's already a project running!", true)
+      return
+    end
+    local runner_env = cc:get_project_env()
     local f, err, path = P:run(name, runner_env)
     if f then
       local n = name or P.current.name or 'project'
