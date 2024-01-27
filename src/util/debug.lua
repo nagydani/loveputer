@@ -142,23 +142,27 @@ local annot = function(tag, color, args)
   return ret
 end
 
--- todo: make this a table, and have this be the __call
+local warning = function(...)
+  local args = { ... }
+  local s = annot('WARN ', Color.yellow, args)
+  printer(s)
+end
+local error = function(...)
+  local args = { ... }
+  local s = annot('ERROR', Color.red, args)
+  printer(s)
+end
+
 Log = {
   info = function(...)
     local args = { ... }
     local s = annot('INFO ', Color.cyan, args)
     printer(s)
   end,
-  warning = function(...)
-    local args = { ... }
-    local s = annot('WARN ', Color.yellow, args)
-    printer(s)
-  end,
-  error = function(...)
-    local args = { ... }
-    local s = annot('ERROR', Color.red, args)
-    printer(s)
-  end,
+  warning = warning,
+  warn = warning,
+  error = error,
+  err = error,
 
   debug = function(...)
     local args = { ... }
