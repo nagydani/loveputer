@@ -436,9 +436,6 @@ function ConsoleController:keypressed(k)
     if k == "l" then
       self.model.output:reset()
     end
-    if k == "pause" then
-      self:suspend_run()
-    end
     if love.DEBUG then
       if k == 't' then
         terminal_test()
