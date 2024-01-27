@@ -84,7 +84,7 @@ Controller = {
   --- @param C ConsoleController
   set_love_textinput = function(C)
     local function textinput(t)
-      C.input:textinput(t)
+      C:textinput(t)
     end
     Controller._defaults.textinput = textinput
     love.textinput = textinput

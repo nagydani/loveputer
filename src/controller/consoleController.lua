@@ -393,6 +393,19 @@ function ConsoleController:quit_project()
   self:_reset_executor_env()
 end
 
+function ConsoleController:clear_error()
+  self.model.interpreter:clear_error()
+end
+
+function ConsoleController:textinput(t)
+  local interpreter = self.model.interpreter
+  if interpreter:has_error() then
+    interpreter:clear_error()
+  else
+    self.input:textinput(t)
+  end
+end
+
 function ConsoleController:keypressed(k)
   local out = self.model.output
   local interpreter = self.model.interpreter
@@ -408,16 +421,18 @@ function ConsoleController:keypressed(k)
     end
   end
 
-  if interpreter:has_error() then
-    interpreter:clear_error()
-    return
-  end
-
   if love.state.testing == 'running' then
     return
   end
   if love.state.testing == 'waiting' then
     terminal_test()
+    return
+  end
+
+  if self.model.interpreter:has_error() then
+    if k == 'space' or Key.is_enter(k) then
+      self:clear_error()
+    end
     return
   end
 
@@ -437,7 +452,9 @@ function ConsoleController:keypressed(k)
     end
   end
   if not Key.shift() and Key.is_enter(k) then
-    self:evaluate_input()
+    if not interpreter:has_error() then
+      self:evaluate_input()
+    end
   end
 
   -- Ctrl held
