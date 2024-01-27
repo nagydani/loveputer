@@ -21,7 +21,9 @@ end
 
 --- @param t string
 function InputController:textinput(t)
-  -- TODO: block with events
+  if love.state.app_state == 'running' then
+    return
+  end
   self.model:add_text(t)
 end
 
