@@ -21,7 +21,7 @@ end
 
 --- @param t string
 function InputController:textinput(t)
-  if love.state.app_state == 'running' then
+  if not self.result and love.state.app_state == 'running' then
     return
   end
   self.model:add_text(t)
