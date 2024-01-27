@@ -42,7 +42,8 @@ function Statusline:draw(status, nLines, time, oneshot)
   }
   local endTextX = start_box.x + w - fh
   local midX = (start_box.x + w) / 2
-  G.rectangle("fill", start_box.x, start_box.y, w, fh)
+  local corr = 2 -- correct for fractional slit left under the terminal
+  G.rectangle("fill", start_box.x, start_box.y - corr, w, fh + corr)
 
   if not status then return end
   G.setColor(fg)

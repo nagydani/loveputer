@@ -49,9 +49,9 @@ function ConsoleView:draw_placeholder()
   local w    = self.cfg.view.w
   local h    = self.cfg.view.h
   G.push('all')
-  love.graphics.setColor(Color[Color.yellow])
+  G.setColor(Color[Color.yellow])
   for o = -h, w, 2 * band do
-    love.graphics.polygon("fill"
+    G.polygon("fill"
     , o + 0, h
     , o + h, 0
     , o + h + band, 0
