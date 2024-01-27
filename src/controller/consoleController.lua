@@ -375,6 +375,9 @@ function ConsoleController:suspend_run(msg)
   if msg then
     self.model.interpreter:set_error(tostring(msg), true)
   end
+
+  Controller.save_user_handlers(runner_env['love'])
+  Controller.set_default_handlers(self)
 end
 
 function ConsoleController:quit_project()
