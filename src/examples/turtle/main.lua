@@ -4,6 +4,9 @@ local midy = height / 2
 local incr = 5
 
 local tx, ty = midx, midy
+local debug = false
+local debugColor = Color.yellow
+
 local r = {}
 
 local function drawTurtle(x, y)
@@ -52,6 +55,12 @@ local function drawHelp()
   G.print("Enter 'forward', 'back', 'left', or 'right' to move the turtle!", 20, 40)
 end
 
+local function drawDebuginfo()
+  G.setColor(Color[debugColor])
+  local label = string.format("Turtle position: (%d, %d)", tx, ty)
+  G.print(label, width - 200, 20)
+end
+
 local function eval()
   local input = r[1]
   if input == 'forward' or input == 'f' then
@@ -71,11 +80,15 @@ end
 function love.draw()
   drawHelp()
   drawTurtle(tx, ty)
+  if debug then drawDebuginfo() end
 end
 
 function love.keypressed(key)
   if key == 'r' then
     tx, ty = midx, midy
+  end
+  if key == 'space' then
+    debug = not debug
   end
 end
 
