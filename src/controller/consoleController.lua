@@ -57,7 +57,7 @@ end
 local function run_user_code(f, C, M, project_path)
   local G = love.graphics
   local output = M.output
-  local env = C.base_env
+  local env = C:get_base_env()
 
   G.push('all')
   G.setColor(Color[Color.black])
@@ -208,6 +208,13 @@ function ConsoleController.prepare_env(cc)
       print(err)
     end
   end
+
+  prepared.continue         = function()
+    if love.state.app_state == 'inspect' then
+      -- resume
+      love.state.app_state = 'running'
+    end
+  end
 end
 
 --- API functions for the user
@@ -219,12 +226,6 @@ function ConsoleController.prepare_project_env(cc)
 
   --- @param msg string?
   project_env.stop       = function(msg)
-  end
-  project_env.continue   = function()
-    if love.state.app_state == 'inspect' then
-      -- resume
-      love.state.app_state = 'running'
-    end
     cc:suspend_run(msg)
   end
 
