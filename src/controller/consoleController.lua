@@ -70,7 +70,7 @@ local function run_user_code(f, C, M, project_path)
   end
   ok, call_err = pcall(f)
   if project_path then -- user project exec
-    Controller.set_user_handlers(env['love'], C)
+    Controller.set_user_handlers(env['love'])
   end
   package.path = old_path
   output:restore_main()

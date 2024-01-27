@@ -286,7 +286,6 @@ Controller = {
   end,
 
   --- @param userlove table
-  --- @param C ConsoleController
   save_user_handlers = function(userlove)
     --- @param key string
     local function save_if_differs(key)
