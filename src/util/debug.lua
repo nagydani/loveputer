@@ -166,7 +166,8 @@ Log = {
 
   debug = function(...)
     local args = { ... }
-    local s = annot('DEBUG ', Color.blue, args)
+    local ts = string.format("%.3f ", os.clock())
+    local s = annot(ts .. 'DEBUG ', Color.blue, args)
     printer(s)
   end,
 }
