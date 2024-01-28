@@ -26,6 +26,10 @@ View = {
 
   snap_canvas = function()
     -- G.captureScreenshot(os.time() .. ".png")
+    if canvas_snapshot then
+      canvas_snapshot = nil
+      collectgarbage()
+    end
     G.captureScreenshot(function(img)
       canvas_snapshot = G.newImage(img)
     end)

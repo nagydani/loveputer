@@ -151,9 +151,7 @@ Controller = {
       then
         uup(dt)
       end
-      if user_draw then
-        View.snap_canvas()
-      end
+      Controller.snapshot()
     end
 
     if not Controller._defaults.update then
@@ -316,5 +314,11 @@ Controller = {
 
   restore_user_handlers = function()
     set_handlers(Controller._userhandlers)
+  end,
+
+  snapshot = function()
+    if user_draw then
+      View.snap_canvas()
+    end
   end,
 }
