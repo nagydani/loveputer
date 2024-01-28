@@ -23,6 +23,15 @@ Color = {
   yellow = 6,  -- #bfbf00 #ffff00
   white = 7,   -- #bfbfbf #ffffff
   bright = 8,
+
+  --- @param color table
+  --- @param alpha number
+  with_alpha = function(color, alpha)
+    if type(color) == "table" then
+      local red, blue, green = color[1], color[2], color[3]
+      return { red, green, blue, alpha }
+    end
+  end
 }
 
 
