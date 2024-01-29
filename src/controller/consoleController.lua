@@ -124,7 +124,7 @@ function ConsoleController.prepare_env(cc)
   end
 
   prepared.close_project    = function()
-    local ok = P:close()
+    local ok = cc:close_project()
     if ok then
       print('Project closed')
     end
@@ -219,6 +219,8 @@ function ConsoleController.prepare_env(cc)
       -- resume
       love.state.app_state = 'running'
       Controller.restore_user_handlers()
+    else
+      print('No project halted')
     end
   end
 end
@@ -324,6 +326,7 @@ end
 
 function ConsoleController:_reset_executor_env()
   self:_set_project_env(table.clone(self.base_env))
+  self.main_env.context = {}
 end
 
 function ConsoleController:reset()
@@ -382,6 +385,14 @@ function ConsoleController:suspend_run(msg)
   self.main_env.context = context
 end
 
+function ConsoleController:close_project()
+  local P = self.model.projects
+  P:close()
+  self:_reset_executor_env()
+  Controller.clear_user_handlers()
+  love.state.app_state = 'ready'
+end
+
 function ConsoleController:quit_project()
   self.model.output:reset()
   self.model.interpreter:reset()
@@ -390,8 +401,8 @@ function ConsoleController:quit_project()
   Controller.set_love_update(self)
   love.state.user_input = nil
   View.set_love_draw(self)
-  -- TODO clean this up immediately, or leave it for inspection?
-  self:_reset_executor_env()
+  -- TODO clean snap and everything
+  love.state.app_state = 'project_open'
 end
 
 function ConsoleController:clear_error()

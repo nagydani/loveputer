@@ -314,6 +314,10 @@ Controller = {
     set_handlers(Controller._userhandlers)
   end,
 
+  clear_user_handlers = function()
+    Controller._userhandlers = {}
+  end,
+
   snapshot = function()
     if user_draw then
       View.snap_canvas()
