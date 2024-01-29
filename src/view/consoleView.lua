@@ -36,11 +36,17 @@ end
 
 --- @param terminal table
 --- @param input InputDTO
-function ConsoleView:draw(terminal, input)
+function ConsoleView:draw(terminal, input, snapshot)
   if love.DEBUG then
     self:draw_placeholder()
   end
-  self.canvas:draw(terminal, self.drawable_height)
+  local overlay = false
+  if snapshot then
+    G.draw(snapshot)
+    overlay = true
+  else
+  end
+  self.canvas:draw(terminal, self.drawable_height, overlay)
   self.interpreter:draw(input)
 end
 

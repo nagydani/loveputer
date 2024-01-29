@@ -15,7 +15,10 @@ function CanvasView:new(cfg)
   return cv
 end
 
-function CanvasView:draw(terminal, drawable_height)
+--- @param terminal table
+--- @param drawable_height number
+--- @param overlay boolean?
+function CanvasView:draw(terminal, drawable_height, overlay)
   local cfg = self.cfg
   local b = cfg.view.border
   local colors = cfg.view.colors
@@ -25,8 +28,19 @@ function CanvasView:draw(terminal, drawable_height)
     G.translate(b, b)
     G.push('all')
 
-    terminal:set_cursor_color(unpack(colors.terminal.fg))
-    terminal:set_cursor_backcolor(unpack(colors.terminal.bg))
+    if overlay then
+      G.setBlendMode('replace')
+      local fg = Color.with_alpha(
+        colors.terminal.fg, 0.1)
+      local bg = Color.with_alpha(
+        colors.terminal.bg, 0.1)
+      terminal:set_cursor_color(fg)
+      terminal:set_cursor_backcolor(bg)
+    else
+      G.setBlendMode('alpha')
+      terminal:set_cursor_color(colors.terminal.fg)
+      terminal:set_cursor_backcolor(colors.terminal.bg)
+    end
     terminal:draw()
     G.pop()
   end
