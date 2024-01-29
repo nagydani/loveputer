@@ -142,7 +142,24 @@ Debug = {
     local typetag = colons[1] or ''
     local mems = tc.colorize_memaddress(colons[2] or '')
     return typetag .. ':' .. mems
-  end
+  end,
+
+  --- @param t table
+  --- @param terse boolean?
+  --- @return string
+  keys = function(t, terse)
+    local sep = (function()
+      if terse then return ', ' else return '\n' end
+    end)()
+    local ret = '{ '
+    if not terse then ret = ret .. '\n' end
+    for k in pairs(table.keys(t)) do
+      ret = ret .. k .. sep
+    end
+    if not terse then ret = ret .. '\n' end
+    ret = ret .. '}'
+    return ret
+  end,
 }
 
 local printer = (function()
