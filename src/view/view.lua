@@ -9,7 +9,7 @@ View = {
     G.push('all')
     local terminal = C:get_terminal()
     local input = C.input:get_input()
-    CV:draw(terminal, input)
+    CV:draw(terminal, input, canvas_snapshot)
     G.pop()
   end,
 
@@ -27,7 +27,7 @@ View = {
   snap_canvas = function()
     -- G.captureScreenshot(os.time() .. ".png")
     if canvas_snapshot then
-      canvas_snapshot = nil
+      View.clear_snapshot()
       collectgarbage()
     end
     G.captureScreenshot(function(img)

@@ -316,6 +316,7 @@ Controller = {
 
   clear_user_handlers = function()
     Controller._userhandlers = {}
+    View.clear_snapshot()
   end,
 
   snapshot = function()
