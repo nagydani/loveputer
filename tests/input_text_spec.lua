@@ -17,7 +17,7 @@ describe('InputText', function()
 
   it('inherits Dequeue', function()
     local empty = InputText:new()
-    assert.same({ 1 }, keys(empty))
+    assert.same({ 1 }, table.keys(empty))
     assert.same({ l1, l2, l3 }, text)
   end)
 

@@ -1,16 +1,11 @@
--- TODO: move to table.keys
 --- Create a sequence from the table keys
 --- @param t table
---- @param hash boolean?
 --- @return table keys
-_G.keys = function(t, hash)
+table.keys = function(t)
+  -- for k, v in pairs({ 1, 2, fos = 'asd' }) do print(k, v) end
   local keys = {}
   for k, _ in pairs(t) do
-    if hash then
-      keys[k] = k
-    else
-      table.insert(keys, k)
-    end
+    keys[k] = k
   end
   return keys
 end
