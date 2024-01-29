@@ -74,3 +74,21 @@ function table.pack(...)
   t.n = #t
   return t
 end
+
+--- Return a new table containing keys which are present in the `other`, but not in `self`.
+--- @param other table
+--- @return table difference
+function table.diff(self, other)
+  local diff = {}
+  -- for i, v in ipairs(other) do
+  --   if not self[i] then
+  --     diff[i] = v
+  --   end
+  -- end
+  for k, v in pairs(other) do
+    if not self[k] then
+      diff[k] = v
+    end
+  end
+  return diff
+end
