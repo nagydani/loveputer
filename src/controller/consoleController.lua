@@ -428,7 +428,8 @@ function ConsoleController:keypressed(k)
   end
 
   if self.model.interpreter:has_error() then
-    if k == 'space' or Key.is_enter(k) then
+    if k == 'space' or Key.is_enter(k)
+        or k == "up" or k == "down" then
       self:clear_error()
     end
     return
