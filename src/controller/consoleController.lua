@@ -377,6 +377,9 @@ function ConsoleController:suspend_run(msg)
 
   Controller.save_user_handlers(runner_env['love'])
   Controller.set_default_handlers(self)
+
+  local context = table.diff(base_env, runner_env)
+  self.main_env.context = context
 end
 
 function ConsoleController:quit_project()

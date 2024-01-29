@@ -308,8 +308,6 @@ Controller = {
       save_if_differs(a)
     end
     save_if_differs('draw')
-    for k, a in pairs(Controller._userhandlers) do
-    end
   end,
 
   restore_user_handlers = function()
