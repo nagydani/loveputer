@@ -3,6 +3,8 @@ local tc = require("util.termcolor")
 
 local INDENT = '  '
 
+--- @param level integer
+--- @param starter string?
 local get_indent = function(level, starter)
   local indent = starter or ''
   for _ = 0, level do
@@ -14,6 +16,11 @@ end
 local text = string.debug_text
 
 Debug = {
+  --- @param t table
+  --- @param tag string?
+  --- @param level integer
+  --- @param prev_seen table?
+  --- @return string
   print_t = function(t, tag, level, prev_seen)
     local seen = prev_seen or {}
     local indent = level or 0
@@ -50,6 +57,10 @@ Debug = {
 
   text = text,
 
+  --- @param t table
+  --- @param no_ln boolean?
+  --- @param trunc boolean?
+  --- @return string
   text_table = function(t, no_ln, trunc)
     local res = ''
     if t then
@@ -77,6 +88,10 @@ Debug = {
     return res
   end,
 
+  --- @param t table
+  --- @param level integer?
+  --- @param prev_seen table?
+  ---@return string
   terse_t = function(t, level, prev_seen)
     if not t then return '' end
 
@@ -115,6 +130,8 @@ Debug = {
     return res
   end,
 
+  --- @param o any
+  --- @return string
   mem = function(o)
     -- TODO: match on color or '0x' and don't pass the label in
     local addr = tostring(o)
@@ -132,6 +149,10 @@ local printer = (function()
   return print
 end)()
 
+--- @param tag string
+--- @param color integer
+--- @param args table
+--- @return string
 local annot = function(tag, color, args)
   local ret = tc.to_control(color)
   ret = ret .. tag .. ': '
