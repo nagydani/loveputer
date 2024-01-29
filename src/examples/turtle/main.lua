@@ -1,11 +1,11 @@
-local width, height = G.getDimensions()
-local midx = width / 2
-local midy = height / 2
-local incr = 5
+width, height = G.getDimensions()
+midx = width / 2
+midy = height / 2
+incr = 5
 
-local tx, ty = midx, midy
-local debug = false
-local debugColor = Color.yellow
+tx, ty = midx, midy
+debug = false
+debugColor = Color.yellow
 
 local r = {}
 
@@ -104,5 +104,17 @@ function love.keyreleased(key)
     if key == "escape" then
       love.event.quit()
     end
+  end
+end
+
+local t = 0
+function love.update(dt)
+  t = t + dt
+  if ty > midy then
+    debug = true
+    debugColor = Color.red
+  end
+  if tx < midx then
+    stop('turtle in lower half')
   end
 end
