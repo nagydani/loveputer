@@ -46,6 +46,7 @@ Debug = {
     elseif type(t) == 'string' then
       res = res .. get_indent(indent) .. t .. '\n'
     elseif type(t) == 'function' then
+      res = res .. get_indent(indent) .. Debug.mem(t) .. '\n'
       -- res = res .. get_indent(indent) .. 'f() ' .. string.dump(t) .. '\n'
       -- res = res .. get_indent(indent, '    ') .. 'end\n'
       res = res .. get_indent(indent) .. 'f() ' .. '' .. 'end\n'
@@ -123,6 +124,8 @@ Debug = {
       res = res .. dent .. '}, '
     elseif type(t) == 'string' then
       res = res .. text(t) .. ', '
+    elseif type(t) == 'function' then
+      res = res .. Debug.mem(t) .. ', '
     else
       res = res .. tostring(t) .. ', '
     end
