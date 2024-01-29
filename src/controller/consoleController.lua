@@ -8,7 +8,7 @@ require("util.table")
 --- @class ConsoleController
 --- @field time number
 --- @field model Model
---- @field env LuaEnv
+--- @field main_env LuaEnv
 --- @field pre_env LuaEnv
 --- @field base_env LuaEnv
 --- @field project_env LuaEnv
@@ -268,9 +268,6 @@ function ConsoleController.prepare_project_env(cc)
   local project          = table.clone(project_env)
   cc:_set_base_env(base)
   cc:_set_project_env(project)
-  -- Log.debug(Debug.mem(project_env), 'prep project_env')
-  -- Log.debug(Debug.mem(cc.base_env), 'prep base_env')
-  -- Log.debug(Debug.mem(cc.project_env), 'prep project_env2')
 end
 
 ---@param dt number
@@ -336,7 +333,7 @@ end
 
 ---@return LuaEnv
 function ConsoleController:get_env()
-  return table.clone(self.env)
+  return table.clone(self.main_env)
 end
 
 ---@return LuaEnv
@@ -362,6 +359,7 @@ end
 ---@param t LuaEnv
 function ConsoleController:_set_base_env(t)
   self.base_env = t
+  table.protect(t)
 end
 
 --- @param msg string?
@@ -480,6 +478,7 @@ function ConsoleController:keypressed(k)
   end
 end
 
+--- @param k string
 function ConsoleController:keyreleased(k)
   self.input:keyreleased(k)
 end
