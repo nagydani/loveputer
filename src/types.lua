@@ -74,4 +74,4 @@
 --- @field user_input UserInput?
 --- @field app_state AppState
 
---- @class LuaEnv table
+--- @class LuaEnv : table
