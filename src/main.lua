@@ -151,13 +151,12 @@ function love.load(args)
   local M = Model:new(baseconf)
   redirect_to(M)
   local C = ConsoleController.new(M)
-  CV = ConsoleView:new(baseconf, C)
+  local CV = ConsoleView:new(baseconf, C)
   C:set_view(CV)
 
   Controller.setup_callback_handlers(C)
-  Controller.set_default_handlers(C)
+  Controller.set_default_handlers(C, CV)
 
   --- run autotest on startup if invoked
   if testrun then C:autotest() end
 end
-

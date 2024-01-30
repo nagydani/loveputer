@@ -5,23 +5,13 @@ View = {
   prev_draw = nil,
   main_draw = nil,
   --- @param C ConsoleController
-  draw = function(C)
+  --- @param CV ConsoleView
+  draw = function(C, CV)
     G.push('all')
     local terminal = C:get_terminal()
     local input = C.input:get_input()
     CV:draw(terminal, input, canvas_snapshot)
     G.pop()
-  end,
-
-  --- @param C ConsoleController
-  set_love_draw = function(C)
-    local function draw()
-      View.draw(C)
-    end
-    love.draw = draw
-
-    View.prev_draw = love.draw
-    View.main_draw = love.draw
   end,
 
   snap_canvas = function()

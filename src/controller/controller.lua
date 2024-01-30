@@ -164,11 +164,27 @@ Controller = {
 
 
   ---------------
+  --  draw  --
+  ---------------
+  --- @param C ConsoleController
+  --- @param CV ConsoleView
+  set_love_draw = function(C, CV)
+    local function draw()
+      View.draw(C, CV)
+    end
+    love.draw = draw
+
+    View.prev_draw = love.draw
+    View.main_draw = love.draw
+  end,
+  ---------------
   --  setters  --
   ---------------
 
+
   --- @param C ConsoleController
-  set_default_handlers = function(C)
+  --- @param CV ConsoleView
+  set_default_handlers = function(C, CV)
     Controller.set_love_keypressed(C)
     Controller.set_love_keyreleased(C)
     Controller.set_love_textinput(C)
@@ -200,8 +216,8 @@ Controller = {
 
     user_update = false
     Controller.set_love_update(C)
-    View.set_love_draw(C) -- TODO should this be in the View?
     user_draw = false
+    Controller.set_love_draw(C, CV)
     Controller._defaults.draw = View.main_draw
   end,
 

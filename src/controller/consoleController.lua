@@ -399,7 +399,7 @@ function ConsoleController:suspend_run(msg)
   end
 
   Controller.save_user_handlers(runner_env['love'])
-  Controller.set_default_handlers(self)
+  Controller.set_default_handlers(self, self.view)
 end
 
 function ConsoleController:close_project()
@@ -414,7 +414,7 @@ function ConsoleController:quit_project()
   self.model.output:reset()
   self.model.interpreter:reset()
   nativefs.setWorkingDirectory(love.filesystem.getSourceBaseDirectory())
-  Controller.set_default_handlers(self)
+  Controller.set_default_handlers(self, self.view)
   Controller.set_love_update(self)
   love.state.user_input = nil
   View.set_love_draw(self)
