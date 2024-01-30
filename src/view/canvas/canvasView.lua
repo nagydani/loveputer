@@ -1,13 +1,17 @@
+require("view.canvas.bgView")
+
 local G = love.graphics
 
 --- @class CanvasView
 --- @field cfg Config
+--- @field bg BGView
 --- @field draw function
 CanvasView = {}
 
 function CanvasView:new(cfg)
   local cv = {
-    cfg = cfg
+    cfg = cfg,
+    bg = BGView.new(cfg)
   }
   setmetatable(cv, self)
   self.__index = self
@@ -17,8 +21,8 @@ end
 
 --- @param terminal table
 --- @param drawable_height number
---- @param overlay boolean?
-function CanvasView:draw(terminal, drawable_height, overlay)
+--- @param snapshot love.Image?
+function CanvasView:draw(terminal, drawable_height, snapshot)
   local cfg = self.cfg
   local b = cfg.view.border
   local colors = cfg.view.colors
@@ -28,7 +32,8 @@ function CanvasView:draw(terminal, drawable_height, overlay)
     G.translate(b, b)
     G.push('all')
 
-    if overlay then
+    if snapshot then
+      G.draw(snapshot)
       G.setBlendMode('replace')
       local fg = Color.with_alpha(
         colors.terminal.fg, 0.1)
@@ -44,22 +49,9 @@ function CanvasView:draw(terminal, drawable_height, overlay)
     terminal:draw()
     G.pop()
   end
-  local drawBackground = function()
-    G.push('all')
-    G.setColor(colors.terminal.bg)
-
-    local dh = drawable_height
-    G.rectangle("fill",
-      b,
-      b + dh - 2 * cfg.view.fac,
-      cfg.view.w - b,
-      cfg.view.fh
-    )
-    G.pop()
-  end
 
   G.push('all')
   drawTerminal()
-  drawBackground()
+  self.bg:draw(drawable_height)
   G.pop()
 end
