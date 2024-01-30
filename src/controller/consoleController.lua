@@ -13,6 +13,7 @@ require("util.table")
 --- @field base_env LuaEnv
 --- @field project_env LuaEnv
 --- @field input InputController
+--- @field view ConsoleView?
 ConsoleController = {}
 ConsoleController.__index = ConsoleController
 
@@ -40,12 +41,19 @@ function ConsoleController.new(M)
     -- this is the env in which the user project runs
     -- subject to change, for example when switching projects
     project_env = {},
+
+    view        = nil,
   }, ConsoleController)
   -- initialize the stub env tables
   ConsoleController.prepare_env(self)
   ConsoleController.prepare_project_env(self)
 
   return self
+end
+
+--- @param V ConsoleView
+function ConsoleController:set_view(V)
+  self.view = V
 end
 
 --- @param f function

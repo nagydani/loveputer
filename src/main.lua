@@ -152,6 +152,7 @@ function love.load(args)
   redirect_to(M)
   local C = ConsoleController.new(M)
   CV = ConsoleView:new(baseconf, C)
+  C:set_view(CV)
 
   Controller.setup_callback_handlers(C)
   Controller.set_default_handlers(C)
