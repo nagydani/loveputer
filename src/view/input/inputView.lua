@@ -1,6 +1,6 @@
 local G = love.graphics
 
-require("view.statusline")
+require("view.input.statusline")
 require("util.debug")
 require("util.view")
 

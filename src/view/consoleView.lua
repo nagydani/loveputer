@@ -1,6 +1,6 @@
 require("view.titleView")
-require("view.canvasView")
-require("view.interpreterView")
+require("view.canvas.canvasView")
+require("view.input.interpreterView")
 require("util.color")
 require("util.view")
 require("util.debug")

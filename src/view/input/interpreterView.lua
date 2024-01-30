@@ -1,4 +1,4 @@
-require("view.inputView")
+require("view.input.inputView")
 
 --- @class InterpreterView
 --- @field cfg Config
