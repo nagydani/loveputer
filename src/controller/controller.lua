@@ -44,7 +44,7 @@ local set_handlers = function(userlove)
 
   -- drawing - separate table
   local draw = userlove.draw
-  if draw ~= View.main_draw then
+  if draw and draw ~= View.main_draw then
     love.draw = draw
     user_draw = true
   end
