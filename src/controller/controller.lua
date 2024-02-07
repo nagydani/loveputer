@@ -133,7 +133,8 @@ Controller = {
     local function update(dt)
       local ddr = View.prev_draw
       local ldr = love.draw
-      if ldr ~= ddr then
+      local ui = get_user_input()
+      if ldr ~= ddr or ui then
         local function draw()
           if ldr then ldr() end
           local user_input = get_user_input()
