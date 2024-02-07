@@ -240,6 +240,9 @@ function ConsoleController.prepare_project_env(cc)
   --- @param type InputType
   --- @param result any
   local input            = function(type, result)
+    if love.state.user_input then
+      return -- there can be only one
+    end
     local cfg = interpreter.cfg
     local eval
     if type == 'lua' then
