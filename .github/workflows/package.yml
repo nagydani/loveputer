@@ -54,12 +54,12 @@ jobs:
           build-list: "./src/*"
           package-path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
       - name: upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.LOVE_ARTIFACT_NAME }}
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
       - name: upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: game.love
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
@@ -91,12 +91,12 @@ jobs:
           output-folder: ${{ env.OUTPUT_FOLDER }}
           icon-path: ./src/assets/example_icon.png
       - name: upload .deb
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.LOVE_DEB }}
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_DEB }}
       - name: upload AppImage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.LOVE_APPIMAGE }}
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_APPIMAGE }}
@@ -117,7 +117,7 @@ jobs:
           love.js -c ${{ env.LOVE_ARTIFACT_NAME }} ./${{ env.OUTPUT_FOLDER }} --title "LÖVEputer" --memory 67108864
           7z a ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_JS }} ./${{ env.OUTPUT_FOLDER }}/*
       - name: upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.LOVE_JS }}
           path: ${{ env.ARTIFACT_FOLDER }}
@@ -161,12 +161,12 @@ jobs:
           keystore-key-password: ${{ secrets.ANDROID_KEYSTORE_KEYPASSWORD }}
           keystore-store-password: ${{ secrets.ANDROID_KEYSTORE_STOREPASSWORD }}
       - name: upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.LOVE_DEBUG_APK_NAME }}
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_DEBUG_APK_NAME }}
       - name: upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.LOVE_APK_NAME }}
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_APK_NAME }}
