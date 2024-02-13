@@ -29,6 +29,9 @@ function Statusline:draw(status, nLines, time, oneshot)
     end
     return colors.statusline.fg, colors.statusline.bg
   end)()
+  if love.state.app_state == 'inspect' then
+    fg, bg = colors.statusline.inspect.fg, colors.statusline.inspect.bg
+  end
 
 
   G.push('all')

@@ -42,6 +42,10 @@ return {
       bg = Color[Color.blue],
       fg = Color[Color.white],
     },
+    inspect = {
+      bg = Color[Color.red],
+      fg = Color[Color.black],
+    },
     indicator = Color[Color.cyan + Color.bright],
   },
 }
