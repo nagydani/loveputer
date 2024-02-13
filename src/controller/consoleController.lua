@@ -81,6 +81,13 @@ local function run_user_code(f, C, project_path)
   return true
 end
 
+local function close_project(cc)
+  local ok = cc:close_project()
+  if ok then
+    print('Project closed')
+  end
+end
+
 function ConsoleController.prepare_env(cc)
   local prepared            = cc.main_env
   prepared.G                = love.graphics
@@ -124,10 +131,7 @@ function ConsoleController.prepare_env(cc)
   end
 
   prepared.close_project    = function()
-    local ok = cc:close_project()
-    if ok then
-      print('Project closed')
-    end
+    close_project(cc)
   end
 
   prepared.current_project  = function()
@@ -237,6 +241,10 @@ function ConsoleController.prepare_project_env(cc)
     else
       print('No project halted')
     end
+  end
+
+  project_env.close_project = function()
+    close_project(cc)
   end
 
   --- @param type InputType
