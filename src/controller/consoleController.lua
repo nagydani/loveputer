@@ -215,16 +215,6 @@ function ConsoleController.prepare_env(cc)
       print(err)
     end
   end
-
-  prepared.continue         = function()
-    if love.state.app_state == 'inspect' then
-      -- resume
-      love.state.app_state = 'running'
-      Controller.restore_user_handlers()
-    else
-      print('No project halted')
-    end
-  end
 end
 
 --- API functions for the user
@@ -237,6 +227,16 @@ function ConsoleController.prepare_project_env(cc)
   --- @param msg string?
   project_env.stop       = function(msg)
     cc:suspend_run(msg)
+  end
+
+  project_env.continue   = function()
+    if love.state.app_state == 'inspect' then
+      -- resume
+      love.state.app_state = 'running'
+      Controller.restore_user_handlers()
+    else
+      print('No project halted')
+    end
   end
 
   --- @param type InputType
@@ -294,11 +294,6 @@ function ConsoleController:evaluate_input()
   --- @type InterpreterModel
   local interpreter = M.interpreter
   local input = interpreter.input
-  local P = M.projects
-  local project_path
-  if P.current then
-    project_path = P.current.path
-  end
 
   local text = input:get_text()
   local eval = input.evaluator
@@ -307,9 +302,14 @@ function ConsoleController:evaluate_input()
   if eval.is_lua then
     if eval_ok then
       local code = string.join(text, '\n')
-      local f, load_err = load(code, '', 't', self:get_env())
+      local run_env = (function()
+        if love.state.app_state == 'inspect' then
+          return self:get_project_env()
+        end
+        return self:get_env()
+      end)()
+      local f, load_err = load(code, '', 't', run_env)
       if f then
-        -- TODO: distinguish paused project run and normal console
         local _, err = run_user_code(f, self)
         if err then
           interpreter:set_error(err, true)
@@ -331,7 +331,6 @@ end
 
 function ConsoleController:_reset_executor_env()
   self:_set_project_env(table.clone(self.base_env))
-  self.main_env.context = {}
 end
 
 function ConsoleController:reset()
@@ -377,7 +376,7 @@ function ConsoleController:suspend_run(msg)
   if love.state.app_state ~= 'running' then
     return
   end
-  Log('Suspending project run')
+  Log.info('Suspending project run')
   love.state.app_state = 'inspect'
   if msg then
     self.model.interpreter:set_error(tostring(msg), true)
@@ -385,9 +384,6 @@ function ConsoleController:suspend_run(msg)
 
   Controller.save_user_handlers(runner_env['love'])
   Controller.set_default_handlers(self)
-
-  local context = table.diff(base_env, runner_env)
-  self.main_env.context = context
 end
 
 function ConsoleController:close_project()
