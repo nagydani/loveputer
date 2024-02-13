@@ -55,6 +55,7 @@ function Statusline:draw(status, nLines, time, oneshot)
     if love.state.testing then
       G.print('testing', midX - (8 * cf.fw + cf.border), start_text.y)
     end
+    G.print(love.state.app_state, midX - (13 * cf.fw), start_text.y)
     if time then
       G.print(tostring(time), midX, start_text.y)
     end
