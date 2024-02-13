@@ -205,7 +205,9 @@ function ConsoleController.prepare_env(cc)
       Log.info('Running \'' .. n .. '\'')
       local ok, run_err = run_user_code(f, cc, path)
       if ok then
-        love.state.app_state = 'running'
+        if Controller.has_user_update() then
+          love.state.app_state = 'running'
+        end
       else
         print('Error: ', run_err)
       end

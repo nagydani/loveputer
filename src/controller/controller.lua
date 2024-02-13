@@ -37,7 +37,7 @@ local set_handlers = function(userlove)
   end
   -- update - special handling, inner updates
   local up = userlove.update
-  if up ~= Controller._defaults.update then
+  if up and up ~= Controller._defaults.update then
     user_update = true
     Controller._userhandlers.update = up
   end
@@ -292,6 +292,10 @@ Controller = {
   end,
 
   set_user_handlers = set_handlers,
+
+  has_user_update = function()
+    return user_update
+  end,
 
   --- @param userlove table
   save_user_handlers = function(userlove)
