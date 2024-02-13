@@ -64,7 +64,10 @@ function InputController:keypressed(k)
   if not Key.ctrl() and k == "escape" then
     input:cancel()
   end
-  local function paste() input:paste(love.system.getClipboardText()) end
+  local function paste()
+    input:paste(love.system.getClipboardText())
+    input:clear_selection()
+  end
   local function copy()
     local t = input:get_selected_text()
     love.system.setClipboardText(string.join(t, '\n'))
