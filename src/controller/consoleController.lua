@@ -223,17 +223,17 @@ end
 
 --- API functions for the user
 function ConsoleController.prepare_project_env(cc)
-  local interpreter      = cc.model.interpreter
+  local interpreter         = cc.model.interpreter
   ---@type table
-  local project_env      = cc:get_pre_env_c()
-  project_env.G          = love.graphics
+  local project_env         = cc:get_pre_env_c()
+  project_env.G             = love.graphics
 
   --- @param msg string?
-  project_env.stop       = function(msg)
+  project_env.stop          = function(msg)
     cc:suspend_run(msg)
   end
 
-  project_env.continue   = function()
+  project_env.continue      = function()
     if love.state.app_state == 'inspect' then
       -- resume
       love.state.app_state = 'running'
@@ -249,7 +249,7 @@ function ConsoleController.prepare_project_env(cc)
 
   --- @param type InputType
   --- @param result any
-  local input            = function(type, result)
+  local input               = function(type, result)
     if love.state.user_input then
       return -- there can be only one
     end
@@ -272,15 +272,15 @@ function ConsoleController.prepare_project_env(cc)
     }
   end
 
-  project_env.input_code = function(result)
+  project_env.input_code    = function(result)
     return input('lua', result)
   end
-  project_env.input_text = function(result)
+  project_env.input_text    = function(result)
     return input('text', result)
   end
 
-  local base             = table.clone(project_env)
-  local project          = table.clone(project_env)
+  local base                = table.clone(project_env)
+  local project             = table.clone(project_env)
   cc:_set_base_env(base)
   cc:_set_project_env(project)
 end
