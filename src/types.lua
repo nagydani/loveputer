@@ -33,7 +33,7 @@
 --- @field debugwidth integer
 --- @field drawableWidth number
 --- @field drawableChars integer
---- @field testrun boolean
+--- @field autotest boolean
 --- @field sizedebug boolean
 
 --- @class Status table

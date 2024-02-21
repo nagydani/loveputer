@@ -39,10 +39,10 @@ end
 
 function love.load(args)
   --- CLI arguments
-  local testrun = false
+  local autotest = false
   local sizedebug = false
   for _, a in ipairs(args) do
-    if a == '--test' then testrun = true end
+    if a == '--autotest' then autotest = true end
     if a == '--size' then sizedebug = true end
   end
 
@@ -144,7 +144,7 @@ function love.load(args)
     debugwidth = debugwidth,
     drawableWidth = drawableWidth,
     drawableChars = math.floor(drawableWidth / fw),
-    testrun = testrun,
+    autotest = autotest,
     sizedebug = sizedebug,
   }
   --- MVC wiring
@@ -158,5 +158,5 @@ function love.load(args)
   Controller.set_default_handlers(C, CV)
 
   --- run autotest on startup if invoked
-  if testrun then C:autotest() end
+  if autotest then C:autotest() end
 end
