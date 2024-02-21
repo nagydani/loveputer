@@ -12,7 +12,7 @@ require("util.debug")
 G = love.graphics
 
 --- Find removable and user-writable storage
---- Assumptions are made, which are might be to the target platform/device
+--- Assumptions are made, which might be specific to the target platform/device
 ---@return boolean success
 ---@return string? path
 local android_storage_find = function()
