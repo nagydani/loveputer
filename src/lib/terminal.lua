@@ -252,17 +252,16 @@ local function terminal_redraw(terminal)
     end
 end
 
-local function terminal_draw(terminal)
-    local char_width, char_height = terminal.char_width, terminal.char_height
+--- @param terminal table
+--- @param overlay boolean?
+local function terminal_draw(terminal, overlay)
+    local char_width, char_height =
+        terminal.char_width, terminal.char_height
     if terminal.dirty then
-        local previous_color = { love.graphics.getColor() }
-        local previous_canvas = love.graphics.getCanvas()
-
-        love.graphics.push()
+        love.graphics.push('all')
         love.graphics.origin()
 
         love.graphics.setCanvas(terminal.canvas)
-        -- love.graphics.clear(unpack(terminal.clear_color))
         love.graphics.setFont(terminal.font)
         local font_height = terminal.font:getHeight()
         for y, row in ipairs(terminal.buffer) do
@@ -272,22 +271,28 @@ local function terminal_draw(terminal)
                     local left, top =
                         (x - 1) * char_width,
                         (y - 1) * char_height
+                    local bg, fg = (function()
+                        local back, fore
+                        if state.reversed then
+                            back, fore = state.color, state.backcolor
+                        end
+                        back, fore = state.backcolor, state.color
+
+                        if overlay then
+                            back = Color.with_alpha(back, 0.00)
+                            fore = Color.with_alpha(fore, 0.6)
+                        end
+                        return back, fore
+                    end)()
+
                     -- Character background
-                    if state.reversed then
-                        love.graphics.setColor(unpack(state.color))
-                    else
-                        love.graphics.setColor(unpack(state.backcolor))
-                    end
+                    love.graphics.setColor(unpack(bg))
                     love.graphics.rectangle("fill",
                         left, top + (font_height - char_height),
                         terminal.char_width, terminal.char_height)
 
                     -- Character
-                    if state.reversed then
-                        love.graphics.setColor(unpack(state.backcolor))
-                    else
-                        love.graphics.setColor(unpack(state.color))
-                    end
+                    love.graphics.setColor(unpack(fg))
                     love.graphics.print(char, left, top)
                     state.dirty = false
                 end
@@ -295,12 +300,8 @@ local function terminal_draw(terminal)
         end
         terminal.dirty = false
         love.graphics.pop()
-
-        love.graphics.setCanvas(previous_canvas)
-        love.graphics.setColor(unpack(previous_color))
     end
 
-    love.graphics.draw(terminal.canvas)
     if terminal.show_cursor then
         love.graphics.setFont(terminal.font)
         if love.timer.getTime() % 1 > 0.5 then
