@@ -38,6 +38,7 @@ end
 --- @param input InputDTO
 --- @param snapshot love.Image?
 function ConsoleView:draw(terminal, input, snapshot)
+  G.reset()
   if love.DEBUG then
     self:draw_placeholder()
   end

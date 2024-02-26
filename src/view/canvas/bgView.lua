@@ -26,14 +26,14 @@ function BGView:draw(drawable_height)
   local fh = vcfg.fh
 
   G.push('all')
-  G.setColor(colors.terminal.bg)
+  G.setColor(colors.border)
 
-  -- I don't what this was supposed to do
-  -- G.rectangle("fill",
-  --   b,
-  --   b + drawable_height - 2 * fac,
-  --   w - b,
-  --   fh
-  -- )
+  -- background in case input is not visible
+  G.rectangle("fill",
+    b,
+    b + drawable_height - 2 * fac,
+    w - b,
+    fh * 2
+  )
   G.pop()
 end

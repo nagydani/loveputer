@@ -25,31 +25,26 @@ end
 function CanvasView:draw(terminal, drawable_height, snapshot)
   local cfg = self.cfg
   local b = cfg.view.border
-  local colors = cfg.view.colors
 
   local drawTerminal = function()
+    G.reset()
     G.setCanvas()
     G.translate(b, b)
     G.push('all')
 
     if snapshot then
       G.draw(snapshot)
-      G.setBlendMode('replace')
-      local fg = Color.with_alpha(
-        colors.terminal.fg, 0.1)
-      local bg = Color.with_alpha(
-        colors.terminal.bg, 0.1)
-      terminal:set_cursor_color(fg)
-      terminal:set_cursor_backcolor(bg)
+      terminal:draw(true)
+      G.setBlendMode('screen')
     else
+      terminal:draw()
       G.setBlendMode('alpha')
-      terminal:set_cursor_color(colors.terminal.fg)
-      terminal:set_cursor_backcolor(colors.terminal.bg)
     end
-    terminal:draw()
+    G.draw(terminal.canvas)
     G.pop()
   end
 
+  G.reset()
   G.push('all')
   drawTerminal()
   self.bg:draw(drawable_height)

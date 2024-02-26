@@ -68,7 +68,6 @@ local function run_user_code(f, C, project_path)
 
   G.push('all')
   G.setColor(Color[Color.black])
-  output:draw_to()
   local old_path = package.path
   local ok, call_err
   if project_path then
@@ -387,7 +386,7 @@ end
 
 --- @param msg string?
 function ConsoleController:suspend_run(msg)
-  local base_env   = self:get_base_env()
+  -- local base_env   = self:get_base_env()
   local runner_env = self:get_project_env()
   if love.state.app_state ~= 'running' then
     return
@@ -397,6 +396,8 @@ function ConsoleController:suspend_run(msg)
   if msg then
     self.model.interpreter:set_error(tostring(msg), true)
   end
+
+  self.model.output:invalidate_terminal()
 
   Controller.save_user_handlers(runner_env['love'])
   Controller.set_default_handlers(self, self.view)

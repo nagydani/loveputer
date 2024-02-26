@@ -24,11 +24,15 @@ function CanvasModel:new(cfg)
     w = cfg.debugwidth * cfg.fw
     h = cfg.debugheight * cfg.fh
   else
-    w = G.getWidth() - 2 * cfg.view.border
+    w = cfg.view.w
     h = ViewUtils.get_drawable_height(cfg.view)
   end
-  local canvas = love.graphics.newCanvas(w, h)
-  local term = Terminal(w, h, cfg.view.font, nil, cfg.view.fh * cfg.view.lh, canvas)
+  local canvas = love.graphics.newCanvas(w, cfg.view.h)
+  -- local term_canvas = love.graphics.newCanvas(w, h)
+  local custom_height = cfg.view.fh * cfg.view.lh
+  local term = Terminal(w, h, cfg.view.font,
+    -- nil, custom_height, canvas)
+    nil, custom_height)
 
   local color = cfg.view.colors.terminal
   term:hide_cursor()
@@ -38,6 +42,7 @@ function CanvasModel:new(cfg)
   local cm = {
     terminal = term,
     canvas = canvas,
+    -- term_canvas = canvas,
     cfg = cfg,
   }
   setmetatable(cm, self)
@@ -64,6 +69,10 @@ end
 function CanvasModel:reset()
   self.terminal:clear()
   self.terminal:move_to(1, 1)
+end
+
+function CanvasModel:invalidate_terminal()
+  self.terminal:redraw()
 end
 
 function CanvasModel:update(dt)
