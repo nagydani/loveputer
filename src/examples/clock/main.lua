@@ -9,8 +9,11 @@ t = S + 60 * M + 60 * 60 * H
 midnight = 24 * 60 * 60 * 60
 s = 0
 
-color = Color.cyan
-bgcolor = Color.black
+-- color = Color.cyan
+-- bgcolor = Color.black
+math.randomseed(os.time())
+color = math.random(7)
+bgcolor = math.random(7)
 font = G.newFont(72)
 
 function love.draw()
