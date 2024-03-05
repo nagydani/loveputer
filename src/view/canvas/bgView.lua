@@ -33,7 +33,7 @@ function BGView:draw(drawable_height)
     b,
     b + drawable_height - 2 * fac,
     w - b,
-    fh * 2
+    fh * 2 + 2
   )
   G.pop()
 end

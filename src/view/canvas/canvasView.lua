@@ -35,10 +35,6 @@ function CanvasView:draw(terminal, drawable_height, snapshot)
     G.push('all')
 
     if snapshot then
-      -- TODO move out of term drawing
-      if ViewUtils.conditional_draw('show_canvas') then
-        G.draw(snapshot)
-      end
       terminal:draw(true)
       G.setBlendMode('screen')
     else
@@ -51,6 +47,11 @@ function CanvasView:draw(terminal, drawable_height, snapshot)
 
   G.reset()
   G.push('all')
+  if snapshot then
+    if ViewUtils.conditional_draw('show_canvas') then
+      G.draw(snapshot)
+    end
+  end
   if ViewUtils.conditional_draw('show_terminal') then
     drawTerminal()
   end
