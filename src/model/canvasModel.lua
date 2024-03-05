@@ -17,8 +17,15 @@ local G = love.graphics
 --- @field draw_to function
 --- @field restore_main function
 CanvasModel = {}
+CanvasModel.__index = CanvasModel
 
-function CanvasModel:new(cfg)
+setmetatable(CanvasModel, {
+  __call = function(cls, ...)
+    return cls.new(...)
+  end,
+})
+
+function CanvasModel.new(cfg)
   local w, h
   if cfg.sizedebug then
     w = cfg.debugwidth * cfg.fw
@@ -28,27 +35,23 @@ function CanvasModel:new(cfg)
     h = ViewUtils.get_drawable_height(cfg.view)
   end
   local canvas = love.graphics.newCanvas(w, cfg.view.h)
-  -- local term_canvas = love.graphics.newCanvas(w, h)
   local custom_height = cfg.view.fh * cfg.view.lh
-  local term = Terminal(w, h, cfg.view.font,
-    -- nil, custom_height, canvas)
-    nil, custom_height)
+  local term = Terminal(w, h, cfg.view.font, nil, custom_height)
 
   local color = cfg.view.colors.terminal
   term:hide_cursor()
   term:set_cursor_color(unpack(color.fg))
   term:set_cursor_backcolor(unpack(color.bg))
   term:clear()
-  local cm = {
+  local t_canvas = term.canvas
+  local self = setmetatable({
     terminal = term,
     canvas = canvas,
-    -- term_canvas = canvas,
+    term_canvas = t_canvas,
     cfg = cfg,
-  }
-  setmetatable(cm, self)
-  self.__index = self
+  }, CanvasModel)
 
-  return cm
+  return self
 end
 
 function CanvasModel:write(text)
