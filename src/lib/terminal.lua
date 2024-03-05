@@ -345,7 +345,32 @@ local function terminal_load_position(terminal)
     table.insert(terminal.stdin, { type = "load" })
 end
 
+--- @class Terminal table
+--- @field width integer
+--- @field height integer
+--- @field update function
+--- @field show_cursor boolean
+--- @field cursor_x integer
+--- @field cursor_y integer
+--- @field saved_cursor_x integer
+--- @field saved_cursor_y integer
+--- @field cursor_color table
+--- @field cursor_backcolor table
+--- @field cursor_reversed boolean
+--- @field dirty boolean
+--- @field char_width integer
+--- @field char_height integer
+--- @field speed integer
+--- @field char_cost integer
+--- @field accumulator integer
+--- @field stdin table
+--- @field clear_color table
+--- @field clear_color_alpha table
+--- @field canvas love.Canvas
+--- @field buffer table
+--- @field state_buffer table
 
+--- @return Terminal
 local function terminal(self, width, height,
                         font, custom_char_width, custom_char_height,
                         custom_canvas)
@@ -391,7 +416,7 @@ local function terminal(self, width, height,
 
         canvas = canvas,
         buffer = {},
-        state_buffer = {}
+        state_buffer = {},
     }
 
     for i = 1, num_rows do
