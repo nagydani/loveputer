@@ -160,6 +160,29 @@ Debug = {
     ret = ret .. '}'
     return ret
   end,
+
+  --- @param terminal Terminal
+  --- @param lineN integer?
+  termdebug = function(terminal, lineN)
+    if not terminal or not terminal.buffer then
+      return
+    end
+    if lineN and type(lineN) == "number" then
+      local line = terminal.buffer[lineN] or ' ⨯⨯⨯ out of bounds ⨯⨯⨯ '
+      return string.format('%d │%s│', lineN, string.join(line))
+    else
+      local w = terminal.width --┌┐└┘
+      local top = '┌' .. string.times('─', w) .. '┐'
+      local bottom = '└' .. string.times('─', w) .. '┘'
+      local lines = {}
+      for i, v in ipairs(terminal.buffer) do
+        lines[i] = '│' .. string.join(v, '') .. '│'
+      end
+      table.insert(lines, 1, '\n' .. top)
+      table.insert(lines, bottom)
+      return string.join(lines, '\n')
+    end
+  end,
 }
 
 local printer = (function()

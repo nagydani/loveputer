@@ -76,6 +76,13 @@ Controller = {
           end
         end
       end
+      if Key.ctrl() and Key.alt() then
+        if love.DEBUG then
+          if k == "d" then
+            Log.debug(Debug.termdebug(C.model.output.terminal))
+          end
+        end
+      end
       C:keypressed(k)
     end
     Controller._defaults.keypressed = keypressed
