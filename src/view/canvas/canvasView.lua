@@ -1,5 +1,7 @@
 require("view.canvas.bgView")
 
+require("util.view")
+
 local G = love.graphics
 
 --- @class CanvasView
@@ -33,7 +35,10 @@ function CanvasView:draw(terminal, drawable_height, snapshot)
     G.push('all')
 
     if snapshot then
-      G.draw(snapshot)
+      -- TODO move out of term drawing
+      if ViewUtils.conditional_draw('show_canvas') then
+        G.draw(snapshot)
+      end
       terminal:draw(true)
       G.setBlendMode('screen')
     else
@@ -46,7 +51,11 @@ function CanvasView:draw(terminal, drawable_height, snapshot)
 
   G.reset()
   G.push('all')
-  drawTerminal()
-  self.bg:draw(drawable_height)
+  if ViewUtils.conditional_draw('show_terminal') then
+    drawTerminal()
+  end
+  if ViewUtils.conditional_draw('show_canvas') then
+    self.bg:draw(drawable_height)
+  end
   G.pop()
 end

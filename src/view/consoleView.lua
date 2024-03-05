@@ -43,7 +43,9 @@ function ConsoleView:draw(terminal, input, snapshot)
     self:draw_placeholder()
   end
   self.canvas:draw(terminal, self.drawable_height, snapshot)
-  self.interpreter:draw(input)
+  if ViewUtils.conditional_draw('show_input') then
+    self.interpreter:draw(input)
+  end
 end
 
 function ConsoleView:draw_placeholder()

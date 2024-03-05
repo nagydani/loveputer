@@ -122,6 +122,13 @@ function love.load(args)
     user_input = nil,
     app_state = 'ready'
   }
+  if love.DEBUG then
+    love.debug = {
+      show_input = true,
+      show_terminal = true,
+      show_canvas = true,
+    }
+  end
   love.paths = paths
 
   --- @class ViewConfig

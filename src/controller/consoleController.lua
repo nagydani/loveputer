@@ -432,6 +432,9 @@ function ConsoleController:textinput(t)
   if interpreter:has_error() then
     interpreter:clear_error()
   else
+    if Key.ctrl() and Key.shift() then
+      return
+    end
     self.input:textinput(t)
   end
 end

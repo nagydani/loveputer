@@ -24,7 +24,20 @@ local write_line = function(l, str, pos, cfg)
   G.print(str, cfg.border, dy)
 end
 
+--- Hide elements for debugging
+--- Return true if DEBUG is not enabled or is
+--- enabled and the appropriate flag is set
+--- @param k string
+--- @return boolean
+local conditional_draw = function(k)
+  if love.DEBUG then
+    return love.debug[k]
+  end
+  return true
+end
+
 ViewUtils = {
   get_drawable_height = get_drawable_height,
   write_line = write_line,
+  conditional_draw = conditional_draw,
 }

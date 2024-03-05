@@ -63,6 +63,19 @@ Controller = {
   --- @param C ConsoleController
   set_love_keypressed = function(C)
     local function keypressed(k)
+      if Key.ctrl() and Key.shift() then
+        if love.DEBUG then
+          if k == "1" then
+            table.toggle(love.debug, 'show_terminal')
+          end
+          if k == "2" then
+            table.toggle(love.debug, 'show_canvas')
+          end
+          if k == "3" then
+            table.toggle(love.debug, 'show_input')
+          end
+        end
+      end
       C:keypressed(k)
     end
     Controller._defaults.keypressed = keypressed

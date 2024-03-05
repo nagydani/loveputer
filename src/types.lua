@@ -74,4 +74,9 @@
 --- @field user_input UserInput?
 --- @field app_state AppState
 
+--- @class LoveDebug table
+--- @field show_input boolean
+--- @field show_terminal boolean
+--- @field show_canvas boolean
+
 --- @class LuaEnv : table

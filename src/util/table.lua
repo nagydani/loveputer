@@ -92,3 +92,13 @@ function table.diff(self, other)
   end
   return diff
 end
+
+function table.toggle(self, k)
+  if type(self) == "table" and k then
+    if not self[k] then
+      self[k] = true
+    else
+      self[k] = false
+    end
+  end
+end
