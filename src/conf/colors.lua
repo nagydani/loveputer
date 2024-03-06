@@ -9,6 +9,11 @@ local syntax_i = {
 }
 
 --- @class Colors
+--- @field border table
+--- @field debug table
+--- @field terminal table
+--- @field input table
+--- @field statusline table
 return {
   border = Color[Color.black + Color.bright],
   debug = Color[Color.yellow],

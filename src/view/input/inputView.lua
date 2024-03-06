@@ -42,8 +42,8 @@ function InputView:draw(input, time)
   local fh = self.cfg.view.fh
   local fw = self.cfg.view.fw
   local h = self.cfg.view.h
-  local drawableWidth = self.cfg.drawableWidth
-  local drawableChars = self.cfg.drawableChars
+  local drawableWidth = self.cfg.view.drawableWidth
+  local drawableChars = self.cfg.view.drawableChars
 
   local highlight = input.highlight
   local text = input.text
@@ -124,7 +124,7 @@ function InputView:draw(input, time)
 
   -- draw
   G.push('all')
-  G.scale(self.cfg.view.fac, self.cfg.view.fac)
+  G.scale(self.cfg.view.FAC, self.cfg.view.FAC)
   G.setFont(self.cfg.view.font)
   G.setBackgroundColor(colors.input.bg)
   G.setColor(fg)

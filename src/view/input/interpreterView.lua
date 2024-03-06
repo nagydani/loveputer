@@ -32,7 +32,7 @@ function InterpreterView:draw(input)
   local h = self.cfg.view.h
 
   if isError then
-    local drawableWidth = self.cfg.drawableWidth
+    local drawableWidth = self.cfg.view.drawableWidth
     -- local drawableChars = self.cfg.drawableChars
     local inLines = #err_text
     local inHeight = inLines * fh

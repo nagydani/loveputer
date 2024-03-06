@@ -37,16 +37,26 @@ local android_storage_find = function()
   return false
 end
 
-function love.load(args)
-  --- CLI arguments
+--- CLI arguments
+--- @param args table
+local argparse = function(args)
   local autotest = false
+  local drawtest = false
   local sizedebug = false
   for _, a in ipairs(args) do
     if a == '--autotest' then autotest = true end
     if a == '--size' then sizedebug = true end
+    if a == '--drawtest' then
+      drawtest = true
+      sizedebug = false
+    end
   end
+  return autotest, drawtest, sizedebug
+end
 
-  --- Display
+--- Display
+--- @return ViewConfig
+local config_view = function(sizedebug)
   local FAC = 1
   if love.hiDPI then FAC = 2 end
   local font_size = 32.4 * FAC
@@ -69,18 +79,52 @@ function love.load(args)
     drawableWidth = debugwidth * fw
   end
 
-  local id = love.filesystem.getIdentity()
-  local storage_path = ''
-  local project_path, has_removable
-  --- Android
+  return {
+    font = font_main,
+    border = border,
+    fh = fh,
+    fw = fw,
+    lh = lh,
+    fac = FAC,
+    w = w,
+    h = h,
+    colors = colors,
+
+    debugheight = debugheight,
+    debugwidth = debugwidth,
+    drawableWidth = drawableWidth,
+    drawableChars = math.floor(drawableWidth / fw),
+  }
+end
+
+--- Android sepcific settings
+local setup_android = function(viewconf)
   love.keyboard.setTextInput(true)
   love.keyboard.setKeyRepeat(true)
   if love.system.getOS() == 'Android' then
     love.isAndroid = true
-    love.window.setMode(w, h, {
+    love.window.setMode(viewconf.w, viewconf.h, {
       fullscreen = true,
       fullscreentype = "exclusive",
     })
+  end
+end
+
+--- @return PathInfo
+--- @return boolean
+local setup_storage = function()
+  local id = love.filesystem.getIdentity()
+  local storage_path = ''
+  local project_path, has_removable
+  if love.system.getOS() ~= 'Android' then
+    -- TODO: linux assumed, check other platforms, especially love.js
+    local home = os.getenv('HOME')
+    if home and string.is_non_empty_string(home) then
+      storage_path = string.format("%s/Documents/%s", home, id)
+    else
+      storage_path = love.filesystem.getSaveDirectory()
+    end
+  else
     local ok, sd_path = android_storage_find()
     if not ok then
       print('WARN: SD card not found')
@@ -91,20 +135,7 @@ function love.load(args)
     storage_path = string.format("%s/Documents/%s", sd_path, id)
     print('INFO: Project path: ' .. storage_path)
   end
-
-  -- storage
-  if love.system.getOS() ~= 'Android' then
-    -- TODO: linux assumed, check other platforms, especially love.js
-    local home = os.getenv('HOME')
-    if home and string.is_non_empty_string(home) then
-      storage_path = string.format("%s/Documents/%s", home, id)
-    else
-      storage_path = love.filesystem.getSaveDirectory()
-    end
-  end
   project_path = storage_path .. '/projects'
-
-  --- @type PathInfo
   local paths = {
     storage_path = storage_path,
     project_path = project_path
@@ -113,6 +144,19 @@ function love.load(args)
     local ok, err = FS.mkdir(d)
     if not ok then Log(err) end
   end
+  return paths, has_removable
+end
+
+--- @param args table
+function love.load(args)
+  local autotest, drawtest, sizedebug = argparse(args)
+
+  local viewconf = config_view(sizedebug)
+
+  setup_android(viewconf)
+
+  local has_removable
+  love.paths, has_removable = setup_storage()
 
   _G.nativefs = require("lib/nativefs")
   --- @type LoveState
@@ -129,28 +173,10 @@ function love.load(args)
       show_canvas = true,
     }
   end
-  love.paths = paths
 
-  --- @class ViewConfig
-  local viewconf = {
-    font = font_main,
-    border = border,
-    fh = fh,
-    fw = fw,
-    lh = lh,
-    fac = FAC,
-    w = w,
-    h = h,
-    colors = colors,
-  }
   --- @class Config
   local baseconf = {
     view = viewconf,
-
-    debugheight = debugheight,
-    debugwidth = debugwidth,
-    drawableWidth = drawableWidth,
-    drawableChars = math.floor(drawableWidth / fw),
     autotest = autotest,
     sizedebug = sizedebug,
   }

@@ -26,13 +26,14 @@
 --- @field FAC Fac
 --- @field h integer
 --- @field w integer
-
---- @class Config table
---- @field view ViewConfig
+--- @field colors Colors
 --- @field debugheight integer
 --- @field debugwidth integer
 --- @field drawableWidth number
 --- @field drawableChars integer
+
+--- @class Config table
+--- @field view ViewConfig
 --- @field autotest boolean
 --- @field sizedebug boolean
 
