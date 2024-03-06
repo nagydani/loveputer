@@ -86,6 +86,12 @@ function CanvasModel:get_canvas()
   return self.canvas
 end
 
+function CanvasModel:clear_canvas()
+  return self.canvas:renderTo(function()
+    G.clear(0, 0, 0, 0)
+  end)
+end
+
 function CanvasModel:draw_to()
   G.setCanvas(self.canvas)
 end
