@@ -35,14 +35,15 @@ function ConsoleView:new(cfg, ctrl)
 end
 
 --- @param terminal table
+--- @param canvas love.Canvas
 --- @param input InputDTO
 --- @param snapshot love.Image?
-function ConsoleView:draw(terminal, input, snapshot)
+function ConsoleView:draw(terminal, canvas, input, snapshot)
   G.reset()
   if love.DEBUG then
     self:draw_placeholder()
   end
-  self.canvas:draw(terminal, self.drawable_height, snapshot)
+  self.canvas:draw(terminal, canvas, self.drawable_height, snapshot)
   if ViewUtils.conditional_draw('show_input') then
     self.interpreter:draw(input)
   end

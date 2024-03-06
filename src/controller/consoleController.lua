@@ -66,6 +66,7 @@ local function run_user_code(f, C, project_path)
   local output = C.model.output
   local env = C:get_base_env()
 
+  G.setCanvas(C:get_canvas())
   G.push('all')
   G.setColor(Color[Color.black])
   local old_path = package.path
@@ -81,6 +82,7 @@ local function run_user_code(f, C, project_path)
   package.path = old_path
   output:restore_main()
   G.pop()
+  G.setCanvas()
   if not ok then
     local e = LANG.parse_error(call_err)
     return false, e
@@ -521,6 +523,10 @@ end
 
 function ConsoleController:get_terminal()
   return self.model.output.terminal
+end
+
+function ConsoleController:get_canvas()
+  return self.model.output.canvas
 end
 
 --- @return ViewData

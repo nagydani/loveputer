@@ -22,9 +22,10 @@ function CanvasView:new(cfg)
 end
 
 --- @param terminal table
+--- @param canvas love.Canvas
 --- @param drawable_height number
 --- @param snapshot love.Image?
-function CanvasView:draw(terminal, drawable_height, snapshot)
+function CanvasView:draw(terminal, canvas, drawable_height, snapshot)
   local cfg = self.cfg
   local b = cfg.view.border
 
@@ -52,6 +53,7 @@ function CanvasView:draw(terminal, drawable_height, snapshot)
       G.draw(snapshot)
     end
     self.bg:draw(drawable_height)
+    G.draw(canvas)
   end
   if ViewUtils.conditional_draw('show_terminal') then
     drawTerminal()
