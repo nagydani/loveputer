@@ -90,6 +90,7 @@ local function run_user_code(f, C, project_path)
   return true
 end
 
+--- @param cc ConsoleController
 local function close_project(cc)
   local ok = cc:close_project()
   if ok then
@@ -231,6 +232,7 @@ function ConsoleController.prepare_env(cc)
 end
 
 --- API functions for the user
+--- @param cc ConsoleController
 function ConsoleController.prepare_project_env(cc)
   local interpreter         = cc.model.interpreter
   ---@type table
