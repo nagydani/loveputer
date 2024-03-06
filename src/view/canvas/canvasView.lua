@@ -47,16 +47,14 @@ function CanvasView:draw(terminal, drawable_height, snapshot)
 
   G.reset()
   G.push('all')
-  if snapshot then
-    if ViewUtils.conditional_draw('show_canvas') then
+  if ViewUtils.conditional_draw('show_canvas') then
+    if snapshot then
       G.draw(snapshot)
     end
+    self.bg:draw(drawable_height)
   end
   if ViewUtils.conditional_draw('show_terminal') then
     drawTerminal()
-  end
-  if ViewUtils.conditional_draw('show_canvas') then
-    self.bg:draw(drawable_height)
   end
   G.pop()
 end
