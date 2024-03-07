@@ -72,8 +72,8 @@ local config_view = function(sizedebug)
   local fw = font_main:getWidth('█')
   local w = G.getWidth() - 2 * border
   local h = love.fixHeight
-  local debugheight = 6
-  local debugwidth = math.floor(debugheight * (80 / 25))
+  local debugheight = math.floor(love.fixHeight / love.test_grid_y) / fh
+  local debugwidth = math.floor(love.fixWidth / love.test_grid_x) / fw
   local drawableWidth = w - 2 * border
   if sizedebug then
     drawableWidth = debugwidth * fw
