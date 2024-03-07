@@ -18,10 +18,11 @@ function BGView.new(cfg)
 end
 
 function BGView:draw(drawable_height)
+  --- @type ViewConfig
   local vcfg = self.cfg.view
   local colors = vcfg.colors
   local b = vcfg.border
-  local fac = vcfg.fac
+  local FAC = vcfg.FAC
   local w = vcfg.w
   local fh = vcfg.fh
 
@@ -31,7 +32,7 @@ function BGView:draw(drawable_height)
   -- background in case input is not visible
   G.rectangle("fill",
     b,
-    b + drawable_height - 2 * fac,
+    b + drawable_height - 2 * FAC,
     w - b,
     fh * 2 + 2
   )
