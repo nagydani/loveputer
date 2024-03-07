@@ -25,11 +25,12 @@ setmetatable(CanvasModel, {
   end,
 })
 
+--- @param cfg Config
 function CanvasModel.new(cfg)
   local w, h
   if cfg.sizedebug then
-    w = cfg.view.debugwidth * cfg.fw
-    h = cfg.view.debugheight * cfg.fh
+    w = cfg.view.debugwidth * cfg.view.fw
+    h = cfg.view.debugheight * cfg.view.fh
   else
     w = cfg.view.w
     h = ViewUtils.get_drawable_height(cfg.view)
