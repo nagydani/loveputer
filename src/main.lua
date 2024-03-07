@@ -48,7 +48,7 @@ local argparse = function(args)
     if a == '--size' then sizedebug = true end
     if a == '--drawtest' then
       drawtest = true
-      sizedebug = false
+      sizedebug = true
     end
   end
   return autotest, drawtest, sizedebug
