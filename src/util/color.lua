@@ -24,6 +24,14 @@ Color = {
   white = 7,   -- #bfbfbf #ffffff
   bright = 8,
 
+  valid = function(c)
+    return c
+        and type(c) == 'number'
+        and math.floor(c) == c -- weird way to isInt
+        and c >= 0
+        and c < 16
+  end,
+
   --- @param color table
   --- @param alpha number
   with_alpha = function(color, alpha)
