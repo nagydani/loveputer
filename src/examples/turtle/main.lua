@@ -100,8 +100,10 @@ function love.draw()
 end
 
 function love.keypressed(key)
-  if key == 'r' then
-    tx, ty = midx, midy
+  if love.keyboard.isDown("lshift", "rshift") then
+    if key == 'r' then
+      tx, ty = midx, midy
+    end
   end
   if key == 'space' then
     debug = not debug
