@@ -108,6 +108,9 @@ function love.keypressed(key)
   if key == 'space' then
     debug = not debug
   end
+  if key == 'pause' then
+    stop()
+  end
 end
 
 function love.keyreleased(key)
