@@ -44,6 +44,10 @@ function InputView:draw(input, time)
   local h = self.cfg.view.h
   local drawableWidth = self.cfg.view.drawableWidth
   local drawableChars = self.cfg.view.drawableChars
+  -- drawtest hack
+  if drawableWidth < love.fixWidth / 3 then
+    drawableChars = drawableChars * 2
+  end
 
   local highlight = input.highlight
   local text = input.text

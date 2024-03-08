@@ -18,11 +18,14 @@
 ---| 2
 
 --- @class ViewConfig table
---- @field border integer
 --- @field font table
 --- @field fh integer -- font height
 --- @field fw integer -- font width
 --- @field lh integer -- line height
+--- @field labelfont table
+--- @field lfh integer -- font height
+--- @field lfw integer -- font width
+--- @field border integer
 --- @field FAC Fac
 --- @field h integer
 --- @field w integer
@@ -35,6 +38,7 @@
 --- @class Config table
 --- @field view ViewConfig
 --- @field autotest boolean
+--- @field drawtest boolean
 --- @field sizedebug boolean
 
 --- @class Status table

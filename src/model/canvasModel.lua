@@ -33,9 +33,10 @@ function CanvasModel.new(cfg)
     h = cfg.view.debugheight * cfg.view.fh
   else
     w = cfg.view.w
-    h = ViewUtils.get_drawable_height(cfg.view)
+    -- h = ViewUtils.get_drawable_height(cfg.view)
+    h = cfg.view.h
   end
-  local canvas = love.graphics.newCanvas(w, cfg.view.h)
+  local canvas = love.graphics.newCanvas(w, h)
   local custom_height = cfg.view.fh * cfg.view.lh
   local term = Terminal(w, h, cfg.view.font, nil, custom_height)
 

@@ -65,26 +65,46 @@ local config_view = function(sizedebug)
   local font_dir = "assets/fonts/"
   local font_main = love.graphics.newFont(
     font_dir .. "ubuntu_mono_bold_nerd.ttf", font_size)
-  local lh = 1.0468
+  local lh = (function()
+    if sizedebug then
+      return 1
+    else
+      return 1.0468
+    end
+  end)()
   font_main:setLineHeight(lh)
   local fh = font_main:getHeight()
   -- we use a monospace font, so the width should be the same for any input
   local fw = font_main:getWidth('█')
+
+  local font_labels = love.graphics.newFont(
+    font_dir .. "PressStart2P-Regular.ttf", 12)
+
   local w = G.getWidth() - 2 * border
   local h = love.fixHeight
-  local debugheight = math.floor(love.fixHeight / love.test_grid_y) / fh
+  local eh = h - 2 * fh
+  local debugheight = math.floor(eh / (love.test_grid_y * fh))
   local debugwidth = math.floor(love.fixWidth / love.test_grid_x) / fw
   local drawableWidth = w - 2 * border
   if sizedebug then
     drawableWidth = debugwidth * fw
   end
+  -- drawtest hack
+  if drawableWidth < love.fixWidth / 3 then
+    drawableWidth = drawableWidth * 2
+  end
 
   return {
     font = font_main,
-    border = border,
     fh = fh,
     fw = fw,
     lh = lh,
+
+    labelfont = font_labels,
+    lfh = font_labels:getHeight(),
+    lfw = font_labels:getWidth('█'),
+
+    border = border,
     FAC = FAC,
     w = w,
     h = h,
@@ -178,6 +198,7 @@ function love.load(args)
   local baseconf = {
     view = viewconf,
     autotest = autotest,
+    drawtest = drawtest,
     sizedebug = sizedebug,
   }
   --- MVC wiring
