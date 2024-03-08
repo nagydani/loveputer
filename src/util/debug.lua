@@ -3,6 +3,8 @@ local tc = require("util.termcolor")
 
 local INDENT = '  '
 
+local seen = {}
+
 --- @param level integer
 --- @param starter string?
 local get_indent = function(level, starter)
@@ -171,7 +173,7 @@ Debug = {
       local line = terminal.buffer[lineN] or ' ⨯⨯⨯ out of bounds ⨯⨯⨯ '
       return string.format('%d │%s│', lineN, string.join(line))
     else
-      local w = terminal.width --┌┐└┘
+      local w = terminal.width
       local top = '┌' .. string.times('─', w) .. '┐'
       local bottom = '└' .. string.times('─', w) .. '┘'
       local lines = {}
@@ -233,6 +235,17 @@ Log = {
     local ts = string.format("%.3f ", os.clock())
     local s = annot(ts .. 'DEBUG ', Color.blue, args)
     printer(s)
+  end,
+
+  once = function(...)
+    local args = { ... }
+    local key = string.join(args, '') -- TODO: hash
+    if not seen[key] then
+      Log.debug('logging ' .. key)
+      seen[key] = true
+      local s = annot('ONCE  ', Color.white, args)
+      printer(s)
+    end
   end,
 }
 
