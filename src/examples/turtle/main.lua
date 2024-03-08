@@ -9,7 +9,7 @@ debugColor = Color.yellow
 
 local r = {}
 
-local function drawTurtle(x, y)
+function drawTurtle(x, y)
   local head_r = 8
   local leg_r = 5
   local x_r = 15
@@ -61,19 +61,35 @@ local function drawDebuginfo()
   G.print(label, width - 200, 20)
 end
 
+function move_forward(d)
+  ty = ty - (d or incr)
+end
+
+function move_back(d)
+  ty = ty + (d or incr)
+end
+
+function move_left(d)
+  tx = tx - (d or (2 * incr))
+end
+
+function move_right(d)
+  tx = tx + (d or (2 * incr))
+end
+
 local function eval()
   local input = r[1]
   if input == 'forward' or input == 'f' then
-    ty = ty - incr
+    move_forward()
   end
   if input == 'back' or input == 'b' then
-    ty = ty + incr
+    move_back()
   end
   if input == 'left' or input == 'l' then
-    tx = tx - (2 * incr)
+    move_left()
   end
   if input == 'right' or input == 'r' then
-    tx = tx + (2 * incr)
+    move_right()
   end
 end
 
