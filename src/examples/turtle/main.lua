@@ -132,10 +132,6 @@ local t = 0
 function love.update(dt)
   t = t + dt
   if ty > midy then
-    debug = true
     debugColor = Color.red
-  end
-  if tx < midx then
-    stop('turtle in lower half')
   end
 end
