@@ -35,16 +35,19 @@ function CanvasView:draw(terminal, canvas, drawable_height, snapshot)
     G.push('all')
 
     if snapshot then
+      G.setBlendMode('multiply', "premultiplied")
       terminal:draw(true)
     else
       terminal:draw()
     end
     G.draw(terminal.canvas)
+    G.setBlendMode('alpha') -- default
     G.pop()
   end
 
   G.reset()
   G.push('all')
+  G.setBlendMode('alpha') -- default
   if ViewUtils.conditional_draw('show_canvas') then
     if snapshot then
       G.draw(snapshot)
@@ -59,7 +62,9 @@ function CanvasView:draw(terminal, canvas, drawable_height, snapshot)
     if ViewUtils.conditional_draw('show_canvas') then
       G.draw(canvas)
     end
+    G.setBlendMode('alpha') -- default
   else
+    G.setBlendMode('alpha') -- default
     for i = 0, love.test_grid_y - 1 do
       for j = 0, love.test_grid_x - 1 do
         local off_x = vcfg.debugwidth * vcfg.fw
@@ -73,6 +78,7 @@ function CanvasView:draw(terminal, canvas, drawable_height, snapshot)
 
         local b = ViewUtils.blendModes[index]
         if b then
+          -- G.setBlendMode('alpha') -- default
           if ViewUtils.conditional_draw('show_terminal') then
             b.blend()
             drawTerminal()
@@ -82,6 +88,7 @@ function CanvasView:draw(terminal, canvas, drawable_height, snapshot)
             G.draw(canvas)
           end
 
+          G.setBlendMode('alpha') -- default
           G.setColor(1, 1, 1, 1)
           G.setFont(vcfg.labelfont)
 
