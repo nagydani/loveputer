@@ -219,6 +219,29 @@ local error = function(...)
   printer(s)
 end
 
+--- @param s string
+local function hash(s)
+  local bit = require('bit')
+  -- http://www.cs.yorku.ca/~oz/hash.html
+
+  -- local h = 0
+  -- for c in string.gmatch(s, utf8.charpattern) do
+  --   local p = utf8.codepoint(c)
+  --   h = p + bit.lshift(h, 6) + bit.lshift(h, 16) - h
+  -- end
+
+  local h = 5381
+  for ch in string.gmatch(s, utf8.charpattern) do
+    local c = utf8.codepoint(ch)
+    h = (bit.lshift(h, 5) + h + c)
+  end
+
+  -- h = h ^ ((bit.lshift(h, 5)) + (bit.rshift(h, 2)) + p)
+  -- h = ((h << 5) + h) + c
+  -- h = h ^ ((h<<5)+(h>>2)+c)
+  return h
+end
+
 Log = {
   info = function(...)
     local args = { ... }
@@ -239,10 +262,11 @@ Log = {
 
   once = function(...)
     local args = { ... }
-    local key = string.join(args, '') -- TODO: hash
-    if not seen[key] then
-      Log.debug('logging ' .. key)
-      seen[key] = true
+    local key = string.join(args, '')
+    local kh = hash(key)
+    if not seen[kh] then
+      Log.debug(Debug.terse_t(seen))
+      seen[kh] = true
       local s = annot('ONCE  ', Color.white, args)
       printer(s)
     end
