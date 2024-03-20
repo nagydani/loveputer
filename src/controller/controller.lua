@@ -122,6 +122,9 @@ Controller = {
   --- @param C ConsoleController
   set_love_mousepressed = function(C)
     local function mousepressed(x, y, button)
+      if love.DEBUG then
+        Log.info(string.format('click! {%d, %d}', x, y))
+      end
       C.input:mousepressed(x, y, button)
     end
 
