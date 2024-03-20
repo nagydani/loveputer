@@ -69,9 +69,12 @@ Controller = {
             table.toggle(love.debug, 'show_terminal')
           end
           if k == "2" then
-            table.toggle(love.debug, 'show_canvas')
+            table.toggle(love.debug, 'show_snapshot')
           end
           if k == "3" then
+            table.toggle(love.debug, 'show_canvas')
+          end
+          if k == "5" then
             table.toggle(love.debug, 'show_input')
           end
         end

@@ -48,7 +48,7 @@ function CanvasView:draw(terminal, canvas, drawable_height, snapshot)
   G.reset()
   G.push('all')
   G.setBlendMode('alpha') -- default
-  if ViewUtils.conditional_draw('show_canvas') then
+  if ViewUtils.conditional_draw('show_snapshot') then
     if snapshot then
       G.draw(snapshot)
     end
@@ -56,11 +56,11 @@ function CanvasView:draw(terminal, canvas, drawable_height, snapshot)
   end
 
   if not test then
-    if ViewUtils.conditional_draw('show_terminal') then
-      drawTerminal()
-    end
     if ViewUtils.conditional_draw('show_canvas') then
       G.draw(canvas)
+    end
+    if ViewUtils.conditional_draw('show_terminal') then
+      drawTerminal()
     end
     G.setBlendMode('alpha') -- default
   else
