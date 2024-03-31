@@ -413,6 +413,7 @@ local function terminal(self, width, height,
         stdin = {},
 
         clear_color = { 0, 0, 0 },
+        clear_color_alpha = { 1, 1, 1, 0 },
 
         canvas = canvas,
         buffer = {},
@@ -451,10 +452,9 @@ local function terminal(self, width, height,
 
     instance.frame = terminal_frame
 
-    local previous_canvas = love.graphics.getCanvas()
-    love.graphics.setCanvas(instance.canvas)
-    love.graphics.clear(instance.clear_color)
-    love.graphics.setCanvas(previous_canvas)
+    instance.canvas:renderTo(function()
+        love.graphics.clear(instance.clear_color)
+    end)
 
     return instance
 end
