@@ -1,4 +1,5 @@
 require("view.canvas.bgView")
+require("view.canvas.terminalView")
 
 require("util.view")
 
@@ -30,21 +31,6 @@ function CanvasView:draw(terminal, canvas, drawable_height, snapshot)
   local test = cfg.drawtest
   local vcfg = cfg.view
 
-  local drawTerminal = function()
-    G.setCanvas()
-    G.push('all')
-
-    if snapshot then
-      G.setBlendMode('multiply', "premultiplied")
-      terminal:draw(true)
-    else
-      terminal:draw()
-    end
-    G.draw(terminal.canvas)
-    G.setBlendMode('alpha') -- default
-    G.pop()
-  end
-
   G.reset()
   G.push('all')
   G.setBlendMode('alpha') -- default
@@ -60,7 +46,7 @@ function CanvasView:draw(terminal, canvas, drawable_height, snapshot)
       G.draw(canvas)
     end
     if ViewUtils.conditional_draw('show_terminal') then
-      drawTerminal()
+      TerminalView.draw(terminal, snapshot)
     end
     G.setBlendMode('alpha') -- default
   else
@@ -81,7 +67,7 @@ function CanvasView:draw(terminal, canvas, drawable_height, snapshot)
           -- G.setBlendMode('alpha') -- default
           if ViewUtils.conditional_draw('show_terminal') then
             b.blend()
-            drawTerminal()
+            TerminalView.draw(terminal, snapshot)
           end
           G.setBlendMode('alpha') -- default
           if ViewUtils.conditional_draw('show_canvas') then

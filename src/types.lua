@@ -80,9 +80,9 @@
 --- @field app_state AppState
 
 --- @class LoveDebug table
---- @field show_input boolean
---- @field show_terminal boolean
 --- @field show_snapshot boolean
+--- @field show_terminal boolean
 --- @field show_canvas boolean
+--- @field show_input boolean
 
 --- @class LuaEnv : table
