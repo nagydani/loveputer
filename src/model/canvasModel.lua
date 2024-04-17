@@ -8,6 +8,7 @@ local G = love.graphics
 --- @class CanvasModel
 --- @field terminal table
 --- @field canvas love.Canvas
+--- @field term_canvas love.Canvas
 --- @field cfg table
 --- @field write function
 --- @field push function

@@ -5,7 +5,7 @@ TerminalView = {}
 
 --- @param terminal table
 --- @param overlay boolean?
-local function terminal_draw(terminal, overlay)
+local function terminal_draw(terminal, canvas, overlay)
   local char_width, char_height =
       terminal.char_width, terminal.char_height
   if terminal.dirty then
@@ -90,20 +90,18 @@ local function terminal_draw(terminal, overlay)
 end
 
 --- @param terminal table
-function TerminalView.draw(terminal, snapshot)
+function TerminalView.draw(terminal, canvas, snapshot)
   G.setCanvas()
   G.push('all')
 
   if snapshot then
     -- G.setBlendMode('multiply', "premultiplied")
     -- G.setBlendMode('screen', "premultiplied")
-    -- terminal:draw(true)
-    terminal_draw(terminal, true)
+    terminal_draw(terminal, canvas, true)
   else
-    -- terminal:draw()
-    terminal_draw(terminal)
+    terminal_draw(terminal, canvas)
   end
-  G.draw(terminal.canvas)
+  G.draw(canvas)
   G.setBlendMode('alpha') -- default
   G.pop()
 end

@@ -24,16 +24,19 @@ end
 
 --- @param terminal table
 --- @param canvas love.Canvas
+--- @param term_canvas love.Canvas
 --- @param drawable_height number
 --- @param snapshot love.Image?
-function CanvasView:draw(terminal, canvas, drawable_height, snapshot)
+function CanvasView:draw(
+  terminal, canvas, term_canvas, drawable_height, snapshot
+)
   local cfg = self.cfg
   local test = cfg.drawtest
   local vcfg = cfg.view
 
   G.reset()
   G.push('all')
-  G.setBlendMode('alpha') -- default
+  G.setBlendMode('alpha', 'alphamultiply') -- default
   if ViewUtils.conditional_draw('show_snapshot') then
     if snapshot then
       G.draw(snapshot)
@@ -46,11 +49,12 @@ function CanvasView:draw(terminal, canvas, drawable_height, snapshot)
       G.draw(canvas)
     end
     if ViewUtils.conditional_draw('show_terminal') then
-      TerminalView.draw(terminal, snapshot)
+      -- G.setBlendMode('multiply', "premultiplied")
+      TerminalView.draw(terminal, term_canvas, snapshot)
     end
-    G.setBlendMode('alpha') -- default
+    G.setBlendMode('alpha', 'alphamultiply') -- default
   else
-    G.setBlendMode('alpha') -- default
+    G.setBlendMode('alpha', 'alphamultiply') -- default
     for i = 0, love.test_grid_y - 1 do
       for j = 0, love.test_grid_x - 1 do
         local off_x = vcfg.debugwidth * vcfg.fw
@@ -67,7 +71,7 @@ function CanvasView:draw(terminal, canvas, drawable_height, snapshot)
           -- G.setBlendMode('alpha') -- default
           if ViewUtils.conditional_draw('show_terminal') then
             b.blend()
-            TerminalView.draw(terminal, snapshot)
+            TerminalView.draw(terminal, term_canvas, snapshot)
           end
           G.setBlendMode('alpha') -- default
           if ViewUtils.conditional_draw('show_canvas') then
