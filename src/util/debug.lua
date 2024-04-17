@@ -232,7 +232,12 @@ local function hash(s)
 
   local h = 5381
   for ch in string.gmatch(s, utf8.charpattern) do
-    local c = utf8.codepoint(ch)
+    local c
+    if pcall(function() utf8.codepoint(ch) end) then
+      c = utf8.codepoint(ch)
+    else
+      c = 0
+    end
     h = (bit.lshift(h, 5) + h + c)
   end
 
@@ -240,6 +245,15 @@ local function hash(s)
   -- h = ((h << 5) + h) + c
   -- h = h ^ ((h<<5)+(h>>2)+c)
   return h
+end
+
+local function once(kh, args)
+  if not seen[kh] then
+    Log.debug(Debug.terse_t(seen))
+    seen[kh] = true
+    local s = annot('ONCE  ', Color.white, args)
+    printer(s)
+  end
 end
 
 Log = {
@@ -264,12 +278,7 @@ Log = {
     local args = { ... }
     local key = string.join(args, '')
     local kh = hash(key)
-    if not seen[kh] then
-      Log.debug(Debug.terse_t(seen))
-      seen[kh] = true
-      local s = annot('ONCE  ', Color.white, args)
-      printer(s)
-    end
+    once(kh, args)
   end,
 }
 
