@@ -7,7 +7,21 @@ tx, ty = midx, midy
 debug = false
 debugColor = Color.yellow
 
+bgcolor = Color.black
+
 local r = {}
+
+function drawBackground(color)
+  local c = bgcolor
+  if Color.valid(color)
+      and color ~= Color.green
+      and color ~= Color.green + Color.bright
+  then
+    c = color
+  end
+  G.setColor(Color[c])
+  G.rectangle('fill', 0, 0, width, height)
+end
 
 function drawTurtle(x, y)
   local head_r = 8
@@ -94,6 +108,7 @@ local function eval()
 end
 
 function love.draw()
+  drawBackground()
   drawHelp()
   drawTurtle(tx, ty)
   if debug then drawDebuginfo() end
