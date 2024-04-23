@@ -105,6 +105,10 @@ local function eval()
   if input == 'right' or input == 'r' then
     move_right()
   end
+
+  if input == 'stop' or input == 'pause' then
+    stop('user stop')
+  end
 end
 
 function love.draw()
