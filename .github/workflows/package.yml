@@ -112,9 +112,9 @@ jobs:
           name: ${{ env.LOVE_ARTIFACT_NAME }}
       - name: Build HTML
         run: |
-          sudo apt install nodejs
+          sudo apt update && sudo apt install -y nodejs
           npm i -g love.js
-          love.js -c ${{ env.LOVE_ARTIFACT_NAME }} ./${{ env.OUTPUT_FOLDER }} --title "LÖVEputer" --memory 67108864
+          love.js -c ${{ env.LOVE_ARTIFACT_NAME }} ./${{ env.OUTPUT_FOLDER }} --title "${{ env.PRODUCT_NAME }}" --memory 67108864
           7z a ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_JS }} ./${{ env.OUTPUT_FOLDER }}/*
       - name: upload
         uses: actions/upload-artifact@v4
