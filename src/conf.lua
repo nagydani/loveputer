@@ -24,4 +24,6 @@ function love.conf(t)
 
   -- Android: use SD card for storage
   t.externalstorage = true
+
+  require('host').spec(t)
 end

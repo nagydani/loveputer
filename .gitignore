@@ -10,3 +10,4 @@ doc/parse
 *.odg#
 src/assets/*.xcf
 src/assets/shot*.png
+host.lua
