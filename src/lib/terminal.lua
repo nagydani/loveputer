@@ -125,7 +125,6 @@ local function wrap_if_bottom(terminal)
         terminal_roll_up(terminal, terminal.cursor_y - terminal.height)
         terminal.cursor_y = terminal.height
     end
-    terminal:redraw()
 end
 
 local function terminal_update(terminal, dt)
@@ -146,7 +145,6 @@ local function terminal_update(terminal, dt)
                 terminal.cursor_y = terminal.cursor_y + 1
                 wrap_if_bottom(terminal)
             else
-                wrap_if_bottom(terminal)
                 terminal_update_character(terminal,
                     terminal.cursor_x,
                     terminal.cursor_y,
@@ -155,6 +153,7 @@ local function terminal_update(terminal, dt)
                 if terminal.cursor_x > terminal.width then
                     terminal.cursor_x = 1
                     terminal.cursor_y = terminal.cursor_y + 1
+                    wrap_if_bottom(terminal)
                 end
                 terminal.dirty = true
             end
@@ -244,24 +243,19 @@ local function terminal_update(terminal, dt)
     end
     terminal.stdin = rest
 end
-local function terminal_redraw(terminal)
-    for _, row in ipairs(terminal.state_buffer) do
-        for _, state in ipairs(row) do
-            state.dirty = true
-        end
-    end
-end
 
 --- @param terminal table
---- @param overlay boolean?
-local function terminal_draw(terminal, overlay)
-    local char_width, char_height =
-        terminal.char_width, terminal.char_height
+local function terminal_draw(terminal)
+    local char_width, char_height = terminal.char_width, terminal.char_height
     if terminal.dirty then
-        love.graphics.push('all')
+        local previous_color = { love.graphics.getColor() }
+        local previous_canvas = love.graphics.getCanvas()
+
+        love.graphics.push()
         love.graphics.origin()
 
         love.graphics.setCanvas(terminal.canvas)
+        -- love.graphics.clear(unpack(terminal.clear_color))
         love.graphics.setFont(terminal.font)
         local font_height = terminal.font:getHeight()
         for y, row in ipairs(terminal.buffer) do
@@ -271,28 +265,22 @@ local function terminal_draw(terminal, overlay)
                     local left, top =
                         (x - 1) * char_width,
                         (y - 1) * char_height
-                    local bg, fg = (function()
-                        local back, fore
-                        if state.reversed then
-                            back, fore = state.color, state.backcolor
-                        end
-                        back, fore = state.backcolor, state.color
-
-                        if overlay then
-                            back = Color.with_alpha(back, 0.00)
-                            fore = Color.with_alpha(fore, 0.6)
-                        end
-                        return back, fore
-                    end)()
-
                     -- Character background
-                    love.graphics.setColor(unpack(bg))
+                    if state.reversed then
+                        love.graphics.setColor(unpack(state.color))
+                    else
+                        love.graphics.setColor(unpack(state.backcolor))
+                    end
                     love.graphics.rectangle("fill",
                         left, top + (font_height - char_height),
                         terminal.char_width, terminal.char_height)
 
                     -- Character
-                    love.graphics.setColor(unpack(fg))
+                    if state.reversed then
+                        love.graphics.setColor(unpack(state.backcolor))
+                    else
+                        love.graphics.setColor(unpack(state.color))
+                    end
                     love.graphics.print(char, left, top)
                     state.dirty = false
                 end
@@ -300,8 +288,12 @@ local function terminal_draw(terminal, overlay)
         end
         terminal.dirty = false
         love.graphics.pop()
+
+        love.graphics.setCanvas(previous_canvas)
+        love.graphics.setColor(unpack(previous_color))
     end
 
+    love.graphics.draw(terminal.canvas)
     if terminal.show_cursor then
         love.graphics.setFont(terminal.font)
         if love.timer.getTime() % 1 > 0.5 then
@@ -372,23 +364,11 @@ end
 
 --- @return Terminal
 local function terminal(self, width, height,
-                        font, custom_char_width, custom_char_height,
-                        custom_canvas)
+                        font, custom_char_width, custom_char_height)
     local char_width = custom_char_width or font:getWidth('█')
     local char_height = custom_char_height or font:getHeight()
     local num_columns = math.floor(width / char_width)
     local num_rows = math.floor(height / char_height)
-    local canvas
-    local rh = math.floor(height)
-    if custom_canvas
-        and math.floor(custom_canvas:getHeight()) == rh
-        and custom_canvas:getWidth() == width
-    then
-        canvas = custom_canvas
-    else
-        canvas = love.graphics.newCanvas(width, height)
-    end
-
     local instance = {
         width = math.floor(num_columns),
         height = math.floor(num_rows),
@@ -415,7 +395,7 @@ local function terminal(self, width, height,
         clear_color = { 0, 0, 0 },
         clear_color_alpha = { 1, 1, 1, 0 },
 
-        canvas = canvas,
+        canvas = love.graphics.newCanvas(width, height),
         buffer = {},
         state_buffer = {},
     }
@@ -448,13 +428,13 @@ local function terminal(self, width, height,
     instance.reverse_cursor = terminal_reverse
     instance.set_cursor_color = terminal_set_cursor_color
     instance.set_cursor_backcolor = terminal_set_cursor_backcolor
-    instance.redraw = terminal_redraw
 
     instance.frame = terminal_frame
 
-    instance.canvas:renderTo(function()
-        love.graphics.clear(instance.clear_color)
-    end)
+    local previous_canvas = love.graphics.getCanvas()
+    love.graphics.setCanvas(instance.canvas)
+    love.graphics.clear(instance.clear_color)
+    love.graphics.setCanvas(previous_canvas)
 
     return instance
 end

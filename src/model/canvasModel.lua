@@ -78,7 +78,6 @@ function CanvasModel:reset()
 end
 
 function CanvasModel:invalidate_terminal()
-  self.terminal:redraw()
 end
 
 function CanvasModel:update(dt)
