@@ -325,7 +325,7 @@ function ConsoleController:evaluate_input()
         if love.state.app_state == 'inspect' then
           return self:get_project_env()
         end
-        return self:get_env()
+        return self:get_console_env()
       end)()
       local f, load_err = load(code, '', 't', run_env)
       if f then
@@ -358,8 +358,8 @@ function ConsoleController:reset()
 end
 
 ---@return LuaEnv
-function ConsoleController:get_env()
-  return table.clone(self.main_env)
+function ConsoleController:get_console_env()
+  return self.main_env
 end
 
 ---@return LuaEnv
