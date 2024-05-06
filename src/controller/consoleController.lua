@@ -57,23 +57,23 @@ function ConsoleController:set_view(V)
 end
 
 --- @param f function
---- @param C ConsoleController
+--- @param cc ConsoleController
 --- @param project_path string?
 --- @return boolean success
 --- @return string? errmsg
-local function run_user_code(f, C, project_path)
+local function run_user_code(f, cc, project_path)
   local G = love.graphics
-  local output = C.model.output
-  local env = C:get_base_env()
+  local output = cc.model.output
+  local env = cc:get_base_env()
 
-  G.setCanvas(C:get_canvas())
+  G.setCanvas(cc:get_canvas())
   G.push('all')
   G.setColor(Color[Color.black])
   local old_path = package.path
   local ok, call_err
   if project_path then
     package.path = string.format('%s;%s/?.lua', package.path, project_path)
-    env = C.project_env
+    env = cc.project_env
   end
   ok, call_err = pcall(f)
   if project_path then -- user project exec
