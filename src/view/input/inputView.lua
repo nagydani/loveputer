@@ -1,6 +1,6 @@
 local G = love.graphics
 
-require("view.statusline")
+require("view.input.statusline")
 require("util.debug")
 require("util.view")
 
@@ -10,6 +10,7 @@ require("util.view")
 --- @field cfg Config
 --- @field draw function
 --- @field statusline table
+--- @field oneshot boolean
 InputView = {}
 
 function InputView:new(cfg, ctrl)
@@ -17,6 +18,7 @@ function InputView:new(cfg, ctrl)
     cfg = cfg,
     controller = ctrl,
     statusline = Statusline:new(cfg),
+    oneshot = ctrl.model.oneshot
   }
   setmetatable(iv, self)
   self.__index = self
@@ -25,15 +27,27 @@ function InputView:new(cfg, ctrl)
 end
 
 --- @param input InputDTO
+--- @param time number
 function InputView:draw(input, time)
   local status = self.controller:get_status()
   local colors = self.cfg.view.colors
+  local fg, bg = (function()
+    if self.oneshot then
+      return
+          colors.input.user.fg, colors.input.user.bg
+    end
+    return colors.input.fg, colors.input.bg
+  end)()
   local b = self.cfg.view.border
   local fh = self.cfg.view.fh
   local fw = self.cfg.view.fw
   local h = self.cfg.view.h
-  local drawableWidth = self.cfg.drawableWidth
-  local drawableChars = self.cfg.drawableChars
+  local drawableWidth = self.cfg.view.drawableWidth
+  local drawableChars = self.cfg.view.drawableChars
+  -- drawtest hack
+  if drawableWidth < love.fixWidth / 3 then
+    drawableChars = drawableChars * 2
+  end
 
   local highlight = input.highlight
   local text = input.text
@@ -84,7 +98,7 @@ function InputView:draw(input, time)
   end
 
   local drawBackground = function()
-    G.setColor(colors.input.bg)
+    G.setColor(bg)
     G.rectangle("fill",
       b,
       start_y,
@@ -114,14 +128,14 @@ function InputView:draw(input, time)
 
   -- draw
   G.push('all')
-  G.scale(self.cfg.view.fac, self.cfg.view.fac)
+  G.scale(self.cfg.view.FAC, self.cfg.view.FAC)
   G.setFont(self.cfg.view.font)
   G.setBackgroundColor(colors.input.bg)
-  G.setColor(colors.input.fg)
-  self.statusline:draw(status, apparentLines, time)
+  G.setColor(fg)
+  self.statusline:draw(status, apparentLines, time, self.oneshot)
   drawBackground()
 
-  G.setColor(colors.input.fg)
+  G.setColor(fg)
   if love.timer.getTime() % 1 > 0.5 then
     drawCursor()
   end

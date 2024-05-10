@@ -12,7 +12,7 @@ Model = {}
 function Model:new(cfg)
   local c = {
     interpreter = InterpreterModel:new(cfg),
-    output = CanvasModel:new(cfg),
+    output = CanvasModel.new(cfg),
     projects = ProjectService:new(),
   }
   setmetatable(c, self)

@@ -8,34 +8,81 @@ require("util.table")
 --- @class ConsoleController
 --- @field time number
 --- @field model Model
---- @field base_env table
---- @field env table
---- @field project_env table
+--- @field main_env LuaEnv
+--- @field pre_env LuaEnv
+--- @field base_env LuaEnv
+--- @field project_env LuaEnv
 --- @field input InputController
+--- @field view ConsoleView?
 ConsoleController = {}
+ConsoleController.__index = ConsoleController
+
+setmetatable(ConsoleController, {
+  __call = function(cls, ...)
+    return cls.new(...)
+  end,
+})
+
+--- @param M Model
+function ConsoleController.new(M)
+  local env = getfenv()
+  local pre_env = table.clone(env)
+  local IC = InputController:new(M.interpreter.input)
+  local self = setmetatable({
+    time        = 0,
+    model       = M,
+    input       = IC,
+    -- console runner env
+    main_env    = env,
+    -- copy of the application's env before the prep
+    pre_env     = pre_env,
+    -- the project env where we make the API available
+    base_env    = {},
+    -- this is the env in which the user project runs
+    -- subject to change, for example when switching projects
+    project_env = {},
+
+    view        = nil,
+  }, ConsoleController)
+  -- initialize the stub env tables
+  ConsoleController.prepare_env(self)
+  ConsoleController.prepare_project_env(self)
+
+  return self
+end
+
+--- @param V ConsoleView
+function ConsoleController:set_view(V)
+  self.view = V
+end
 
 --- @param f function
---- @param M Model
+--- @param C ConsoleController
+--- @param project_path string?
 --- @return boolean success
 --- @return string? errmsg
-local function run_user_code(f, M, extra_path)
+local function run_user_code(f, C, project_path)
   local G = love.graphics
-  local output = M.output
+  local output = C.model.output
+  local env = C:get_base_env()
 
+  G.setCanvas(C:get_canvas())
   G.push('all')
   G.setColor(Color[Color.black])
-  output:draw_to()
   local old_path = package.path
   local ok, call_err
-  if extra_path then
-    package.path = string.format('%s;%s/?.lua', package.path, extra_path)
-    ok, call_err = pcall(f)
-    package.path = old_path
-  else
-    ok, call_err = pcall(f)
+  if project_path then
+    package.path = string.format('%s;%s/?.lua', package.path, project_path)
+    env = C.project_env
   end
+  ok, call_err = pcall(f)
+  if project_path then -- user project exec
+    Controller.set_user_handlers(env['love'])
+  end
+  package.path = old_path
   output:restore_main()
   G.pop()
+  G.setCanvas()
   if not ok then
     local e = LANG.parse_error(call_err)
     return false, e
@@ -43,14 +90,29 @@ local function run_user_code(f, M, extra_path)
   return true
 end
 
---- Put API functions into the env table
---- @param prepared table
---- @param M Model
---- @param runner_env table
-local function prepare_env(prepared, M, runner_env)
+--- @param cc ConsoleController
+local function close_project(cc)
+  local ok = cc:close_project()
+  if ok then
+    print('Project closed')
+  end
+end
+
+function ConsoleController.prepare_env(cc)
+  local prepared            = cc.main_env
   prepared.G                = love.graphics
 
-  local P                   = M.projects
+  local P                   = cc.model.projects
+
+  --- @param f function
+  local check_open_pr       = function(f)
+    if not P.current then
+      print(P.messages.no_open_project)
+    else
+      return f()
+    end
+  end
+
   prepared.list_projects    = function()
     local ps = P:list()
     if ps:is_empty() then
@@ -58,7 +120,7 @@ local function prepare_env(prepared, M, runner_env)
       print(P.messages.no_projects)
     else
       -- list projects
-      M.output:reset()
+      cc.model.output:reset()
       print(P.messages.list_header)
       for _, p in ipairs(ps) do
         print('> ' .. p.name)
@@ -79,10 +141,7 @@ local function prepare_env(prepared, M, runner_env)
   end
 
   prepared.close_project    = function()
-    local ok = P:close()
-    if ok then
-      print('Project closed')
-    end
+    close_project(cc)
   end
 
   prepared.current_project  = function()
@@ -97,15 +156,6 @@ local function prepare_env(prepared, M, runner_env)
     local ok, err = P:deploy_examples()
     if not ok then
       print('err: ' .. err)
-    end
-  end
-
-  --- @param f function
-  local check_open_pr       = function(f)
-    if not P.current then
-      print(P.messages.no_open_project)
-    else
-      return f()
     end
   end
 
@@ -156,12 +206,22 @@ local function prepare_env(prepared, M, runner_env)
   end
 
   prepared.run_project      = function(name)
+    if love.state.app_state == 'inspect' or
+        love.state.app_state == 'running'
+    then
+      cc.model.interpreter:set_error("There's already a project running!", true)
+      return
+    end
+    local runner_env = cc:get_project_env()
     local f, err, path = P:run(name, runner_env)
-    local n = name or P.current.name or 'project'
     if f then
-      local ok, run_err = run_user_code(f, M, path)
+      local n = name or P.current.name or 'project'
+      Log.info('Running \'' .. n .. '\'')
+      local ok, run_err = run_user_code(f, cc, path)
       if ok then
-        Log('Running \'' .. n .. '\' finished')
+        if Controller.has_user_update() then
+          love.state.app_state = 'running'
+        end
       else
         print('Error: ', run_err)
       end
@@ -169,16 +229,47 @@ local function prepare_env(prepared, M, runner_env)
       print(err)
     end
   end
+end
+
+--- API functions for the user
+--- @param cc ConsoleController
+function ConsoleController.prepare_project_env(cc)
+  local interpreter         = cc.model.interpreter
+  ---@type table
+  local project_env         = cc:get_pre_env_c()
+  project_env.G             = love.graphics
+
+  --- @param msg string?
+  project_env.stop          = function(msg)
+    cc:suspend_run(msg)
+  end
+
+  project_env.continue      = function()
+    if love.state.app_state == 'inspect' then
+      -- resume
+      love.state.app_state = 'running'
+      Controller.restore_user_handlers()
+    else
+      print('No project halted')
+    end
+  end
+
+  project_env.close_project = function()
+    close_project(cc)
+  end
 
   --- @param type InputType
   --- @param result any
   local input               = function(type, result)
-    local cfg = M.interpreter.cfg
+    if love.state.user_input then
+      return -- there can be only one
+    end
+    local cfg = interpreter.cfg
     local eval
     if type == 'lua' then
-      eval = M.interpreter.luaInput
+      eval = interpreter.luaInput
     elseif type == 'text' then
-      eval = M.interpreter.textInput
+      eval = interpreter.textInput
     else
       Log('Invalid input type!')
       return
@@ -192,34 +283,20 @@ local function prepare_env(prepared, M, runner_env)
     }
   end
 
-  prepared.input_code       = function(result)
+  project_env.input_code    = function(result)
     return input('lua', result)
   end
-  prepared.input_text       = function(result)
+  project_env.input_text    = function(result)
     return input('text', result)
   end
+
+  local base                = table.clone(project_env)
+  local project             = table.clone(project_env)
+  cc:_set_base_env(base)
+  cc:_set_project_env(project)
 end
 
---- @param M Model
-function ConsoleController:new(M)
-  local env = getfenv()
-  local project_env = getfenv()
-  prepare_env(env, M, project_env)
-  local IC = InputController:new(M.interpreter.input)
-  local cc = {
-    time        = 0,
-    model       = M,
-    base_env    = table.clone(env),
-    env         = table.clone(env),
-    project_env = project_env,
-    input       = IC,
-  }
-  setmetatable(cc, self)
-  self.__index = self
-
-  return cc
-end
-
+---@param dt number
 function ConsoleController:pass_time(dt)
   self.time = self.time + dt
   self.model.output.terminal:update(dt)
@@ -231,14 +308,11 @@ function ConsoleController:get_timestamp()
 end
 
 function ConsoleController:evaluate_input()
+  --- @type Model
+  local M = self.model
   --- @type InterpreterModel
-  local interpreter = self.model.interpreter
+  local interpreter = M.interpreter
   local input = interpreter.input
-  local P = self.model.projects
-  local project_path
-  if P.current then
-    project_path = P.current.path
-  end
 
   local text = input:get_text()
   local eval = input.evaluator
@@ -247,15 +321,21 @@ function ConsoleController:evaluate_input()
   if eval.is_lua then
     if eval_ok then
       local code = string.join(text, '\n')
-      local f, load_err = load(code, '', 't', self.env)
+      local run_env = (function()
+        if love.state.app_state == 'inspect' then
+          return self:get_project_env()
+        end
+        return self:get_env()
+      end)()
+      local f, load_err = load(code, '', 't', run_env)
       if f then
-        local _, err = run_user_code(f, self.model, project_path)
+        local _, err = run_user_code(f, self)
         if err then
           interpreter:set_error(err, true)
         end
       else
         -- this means that metalua failed to catch some invalid code
-        orig_print('Load error:', LANG.parse_error(load_err))
+        Log.error('Load error:', LANG.parse_error(load_err))
         interpreter:set_error(load_err, true)
       end
     else
@@ -269,7 +349,7 @@ function ConsoleController:evaluate_input()
 end
 
 function ConsoleController:_reset_executor_env()
-  self.env = table.clone(self.base_env)
+  self:_set_project_env(table.clone(self.base_env))
 end
 
 function ConsoleController:reset()
@@ -277,15 +357,91 @@ function ConsoleController:reset()
   self.model.interpreter:reset(true) -- clear history
 end
 
+---@return LuaEnv
+function ConsoleController:get_env()
+  return table.clone(self.main_env)
+end
+
+---@return LuaEnv
+function ConsoleController:get_pre_env_c()
+  return table.clone(self.pre_env)
+end
+
+---@return LuaEnv
+function ConsoleController:get_project_env()
+  return self.project_env
+end
+
+---@return LuaEnv
+function ConsoleController:get_base_env()
+  return self.base_env
+end
+
+---@param t LuaEnv
+function ConsoleController:_set_project_env(t)
+  self.project_env = t
+end
+
+---@param t LuaEnv
+function ConsoleController:_set_base_env(t)
+  self.base_env = t
+  table.protect(t)
+end
+
+--- @param msg string?
+function ConsoleController:suspend_run(msg)
+  -- local base_env   = self:get_base_env()
+  local runner_env = self:get_project_env()
+  if love.state.app_state ~= 'running' then
+    return
+  end
+  Log.info('Suspending project run')
+  love.state.app_state = 'inspect'
+  if msg then
+    self.model.interpreter:set_error(tostring(msg), true)
+  end
+
+  self.model.output:invalidate_terminal()
+
+  Controller.save_user_handlers(runner_env['love'])
+  Controller.set_default_handlers(self, self.view)
+end
+
+function ConsoleController:close_project()
+  local P = self.model.projects
+  P:close()
+  self:_reset_executor_env()
+  Controller.clear_user_handlers()
+  self.model.output:clear_canvas()
+  love.state.app_state = 'ready'
+end
+
 function ConsoleController:quit_project()
   self.model.output:reset()
   self.model.interpreter:reset()
   nativefs.setWorkingDirectory(love.filesystem.getSourceBaseDirectory())
-  Controller.set_default_handlers()
-  Controller.set_love_update()
+  Controller.set_default_handlers(self, self.view)
+  Controller.set_love_update(self)
   love.state.user_input = nil
-  View.set_love_draw()
-  self:_reset_executor_env()
+  Controller.set_love_draw(self, self.view)
+  -- TODO clean snap and everything
+  self:close_project()
+end
+
+function ConsoleController:clear_error()
+  self.model.interpreter:clear_error()
+end
+
+function ConsoleController:textinput(t)
+  local interpreter = self.model.interpreter
+  if interpreter:has_error() then
+    interpreter:clear_error()
+  else
+    if Key.ctrl() and Key.shift() then
+      return
+    end
+    self.input:textinput(t)
+  end
 end
 
 function ConsoleController:keypressed(k)
@@ -303,16 +459,19 @@ function ConsoleController:keypressed(k)
     end
   end
 
-  if interpreter:has_error() then
-    interpreter:clear_error()
-    return
-  end
-
   if love.state.testing == 'running' then
     return
   end
   if love.state.testing == 'waiting' then
     terminal_test()
+    return
+  end
+
+  if self.model.interpreter:has_error() then
+    if k == 'space' or Key.is_enter(k)
+        or k == "up" or k == "down" then
+      self:clear_error()
+    end
     return
   end
 
@@ -332,7 +491,9 @@ function ConsoleController:keypressed(k)
     end
   end
   if not Key.shift() and Key.is_enter(k) then
-    self:evaluate_input()
+    if not interpreter:has_error() then
+      self:evaluate_input()
+    end
   end
 
   -- Ctrl held
@@ -358,12 +519,17 @@ function ConsoleController:keypressed(k)
   end
 end
 
+--- @param k string
 function ConsoleController:keyreleased(k)
   self.input:keyreleased(k)
 end
 
 function ConsoleController:get_terminal()
   return self.model.output.terminal
+end
+
+function ConsoleController:get_canvas()
+  return self.model.output.canvas
 end
 
 --- @return ViewData

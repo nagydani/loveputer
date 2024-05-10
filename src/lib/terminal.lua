@@ -125,7 +125,6 @@ local function wrap_if_bottom(terminal)
         terminal_roll_up(terminal, terminal.cursor_y - terminal.height)
         terminal.cursor_y = terminal.height
     end
-    terminal:redraw()
 end
 
 local function terminal_update(terminal, dt)
@@ -146,7 +145,6 @@ local function terminal_update(terminal, dt)
                 terminal.cursor_y = terminal.cursor_y + 1
                 wrap_if_bottom(terminal)
             else
-                wrap_if_bottom(terminal)
                 terminal_update_character(terminal,
                     terminal.cursor_x,
                     terminal.cursor_y,
@@ -155,6 +153,7 @@ local function terminal_update(terminal, dt)
                 if terminal.cursor_x > terminal.width then
                     terminal.cursor_x = 1
                     terminal.cursor_y = terminal.cursor_y + 1
+                    wrap_if_bottom(terminal)
                 end
                 terminal.dirty = true
             end
@@ -244,14 +243,8 @@ local function terminal_update(terminal, dt)
     end
     terminal.stdin = rest
 end
-local function terminal_redraw(terminal)
-    for _, row in ipairs(terminal.state_buffer) do
-        for _, state in ipairs(row) do
-            state.dirty = true
-        end
-    end
-end
 
+--- @param terminal table
 local function terminal_draw(terminal)
     local char_width, char_height = terminal.char_width, terminal.char_height
     if terminal.dirty then
@@ -344,25 +337,38 @@ local function terminal_load_position(terminal)
     table.insert(terminal.stdin, { type = "load" })
 end
 
+--- @class Terminal table
+--- @field width integer
+--- @field height integer
+--- @field update function
+--- @field show_cursor boolean
+--- @field cursor_x integer
+--- @field cursor_y integer
+--- @field saved_cursor_x integer
+--- @field saved_cursor_y integer
+--- @field cursor_color table
+--- @field cursor_backcolor table
+--- @field cursor_reversed boolean
+--- @field dirty boolean
+--- @field char_width integer
+--- @field char_height integer
+--- @field speed integer
+--- @field char_cost integer
+--- @field accumulator integer
+--- @field stdin table
+--- @field clear_color table
+--- @field clear_color_alpha table
+--- @field canvas love.Canvas
+--- @field buffer table
+--- @field state_buffer table
 
+--- @return Terminal
 local function terminal(self, width, height,
-                        font, custom_char_width, custom_char_height,
-                        custom_canvas)
+                        font, custom_char_width, custom_char_height)
     local char_width = custom_char_width or font:getWidth('█')
     local char_height = custom_char_height or font:getHeight()
     local num_columns = math.floor(width / char_width)
     local num_rows = math.floor(height / char_height)
-    local canvas
-    local rh = math.floor(height)
-    if custom_canvas
-        and math.floor(custom_canvas:getHeight()) == rh
-        and custom_canvas:getWidth() == width
-    then
-        canvas = custom_canvas
-    else
-        canvas = love.graphics.newCanvas(width, height)
-    end
-
     local instance = {
         width = math.floor(num_columns),
         height = math.floor(num_rows),
@@ -387,10 +393,11 @@ local function terminal(self, width, height,
         stdin = {},
 
         clear_color = { 0, 0, 0 },
+        clear_color_alpha = { 1, 1, 1, 0 },
 
-        canvas = canvas,
+        canvas = love.graphics.newCanvas(width, height),
         buffer = {},
-        state_buffer = {}
+        state_buffer = {},
     }
 
     for i = 1, num_rows do
@@ -421,7 +428,6 @@ local function terminal(self, width, height,
     instance.reverse_cursor = terminal_reverse
     instance.set_cursor_color = terminal_set_cursor_color
     instance.set_cursor_backcolor = terminal_set_cursor_backcolor
-    instance.redraw = terminal_redraw
 
     instance.frame = terminal_frame
 

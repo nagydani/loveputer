@@ -21,15 +21,15 @@ jobs:
   run-busted:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: "true"
 
-      - uses: leafo/gh-actions-lua@v10
+      - uses: jkl1337/gh-actions-lua@v11
         with:
           # luaVersion: "5.3"
           luaVersion: "luajit-2.1.0-beta3"
-      - uses: leafo/gh-actions-luarocks@v4
+      - uses: jkl1337/gh-actions-luarocks@v5
         with:
           luarocksVersion: "3.9.2"
       - name: install dependencies
@@ -45,7 +45,7 @@ jobs:
     needs:
       - run-busted
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: "true"
       - name: Build bare love package
@@ -54,12 +54,12 @@ jobs:
           build-list: "./src/*"
           package-path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
       - name: upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.LOVE_ARTIFACT_NAME }}
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
       - name: upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: game.love
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
@@ -69,11 +69,11 @@ jobs:
     needs: build-love
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: "true"
       - name: Download love package
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ env.LOVE_ARTIFACT_NAME }}
           # path: ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_ARTIFACT_NAME }}
@@ -91,12 +91,12 @@ jobs:
           output-folder: ${{ env.OUTPUT_FOLDER }}
           icon-path: ./src/assets/example_icon.png
       - name: upload .deb
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.LOVE_DEB }}
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_DEB }}
       - name: upload AppImage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.LOVE_APPIMAGE }}
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_APPIMAGE }}
@@ -107,17 +107,17 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     steps:
       - name: Download love package
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ env.LOVE_ARTIFACT_NAME }}
       - name: Build HTML
         run: |
-          sudo apt install nodejs
+          sudo apt update && sudo apt install -y nodejs
           npm i -g love.js
-          love.js -c ${{ env.LOVE_ARTIFACT_NAME }} ./${{ env.OUTPUT_FOLDER }} --title "LÖVEputer" --memory 67108864
+          love.js -c ${{ env.LOVE_ARTIFACT_NAME }} ./${{ env.OUTPUT_FOLDER }} --title "${{ env.PRODUCT_NAME }}" --memory 67108864
           7z a ${{ env.ARTIFACT_FOLDER }}/${{ env.LOVE_JS }} ./${{ env.OUTPUT_FOLDER }}/*
       - name: upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.LOVE_JS }}
           path: ${{ env.ARTIFACT_FOLDER }}
@@ -129,11 +129,11 @@ jobs:
     env:
       ACTIONS_STEP_DEBUG: true
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: "true"
       - name: Download love package
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: game.love
           path: ./
@@ -143,7 +143,7 @@ jobs:
           VER: ${{ github.ref_name }}
         run: echo VER_CODE="$(echo $VERSION | sed -e 's/^v//' -e 's/\.//g')" >> $GITHUB_ENV
       - name: Package for android
-        uses: aldum/love-actions-android@v0.1.1
+        uses: aldum/love-actions-android@v0.2.1
         with:
           love-ref: "loveputer"
           no-soft-keyboard: "enabled"
@@ -161,12 +161,12 @@ jobs:
           keystore-key-password: ${{ secrets.ANDROID_KEYSTORE_KEYPASSWORD }}
           keystore-store-password: ${{ secrets.ANDROID_KEYSTORE_STOREPASSWORD }}
       - name: upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.LOVE_DEBUG_APK_NAME }}
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_DEBUG_APK_NAME }}
       - name: upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.LOVE_APK_NAME }}
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_APK_NAME }}
@@ -183,27 +183,27 @@ jobs:
       - build-web
       - build-android
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ env.LOVE_ARTIFACT_NAME }}
           path: ${{ env.ARTIFACT_FOLDER }}
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ env.LOVE_APPIMAGE }}
           path: ${{ env.ARTIFACT_FOLDER }}
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ env.LOVE_DEB }}
           path: ${{ env.ARTIFACT_FOLDER }}
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ env.LOVE_JS }}
           path: ${{ env.ARTIFACT_FOLDER }}
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ env.LOVE_DEBUG_APK_NAME }}
           path: ${{ env.ARTIFACT_FOLDER }}
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ env.LOVE_APK_NAME }}
           path: ${{ env.ARTIFACT_FOLDER }}
@@ -219,6 +219,6 @@ jobs:
       - name: control
         run: ls -lR ${{ env.ARTIFACT_FOLDER }}/
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2.0.1
         with:
           files: ${{ env.ARTIFACT_FOLDER }}/*

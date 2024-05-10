@@ -19,7 +19,11 @@ function love.conf(t)
   end
   love.fixHeight = t.window.height
   love.fixWidth = t.window.width
+  love.test_grid_x = 4
+  love.test_grid_y = 4
 
   -- Android: use SD card for storage
   t.externalstorage = true
+
+  require('host').spec(t)
 end

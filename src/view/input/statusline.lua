@@ -15,16 +15,27 @@ end
 ---@param status Status
 ---@param nLines integer
 ---@param time number?
-function Statusline:draw(status, nLines, time)
+---@param oneshot boolean?
+function Statusline:draw(status, nLines, time, oneshot)
   local cf = self.cfg.view
   local b = cf.border
   local h = cf.h
   local w = cf.w
   local fh = cf.fh
   local colors = cf.colors
+  local fg, bg = (function()
+    if oneshot then
+      return colors.statusline.user.fg, colors.statusline.user.bg
+    end
+    return colors.statusline.fg, colors.statusline.bg
+  end)()
+  if love.state.app_state == 'inspect' then
+    fg, bg = colors.statusline.inspect.fg, colors.statusline.inspect.bg
+  end
+
 
   G.push('all')
-  G.setColor(colors.statusline.bg)
+  G.setColor(bg)
   G.setFont(cf.font)
   local sy = h - b - (1 + nLines) * fh
   local start_box = { x = 0, y = sy }
@@ -34,10 +45,11 @@ function Statusline:draw(status, nLines, time)
   }
   local endTextX = start_box.x + w - fh
   local midX = (start_box.x + w) / 2
-  G.rectangle("fill", start_box.x, start_box.y, w, fh)
+  local corr = 2 -- correct for fractional slit left under the terminal
+  G.rectangle("fill", start_box.x, start_box.y - corr, w, fh + corr)
 
   if not status then return end
-  G.setColor(colors.statusline.fg)
+  G.setColor(fg)
   if status.input_type then
     G.print(status.input_type, start_text.x, start_text.y)
   end
@@ -46,10 +58,11 @@ function Statusline:draw(status, nLines, time)
     if love.state.testing then
       G.print('testing', midX - (8 * cf.fw + cf.border), start_text.y)
     end
+    G.print(love.state.app_state, midX - (13 * cf.fw), start_text.y)
     if time then
       G.print(tostring(time), midX, start_text.y)
     end
-    G.setColor(colors.statusline.fg)
+    G.setColor(fg)
   end
   if status.cursor then
     local c = status.cursor
@@ -62,7 +75,7 @@ function Statusline:draw(status, nLines, time)
       G.setColor(colors.statusline.indicator)
     end
     G.print(pos_l, sx, start_text.y)
-    G.setColor(colors.statusline.fg)
+    G.setColor(fg)
     G.print(pos_c, sx + lw, start_text.y)
   end
   G.pop()

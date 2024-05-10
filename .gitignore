@@ -4,8 +4,10 @@
 /.luarocks
 .history
 dist/*
-doc/0*.md
+doc/*.md
 doc/parse
 *.lua_
+*.odg#
 src/assets/*.xcf
 src/assets/shot*.png
+host.lua

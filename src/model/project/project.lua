@@ -210,10 +210,14 @@ end
 --- @return boolean success
 --- @return string? errmsg
 function ProjectService:open(name)
-  local ok, p_err = is_project(self.path, name)
-  -- TODO: noop if already open
-  if ok then
+  local path, p_err = is_project(self.path, name)
+  -- noop if already open
+  if self.current == name then
+    return true
+  end
+  if path then
     self.current = Project:new(name)
+    nativefs.setWorkingDirectory(path)
     return true
   end
   return false, p_err
@@ -251,13 +255,14 @@ function ProjectService:deploy_examples()
     return false, 'No examples'
   end
   for _, i in ipairs(examples) do
+    -- TODO: remove linter magic (@diagnostic disable-next-line:)
     if i and i.type == 'directory' then
       local s_path = string.join_path(ex_base, i.name)
       local t_path = string.join_path(ProjectService.path, i.name)
-      Log('INFO: copying example ' .. i.name .. ' to ' .. t_path)
+      Log.info('copying example ' .. i.name .. ' to ' .. t_path)
       local ok, err = FS.cp_r(s_path, t_path, true)
       if not ok then
-        Log('ERR: ' .. err)
+        Log.error(err)
         cp_ok = false
         cp_err = err
       end
@@ -277,7 +282,6 @@ function ProjectService:run(name, env)
   if not name then
     if self.current then
       p_path = self.current.path
-      nativefs.setWorkingDirectory(p_path)
     else
       return nil, messages.no_open_project
     end
@@ -286,6 +290,7 @@ function ProjectService:run(name, env)
   end
   if p_path then
     local main = string.join_path(p_path, MAIN)
+    self:open(name or self.current.name)
     return loadfile(main, 't', env), nil, p_path
   end
   return nil, err

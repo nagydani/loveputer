@@ -18,22 +18,27 @@
 ---| 2
 
 --- @class ViewConfig table
---- @field border integer
 --- @field font table
 --- @field fh integer -- font height
 --- @field fw integer -- font width
 --- @field lh integer -- line height
+--- @field labelfont table
+--- @field lfh integer -- font height
+--- @field lfw integer -- font width
+--- @field border integer
 --- @field FAC Fac
 --- @field h integer
 --- @field w integer
-
---- @class Config table
---- @field view ViewConfig
+--- @field colors Colors
 --- @field debugheight integer
 --- @field debugwidth integer
 --- @field drawableWidth number
 --- @field drawableChars integer
---- @field testrun boolean
+
+--- @class Config table
+--- @field view ViewConfig
+--- @field autotest boolean
+--- @field drawtest boolean
 --- @field sizedebug boolean
 
 --- @class Status table
@@ -59,3 +64,25 @@
 --- @field M InputModel
 --- @field V InputView
 --- @field C InputController
+
+---@alias AppState
+---| 'starting'
+---| 'title'
+---| 'ready'
+---| 'project_open'
+---| 'running'
+---| 'inspect'
+
+--- @class LoveState table
+--- @field testing boolean
+--- @field has_removable boolean
+--- @field user_input UserInput?
+--- @field app_state AppState
+
+--- @class LoveDebug table
+--- @field show_snapshot boolean
+--- @field show_terminal boolean
+--- @field show_canvas boolean
+--- @field show_input boolean
+
+--- @class LuaEnv : table

@@ -21,7 +21,9 @@ end
 
 --- @param t string
 function InputController:textinput(t)
-  -- TODO: block with events
+  if not self.result and love.state.app_state == 'running' then
+    return
+  end
   self.model:add_text(t)
 end
 
@@ -62,7 +64,10 @@ function InputController:keypressed(k)
   if not Key.ctrl() and k == "escape" then
     input:cancel()
   end
-  local function paste() input:paste(love.system.getClipboardText()) end
+  local function paste()
+    input:paste(love.system.getClipboardText())
+    input:clear_selection()
+  end
   local function copy()
     local t = input:get_selected_text()
     love.system.setClipboardText(string.join(t, '\n'))

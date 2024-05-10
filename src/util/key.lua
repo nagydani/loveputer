@@ -14,8 +14,14 @@ local function ctrl()
   return love.keyboard.isDown("lctrl", "rctrl")
 end
 
+--- @return boolean
+local function alt()
+  return love.keyboard.isDown("lalt", "ralt")
+end
+
 Key = {
   is_enter = is_enter,
   shift    = shift,
   ctrl     = ctrl,
+  alt      = alt,
 }

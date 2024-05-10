@@ -23,6 +23,23 @@ Color = {
   yellow = 6,  -- #bfbf00 #ffff00
   white = 7,   -- #bfbfbf #ffffff
   bright = 8,
+
+  valid = function(c)
+    return c
+        and type(c) == 'number'
+        and math.floor(c) == c -- weird way to isInt
+        and c >= 0
+        and c < 16
+  end,
+
+  --- @param color table
+  --- @param alpha number
+  with_alpha = function(color, alpha)
+    if type(color) == "table" then
+      local red, blue, green = color[1], color[2], color[3]
+      return { red, green, blue, alpha }
+    end
+  end
 }
 
 

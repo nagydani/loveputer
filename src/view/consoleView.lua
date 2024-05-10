@@ -1,12 +1,19 @@
 require("view.titleView")
-require("view.canvasView")
-require("view.interpreterView")
+require("view.canvas.canvasView")
+require("view.input.interpreterView")
 require("util.color")
 require("util.view")
 require("util.debug")
 
 local G = love.graphics
 
+--- @class ConsoleView
+--- @field title table
+--- @field canvas CanvasView
+--- @field interpreter InterpreterView
+--- @field controller ConsoleController
+--- @field cfg Config
+--- @field drawable_height number
 ConsoleView = {}
 
 --- @param cfg Config
@@ -28,13 +35,21 @@ function ConsoleView:new(cfg, ctrl)
 end
 
 --- @param terminal table
+--- @param canvas love.Canvas
 --- @param input InputDTO
-function ConsoleView:draw(terminal, input)
+--- @param snapshot love.Image?
+function ConsoleView:draw(terminal, canvas, input, snapshot)
+  G.reset()
   if love.DEBUG then
     self:draw_placeholder()
   end
-  self.canvas:draw(terminal, self.drawable_height)
-  self.interpreter:draw(input)
+
+  local tc = self.controller.model.output.term_canvas
+  self.canvas:draw(terminal, canvas, tc, self.drawable_height, snapshot)
+
+  if ViewUtils.conditional_draw('show_input') then
+    self.interpreter:draw(input)
+  end
 end
 
 function ConsoleView:draw_placeholder()
@@ -42,9 +57,9 @@ function ConsoleView:draw_placeholder()
   local w    = self.cfg.view.w
   local h    = self.cfg.view.h
   G.push('all')
-  love.graphics.setColor(Color[Color.yellow])
+  G.setColor(Color[Color.yellow])
   for o = -h, w, 2 * band do
-    love.graphics.polygon("fill"
+    G.polygon("fill"
     , o + 0, h
     , o + h, 0
     , o + h + band, 0

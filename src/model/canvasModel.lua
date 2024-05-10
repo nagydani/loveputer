@@ -8,6 +8,7 @@ local G = love.graphics
 --- @class CanvasModel
 --- @field terminal table
 --- @field canvas love.Canvas
+--- @field term_canvas love.Canvas
 --- @field cfg table
 --- @field write function
 --- @field push function
@@ -17,33 +18,43 @@ local G = love.graphics
 --- @field draw_to function
 --- @field restore_main function
 CanvasModel = {}
+CanvasModel.__index = CanvasModel
 
-function CanvasModel:new(cfg)
+setmetatable(CanvasModel, {
+  __call = function(cls, ...)
+    return cls.new(...)
+  end,
+})
+
+--- @param cfg Config
+function CanvasModel.new(cfg)
   local w, h
   if cfg.sizedebug then
-    w = cfg.debugwidth * cfg.fw
-    h = cfg.debugheight * cfg.fh
+    w = cfg.view.debugwidth * cfg.view.fw
+    h = cfg.view.debugheight * cfg.view.fh
   else
-    w = G.getWidth() - 2 * cfg.view.border
-    h = ViewUtils.get_drawable_height(cfg.view)
+    w = cfg.view.w
+    -- h = ViewUtils.get_drawable_height(cfg.view)
+    h = cfg.view.h
   end
   local canvas = love.graphics.newCanvas(w, h)
-  local term = Terminal(w, h, cfg.view.font, nil, cfg.view.fh * cfg.view.lh, canvas)
+  local custom_height = cfg.view.fh * cfg.view.lh
+  local term = Terminal(w, h, cfg.view.font, nil, custom_height)
 
   local color = cfg.view.colors.terminal
   term:hide_cursor()
   term:set_cursor_color(unpack(color.fg))
   term:set_cursor_backcolor(unpack(color.bg))
   term:clear()
-  local cm = {
+  local t_canvas = term.canvas
+  local self = setmetatable({
     terminal = term,
     canvas = canvas,
+    term_canvas = t_canvas,
     cfg = cfg,
-  }
-  setmetatable(cm, self)
-  self.__index = self
+  }, CanvasModel)
 
-  return cm
+  return self
 end
 
 function CanvasModel:write(text)
@@ -66,12 +77,21 @@ function CanvasModel:reset()
   self.terminal:move_to(1, 1)
 end
 
+function CanvasModel:invalidate_terminal()
+end
+
 function CanvasModel:update(dt)
   self.terminal:update(dt)
 end
 
 function CanvasModel:get_canvas()
   return self.canvas
+end
+
+function CanvasModel:clear_canvas()
+  return self.canvas:renderTo(function()
+    G.clear(0, 0, 0, 0)
+  end)
 end
 
 function CanvasModel:draw_to()

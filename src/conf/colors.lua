@@ -9,6 +9,11 @@ local syntax_i = {
 }
 
 --- @class Colors
+--- @field border table
+--- @field debug table
+--- @field terminal table
+--- @field input table
+--- @field statusline table
 return {
   border = Color[Color.black + Color.bright],
   debug = Color[Color.yellow],
@@ -19,6 +24,10 @@ return {
   input = {
     bg = Color[Color.white],
     fg = Color[Color.blue + Color.bright],
+    user = {
+      bg = Color[Color.black + Color.bright],
+      fg = Color[Color.white],
+    },
     cursor = Color[Color.white + Color.bright],
     error = Color[Color.red],
     error_bg = Color[Color.black],
@@ -34,6 +43,14 @@ return {
   statusline = {
     fg = Color[Color.white + Color.bright],
     bg = Color[Color.black],
+    user = {
+      bg = Color[Color.blue],
+      fg = Color[Color.white],
+    },
+    inspect = {
+      bg = Color[Color.red],
+      fg = Color[Color.black],
+    },
     indicator = Color[Color.cyan + Color.bright],
   },
 }

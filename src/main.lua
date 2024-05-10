@@ -12,7 +12,7 @@ require("util.debug")
 G = love.graphics
 
 --- Find removable and user-writable storage
---- Assumptions are made, which are might be to the target platform/device
+--- Assumptions are made, which might be specific to the target platform/device
 ---@return boolean success
 ---@return string? path
 local android_storage_find = function()
@@ -37,16 +37,26 @@ local android_storage_find = function()
   return false
 end
 
-function love.load(args)
-  --- CLI arguments
-  local testrun = false
+--- CLI arguments
+--- @param args table
+local argparse = function(args)
+  local autotest = false
+  local drawtest = false
   local sizedebug = false
   for _, a in ipairs(args) do
-    if a == '--test' then testrun = true end
+    if a == '--autotest' then autotest = true end
     if a == '--size' then sizedebug = true end
+    if a == '--drawtest' then
+      drawtest = true
+      sizedebug = true
+    end
   end
+  return autotest, drawtest, sizedebug
+end
 
-  --- Display
+--- Display
+--- @return ViewConfig
+local config_view = function(sizedebug)
   local FAC = 1
   if love.hiDPI then FAC = 2 end
   local font_size = 32.4 * FAC
@@ -55,32 +65,86 @@ function love.load(args)
   local font_dir = "assets/fonts/"
   local font_main = love.graphics.newFont(
     font_dir .. "ubuntu_mono_bold_nerd.ttf", font_size)
-  local lh = 1.0468
+  local lh = (function()
+    if sizedebug then
+      return 1
+    else
+      return 1.0468
+    end
+  end)()
   font_main:setLineHeight(lh)
   local fh = font_main:getHeight()
   -- we use a monospace font, so the width should be the same for any input
   local fw = font_main:getWidth('█')
+
+  local font_labels = love.graphics.newFont(
+    font_dir .. "PressStart2P-Regular.ttf", 12)
+
   local w = G.getWidth() - 2 * border
   local h = love.fixHeight
-  local debugheight = 6
-  local debugwidth = math.floor(debugheight * (80 / 25))
+  local eh = h - 2 * fh
+  local debugheight = math.floor(eh / (love.test_grid_y * fh))
+  local debugwidth = math.floor(love.fixWidth / love.test_grid_x) / fw
   local drawableWidth = w - 2 * border
   if sizedebug then
     drawableWidth = debugwidth * fw
   end
+  -- drawtest hack
+  if drawableWidth < love.fixWidth / 3 then
+    drawableWidth = drawableWidth * 2
+  end
 
-  local id = love.filesystem.getIdentity()
-  local storage_path = ''
-  local project_path, has_removable
-  --- Android
+  return {
+    font = font_main,
+    fh = fh,
+    fw = fw,
+    lh = lh,
+
+    labelfont = font_labels,
+    lfh = font_labels:getHeight(),
+    lfw = font_labels:getWidth('█'),
+
+    border = border,
+    FAC = FAC,
+    w = w,
+    h = h,
+    colors = colors,
+
+    debugheight = debugheight,
+    debugwidth = debugwidth,
+    drawableWidth = drawableWidth,
+    drawableChars = math.floor(drawableWidth / fw),
+  }
+end
+
+--- Android sepcific settings
+local setup_android = function(viewconf)
   love.keyboard.setTextInput(true)
   love.keyboard.setKeyRepeat(true)
   if love.system.getOS() == 'Android' then
     love.isAndroid = true
-    love.window.setMode(w, h, {
+    love.window.setMode(viewconf.w, viewconf.h, {
       fullscreen = true,
       fullscreentype = "exclusive",
     })
+  end
+end
+
+--- @return PathInfo
+--- @return boolean
+local setup_storage = function()
+  local id = love.filesystem.getIdentity()
+  local storage_path = ''
+  local project_path, has_removable
+  if love.system.getOS() ~= 'Android' then
+    -- TODO: linux assumed, check other platforms, especially love.js
+    local home = os.getenv('HOME')
+    if home and string.is_non_empty_string(home) then
+      storage_path = string.format("%s/Documents/%s", home, id)
+    else
+      storage_path = love.filesystem.getSaveDirectory()
+    end
+  else
     local ok, sd_path = android_storage_find()
     if not ok then
       print('WARN: SD card not found')
@@ -91,20 +155,7 @@ function love.load(args)
     storage_path = string.format("%s/Documents/%s", sd_path, id)
     print('INFO: Project path: ' .. storage_path)
   end
-
-  -- storage
-  if love.system.getOS() ~= 'Android' then
-    -- TODO: linux assumed, check other platforms, especially love.js
-    local home = os.getenv('HOME')
-    if home and string.is_non_empty_string(home) then
-      storage_path = string.format("%s/Documents/%s", home, id)
-    else
-      storage_path = love.filesystem.getSaveDirectory()
-    end
-  end
   project_path = storage_path .. '/projects'
-
-  --- @type PathInfo
   local paths = {
     storage_path = storage_path,
     project_path = project_path
@@ -113,48 +164,54 @@ function love.load(args)
     local ok, err = FS.mkdir(d)
     if not ok then Log(err) end
   end
+  return paths, has_removable
+end
+
+--- @param args table
+function love.load(args)
+  local autotest, drawtest, sizedebug = argparse(args)
+
+  local viewconf = config_view(sizedebug)
+
+  setup_android(viewconf)
+
+  local has_removable
+  love.paths, has_removable = setup_storage()
 
   _G.nativefs = require("lib/nativefs")
+  --- @type LoveState
   love.state = {
     testing = false,
     has_removable = has_removable,
+    user_input = nil,
+    app_state = 'ready'
   }
-  love.paths = paths
+  if love.DEBUG then
+    love.debug = {
+      show_snapshot = true,
+      show_terminal = true,
+      show_canvas = true,
+      show_input = true,
+    }
+  end
 
-  --- @class ViewConfig
-  local viewconf = {
-    font = font_main,
-    border = border,
-    fh = fh,
-    fw = fw,
-    lh = lh,
-    fac = FAC,
-    w = w,
-    h = h,
-    colors = colors,
-  }
   --- @class Config
   local baseconf = {
     view = viewconf,
-
-    debugheight = debugheight,
-    debugwidth = debugwidth,
-    drawableWidth = drawableWidth,
-    drawableChars = math.floor(drawableWidth / fw),
-    testrun = testrun,
+    autotest = autotest,
+    drawtest = drawtest,
     sizedebug = sizedebug,
   }
   --- MVC wiring
-  M = Model:new(baseconf)
+  local M = Model:new(baseconf)
   redirect_to(M)
-  C = ConsoleController:new(M)
-  CV = ConsoleView:new(baseconf, C)
+  local C = ConsoleController.new(M)
+  local CV = ConsoleView:new(baseconf, C)
+  C:set_view(CV)
 
   Controller.setup_callback_handlers(C)
+  Controller.set_default_handlers(C, CV)
+
   --- run autotest on startup if invoked
-  if testrun then C:autotest() end
+  if autotest then C:autotest() end
 end
-
-Controller.set_default_handlers()
-
-View.set_love_draw()

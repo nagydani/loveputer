@@ -1,25 +1,35 @@
 --- Create a sequence from the table keys
 --- @param t table
 --- @return table keys
-_G.keys = function(t)
+table.keys = function(t)
+  -- for k, v in pairs({ 1, 2, fos = 'asd' }) do print(k, v) end
   local keys = {}
   for k, _ in pairs(t) do
-    table.insert(keys, k)
+    keys[k] = k
   end
   return keys
 end
 
+--- @param obj table
+--- @param seen table?
+--- @param omit table?
 -- https://gist.github.com/tylerneylon/81333721109155b2d244
-function table.clone(obj, seen)
+function table.clone(obj, seen, omit)
   -- Handle non-tables and previously-seen tables.
   if type(obj) ~= 'table' then return obj end
   if seen and seen[obj] then return seen[obj] end
+  -- if omit and omit[obj] then return {} end
 
   -- New table; mark it as seen and copy recursively.
   local s = seen or {}
   local res = {}
   s[obj] = res
-  for k, v in pairs(obj) do res[table.clone(k, s)] = table.clone(v, s) end
+  for k, v in pairs(obj) do
+    -- omiting keys only on the main level
+    if not omit or (omit and not omit[k]) then
+      res[table.clone(k, s)] = table.clone(v, s)
+    end
+  end
   return setmetatable(res, getmetatable(obj))
 end
 
@@ -57,9 +67,38 @@ function table.protect(t, fields)
   return t, orig
 end
 
+--- @diagnostic disable-next-line: duplicate-set-field
 function table.pack(...)
   --- @class t
   local t = { ... }
   t.n = #t
   return t
+end
+
+--- Return a new table containing keys which are present in the `other`, but not in `self`.
+--- @param other table
+--- @return table difference
+function table.diff(self, other)
+  local diff = {}
+  -- for i, v in ipairs(other) do
+  --   if not self[i] then
+  --     diff[i] = v
+  --   end
+  -- end
+  for k, v in pairs(other) do
+    if not self[k] then
+      diff[k] = v
+    end
+  end
+  return diff
+end
+
+function table.toggle(self, k)
+  if type(self) == "table" and k then
+    if not self[k] then
+      self[k] = true
+    else
+      self[k] = false
+    end
+  end
 end

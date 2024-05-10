@@ -7,8 +7,9 @@ end
 
 describe("input model spec #input", function()
   local mockConf = {
-    view = {},
-    drawableChars = 80,
+    view = {
+      drawableChars = 80,
+    },
   }
   local luaEval  = LuaEval:new('metalua')
 
@@ -603,11 +604,13 @@ describe("input model spec #input", function()
   -- Very long lines  --
   ----------------------
   describe('very long lines', function()
+    local w = 80
     local cfg = {
-      drawableChars = 80,
+      view = {
+        drawableChars = w,
+      }
     }
     local model = InputModel:new(cfg, luaEval)
-    local w = cfg.drawableChars
     local n_char = w * 2 + 4
     local char1 = 'щ'
     describe('cursor', function()

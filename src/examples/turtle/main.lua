@@ -1,13 +1,29 @@
-local width, height = G.getDimensions()
-local midx = width / 2
-local midy = height / 2
+width, height = G.getDimensions()
+midx = width / 2
+midy = height / 2
+incr = 5
 
-local x, y = midx, midy
-local incr = 5
+tx, ty = midx, midy
+debug = false
+debugColor = Color.yellow
+
+bgcolor = Color.black
 
 local r = {}
 
-local function drawTurtle(x, y)
+function drawBackground(color)
+  local c = bgcolor
+  if Color.valid(color)
+      and color ~= Color.green
+      and color ~= Color.green + Color.bright
+  then
+    c = color
+  end
+  G.setColor(Color[c])
+  G.rectangle('fill', 0, 0, width, height)
+end
+
+function drawTurtle(x, y)
   local head_r = 8
   local leg_r = 5
   local x_r = 15
@@ -53,30 +69,66 @@ local function drawHelp()
   G.print("Enter 'forward', 'back', 'left', or 'right' to move the turtle!", 20, 40)
 end
 
+local function drawDebuginfo()
+  G.setColor(Color[debugColor])
+  local label = string.format("Turtle position: (%d, %d)", tx, ty)
+  G.print(label, width - 200, 20)
+end
+
+function move_forward(d)
+  ty = ty - (d or incr)
+end
+
+function move_back(d)
+  ty = ty + (d or incr)
+end
+
+function move_left(d)
+  tx = tx - (d or (2 * incr))
+end
+
+function move_right(d)
+  tx = tx + (d or (2 * incr))
+end
+
 local function eval()
   local input = r[1]
   if input == 'forward' or input == 'f' then
-    y = y - incr
+    move_forward()
   end
   if input == 'back' or input == 'b' then
-    y = y + incr
+    move_back()
   end
   if input == 'left' or input == 'l' then
-    x = x - (2 * incr)
+    move_left()
   end
   if input == 'right' or input == 'r' then
-    x = x + (2 * incr)
+    move_right()
+  end
+
+  if input == 'stop' or input == 'pause' then
+    stop('user stop')
   end
 end
 
 function love.draw()
+  drawBackground()
   drawHelp()
-  drawTurtle(x, y)
+  drawTurtle(tx, ty)
+  if debug then drawDebuginfo() end
 end
 
 function love.keypressed(key)
-  if key == 'r' then
-    x, y = midx, midy
+  if love.keyboard.isDown("lshift", "rshift") then
+    if key == 'r' then
+      tx, ty = midx, midy
+    end
+  end
+  if key == 'space' then
+    debug = not debug
+  end
+  if key == 'pause' then
+    stop()
   end
 end
 
@@ -92,5 +144,13 @@ function love.keyreleased(key)
     if key == "escape" then
       love.event.quit()
     end
+  end
+end
+
+local t = 0
+function love.update(dt)
+  t = t + dt
+  if ty > midy then
+    debugColor = Color.red
   end
 end

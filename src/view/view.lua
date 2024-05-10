@@ -1,19 +1,33 @@
+--- @type love.Image?
+local canvas_snapshot = nil
+
 View = {
   prev_draw = nil,
-  draw = function()
+  main_draw = nil,
+  --- @param C ConsoleController
+  --- @param CV ConsoleView
+  draw = function(C, CV)
+    G.reset()
     G.push('all')
     local terminal = C:get_terminal()
+    local canvas = C:get_canvas()
     local input = C.input:get_input()
-    CV:draw(terminal, input)
+    CV:draw(terminal, canvas, input, canvas_snapshot)
     G.pop()
   end,
 
-  set_love_draw = function()
-    --- @diagnostic disable-next-line: duplicate-set-field
-    function love.draw()
-      View.draw()
+  snap_canvas = function()
+    -- G.captureScreenshot(os.time() .. ".png")
+    if canvas_snapshot then
+      View.clear_snapshot()
+      collectgarbage()
     end
+    G.captureScreenshot(function(img)
+      canvas_snapshot = G.newImage(img)
+    end)
+  end,
 
-    View.prev_draw = love.draw
+  clear_snapshot = function()
+    canvas_snapshot = nil
   end,
 }

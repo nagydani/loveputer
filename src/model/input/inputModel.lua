@@ -42,7 +42,7 @@ function InputModel:new(cfg, eval, oneshot)
     type = eval.kind,
     cursor = Cursor:new(),
     -- TODO: factor out WrappedText
-    wrap = cfg.drawableChars,
+    wrap = cfg.view.drawableChars,
     wrapped_text = {},
     wrapped_error = {},
     cursor_wrap = {},
