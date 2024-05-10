@@ -24,7 +24,7 @@ first.
 ## Keys
 
 | Command                            |                  Keymap                       |
-| :--------------------------------- | :-------------------------------------------: |
+| :--------------------------------- | :-------------------------------------------- |
 | Clear terminal                     | <kbd>Ctrl</kbd>+<kbd>L</kbd>                  |
 | Quit project                       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Q</kbd> |
 | Reset application to initial state | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> |
@@ -48,19 +48,27 @@ quits and returns to the console
 * `list_projects()`
 
     List available projects.
+
 * `project(proj)`
 
     Open project *proj* or create a new one if it doesn't exist.
     New projects are supplied with example code to demonstrate the structure.
+
 * `current_project()`
 
     Print the currently open project's name (if any).
+
 * `run_project(proj?)`
 
     Run either *proj* or the currently open project if no arguments are passed.
+
 * `example_projects()`
 
     Copy the included example projects to the projects folder.
+
+* `close_project()`
+
+    Close currently opened project.
 
 ### Files
 
