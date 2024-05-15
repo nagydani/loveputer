@@ -94,6 +94,20 @@ function table.diff(self, other)
   return diff
 end
 
+--- Determine if two tables have the same content
+--- @param other table
+--- @return boolean same
+function table.equal(self, other)
+  if type(other) ~= "table" then return false end
+
+  local diff = table.diff(self, other)
+  local next = next
+  if next(diff) == nil then
+    return true
+  end
+  return false
+end
+
 function table.toggle(self, k)
   if type(self) == "table" and k then
     if not self[k] then
