@@ -13,12 +13,12 @@ s = 0
 -- bgcolor = Color.black
 math.randomseed(os.time())
 color = math.random(7)
-bgcolor = math.random(7)
+bg_color = math.random(7)
 font = G.newFont(72)
 
 function love.draw()
   G.setColor(Color[color + Color.bright])
-  G.setBackgroundColor(Color[bgcolor])
+  G.setBackgroundColor(Color[bg_color])
   G.setFont(font)
   local m = 60
   local h = m * m
@@ -56,7 +56,7 @@ end
 function love.keyreleased(k)
   if k == 'space' then
     if love.keyboard.isDown("lshift", "rshift") then
-      bgcolor = cycle(bgcolor)
+      bg_color = cycle(bg_color)
     else
       color = cycle(color)
     end
