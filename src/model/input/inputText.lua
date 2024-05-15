@@ -9,7 +9,9 @@ InputText = {}
 --- @param values string[]?
 function InputText:new(values)
   local text = Dequeue:new(values)
-  if not values or values == '' then
+  if not values or values == '' or
+      (type(values) == "table" and #values == 0)
+  then
     text:append('')
   end
 
