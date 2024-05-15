@@ -5,7 +5,8 @@ table.keys = function(t)
   -- for k, v in pairs({ 1, 2, fos = 'asd' }) do print(k, v) end
   local keys = {}
   for k, _ in pairs(t) do
-    keys[k] = k
+    -- keys[k] = k
+    table.insert(keys, k)
   end
   return keys
 end
