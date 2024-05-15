@@ -63,7 +63,7 @@ local config_view = function(sizedebug)
   local border = 0 * FAC
 
   local font_dir = "assets/fonts/"
-  local font_main = love.graphics.newFont(
+  local font_main = G.newFont(
     font_dir .. "ubuntu_mono_bold_nerd.ttf", font_size)
   local lh = (function()
     if sizedebug then
@@ -77,7 +77,7 @@ local config_view = function(sizedebug)
   -- we use a monospace font, so the width should be the same for any input
   local fw = font_main:getWidth('█')
 
-  local font_labels = love.graphics.newFont(
+  local font_labels = G.newFont(
     font_dir .. "PressStart2P-Regular.ttf", 12)
 
   local w = G.getWidth() - 2 * border
