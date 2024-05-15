@@ -7,12 +7,12 @@ tx, ty = midx, midy
 debug = false
 debugColor = Color.yellow
 
-bgcolor = Color.black
+bg_color = Color.black
 
 local r = {}
 
 function drawBackground(color)
-  local c = bgcolor
+  local c = bg_color
   if Color.valid(color)
       and color ~= Color.green
       and color ~= Color.green + Color.bright
