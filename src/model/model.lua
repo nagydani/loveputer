@@ -6,6 +6,7 @@ require("model.project.project")
 --- @field interpreter InterpreterModel
 --- @field output CanvasModel
 --- @field projects ProjectService
+--- @field cfg Config
 Model = {}
 
 --- @param cfg Config
@@ -14,6 +15,7 @@ function Model:new(cfg)
     interpreter = InterpreterModel:new(cfg),
     output = CanvasModel.new(cfg),
     projects = ProjectService:new(),
+    cfg = cfg
   }
   setmetatable(c, self)
   self.__index = self
