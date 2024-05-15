@@ -28,6 +28,7 @@ function ConsoleController.new(M)
   local env = getfenv()
   local pre_env = table.clone(env)
   local config = M.cfg
+  pre_env.font = config.view.font
   local IC = InputController:new(M.interpreter.input)
   local self = setmetatable({
     time        = 0,
