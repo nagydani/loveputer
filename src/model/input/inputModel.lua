@@ -8,19 +8,21 @@ require("util.debug")
 
 --- @class InputModel
 --- @field oneshot boolean
---- @field entered table
+--- @field entered InputText
 --- @field evaluator EvalBase
 --- @field type InputType
 --- @field cursor Cursor
 --- @field wrap integer
+--- WrappedText
 --- @field wrapped_text table
 --- @field wrapped_error table
 --- @field cursor_wrap table
 --- @field wrap_reverse table
 --- @field n_breaks integer
+--- end WrappedText
 --- @field selection table
 --- @field cfg Config
--- methods
+--- methods
 --- @field new function
 --- @field add_text function
 --- @field line_feed function
@@ -271,6 +273,8 @@ end
 function InputModel:text_change()
   local ev = self.evaluator
   if ev.kind == 'lua' then
+    -- TODO enforce this kind-parser invariant in types
+    ---@diagnostic disable-next-line: undefined-field
     local ts = ev.parser.tokenize(self:get_text())
     self.tokens = ts
   end
@@ -310,6 +314,8 @@ end
 function InputModel:highlight()
   local ev = self.evaluator
   if ev.highlight then
+    -- TODO enforce this highligh-parser invariant in types
+    ---@diagnostic disable-next-line: undefined-field
     local p = ev.parser
     local text = self:get_text()
     local lex = p.stream_tokens(text)
