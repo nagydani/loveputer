@@ -2,6 +2,7 @@ require("model.input.inputModel")
 require("model.interpreter.eval.luaEval")
 
 if not orig_print then
+  --- @diagnostic disable: duplicate-set-field
   _G.orig_print = function() end
 end
 
