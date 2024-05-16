@@ -12,8 +12,8 @@ require("util.debug")
 --- @field evaluator EvalBase
 --- @field type InputType
 --- @field cursor Cursor
---- @field wrap integer
 --- WrappedText
+--- @field wrap_w integer
 --- @field wrapped_text table
 --- @field wrapped_error table
 --- @field cursor_wrap table
@@ -45,6 +45,7 @@ function InputModel:new(cfg, eval, oneshot)
     cursor = Cursor:new(),
     -- TODO: factor out WrappedText
     wrap = cfg.view.drawableChars,
+    wrap_w = cfg.view.drawableChars,
     wrapped_text = {},
     wrapped_error = {},
     cursor_wrap = {},
@@ -282,7 +283,7 @@ function InputModel:text_change()
 end
 
 function InputModel:wrap_text()
-  local drawableChars = self.wrap
+  local w = self.wrap_w
   local text = self:get_text()
   local display = {}
   local cursor_wrap = {}
@@ -290,7 +291,7 @@ function InputModel:wrap_text()
   local breaks = 0
   local revi = 1
   for i, l in ipairs(text) do
-    local n = math.floor(string.ulen(l) / drawableChars)
+    local n = math.floor(string.ulen(l) / w)
     -- remember how many apparent lines will be overall
     local ap = n + 1
     cursor_wrap[i] = ap
@@ -299,7 +300,7 @@ function InputModel:wrap_text()
       revi = revi + 1
     end
     breaks = breaks + n
-    local lines = string.wrap_at(l, drawableChars)
+    local lines = string.wrap_at(l, w)
     for _, tl in ipairs(lines) do
       table.insert(display, tl)
     end
@@ -413,7 +414,7 @@ end
 --- @return boolean? limit
 function InputModel:cursor_vertical_move(dir)
   local cl, cc = self:_get_cursor_pos()
-  local w = self.wrap
+  local w = self.wrap_w
   local n = self:get_n_text_lines()
   local llen = string.ulen(self:get_text_line(cl))
   local full_lines = math.floor(llen / w)
@@ -436,8 +437,8 @@ function InputModel:cursor_vertical_move(dir)
     end
     if llen > w and is_inline() then
       local newc = sgn(
-        function() return math.max(cc - self.wrap, 0) end,
-        function() return math.min(cc + self.wrap, llen + 1) end
+        function() return math.max(cc - w, 0) end,
+        function() return math.min(cc + w, llen + 1) end
       )
       self:move_cursor(cl, newc, keep)
       if keep then self:end_selection() end
@@ -598,7 +599,7 @@ function InputModel:translate_grid_to_cursor(l, c)
   local llen     = string.ulen(line)
   local c_offset = math.min(llen + 1, c)
   local c_base   = l - li
-  local ci       = c_base * self.wrap + c_offset
+  local ci       = c_base * self.wrap_w + c_offset
   return li, ci
 end
 
