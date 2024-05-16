@@ -75,7 +75,7 @@ local config_view = function(sizedebug)
   font_main:setLineHeight(lh)
   local fh = font_main:getHeight()
   -- we use a monospace font, so the width should be the same for any input
-  local fw = font_main:getWidth('█')
+  local fw = font_main:getWidth('█') -- 16x32
 
   local font_labels = G.newFont(
     font_dir .. "PressStart2P-Regular.ttf", 12)
@@ -168,6 +168,7 @@ local setup_storage = function()
 end
 
 --- @param args table
+---@diagnostic disable-next-line: duplicate-set-field
 function love.load(args)
   local autotest, drawtest, sizedebug = argparse(args)
 
