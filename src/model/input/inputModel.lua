@@ -97,10 +97,9 @@ function InputModel:add_text(text)
   end
 end
 
---- @private
 --- @param text string
 --- @param keep_cursor boolean
-function InputModel:_set_text(text, keep_cursor)
+function InputModel:set_text(text, keep_cursor)
   self.entered = nil
   if type(text) == 'string' then
     local lines = string.lines(text)
