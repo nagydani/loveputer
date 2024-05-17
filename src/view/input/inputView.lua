@@ -57,11 +57,11 @@ function InputView:draw(input, time)
   local y = h - b - inHeight
 
   local apparentHeight = inHeight
-  local display = input.wrapped_text
-  local wt_info = input.wt_info
-  local cursor_wrap = wt_info.cursor_wrap
-  local wrap_reverse = wt_info.wrap_reverse
-  local breaks = wt_info.breaks
+  local wt = input.wrapped_text
+  local display = wt.text
+  local cursor_wrap = wt.cursor_wrap
+  local wrap_reverse = wt.wrap_reverse
+  local breaks = wt.n_breaks
   apparentHeight = apparentHeight + breaks
   apparentLines = apparentLines + breaks
 

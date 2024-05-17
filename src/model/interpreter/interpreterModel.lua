@@ -118,7 +118,7 @@ end
 function InterpreterModel:set_error(error, is_call_error)
   if string.is_non_empty_string(error) then
     self.error = error
-    self.wrapped_error = string.wrap_at(error, self.input.wrap_w)
+    self.wrapped_error = string.wrap_at(error, self.input.wrapped_text.wrap_w)
     if not is_call_error then
       self:history_back()
     end

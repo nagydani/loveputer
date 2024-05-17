@@ -2,6 +2,7 @@ require("model.interpreter.item")
 require("model.input.inputText")
 require("model.input.selection")
 
+require("util.wrapped_text")
 require("util.dequeue")
 require("util.string")
 require("util.debug")
@@ -12,16 +13,8 @@ require("util.debug")
 --- @field evaluator EvalBase
 --- @field type InputType
 --- @field cursor Cursor
---- WrappedText
---- @field wrap_w integer
---- @field wrapped_text table
---- @field wrapped_error table
---- @field cursor_wrap table
---- @field wrap_reverse table
---- @field n_breaks integer
+--- @field wrapped_text WrappedText
 --- @field get_wrapped_text function
---- @field get_wrapped_text_line function
---- end WrappedText
 --- @field selection table
 --- @field cfg Config
 --- methods
@@ -43,14 +36,7 @@ function InputModel:new(cfg, eval, oneshot)
     evaluator = eval,
     type = eval.kind,
     cursor = Cursor:new(),
-    -- TODO: factor out WrappedText
-    wrap = cfg.view.drawableChars,
-    wrap_w = cfg.view.drawableChars,
-    wrapped_text = {},
-    wrapped_error = {},
-    cursor_wrap = {},
-    wrap_reverse = {},
-    n_breaks = 0,
+    wrapped_text = WrappedText.new(cfg.view.drawableChars),
     selection = Selection:new(),
 
     cfg = cfg,
@@ -178,19 +164,15 @@ function InputModel:get_n_text_lines()
   return ent:length()
 end
 
+--- @return WrappedText
 function InputModel:get_wrapped_text()
-  return self.wrapped_text, {
-    cursor_wrap = self.cursor_wrap,
-    wrap_reverse = self.wrap_reverse,
-    breaks = self.n_breaks
-  }
+  return self.wrapped_text
 end
 
 --- @param l integer
 --- @return string
 function InputModel:get_wrapped_text_line(l)
-  local wt = self:get_wrapped_text()
-  return wt[l]
+  return self.wrapped_text:get_line(l)
 end
 
 --- @private
@@ -290,37 +272,37 @@ function InputModel:text_change()
     local ts = ev.parser.tokenize(self:get_text())
     self.tokens = ts
   end
-  self:wrap_text()
+  self.wrapped_text:wrap(self.entered)
 end
 
-function InputModel:wrap_text()
-  local w = self.wrap_w
-  local text = self:get_text()
-  local display = {}
-  local cursor_wrap = {}
-  local wrap_reverse = {}
-  local breaks = 0
-  local revi = 1
-  for i, l in ipairs(text) do
-    local n = math.floor(string.ulen(l) / w)
-    -- remember how many apparent lines will be overall
-    local ap = n + 1
-    cursor_wrap[i] = ap
-    for _ = 1, ap do
-      wrap_reverse[revi] = i
-      revi = revi + 1
-    end
-    breaks = breaks + n
-    local lines = string.wrap_at(l, w)
-    for _, tl in ipairs(lines) do
-      table.insert(display, tl)
-    end
-  end
-  self.wrapped_text = display
-  self.cursor_wrap = cursor_wrap
-  self.wrap_reverse = wrap_reverse
-  self.n_breaks = breaks
-end
+-- function InputModel:wrap_text()
+--   local w = self.wrapped_text.wrap_w
+--   local text = self:get_text()
+--   local display = {}
+--   local cursor_wrap = {}
+--   local wrap_reverse = {}
+--   local breaks = 0
+--   local revi = 1
+--   for i, l in ipairs(text) do
+--     local n = math.floor(string.ulen(l) / w)
+--     -- remember how many apparent lines will be overall
+--     local ap = n + 1
+--     cursor_wrap[i] = ap
+--     for _ = 1, ap do
+--       wrap_reverse[revi] = i
+--       revi = revi + 1
+--     end
+--     breaks = breaks + n
+--     local lines = string.wrap_at(l, w)
+--     for _, tl in ipairs(lines) do
+--       table.insert(display, tl)
+--     end
+--   end
+--   self.wrapped_text = display
+--   self.cursor_wrap = cursor_wrap
+--   self.wrap_reverse = wrap_reverse
+--   self.n_breaks = breaks
+-- end
 
 --- @return Highlight?
 function InputModel:highlight()
@@ -434,7 +416,7 @@ end
 --- @return boolean? limit
 function InputModel:cursor_vertical_move(dir)
   local cl, cc = self:_get_cursor_pos()
-  local w = self.wrap_w
+  local w = self.wrapped_text.wrap_w
   local n = self:get_n_text_lines()
   local llen = string.ulen(self:get_text_line(cl))
   local full_lines = math.floor(llen / w)
@@ -613,13 +595,13 @@ end
 -- selection  --
 ----------------
 function InputModel:translate_grid_to_cursor(l, c)
-  local wt       = self.wrap_reverse
+  local wt       = self.wrapped_text.wrap_reverse
   local li       = wt[l] or wt[#wt]
   local line     = self:get_wrapped_text_line(l)
   local llen     = string.ulen(line)
   local c_offset = math.min(llen + 1, c)
   local c_base   = l - li
-  local ci       = c_base * self.wrap_w + c_offset
+  local ci       = c_base * self.wrapped_text.wrap_w + c_offset
   return li, ci
 end
 

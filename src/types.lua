@@ -48,8 +48,7 @@
 
 --- @class InputDTO table
 --- @field text table
---- @field wrapped_text string[]
---- @field wt_info table
+--- @field wrapped_text WrappedText
 --- @field highlight Highlight
 --- @field selection table
 

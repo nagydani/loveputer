@@ -124,11 +124,9 @@ end
 --- @return InputDTO
 function InputController:get_input()
   local im = self.model
-  local wt, wt_info = im:get_wrapped_text()
   return {
     text = im:get_text(),
-    wrapped_text = wt,
-    wt_info = wt_info,
+    wrapped_text = im:get_wrapped_text(),
     highlight = im:highlight(),
     selection = im:get_ordered_selection(),
   }
@@ -159,7 +157,7 @@ end
 function InputController:_handle_mouse(x, y, btn, handler)
   if btn == 1 then
     local im = self.model
-    local n_lines = #(im:get_wrapped_text())
+    local n_lines = im:get_wrapped_text():get_n_lines()
     local c, l = self:_translate_to_input_grid(x, y)
     if l < n_lines then
       handler(n_lines - l, c)
