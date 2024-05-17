@@ -1,0 +1,32 @@
+--- Example text: {
+--- 'ABBA',
+--- 'EDDA AC/DC',
+--- }
+--- Assume a wrap width of 5, wrapped text comes out to: {
+--- 'ABBA',
+--- 'EDDA ',
+--- 'AC/DC',
+--- }
+--- @alias CursorWrap integer[]
+--- Indexed with the original line number, values is the number
+--- of wrapped lines, e.g. {1: 1, 2: 2}
+--- @alias WrapReverse integer[]
+--- Inverse mapping from apparent line number to original
+--- Key is line number in wrapped, value is line number in
+--- unwrapped original, e.g. {1: 1, 2: 2, 3: 2} means two
+--- lines of text were broken up into three, because the second
+--- exceeded the width limit
+
+--- @class WrappedText
+--- @field text string[]
+--- @field wrap_w integer
+--- @field reverse WrapReverse
+--- @field n_breaks integer
+---
+--- @field wrap function
+--- @field get_text function
+--- @field get_line function
+
+--- Extends WrappedText with cursor support (for selection)
+--- @class WrappedInputText: WrappedText
+--- @field cursor_wrap CursorWrap
