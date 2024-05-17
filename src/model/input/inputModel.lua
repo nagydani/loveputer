@@ -19,6 +19,8 @@ require("util.debug")
 --- @field cursor_wrap table
 --- @field wrap_reverse table
 --- @field n_breaks integer
+--- @field get_wrapped_text function
+--- @field get_wrapped_text_line function
 --- end WrappedText
 --- @field selection table
 --- @field cfg Config
@@ -29,8 +31,6 @@ require("util.debug")
 --- @field get_text function
 --- @field get_text_line function
 --- @field get_n_text_lines function
---- @field get_wrapped_text function
---- @field get_wrapped_text_line function
 InputModel = {}
 
 --- @param cfg Config
@@ -97,6 +97,7 @@ function InputModel:add_text(text)
   end
 end
 
+--- @private
 --- @param text string
 --- @param keep_cursor boolean
 function InputModel:_set_text(text, keep_cursor)
@@ -117,6 +118,10 @@ function InputModel:_set_text(text, keep_cursor)
   self:text_change()
 end
 
+--- @private
+--- @param text string|string[]
+--- @param ln integer
+--- @param keep_cursor boolean
 function InputModel:_set_text_line(text, ln, keep_cursor)
   if type(text) == 'string' then
     local ent = self:get_text()
@@ -125,16 +130,21 @@ function InputModel:_set_text_line(text, ln, keep_cursor)
       if not keep_cursor then
         self:_update_cursor(true)
       end
-    elseif ln == 1 then
+    elseif type(text) == 'table' and ln == 1 then
       self.entered = InputText:new(text)
     end
   end
 end
 
+--- @private
+--- @param ln integer
 function InputModel:_drop_text_line(ln)
   self:get_text():remove(ln)
 end
 
+--- @private
+--- @param text string
+--- @param li integer
 function InputModel:_insert_text_line(text, li)
   local l = li or self:get_cursor_y()
   self.cursor.l = l + 1
@@ -184,6 +194,8 @@ function InputModel:get_wrapped_text_line(l)
   return wt[l]
 end
 
+--- @private
+--- @return string
 function InputModel:_get_current_line()
   local cl = self:get_cursor_y() or 1
   return self:get_text():get(cl)
@@ -339,6 +351,9 @@ end
 ----------------
 --   cursor   --
 ----------------
+
+--- @private
+--- @param replace_line boolean
 function InputModel:_update_cursor(replace_line)
   local cl = self:get_cursor_y()
   local t = self:get_text()
@@ -350,6 +365,9 @@ function InputModel:_update_cursor(replace_line)
   end
 end
 
+--- @private
+--- @param x integer
+--- @param y integer
 function InputModel:_advance_cursor(x, y)
   local cur_l, cur_c = self:_get_cursor_pos()
   local move_x = x or 1
@@ -391,6 +409,9 @@ function InputModel:move_cursor(y, x, selection)
   end
 end
 
+--- @private
+--- @return integer l
+--- @return integer c
 function InputModel:_get_cursor_pos()
   return self.cursor.l, self.cursor.c
 end
