@@ -64,19 +64,21 @@ function WrappedText:wrap(text)
   local wrap_reverse = {}
   local breaks = 0
   local revi = 1
-  for i, l in ipairs(text) do
-    local n = math.floor(string.ulen(l) / w)
-    -- remember how many apparent lines will be overall
-    local ap = n + 1
-    cursor_wrap[i] = ap
-    for _ = 1, ap do
-      wrap_reverse[revi] = i
-      revi = revi + 1
-    end
-    breaks = breaks + n
-    local lines = string.wrap_at(l, w)
-    for _, tl in ipairs(lines) do
-      table.insert(display, tl)
+  if text then
+    for i, l in ipairs(text) do
+      local n = math.floor(string.ulen(l) / w)
+      -- remember how many apparent lines will be overall
+      local ap = n + 1
+      cursor_wrap[i] = ap
+      for _ = 1, ap do
+        wrap_reverse[revi] = i
+        revi = revi + 1
+      end
+      breaks = breaks + n
+      local lines = string.wrap_at(l, w)
+      for _, tl in ipairs(lines) do
+        table.insert(display, tl)
+      end
     end
   end
   self.text = display
