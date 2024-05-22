@@ -20,7 +20,7 @@ setmetatable(Model, {
 --- @param cfg Config
 function Model.new(cfg)
   local self = setmetatable({
-    interpreter = InterpreterModel:new(cfg),
+    interpreter = InterpreterModel(cfg),
     editor = EditorModel(cfg),
     output = CanvasModel(cfg),
     projects = ProjectService:new(),

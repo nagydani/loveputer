@@ -206,8 +206,8 @@ function love.load(args)
   --- MVC wiring
   local M = Model(baseconf)
   redirect_to(M)
-  local C = ConsoleController.new(M)
-  local CV = ConsoleView:new(baseconf, C)
+  local C = ConsoleController(M)
+  local CV = ConsoleView(baseconf, C)
   C:set_view(CV)
 
   Controller.setup_callback_handlers(C)

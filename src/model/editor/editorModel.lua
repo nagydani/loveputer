@@ -11,7 +11,7 @@ setmetatable(EditorModel, {
 --- @param cfg Config
 function EditorModel.new(cfg)
   local self = setmetatable({
-    interpreter = InterpreterModel:new(cfg)
+    interpreter = InterpreterModel(cfg)
   }, EditorModel)
 
   return self

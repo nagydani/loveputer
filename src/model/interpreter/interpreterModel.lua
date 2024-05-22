@@ -22,14 +22,21 @@ require("util.debug")
 --- @field get_entered_text function
 --- @todo
 InterpreterModel = {}
+InterpreterModel.__index = InterpreterModel
+
+setmetatable(InterpreterModel, {
+  __call = function(cls, ...)
+    return cls.new(...)
+  end,
+})
 
 --- @return InterpreterModel
 --- @param cfg Config
-function InterpreterModel:new(cfg)
+function InterpreterModel.new(cfg)
   local luaEval   = LuaEval:new('metalua')
   local textInput = InputEval:new(false)
   local luaInput  = InputEval:new(true)
-  local im        = {
+  local self      = setmetatable({
     cfg = cfg,
     input = InputModel:new(cfg, luaEval),
     history = Dequeue:new(),
@@ -41,11 +48,9 @@ function InterpreterModel:new(cfg)
     luaInput = luaInput,
 
     wrapped_error = nil
-  }
-  setmetatable(im, self)
-  self.__index = self
+  }, InterpreterModel)
 
-  return im
+  return self
 end
 
 --- @param history boolean?

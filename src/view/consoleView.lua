@@ -15,23 +15,27 @@ local G = love.graphics
 --- @field cfg Config
 --- @field drawable_height number
 ConsoleView = {}
+ConsoleView.__index = ConsoleView
+
+setmetatable(ConsoleView, {
+  __call = function(cls, ...)
+    return cls.new(...)
+  end,
+})
 
 --- @param cfg Config
 --- @param ctrl ConsoleController
-function ConsoleView:new(cfg, ctrl)
-  local view = {
+function ConsoleView.new(cfg, ctrl)
+  local self = setmetatable({
     title = TitleView,
     canvas = CanvasView:new(cfg),
     interpreter = InterpreterView:new(cfg, ctrl),
     controller = ctrl,
     cfg = cfg,
     drawable_height = ViewUtils.get_drawable_height(cfg.view),
-  }
+  }, ConsoleView)
 
-  setmetatable(view, self)
-  self.__index = self
-
-  return view
+  return self
 end
 
 --- @param terminal table

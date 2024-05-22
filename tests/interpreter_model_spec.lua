@@ -11,7 +11,7 @@ describe("interpreter model spec #interpreter", function()
   }
 
   describe('basics', function()
-    local model = InterpreterModel:new(mockConf)
+    local model = InterpreterModel(mockConf)
 
     it('initializes', function()
       assert.are.equal(getmetatable(model), InterpreterModel)
@@ -104,7 +104,7 @@ describe("interpreter model spec #interpreter", function()
   -- --   History   --
   -- -----------------
   -- describe('history', function()
-  --   local model = InterpreterModel:new(mockConf)
+  --   local model = InterpreterModel(mockConf)
   --   local test1_l1 = 'first'
   --   local test1_l2 = 'second'
 
