@@ -1,5 +1,6 @@
-require("model.interpreter.interpreterModel")
 require("model.canvasModel")
+require("model.editor.editorModel")
+require("model.interpreter.interpreterModel")
 require("model.project.project")
 
 --- @class Model table
@@ -13,6 +14,7 @@ Model = {}
 function Model:new(cfg)
   local c = {
     interpreter = InterpreterModel:new(cfg),
+    editor = EditorModel.new(cfg),
     output = CanvasModel.new(cfg),
     projects = ProjectService:new(),
     cfg = cfg
