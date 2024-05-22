@@ -204,7 +204,7 @@ function love.load(args)
     sizedebug = sizedebug,
   }
   --- MVC wiring
-  local M = Model:new(baseconf)
+  local M = Model(baseconf)
   redirect_to(M)
   local C = ConsoleController.new(M)
   local CV = ConsoleView:new(baseconf, C)

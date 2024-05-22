@@ -9,17 +9,22 @@ require("model.project.project")
 --- @field projects ProjectService
 --- @field cfg Config
 Model = {}
+Model.__index = Model
+
+setmetatable(Model, {
+  __call = function(cls, ...)
+    return cls.new(...)
+  end,
+})
 
 --- @param cfg Config
-function Model:new(cfg)
-  local c = {
+function Model.new(cfg)
+  local self = setmetatable({
     interpreter = InterpreterModel:new(cfg),
-    editor = EditorModel.new(cfg),
-    output = CanvasModel.new(cfg),
+    editor = EditorModel(cfg),
+    output = CanvasModel(cfg),
     projects = ProjectService:new(),
     cfg = cfg
-  }
-  setmetatable(c, self)
-  self.__index = self
-  return c
+  }, Model)
+  return self
 end
