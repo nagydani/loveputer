@@ -26,6 +26,8 @@ function Statusline:draw(status, nLines, time)
       return cf.colors.statusline.inspect
     elseif love.state.app_state == 'running' then
       return cf.colors.statusline.user
+    elseif love.state.app_state == 'editor' then
+      return cf.colors.statusline.editor
     else
       return cf.colors.statusline.console
     end

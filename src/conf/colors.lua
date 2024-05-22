@@ -12,6 +12,7 @@ local syntax_i = {
 ---| 'console'
 ---| 'user'
 ---| 'inspect'
+---| 'editor'
 
 ---@alias RGB integer[]
 
@@ -50,7 +51,7 @@ return {
   input = {
     console = {
       bg = Color[Color.white],
-      fg = Color[Color.blue + Color.bright],
+      fg = Color[Color.black + Color.bright],
     },
     user = {
       bg = Color[Color.black + Color.bright],
@@ -86,6 +87,11 @@ return {
     inspect = {
       bg = Color[Color.red],
       fg = Color[Color.black],
+      indicator = Color[Color.cyan + Color.bright],
+    },
+    editor = {
+      fg = Color[Color.white + Color.bright],
+      bg = Color[Color.blue],
       indicator = Color[Color.cyan + Color.bright],
     },
   },
