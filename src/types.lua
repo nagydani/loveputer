@@ -43,7 +43,7 @@
 
 --- @class Status table
 --- @field input_type string
---- @field cursor Cursor
+--- @field cursor Cursor?
 --- @field n_lines integer
 
 --- @class InputDTO table

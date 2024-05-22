@@ -37,49 +37,57 @@ function Statusline:draw(status, nLines, time)
   local w = cf.w
   local fh = cf.fh
 
-  G.push('all')
-  G.setColor(colors.bg)
-  G.setFont(cf.font)
   local sy = h - b - (1 + nLines) * fh
   local start_box = { x = 0, y = sy }
-  local start_text = {
-    x = start_box.x + fh,
-    y = start_box.y,
-  }
   local endTextX = start_box.x + w - fh
   local midX = (start_box.x + w) / 2
-  local corr = 2 -- correct for fractional slit left under the terminal
-  G.rectangle("fill", start_box.x, start_box.y - corr, w, fh + corr)
 
-  if not status then return end
-  G.setColor(colors.fg)
-  if status.input_type then
-    G.print(status.input_type, start_text.x, start_text.y)
+  local function drawBackground()
+    G.setColor(colors.bg)
+    G.setFont(cf.font)
+    local corr = 2 -- correct for fractional slit left under the terminal
+    G.rectangle("fill", start_box.x, start_box.y - corr, w, fh + corr)
   end
-  if love.DEBUG then
-    G.setColor(cf.colors.debug)
-    if love.state.testing then
-      G.print('testing', midX - (8 * cf.fw + cf.border), start_text.y)
-    end
-    G.print(love.state.app_state, midX - (13 * cf.fw), start_text.y)
-    if time then
-      G.print(tostring(time), midX, start_text.y)
-    end
+
+  local function drawStatus()
+    local start_text = {
+      x = start_box.x + fh,
+      y = start_box.y - 2,
+    }
+
     G.setColor(colors.fg)
-  end
-  if status.cursor then
+    if status.input_type then
+      G.print(status.input_type, start_text.x, start_text.y)
+    end
+    if love.DEBUG then
+      G.setColor(cf.colors.debug)
+      if love.state.testing then
+        G.print('testing', midX - (8 * cf.fw + cf.border), start_text.y)
+      end
+      G.print(love.state.app_state, midX - (13 * cf.fw), start_text.y)
+      if time then
+        G.print(tostring(time), midX, start_text.y)
+      end
+      G.setColor(colors.fg)
+    end
     local c = status.cursor
-    local pos_l = 'L' .. c.l
-    local pos_c = ':' .. c.c
-    local lw = G.getFont():getWidth(pos_l)
-    local cw = G.getFont():getWidth(pos_c)
-    local sx = endTextX - (lw + cw)
-    if c.l == status.n_lines then
-      G.setColor(colors.indicator)
+    if type(c) == 'table' then
+      local pos_l = 'L' .. c.l
+      local pos_c = ':' .. c.c
+      local lw = G.getFont():getWidth(pos_l)
+      local cw = G.getFont():getWidth(pos_c)
+      local sx = endTextX - (lw + cw)
+      if c.l == status.n_lines then
+        G.setColor(colors.indicator)
+      end
+      G.print(pos_l, sx, start_text.y)
+      G.setColor(colors.fg)
+      G.print(pos_c, sx + lw, start_text.y)
     end
-    G.print(pos_l, sx, start_text.y)
-    G.setColor(colors.fg)
-    G.print(pos_c, sx + lw, start_text.y)
   end
+
+  G.push('all')
+  drawBackground()
+  drawStatus()
   G.pop()
 end
