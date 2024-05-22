@@ -8,12 +8,38 @@ local syntax_i = {
   error      = Color.red,
 }
 
+---@alias InputTheme
+---| 'console'
+---| 'user'
+---| 'inspect'
+
+---@alias RGB integer[]
+
+--- @class ColorPair
+--- @field bg RGB
+--- @field fg RGB
+
+--- @class InputColors
+--- @field console ColorPair
+--- @field user ColorPair
+--- @field inspect ColorPair
+--- @field cursor RGB
+--- @field error RGB  -- TODO pair these
+--- @field error_bg RGB  -- TODO pair these
+--- @field syntax_i table
+--- @field syntax table
+
+--- @class StatuslineColors
+--- @field bg RGB
+--- @field fg RGB
+--- @field indicator RGB
+
 --- @class Colors
---- @field border table
---- @field debug table
---- @field terminal table
---- @field input table
---- @field statusline table
+--- @field border RGB
+--- @field debug RGB
+--- @field terminal ColorPair
+--- @field input InputColors
+--- @field statusline table<InputTheme, StatuslineColors>
 return {
   border = Color[Color.black + Color.bright],
   debug = Color[Color.yellow],
@@ -22,11 +48,17 @@ return {
     bg = Color[Color.white],
   },
   input = {
-    bg = Color[Color.white],
-    fg = Color[Color.blue + Color.bright],
+    console = {
+      bg = Color[Color.white],
+      fg = Color[Color.blue + Color.bright],
+    },
     user = {
       bg = Color[Color.black + Color.bright],
       fg = Color[Color.white],
+    },
+    inspect = {
+      bg = Color[Color.white],
+      fg = Color[Color.blue + Color.bright],
     },
     cursor = Color[Color.white + Color.bright],
     error = Color[Color.red],
@@ -41,16 +73,20 @@ return {
     end)()
   },
   statusline = {
-    fg = Color[Color.white + Color.bright],
-    bg = Color[Color.black],
+    console = {
+      fg = Color[Color.white + Color.bright],
+      bg = Color[Color.black],
+      indicator = Color[Color.cyan + Color.bright],
+    },
     user = {
       bg = Color[Color.blue],
       fg = Color[Color.white],
+      indicator = Color[Color.cyan + Color.bright],
     },
     inspect = {
       bg = Color[Color.red],
       fg = Color[Color.black],
+      indicator = Color[Color.cyan + Color.bright],
     },
-    indicator = Color[Color.cyan + Color.bright],
   },
 }

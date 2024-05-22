@@ -1,7 +1,11 @@
 local G = love.graphics
 
+--- @class Statusline
+--- @field cfg Config
 Statusline = {}
 
+--- @param cfg Config
+--- @return Statusline
 function Statusline:new(cfg)
   local s = {
     cfg = cfg,
@@ -12,30 +16,27 @@ function Statusline:new(cfg)
   return s
 end
 
----@param status Status
----@param nLines integer
----@param time number?
----@param oneshot boolean?
-function Statusline:draw(status, nLines, time, oneshot)
+--- @param status Status
+--- @param nLines integer
+--- @param time number?
+function Statusline:draw(status, nLines, time)
   local cf = self.cfg.view
+  local colors = (function()
+    if love.state.app_state == 'inspect' then
+      return cf.colors.statusline.inspect
+    elseif love.state.app_state == 'running' then
+      return cf.colors.statusline.user
+    else
+      return cf.colors.statusline.console
+    end
+  end)()
   local b = cf.border
   local h = cf.h
   local w = cf.w
   local fh = cf.fh
-  local colors = cf.colors
-  local fg, bg = (function()
-    if oneshot then
-      return colors.statusline.user.fg, colors.statusline.user.bg
-    end
-    return colors.statusline.fg, colors.statusline.bg
-  end)()
-  if love.state.app_state == 'inspect' then
-    fg, bg = colors.statusline.inspect.fg, colors.statusline.inspect.bg
-  end
-
 
   G.push('all')
-  G.setColor(bg)
+  G.setColor(colors.bg)
   G.setFont(cf.font)
   local sy = h - b - (1 + nLines) * fh
   local start_box = { x = 0, y = sy }
@@ -49,12 +50,12 @@ function Statusline:draw(status, nLines, time, oneshot)
   G.rectangle("fill", start_box.x, start_box.y - corr, w, fh + corr)
 
   if not status then return end
-  G.setColor(fg)
+  G.setColor(colors.fg)
   if status.input_type then
     G.print(status.input_type, start_text.x, start_text.y)
   end
   if love.DEBUG then
-    G.setColor(colors.debug)
+    G.setColor(cf.colors.debug)
     if love.state.testing then
       G.print('testing', midX - (8 * cf.fw + cf.border), start_text.y)
     end
@@ -62,7 +63,7 @@ function Statusline:draw(status, nLines, time, oneshot)
     if time then
       G.print(tostring(time), midX, start_text.y)
     end
-    G.setColor(fg)
+    G.setColor(colors.fg)
   end
   if status.cursor then
     local c = status.cursor
@@ -72,10 +73,10 @@ function Statusline:draw(status, nLines, time, oneshot)
     local cw = G.getFont():getWidth(pos_c)
     local sx = endTextX - (lw + cw)
     if c.l == status.n_lines then
-      G.setColor(colors.statusline.indicator)
+      G.setColor(colors.indicator)
     end
     G.print(pos_l, sx, start_text.y)
-    G.setColor(fg)
+    G.setColor(colors.fg)
     G.print(pos_c, sx + lw, start_text.y)
   end
   G.pop()

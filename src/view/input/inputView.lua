@@ -4,21 +4,22 @@ require("view.input.statusline")
 require("util.debug")
 require("util.view")
 
-
 --- @class InputView
---- @field controller InputController
 --- @field cfg Config
---- @field draw function
+--- @field controller InputController
 --- @field statusline table
 --- @field oneshot boolean
+--- @field draw function
 InputView = {}
 
+--- @param cfg Config
+--- @param ctrl InputController
 function InputView:new(cfg, ctrl)
   local iv = {
     cfg = cfg,
     controller = ctrl,
     statusline = Statusline:new(cfg),
-    oneshot = ctrl.model.oneshot
+    oneshot = ctrl.model.oneshot,
   }
   setmetatable(iv, self)
   self.__index = self
@@ -30,13 +31,15 @@ end
 --- @param time number
 function InputView:draw(input, time)
   local status = self.controller:get_status()
-  local colors = self.cfg.view.colors
-  local fg, bg = (function()
-    if self.oneshot then
-      return
-          colors.input.user.fg, colors.input.user.bg
+  local cf_colors = self.cfg.view.colors
+  local colors = (function()
+    if love.state.app_state == 'inspect' then
+      return cf_colors.input.inspect
+    elseif love.state.app_state == 'running' then
+      return cf_colors.input.user
+    else
+      return cf_colors.input.console
     end
-    return colors.input.fg, colors.input.bg
   end)()
   local b = self.cfg.view.border
   local fh = self.cfg.view.fh
@@ -92,13 +95,13 @@ function InputView:draw(input, time)
         -- the number of line wraps
         - (n - y_offset) * fh
     G.push('all')
-    G.setColor(colors.input.cursor)
+    G.setColor(cf_colors.input.cursor)
     G.print('|', b + (x_offset - 1.5) * fw, ch)
     G.pop()
   end
 
   local drawBackground = function()
-    G.setColor(bg)
+    G.setColor(colors.bg)
     G.rectangle("fill",
       b,
       start_y,
@@ -118,7 +121,7 @@ function InputView:draw(input, time)
     if selected then
       G.setColor(color)
       G.print('█', dx, dy)
-      G.setColor(colors.input.bg)
+      G.setColor(colors.bg)
     else
       G.setColor(color)
     end
@@ -130,12 +133,12 @@ function InputView:draw(input, time)
   G.push('all')
   G.scale(self.cfg.view.FAC, self.cfg.view.FAC)
   G.setFont(self.cfg.view.font)
-  G.setBackgroundColor(colors.input.bg)
-  G.setColor(fg)
+  G.setBackgroundColor(colors.bg)
+  G.setColor(colors.fg)
   self.statusline:draw(status, apparentLines, time, self.oneshot)
   drawBackground()
 
-  G.setColor(fg)
+  G.setColor(colors.fg)
   if love.timer.getTime() % 1 > 0.5 then
     drawCursor()
   end
@@ -163,9 +166,9 @@ function InputView:draw(input, time)
         local color
         if perr and l > el or
             (l == el and (i > ec or ec == 1)) then
-          color = colors.input.error
+          color = cf_colors.input.error
         else
-          color = colors.input.syntax[ttype] or colors.input.fg
+          color = cf_colors.input.syntax[ttype] or colors.fg
         end
         local selected = (function()
           local sel = input.selection
