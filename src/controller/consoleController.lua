@@ -14,6 +14,7 @@ require("util.table")
 --- @field base_env LuaEnv
 --- @field project_env LuaEnv
 --- @field input InputController
+--- @field editor EditorController
 --- @field view ConsoleView?
 ConsoleController = {}
 ConsoleController.__index = ConsoleController
@@ -216,6 +217,11 @@ function ConsoleController.prepare_env(cc)
         print(err)
       end
     end)
+  end
+
+  --- @param name string
+  prepared.edit             = function(name)
+    return check_open_pr(cc.edit, cc, name)
   end
 
   prepared.run_project      = function(name)
@@ -443,6 +449,20 @@ end
 
 function ConsoleController:clear_error()
   self.model.interpreter:clear_error()
+end
+
+--- @param name string
+function ConsoleController:edit(name)
+  local PS       = self.model.projects
+  local p        = PS.current
+  local filename = name or ProjectService.MAIN
+  local fpath    = string.join_path(p.path, filename)
+  local ex       = FS.exists(fpath)
+  local text
+  if ex then
+    text = self:_readfile(fpath)
+  end
+  self.editor:open(filename, text)
 end
 
 function ConsoleController:textinput(t)
