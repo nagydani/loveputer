@@ -465,6 +465,9 @@ function ConsoleController:edit(name)
   self.editor:open(filename, text)
 end
 
+--- Handlers ---
+
+--- @param t string
 function ConsoleController:textinput(t)
   local interpreter = self.model.interpreter
   if interpreter:has_error() then
@@ -477,6 +480,7 @@ function ConsoleController:textinput(t)
   end
 end
 
+--- @param k string
 function ConsoleController:keypressed(k)
   local out = self.model.output
   local interpreter = self.model.interpreter
@@ -557,10 +561,12 @@ function ConsoleController:keyreleased(k)
   self.input:keyreleased(k)
 end
 
+--- @return Terminal
 function ConsoleController:get_terminal()
   return self.model.output.terminal
 end
 
+--- @return love.Canvas
 function ConsoleController:get_canvas()
   return self.model.output.canvas
 end
