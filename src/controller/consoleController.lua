@@ -470,7 +470,7 @@ function ConsoleController:edit(name)
   local ex       = FS.exists(fpath)
   local text
   if ex then
-    text = self:_readfile(fpath)
+    text = self:_readfile(filename)
   end
   self.editor:open(filename, text)
 end
