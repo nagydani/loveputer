@@ -38,8 +38,6 @@ local messages = {
   no_open_project     = 'No project is open',
 }
 
-local MAIN = 'main.lua'
-
 --- Determine if the supplied string is a valid filename
 --- @param name string
 --- @return boolean valid
@@ -122,6 +120,7 @@ end
 --- @field deploy_examples function
 --- @field run function
 ProjectService = {}
+ProjectService.MAIN = 'main.lua'
 
 
 --- @return ProjectService
@@ -146,7 +145,7 @@ local function is_project(path, name)
   if not FS.exists(p_path) then
     return nil, messages.pr_does_not_exist(name)
   end
-  local main = string.join_path(p_path, MAIN)
+  local main = string.join_path(p_path, ProjectService.MAIN)
   if not FS.exists(main) then
     return nil, messages.pr_does_not_exist(name)
   end
@@ -181,7 +180,7 @@ function ProjectService:create(name)
   if not dir_ok then
     return false, messages.write_error()
   end
-  local main = string.join_path(p_path, MAIN)
+  local main = string.join_path(p_path, ProjectService.MAIN)
   local example = [[
 print('Hello world!')
 ]]
@@ -289,7 +288,7 @@ function ProjectService:run(name, env)
     p_path, err = is_project(ProjectService.path, name)
   end
   if p_path then
-    local main = string.join_path(p_path, MAIN)
+    local main = string.join_path(p_path, ProjectService.MAIN)
     self:open(name or self.current.name)
     return loadfile(main, 't', env), nil, p_path
   end
