@@ -16,6 +16,9 @@ require("util.table")
 --- @field input InputController
 --- @field editor EditorController
 --- @field view ConsoleView?
+-- methods
+--- @field edit function
+--- @field finish_edit function
 ConsoleController = {}
 ConsoleController.__index = ConsoleController
 
@@ -309,6 +312,11 @@ function ConsoleController.prepare_project_env(cc)
     return input('text', result)
   end
 
+  --- @param name string
+  project_env.edit          = function(name)
+    return cc:edit(name)
+  end
+
   local base                = table.clone(project_env)
   local project             = table.clone(project_env)
   cc:_set_base_env(base)
@@ -453,6 +461,8 @@ end
 
 --- @param name string
 function ConsoleController:edit(name)
+  if love.state.app_state == 'running' then return end
+
   local PS       = self.model.projects
   local p        = PS.current
   local filename = name or ProjectService.MAIN
