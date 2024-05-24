@@ -168,7 +168,10 @@ string.join = function(strs, char)
   if type(strs) == 'table' then
     local j = char or ' '
     for i, word in ipairs(strs) do
-      res = res .. word
+      -- TODO recursive join
+      if type(word) == 'string' then
+        res = res .. word
+      end
       if i ~= #strs then
         res = res .. j
       end
