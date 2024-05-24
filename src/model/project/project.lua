@@ -64,16 +64,21 @@ end
 --- @field readfile function
 --- @field writefile function
 Project = {}
+Project.__index = Project
 
-function Project:new(pname)
-  local p = {
+setmetatable(Project, {
+  __call = function(cls, ...)
+    return cls.new(...)
+  end,
+})
+
+function Project.new(pname)
+  local self = setmetatable({
     name = pname,
     path = string.join_path(love.paths.project_path, pname)
-  }
-  setmetatable(p, self)
-  self.__index = self
+  }, Project)
 
-  return p
+  return self
 end
 
 --- @return table
@@ -199,7 +204,7 @@ function ProjectService:list()
     if f.type and f.type == 'directory' then
       local ok = is_project(ProjectService.path, f.name)
       if ok then
-        ret:push_back(Project:new(f.name))
+        ret:push_back(Project(f.name))
       end
     end
   end
@@ -215,7 +220,7 @@ function ProjectService:open(name)
     return true
   end
   if path then
-    self.current = Project:new(name)
+    self.current = Project(name)
     nativefs.setWorkingDirectory(path)
     return true
   end
