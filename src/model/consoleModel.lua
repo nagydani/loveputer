@@ -5,26 +5,27 @@ require("model.project.project")
 
 --- @class Model table
 --- @field interpreter InterpreterModel
+--- @field editor EditorModel
 --- @field output CanvasModel
 --- @field projects ProjectService
 --- @field cfg Config
-Model = {}
-Model.__index = Model
+ConsoleModel = {}
+ConsoleModel.__index = ConsoleModel
 
-setmetatable(Model, {
+setmetatable(ConsoleModel, {
   __call = function(cls, ...)
     return cls.new(...)
   end,
 })
 
 --- @param cfg Config
-function Model.new(cfg)
+function ConsoleModel.new(cfg)
   local self = setmetatable({
     interpreter = InterpreterModel(cfg),
-    editor = EditorModel(cfg),
-    output = CanvasModel(cfg),
-    projects = ProjectService:new(),
-    cfg = cfg
-  }, Model)
+    editor      = EditorModel(cfg),
+    output      = CanvasModel(cfg),
+    projects    = ProjectService:new(),
+    cfg         = cfg
+  }, ConsoleModel)
   return self
 end

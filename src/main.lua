@@ -1,4 +1,4 @@
-require("model.model")
+require("src.model.consoleModel")
 local redirect_to = require("model.io.redirect")
 require("view.consoleView")
 require("controller.controller")
@@ -204,15 +204,15 @@ function love.load(args)
     sizedebug = sizedebug,
   }
   --- MVC wiring
-  local M = Model(baseconf)
-  redirect_to(M)
-  local C = ConsoleController(M)
-  local CV = ConsoleView(baseconf, C)
-  C:set_view(CV)
+  local CM = ConsoleModel(baseconf)
+  redirect_to(CM)
+  local CC = ConsoleController(CM)
+  local CV = ConsoleView(baseconf, CC)
+  CC:set_view(CV)
 
-  Controller.setup_callback_handlers(C)
-  Controller.set_default_handlers(C, CV)
+  Controller.setup_callback_handlers(CC)
+  Controller.set_default_handlers(CC, CV)
 
   --- run autotest on startup if invoked
-  if autotest then C:autotest() end
+  if autotest then CC:autotest() end
 end

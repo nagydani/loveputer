@@ -46,6 +46,7 @@ function InterpreterView:draw(input)
         drawableWidth,
         apparentHeight * fh)
     end
+
     drawBackground()
     G.setColor(colors.input.error)
     for l, str in ipairs(err_text) do
