@@ -1,4 +1,5 @@
 require("controller.inputController")
+require("controller.editorController")
 
 require("util.testTerminal")
 require("util.key")
@@ -30,10 +31,12 @@ function ConsoleController.new(M)
   local config = M.cfg
   pre_env.font = config.view.font
   local IC = InputController:new(M.interpreter.input)
+  local EC = EditorController.new(M.editor)
   local self = setmetatable({
     time        = 0,
     model       = M,
     input       = IC,
+    editor      = EC,
     -- console runner env
     main_env    = env,
     -- copy of the application's env before the prep
