@@ -105,6 +105,21 @@ local function close_project(cc)
   end
 end
 
+--- @private
+--- @param name string
+--- @return string[]?
+function ConsoleController:_readfile(name)
+  local PS            = self.model.projects
+  local p             = PS.current
+  local ok, lines_err = p:readfile(name)
+  if ok then
+    local lines = lines_err
+    return lines
+  else
+    print(lines_err)
+  end
+end
+
 function ConsoleController.prepare_env(cc)
   local prepared            = cc.main_env
   prepared.G                = love.graphics
@@ -180,16 +195,7 @@ function ConsoleController.prepare_env(cc)
   --- @param name string
   --- @return string[]?
   prepared.readfile         = function(name)
-    return check_open_pr(function()
-      local p = P.current
-      local ok, lines_err = p:readfile(name)
-      if ok then
-        local lines = lines_err
-        return lines
-      else
-        print(lines_err)
-      end
-    end)
+    return check_open_pr(cc._readfile, cc, name)
   end
 
   --- @param name string
