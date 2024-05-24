@@ -112,11 +112,11 @@ function ConsoleController.prepare_env(cc)
   local P                   = cc.model.projects
 
   --- @param f function
-  local check_open_pr       = function(f)
+  local check_open_pr       = function(f, ...)
     if not P.current then
       print(P.messages.no_open_project)
     else
-      return f()
+      return f(...)
     end
   end
 
