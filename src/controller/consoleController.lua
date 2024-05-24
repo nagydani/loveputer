@@ -472,7 +472,15 @@ function ConsoleController:edit(name)
   if ex then
     text = self:_readfile(filename)
   end
+  love.state.prev_state = love.state.app_state
+  love.state.app_state = 'editor'
   self.editor:open(filename, text)
+end
+
+function ConsoleController:finish_edit()
+  self.editor:close()
+  love.state.app_state = love.state.prev_state
+  love.state.prev_state = nil
 end
 
 --- Handlers ---
@@ -557,9 +565,6 @@ function ConsoleController:keypressed(k)
   end
   -- Ctrl and Shift held
   if Key.ctrl() and Key.shift() then
-    if k == "q" then
-      self:quit_project()
-    end
     if k == "r" then
       self:reset()
     end

@@ -1,5 +1,6 @@
 --- @class EditorController
 --- @field open fun(self, name: string, content: string[]?)
+--- @field close fun(self): string[]
 EditorController = {}
 EditorController.__index = EditorController
 
@@ -21,4 +22,10 @@ end
 --- @param content string[]?
 function EditorController:open(name, content)
   -- open buffer
+end
+
+--- @return string[]
+function EditorController:close()
+  -- close buffer, return content
+  return {}
 end

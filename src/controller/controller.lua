@@ -258,7 +258,11 @@ Controller = {
         if Key.shift() then
           -- Ensure the user can get back to the console
           if k == "q" then
-            C:quit_project()
+            if love.state.app_state == 'running' then
+              C:quit_project()
+            elseif love.state.app_state == 'editor' then
+              C:finish_edit()
+            end
           end
         end
       end
