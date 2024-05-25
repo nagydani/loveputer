@@ -4,19 +4,23 @@ require("util.key")
 --- @field model InputModel
 --- @field result function
 InputController = {}
+InputController.__index = InputController
+
+setmetatable(InputController, {
+  __call = function(cls, ...)
+    return cls.new(...)
+  end,
+})
 
 --- @param M InputModel
 --- @param result function?
-function InputController:new(M, result)
-  local ic = {
+function InputController.new(M, result)
+  local self = setmetatable({
     model = M,
     result = result,
-  }
+  }, InputController)
 
-  setmetatable(ic, self)
-  self.__index = self
-
-  return ic
+  return self
 end
 
 --- @param t string

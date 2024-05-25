@@ -34,7 +34,7 @@ function ConsoleController.new(M)
   local pre_env = table.clone(env)
   local config = M.cfg
   pre_env.font = config.view.font
-  local IC = InputController:new(M.interpreter.input)
+  local IC = InputController.new(M.interpreter.input)
   local EC = EditorController.new(M.editor)
   local self = setmetatable({
     time        = 0,
@@ -298,7 +298,7 @@ function ConsoleController.prepare_project_env(cc)
     end
     local cb = function(v) table.insert(result, 1, v) end
     local input = InputModel:new(cfg, eval, true)
-    local controller = InputController:new(input, cb)
+    local controller = InputController.new(input, cb)
     local view = InputView:new(cfg, controller)
     love.state.user_input = {
       M = input, C = controller, V = view
