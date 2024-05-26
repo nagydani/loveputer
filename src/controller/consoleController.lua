@@ -335,16 +335,17 @@ function ConsoleController:get_timestamp()
 end
 
 function ConsoleController:evaluate_input()
-  --- @type Model
-  local M = self.model
+  -- @type Model
+  -- local M = self.model
   --- @type InterpreterModel
-  local interpreter = M.interpreter
+  local interpreter = self.model.interpreter
   local input = interpreter.input
 
   local text = input:get_text()
   local eval = input.evaluator
 
   local eval_ok, res = interpreter:evaluate()
+
   if eval.is_lua then
     if eval_ok then
       local code = string.join(text, '\n')
@@ -455,10 +456,6 @@ function ConsoleController:quit_project()
   self:close_project()
 end
 
-function ConsoleController:clear_error()
-  self.model.interpreter:clear_error()
-end
-
 --- @param name string
 function ConsoleController:edit(name)
   if love.state.app_state == 'running' then return end
@@ -525,7 +522,7 @@ function ConsoleController:keypressed(k)
   if self.model.interpreter:has_error() then
     if k == 'space' or Key.is_enter(k)
         or k == "up" or k == "down" then
-      self:clear_error()
+      interpreter:clear_error()
     end
     return
   end
