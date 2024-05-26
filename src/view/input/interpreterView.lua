@@ -10,7 +10,7 @@ function InterpreterView:new(cfg, ctrl)
   local iv = {
     cfg = cfg,
     controller = ctrl,
-    input = InputView:new(cfg, ctrl.input),
+    input = InputView.new(cfg, ctrl.input),
   }
   setmetatable(iv, self)
   self.__index = self

@@ -11,20 +11,26 @@ require("util.view")
 --- @field oneshot boolean
 --- @field draw function
 InputView = {}
+InputView.__index = InputView
+
+setmetatable(EditorController, {
+  __call = function(cls, ...)
+    return cls.new(...)
+  end,
+})
 
 --- @param cfg Config
 --- @param ctrl InputController
-function InputView:new(cfg, ctrl)
-  local iv = {
+function InputView.new(cfg, ctrl)
+  local self = setmetatable({
     cfg = cfg,
     controller = ctrl,
     statusline = Statusline:new(cfg),
     oneshot = ctrl.model.oneshot,
   }
-  setmetatable(iv, self)
-  self.__index = self
+  , InputView)
 
-  return iv
+  return self
 end
 
 --- @param input InputDTO
