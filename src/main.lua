@@ -1,9 +1,9 @@
-require("src.model.consoleModel")
+require("model.consoleModel")
 local redirect_to = require("model.io.redirect")
-require("view.consoleView")
 require("controller.controller")
 require("controller.consoleController")
 require("view.view")
+require("view.consoleView")
 local colors = require("conf.colors")
 
 require("util.key")
