@@ -60,13 +60,13 @@ Debug = {
 
   text = text,
 
-  --- @param t table
+  --- @param t string[]
   --- @param no_ln boolean?
   --- @param trunc boolean?
   --- @return string
   text_table = function(t, no_ln, trunc)
     local res = ''
-    if t then
+    if type(t) == 'table' then
       for i, l in ipairs(t) do
         local line = (function()
           if not no_ln then
