@@ -484,14 +484,18 @@ end
 
 --- @param t string
 function ConsoleController:textinput(t)
-  local interpreter = self.model.interpreter
-  if interpreter:has_error() then
-    interpreter:clear_error()
+  if love.state.app_state == 'editor' then
+    self.editor:textinput(t)
   else
-    if Key.ctrl() and Key.shift() then
-      return
+    local interpreter = self.model.interpreter
+    if interpreter:has_error() then
+      interpreter:clear_error()
+    else
+      if Key.ctrl() and Key.shift() then
+        return
+      end
+      self.input:textinput(t)
     end
-    self.input:textinput(t)
   end
 end
 
@@ -511,59 +515,63 @@ function ConsoleController:keypressed(k)
     end
   end
 
-  if love.state.testing == 'running' then
-    return
-  end
-  if love.state.testing == 'waiting' then
-    terminal_test()
-    return
-  end
-
-  if self.model.interpreter:has_error() then
-    if k == 'space' or Key.is_enter(k)
-        or k == "up" or k == "down" then
-      interpreter:clear_error()
+  if love.state.app_state == 'editor' then
+    self.editor:keypressed(k)
+  else
+    if love.state.testing == 'running' then
+      return
     end
-    return
-  end
+    if love.state.testing == 'waiting' then
+      terminal_test()
+      return
+    end
 
-  if k == "pageup" then
-    interpreter:history_back()
-  end
-  if k == "pagedown" then
-    interpreter:history_fwd()
-  end
-  local limit = self.input:keypressed(k)
-  if limit then
-    if k == "up" then
+    if self.model.interpreter:has_error() then
+      if k == 'space' or Key.is_enter(k)
+          or k == "up" or k == "down" then
+        interpreter:clear_error()
+      end
+      return
+    end
+
+    if k == "pageup" then
       interpreter:history_back()
     end
-    if k == "down" then
+    if k == "pagedown" then
       interpreter:history_fwd()
     end
-  end
-  if not Key.shift() and Key.is_enter(k) then
-    if not interpreter:has_error() then
-      self:evaluate_input()
-    end
-  end
-
-  -- Ctrl held
-  if Key.ctrl() then
-    if k == "l" then
-      self.model.output:reset()
-    end
-    if love.DEBUG then
-      if k == 't' then
-        terminal_test()
-        return
+    local limit = self.input:keypressed(k)
+    if limit then
+      if k == "up" then
+        interpreter:history_back()
+      end
+      if k == "down" then
+        interpreter:history_fwd()
       end
     end
-  end
-  -- Ctrl and Shift held
-  if Key.ctrl() and Key.shift() then
-    if k == "r" then
-      self:reset()
+    if not Key.shift() and Key.is_enter(k) then
+      if not interpreter:has_error() then
+        self:evaluate_input()
+      end
+    end
+
+    -- Ctrl held
+    if Key.ctrl() then
+      if k == "l" then
+        self.model.output:reset()
+      end
+      if love.DEBUG then
+        if k == 't' then
+          terminal_test()
+          return
+        end
+      end
+    end
+    -- Ctrl and Shift held
+    if Key.ctrl() and Key.shift() then
+      if k == "r" then
+        self:reset()
+      end
     end
   end
 end
