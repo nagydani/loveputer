@@ -24,6 +24,14 @@ function EditorView.new(cfg, ctrl)
 end
 
 function EditorView:draw()
+  local G = love.graphics
+
+  local M = self.controller.model
+  local content = M.buffer:get_content()
+  local text = string.join(content, '\n')
+
+  G.print(text)
+
   local IC = self.controller.input
   self.input:draw(IC:get_input())
 end
