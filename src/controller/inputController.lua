@@ -35,39 +35,9 @@ end
 --- @return boolean? limit
 function InputController:keypressed(k)
   local input = self.model
+  local ret
 
-  if k == "backspace" then
-    input:backspace()
-  end
-  if k == "delete" then
-    input:delete()
-  end
-
-  if k == "up" then
-    local l = input:cursor_vertical_move('up')
-    return l
-  end
-  if k == "down" then
-    local l = input:cursor_vertical_move('down')
-    return l
-  end
-  if k == "left" then
-    input:cursor_left()
-  end
-  if k == "right" then
-    input:cursor_right()
-  end
-
-  if k == "home" then
-    input:jump_home()
-  end
-  if k == "end" then
-    input:jump_end()
-  end
-
-  if not Key.ctrl() and k == "escape" then
-    input:cancel()
-  end
+  -- utility functions
   local function paste()
     input:paste(love.system.getClipboardText())
     input:clear_selection()
@@ -81,48 +51,114 @@ function InputController:keypressed(k)
     love.system.setClipboardText(string.join(t, '\n'))
   end
 
-  -- Ctrl held
-  if Key.ctrl() then
-    if k == "v" then
-      paste()
-    end
-    if k == "c" or k == "insert" then
-      copy()
-    end
-    if k == "x" then
-      cut()
-    end
-  end
-
-  -- Shift held
-  if Key.shift() then
-    if k == "insert" then
-      paste()
+  -- action categories
+  local function removers()
+    if k == "backspace" then
+      input:backspace()
     end
     if k == "delete" then
-      cut()
+      input:delete()
     end
-    if Key.is_enter(k) then
-      input:line_feed()
+  end
+  local function vertical()
+    if k == "up" then
+      local l = input:cursor_vertical_move('up')
+      ret = l
     end
-    input:hold_selection()
+    if k == "down" then
+      local l = input:cursor_vertical_move('down')
+      ret = l
+    end
+  end
+  local function horizontal()
+    if k == "left" then
+      input:cursor_left()
+    end
+    if k == "right" then
+      input:cursor_right()
+    end
+
+    if k == "home" then
+      input:jump_home()
+    end
+    if k == "end" then
+      input:jump_end()
+    end
+  end
+  local function newline()
+    if Key.shift() then
+      if Key.is_enter(k) then
+        input:line_feed()
+      end
+    end
+  end
+  local function copypaste()
+    if Key.ctrl() then
+      if k == "v" then
+        paste()
+      end
+      if k == "c" or k == "insert" then
+        copy()
+      end
+      if k == "x" then
+        cut()
+      end
+    end
+    if Key.shift() then
+      if k == "insert" then
+        paste()
+      end
+      if k == "delete" then
+        cut()
+      end
+    end
+  end
+  local function selection()
+    if Key.shift() then
+      input:hold_selection()
+    end
   end
 
-  if not Key.shift() and Key.is_enter(k) then
-    input:finish()
-    local res = self.result
-    if res and type(res) == "function" then
-      res(string.unlines(input:get_text()))
+  local function cancel()
+    if not Key.ctrl() and k == "escape" then
+      input:cancel()
     end
   end
+  local function submit()
+    if not Key.shift() and Key.is_enter(k) then
+      input:finish()
+      local res = self.result
+      if type(res) == "function" then
+        res(string.unlines(input:get_text()))
+      end
+    end
+  end
+
+
+  removers()
+  vertical()
+  horizontal()
+  newline()
+
+  copypaste()
+  selection()
+
+  cancel()
+  submit()
+
+  return ret
 end
 
 --- @param k string
 function InputController:keyreleased(k)
-  if Key.shift() then
-    local im = self.model
-    im:release_selection()
+  local input = self.model
+  local function selection()
+    if Key.shift() then
+      input:release_selection()
+    end
   end
+
+  selection()
 end
 
 --- @return InputDTO
