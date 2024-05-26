@@ -2,7 +2,8 @@ require("model.editor.bufferModel")
 
 --- @class EditorModel
 --- @field interpreter InterpreterModel
---- @field buffer BufferModel
+--- @field buffer BufferModel?
+--- @field cfg Config
 EditorModel = {}
 EditorModel.__index = EditorModel
 
@@ -16,7 +17,8 @@ setmetatable(EditorModel, {
 function EditorModel.new(cfg)
   local self = setmetatable({
     interpreter = InterpreterModel(cfg), -- EditorInterpreter?
-    buffer = BufferModel(),
+    buffer = nil,
+    cfg = cfg,
   }, EditorModel)
 
   return self
