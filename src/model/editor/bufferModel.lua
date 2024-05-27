@@ -1,6 +1,7 @@
 --- @class BufferModel
 --- @field name string
 --- @field content Content
+--- @field selection Selected[]
 BufferModel = {}
 BufferModel.__index = BufferModel
 
@@ -16,6 +17,7 @@ function BufferModel.new(name, content)
   local self = setmetatable({
     name = name or 'untitled',
     content = content,
+    selected = {},
   }, BufferModel)
 
   return self
