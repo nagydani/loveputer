@@ -55,4 +55,27 @@ end
 --- @param k string
 function EditorController:keypressed(k)
   self.input:keypressed(k)
+  if not Key.ctrl() and not Key.shift() and k == "escape" then
+    -- open selected line, or reset it
+  end
+  -- enter submits, handled in the input
+  if Key.shift() and k == "escape" then
+    -- insert selected line
+  end
+  if Key.ctrl() and
+      (k == "delete" or k == "y") then
+    -- delete selected line
+  end
+  if k == "up" then
+    -- selection up
+  end
+  if k == "down" then
+    -- selection down
+  end
+  if k == "pageup" then
+    -- scroll up
+  end
+  if k == "pagedown" then
+    -- scroll down
+  end
 end
