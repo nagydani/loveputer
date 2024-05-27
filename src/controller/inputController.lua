@@ -134,17 +134,29 @@ function InputController:keypressed(k)
     end
   end
 
+  if love.state.app_state == 'editor' then
+    removers()
+    horizontal()
+    newline()
 
-  removers()
-  vertical()
-  horizontal()
-  newline()
+    copypaste()
+    selection()
 
-  copypaste()
-  selection()
+    submit()
+  else
+    -- normal behavior
+    removers()
+    vertical()
+    horizontal()
+    newline()
 
-  cancel()
-  submit()
+    copypaste()
+    selection()
+
+    cancel()
+    submit()
+  end
+
 
   return ret
 end
