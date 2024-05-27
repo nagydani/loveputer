@@ -5,7 +5,7 @@ require("util.debug")
 require("util.view")
 
 --- @class InputView
---- @field cfg Config
+--- @field cfg ViewConfig
 --- @field controller InputController
 --- @field statusline table
 --- @field oneshot boolean
@@ -19,7 +19,7 @@ setmetatable(EditorController, {
   end,
 })
 
---- @param cfg Config
+--- @param cfg ViewConfig
 --- @param ctrl InputController
 function InputView.new(cfg, ctrl)
   local self = setmetatable({
@@ -37,7 +37,7 @@ end
 --- @param time number
 function InputView:draw(input, time)
   local status = self.controller:get_status()
-  local cf_colors = self.cfg.view.colors
+  local cf_colors = self.cfg.colors
   local colors = (function()
     if love.state.app_state == 'inspect' then
       return cf_colors.input.inspect
@@ -47,12 +47,12 @@ function InputView:draw(input, time)
       return cf_colors.input.console
     end
   end)()
-  local b = self.cfg.view.border
-  local fh = self.cfg.view.fh
-  local fw = self.cfg.view.fw
-  local h = self.cfg.view.h
-  local drawableWidth = self.cfg.view.drawableWidth
-  local drawableChars = self.cfg.view.drawableChars
+  local b = self.cfg.border
+  local fh = self.cfg.fh
+  local fw = self.cfg.fw
+  local h = self.cfg.h
+  local drawableWidth = self.cfg.drawableWidth
+  local drawableChars = self.cfg.drawableChars
   -- drawtest hack
   if drawableWidth < love.fixWidth / 3 then
     drawableChars = drawableChars * 2
@@ -137,8 +137,8 @@ function InputView:draw(input, time)
 
   -- draw
   G.push('all')
-  G.scale(self.cfg.view.FAC, self.cfg.view.FAC)
-  G.setFont(self.cfg.view.font)
+  G.scale(self.cfg.FAC, self.cfg.FAC)
+  G.setFont(self.cfg.font)
   G.setBackgroundColor(colors.bg)
   G.setColor(colors.fg)
   self.statusline:draw(status, apparentLines, time, self.oneshot)
@@ -202,7 +202,7 @@ function InputView:draw(input, time)
     end
   else
     for l, str in ipairs(display) do
-      ViewUtils.write_line(l, str, { y = y, breaks = breaks }, self.cfg.view)
+      ViewUtils.write_line(l, str, { y = y, breaks = breaks }, self.cfg)
     end
   end
   G.pop()

@@ -31,8 +31,8 @@ function ConsoleView.new(cfg, ctrl)
   local self = setmetatable({
     title = TitleView,
     canvas = CanvasView:new(cfg),
-    interpreter = InterpreterView:new(cfg, ctrl),
-    editor = EditorView.new(cfg, ctrl.editor),
+    interpreter = InterpreterView:new(cfg.view, ctrl),
+    editor = EditorView(cfg.view, ctrl.editor),
     controller = ctrl,
     cfg = cfg,
     drawable_height = ViewUtils.get_drawable_height(cfg.view),
