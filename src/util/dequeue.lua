@@ -14,19 +14,24 @@
 --- @field length function
 --- @field is_empty function
 Dequeue = {}
+Dequeue.__index = Dequeue
+
+setmetatable(Dequeue, {
+  __call = function(cls, ...)
+    return cls.new(...)
+  end,
+})
 
 --- Create a new double-ended queue
 --- @param values table?
-function Dequeue:new(values)
-  local q = {}
-  setmetatable(q, self)
-  self.__index = self
+function Dequeue.new(values)
+  local self = setmetatable({}, Dequeue)
   if values and type(values) == 'table' then
     for _, v in ipairs(values) do
-      q:push_back(v)
+      self:push_back(v)
     end
   end
-  return q
+  return self
 end
 
 --- Insert element at the start, reorganizing the array

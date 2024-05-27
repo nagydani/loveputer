@@ -8,7 +8,7 @@ InputText = {}
 
 --- @param values string[]?
 function InputText:new(values)
-  local text = Dequeue:new(values)
+  local text = Dequeue(values)
   if not values or values == '' or
       (type(values) == "table" and #values == 0)
   then
@@ -36,7 +36,7 @@ function InputText:traverse(from, to, options)
   local ce = to.c - 1
   local lines = string.lines(self)
 
-  local ret = Dequeue:new()
+  local ret = Dequeue()
   local defaults = {
     delete = false,
   }

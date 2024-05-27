@@ -199,7 +199,7 @@ end
 --- @return table projects
 function ProjectService:list()
   local folders = FS.dir(self.path)
-  local ret = Dequeue:new()
+  local ret = Dequeue()
   for _, f in pairs(folders) do
     if f.type and f.type == 'directory' then
       local ok = is_project(ProjectService.path, f.name)

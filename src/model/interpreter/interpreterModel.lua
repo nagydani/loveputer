@@ -39,7 +39,7 @@ function InterpreterModel.new(cfg)
   local self      = setmetatable({
     cfg = cfg,
     input = InputModel:new(cfg, luaEval),
-    history = Dequeue:new(),
+    history = Dequeue(),
     -- starter
     evaluator = luaEval,
     -- available options
@@ -56,7 +56,7 @@ end
 --- @param history boolean?
 function InterpreterModel:reset(history)
   if history then
-    self.history = Dequeue:new()
+    self.history = Dequeue()
   end
   self.input:clear_input()
 end

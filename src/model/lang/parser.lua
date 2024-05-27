@@ -21,7 +21,7 @@ return function(lib)
   --- @param stream table
   --- @return table tokens
   local realize_stream = function(stream)
-    local tokens = Dequeue:new()
+    local tokens = Dequeue()
     local n
     repeat
       n = stream:next()
