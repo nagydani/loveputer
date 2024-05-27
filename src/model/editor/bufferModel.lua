@@ -14,9 +14,11 @@ setmetatable(BufferModel, {
 --- @param name string
 --- @param content string[]?
 function BufferModel.new(name, content)
+  local buffer = Dequeue(content)
+  buffer:push_back('EOF')
   local self = setmetatable({
     name = name or 'untitled',
-    content = content,
+    content = buffer,
     selected = {},
   }, BufferModel)
 
