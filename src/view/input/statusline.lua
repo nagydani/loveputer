@@ -1,7 +1,7 @@
 local G = love.graphics
 
 --- @class Statusline
---- @field cfg Config
+--- @field cfg ViewConfig
 Statusline = {}
 
 --- @param cfg ViewConfig
@@ -36,6 +36,7 @@ function Statusline:draw(status, nLines, time)
   local h = cf.h
   local w = cf.w
   local fh = cf.fh
+  local font = cf.font
 
   local sy = h - b - (1 + nLines) * fh
   local start_box = { x = 0, y = sy }
@@ -44,7 +45,7 @@ function Statusline:draw(status, nLines, time)
 
   local function drawBackground()
     G.setColor(colors.bg)
-    G.setFont(cf.font)
+    G.setFont(font)
     local corr = 2 -- correct for fractional slit left under the terminal
     G.rectangle("fill", start_box.x, start_box.y - corr, w, fh + corr)
   end
