@@ -299,7 +299,7 @@ function ConsoleController.prepare_project_env(cc)
     local cb = function(v) table.insert(result, 1, v) end
     local input = InputModel:new(cfg, eval, true)
     local controller = InputController.new(input, cb)
-    local view = InputView.new(cfg, controller)
+    local view = InputView.new(cfg.view, controller)
     love.state.user_input = {
       M = input, C = controller, V = view
     }
