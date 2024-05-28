@@ -16,14 +16,17 @@ local syntax_i = {
 
 ---@alias RGB integer[]
 
---- @class ColorPair
+--- @class BaseColors
 --- @field bg RGB
 --- @field fg RGB
 
+--- @class EditorColors : BaseColors
+--- @field highlight RGB
+
 --- @class InputColors
---- @field console ColorPair
---- @field user ColorPair
---- @field inspect ColorPair
+--- @field console BaseColors
+--- @field user BaseColors
+--- @field inspect BaseColors
 --- @field cursor RGB
 --- @field error RGB  -- TODO pair these
 --- @field error_bg RGB  -- TODO pair these
@@ -38,7 +41,8 @@ local syntax_i = {
 --- @class Colors
 --- @field border RGB
 --- @field debug RGB
---- @field terminal ColorPair
+--- @field terminal BaseColors
+--- @field editor EditorColors
 --- @field input InputColors
 --- @field statusline table<InputTheme, StatuslineColors>
 return {
