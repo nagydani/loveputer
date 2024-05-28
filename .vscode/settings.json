@@ -10,4 +10,14 @@
     "**/.vscode-oss/extensions/*": true,
     ".history/**": true,
   },
+  "editor.rulers": [
+    {
+      "column": 64,
+      "color": "#444",
+    },
+    {
+      "column": 80,
+      "color": "#555",
+    }
+  ],
 }
