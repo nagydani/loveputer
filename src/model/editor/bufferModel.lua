@@ -3,7 +3,7 @@
 --- @class BufferModel
 --- @field name string
 --- @field content Content
---- @field selection Selected[]
+--- @field selection integer[]
 BufferModel = {}
 BufferModel.__index = BufferModel
 
@@ -21,7 +21,7 @@ function BufferModel.new(name, content)
   local self = setmetatable({
     name = name or 'untitled',
     content = buffer,
-    selected = {},
+    selection = { #buffer },
   }, BufferModel)
 
   return self
