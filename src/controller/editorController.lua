@@ -67,10 +67,10 @@ function EditorController:keypressed(k)
     -- delete selected line
   end
   if k == "up" then
-    -- selection up
+    self:get_active_buffer():move_highlight('up')
   end
   if k == "down" then
-    -- selection down
+    self:get_active_buffer():move_highlight('down')
   end
   if k == "pageup" then
     -- scroll up
