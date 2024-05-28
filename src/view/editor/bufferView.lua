@@ -1,7 +1,6 @@
 require("view.editor.visibleContent")
 
 require("util.table")
-require("util.wrapped_text")
 
 --- @class BufferView
 --- @field visible VisibleContent
@@ -59,7 +58,7 @@ function BufferView:open(buffer)
   local ei = math.min(L, clen) + off
   if ei == clen then ei = ei - 1 end
   local vis = table.slice(content, si, ei)
-  self.visible = WrappedText(64, vis)
+  self.visible = VisibleContent(64, vis)
   self.visible:set_range(si, ei)
 end
 
