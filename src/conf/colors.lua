@@ -48,6 +48,11 @@ return {
     fg = Color[Color.black],
     bg = Color[Color.white],
   },
+  editor = {
+    fg = Color[Color.black],
+    bg = Color[Color.white],
+    highlight = Color[Color.white + Color.bright],
+  },
   input = {
     console = {
       bg = Color[Color.white],

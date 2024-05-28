@@ -18,10 +18,11 @@
 ---| 2
 
 --- @class ViewConfig table
---- @field font table
+--- @field font love.Font
 --- @field fh integer -- font height
 --- @field fw integer -- font width
 --- @field lh integer -- line height
+--- @field lines integer
 --- @field labelfont table
 --- @field lfh integer -- font height
 --- @field lfw integer -- font width

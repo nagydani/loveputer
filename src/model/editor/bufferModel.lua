@@ -1,3 +1,5 @@
+--- @alias Content Dequeue
+
 --- @class BufferModel
 --- @field name string
 --- @field content Content

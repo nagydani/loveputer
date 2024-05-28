@@ -77,6 +77,10 @@ local config_view = function(sizedebug)
   -- we use a monospace font, so the width should be the same for any input
   local fw = font_main:getWidth('█') -- 16x32
 
+  -- this should lead to 16 lines visible by default on the
+  -- console and the editor
+  local lines = 16
+
   local font_labels = G.newFont(
     font_dir .. "PressStart2P-Regular.ttf", 12)
 
@@ -99,6 +103,7 @@ local config_view = function(sizedebug)
     fh = fh,
     fw = fw,
     lh = lh,
+    lines = lines,
 
     labelfont = font_labels,
     lfh = font_labels:getHeight(),
