@@ -1,4 +1,4 @@
---- @class Dequeue table
+--- @class Dequeue<T> : table
 --- @field new function
 --- @field push_front function
 --- @field prepend function

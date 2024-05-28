@@ -91,7 +91,7 @@ Debug = {
     return res
   end,
 
-  --- @param t table
+  --- @param t table?
   --- @param level integer?
   --- @param prev_seen table?
   ---@return string
