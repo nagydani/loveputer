@@ -87,6 +87,11 @@ function WrappedText:wrap(text)
   self.n_breaks = breaks
 end
 
+--- @return string[]
+function WrappedText:get_text()
+  return self.text
+end
+
 --- @param l integer
 function WrappedText:get_line(l)
   return self.text[l]
