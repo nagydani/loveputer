@@ -1,3 +1,8 @@
+require("view.editor.visibleContent")
+
+require("util.table")
+require("util.wrapped_text")
+
 --- @class BufferView
 --- @field visible VisibleContent
 --- @field more {up: boolean, down: boolean}
@@ -6,6 +11,7 @@
 --- @field LINES integer
 --- @field SCROLL_BY integer
 --- @field cfg ViewConfig
+--- @field buffer BufferModel
 ---
 --- @field draw function
 BufferView = {}
@@ -24,21 +30,46 @@ function BufferView.new(cfg)
   local self = setmetatable({
     LINES = l,
     SCROLL_BY = math.floor(l / 2),
+    visible = nil,
+    more = { up = false, down = false },
+    offset = 0,
+    was_scrolled = false,
 
-    cfg = cfg
+    cfg = cfg,
+    buffer = nil
   }, BufferView)
   return self
 end
 
 --- @param buffer BufferModel
-function BufferView:draw(buffer)
+function BufferView:open(buffer)
+  local L = self.LINES
+  if buffer then
+    self.buffer = buffer
+  end
+  local content = self.buffer:get_content()
+  local clen = #content
+  self.offset = math.max(clen - L, 0)
+  local off = self.offset
+  if off > 0 then
+    self.more.up = true
+  end
+  -- TODO visible
+  local si = 1 + off
+  local ei = math.min(L, clen) + off
+  if ei == clen then ei = ei - 1 end
+  local vis = table.slice(content, si, ei)
+  self.visible = WrappedText(64, vis)
+  self.visible:set_range(si, ei)
+end
+
+function BufferView:draw()
   local G = love.graphics
   local colors = self.cfg.colors.editor
   local font = self.cfg.font
   local fh = self.cfg.fh * 1.032 -- magic constant
-  local content = buffer:get_content()
-  local last_line_n = #content - 1
-  -- TODO visible
+  local content = self.visible:get_text()
+  local last_line_n = #content
   local width, height = G.getDimensions()
 
 
@@ -67,8 +98,9 @@ function BufferView:draw(buffer)
   end
 
   draw_background()
-  for _, s in ipairs(buffer.selection) do
-    draw_highlight(s)
+  for _, s in ipairs(self.buffer.selection) do
+    -- TODO multiline
+    draw_highlight(s - self.offset)
   end
   draw_text()
 end
