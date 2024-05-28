@@ -41,19 +41,24 @@ setmetatable(WrappedText, {
 --- @param text string[]?
 --- @return WrappedText
 function WrappedText.new(w, text)
-  local self = setmetatable({
-    text = {},
-    wrap_w = w,
-    cursor_wrap = {},
-    reverse = {},
-    n_breaks = 0,
-  }, WrappedText)
+  local self = setmetatable({}, WrappedText)
+  self:_init(w, text)
 
+  return self
+end
+
+--- @protected
+--- @param w integer
+--- @param text string[]?
+function WrappedText:_init(w, text)
+  self.text = {}
+  self.wrap_w = w
+  self.cursor_wrap = {}
+  self.reverse = {}
+  self.n_breaks = 0
   if text then
     self:wrap(text)
   end
-
-  return self
 end
 
 --- @param text string[]
