@@ -1,5 +1,5 @@
 require("view.titleView")
-require("view.editorView")
+require("view.editor.editorView")
 require("view.canvas.canvasView")
 require("view.input.interpreterView")
 require("util.color")
