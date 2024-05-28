@@ -37,13 +37,19 @@ function BufferView:draw(buffer)
   local font = self.cfg.font
   local fh = self.cfg.fh * 1.032 -- magic constant
   local content = buffer:get_content()
+  local last_line_n = #content - 1
   -- TODO visible
   local width, height = G.getDimensions()
 
 
   local draw_background = function()
+    G.push('all')
     G.setColor(colors.bg)
     G.rectangle("fill", 0, 0, width, height)
+    G.setColor(Color.with_alpha(colors.fg, .0625))
+    local bh = math.min(last_line_n, self.cfg.lines) * fh
+    G.rectangle("fill", 0, 0, width, bh)
+    G.pop()
   end
   local draw_highlight = function(line)
     if not line then return end
