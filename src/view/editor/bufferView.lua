@@ -43,6 +43,7 @@ end
 --- @param buffer BufferModel
 function BufferView:open(buffer)
   local L = self.LINES
+  local w = self.cfg.drawableChars
   if buffer then
     self.buffer = buffer
   end
@@ -58,7 +59,7 @@ function BufferView:open(buffer)
   local ei = math.min(L, clen) + off
   if ei == clen then ei = ei - 1 end
   local vis = table.slice(content, si, ei)
-  self.visible = VisibleContent(64, vis)
+  self.visible = VisibleContent(w, vis)
   self.visible:set_range(si, ei)
 end
 
