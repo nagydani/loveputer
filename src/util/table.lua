@@ -117,3 +117,18 @@ function table.toggle(self, k)
     end
   end
 end
+
+-- https://stackoverflow.com/a/24823383
+--- @param self table
+--- @param first integer?
+--- @param last integer?
+--- @param step integer?
+function table.slice(self, first, last, step)
+  local sliced = {}
+
+  for i = first or 1, last or #self, step or 1 do
+    sliced[#sliced + 1] = self[i]
+  end
+
+  return sliced
+end
