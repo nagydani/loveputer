@@ -24,6 +24,7 @@ function EditorView.new(cfg, ctrl)
     input = InputView.new(cfg, ctrl.input),
     buffer = BufferView(cfg)
   }, EditorView)
+  ctrl.view = self
   return self
 end
 

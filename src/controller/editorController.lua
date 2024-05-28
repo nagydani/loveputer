@@ -1,6 +1,7 @@
 --- @class EditorController
 --- @field model EditorModel
 --- @field input InputController
+--- @field view EditorView?
 --- @field open fun(self, name: string, content: string[]?)
 --- @field close fun(self): string[]
 EditorController = {}
@@ -17,6 +18,7 @@ function EditorController.new(M)
   local self = setmetatable({
     input = InputController.new(M.interpreter.input),
     model = M,
+    view = nil,
   }, EditorController)
 
   return self
@@ -25,7 +27,9 @@ end
 --- @param name string
 --- @param content string[]?
 function EditorController:open(name, content)
-  self.model.buffer = BufferModel.new(name, content)
+  local b = BufferModel.new(name, content)
+  self.model.buffer = b
+  self.view.buffer:open(b)
 end
 
 --- @return string[]
