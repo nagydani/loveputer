@@ -67,6 +67,8 @@ function BufferView:draw(buffer)
   end
 
   draw_background()
-  draw_highlight(#content)
+  for _, s in ipairs(buffer.selection) do
+    draw_highlight(s)
+  end
   draw_text()
 end
