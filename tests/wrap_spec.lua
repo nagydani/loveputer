@@ -90,4 +90,35 @@ describe('WrappedText #wrap', function()
       assert.same(rev4, wrapper4.wrap_reverse)
     end)
   end)
+
+  describe('handles text change', function()
+    local nt1 = {
+      'ABBA EDDA AC/DC',
+    }
+    local res1 = {
+      'ABBA ',
+      'EDDA ',
+      'AC/DC',
+    }
+
+    it('1', function()
+      wrapper1:wrap(nt1)
+      assert.same(res1, wrapper1:get_text())
+    end)
+
+    local nt2 = {
+      'ABBA EDDA',
+      'AC/DC',
+    }
+    local res2 = {
+      'ABBA ',
+      'EDDA',
+      'AC/DC',
+    }
+
+    it('2', function()
+      wrapper1:wrap(nt2)
+      assert.same(res2, wrapper1:get_text())
+    end)
+  end)
 end)
