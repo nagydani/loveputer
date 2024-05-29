@@ -68,7 +68,7 @@ function InputView:draw(input, time)
   local apparentHeight = inHeight
   local wt = input.wrapped_text
   local display = wt.text
-  local cursor_wrap = wt.cursor_wrap
+  local wrap_forward = wt.wrap_forward
   local wrap_reverse = wt.wrap_reverse
   local breaks = wt.n_breaks
   apparentHeight = apparentHeight + breaks
@@ -87,10 +87,10 @@ function InputView:draw(input, time)
     end)()
     local y_offset = math.floor((cc - 1) / drawableChars)
     local yh = 0
-    local n = cursor_wrap[cl] or 0
+    local n = #(wrap_forward[cl] or {})
     -- how many apparent lines we have so far?
     for i = 1, cl do
-      yh = yh + (cursor_wrap[i] or 0)
+      yh = yh + (#(wrap_forward[i] or {}))
     end
     local ch =
     -- top of the box
@@ -160,7 +160,7 @@ function InputView:draw(input, time)
         local char = string.usub(s, i, i)
         local hl_li = wrap_reverse[l]
         local hl_ci = (function()
-          if cursor_wrap[hl_li] > 1 then
+          if #(wrap_forward[hl_li]) > 1 then
             local offset = l - hl_li
             return i + drawableChars * offset
           else
