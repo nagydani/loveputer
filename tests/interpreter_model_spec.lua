@@ -6,8 +6,9 @@ end
 
 describe("interpreter model spec #interpreter", function()
   local mockConf = {
-    view = {},
-    drawableChars = 80,
+    view = {
+      drawableChars = 80,
+    },
   }
 
   describe('basics', function()
