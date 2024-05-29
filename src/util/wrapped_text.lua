@@ -10,6 +10,9 @@
 --- @alias CursorWrap integer[]
 --- Indexed with the original line number, values is the number
 --- of wrapped lines, e.g. {1: 1, 2: 2}
+--- @alias WrapForward table<integer, integer[]>
+--- Mapping from original line numbers to wrapped line numbers.
+--- e.g. {1: {1], 2: {2}, 3: {3, 4}}
 --- @alias WrapReverse integer[]
 --- Inverse mapping from apparent line number to original
 --- Key is line number in wrapped, value is line number in
@@ -21,6 +24,7 @@
 --- @field text string[]
 --- @field wrap_w integer
 --- @field cursor_wrap CursorWrap
+--- @field wrap_forward WrapForward
 --- @field wrap_reverse WrapReverse
 --- @field n_breaks integer
 ---
@@ -54,6 +58,7 @@ function WrappedText:_init(w, text)
   self.text = {}
   self.wrap_w = w
   self.cursor_wrap = {}
+  self.wrap_forward = {}
   self.wrap_reverse = {}
   self.n_breaks = 0
   if text then
@@ -66,6 +71,7 @@ function WrappedText:wrap(text)
   local w = self.wrap_w
   local display = {}
   local cursor_wrap = {}
+  local wrap_forward = {}
   local wrap_reverse = {}
   local breaks = 0
   local revi = 1
@@ -75,10 +81,13 @@ function WrappedText:wrap(text)
       -- remember how many apparent lines will be overall
       local ap = n + 1
       cursor_wrap[i] = ap
+      local fwd = {}
       for _ = 1, ap do
         wrap_reverse[revi] = i
+        table.insert(fwd, revi)
         revi = revi + 1
       end
+      wrap_forward[i] = fwd
       breaks = breaks + n
       local lines = string.wrap_at(l, w)
       for _, tl in ipairs(lines) do
@@ -88,6 +97,7 @@ function WrappedText:wrap(text)
   end
   self.text = display
   self.cursor_wrap = cursor_wrap
+  self.wrap_forward = wrap_forward
   self.wrap_reverse = wrap_reverse
   self.n_breaks = breaks
 end
