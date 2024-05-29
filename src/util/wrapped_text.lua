@@ -53,6 +53,9 @@ end
 --- @param w integer
 --- @param text string[]?
 function WrappedText:_init(w, text)
+  if type(w) ~= "number" or w < 1 then
+    error('invalid wrap length')
+  end
   self.text = {}
   self.wrap_w = w
   self.wrap_forward = {}
