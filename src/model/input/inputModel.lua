@@ -275,35 +275,6 @@ function InputModel:text_change()
   self.wrapped_text:wrap(self.entered)
 end
 
--- function InputModel:wrap_text()
---   local w = self.wrapped_text.wrap_w
---   local text = self:get_text()
---   local display = {}
---   local cursor_wrap = {}
---   local wrap_reverse = {}
---   local breaks = 0
---   local revi = 1
---   for i, l in ipairs(text) do
---     local n = math.floor(string.ulen(l) / w)
---     -- remember how many apparent lines will be overall
---     local ap = n + 1
---     cursor_wrap[i] = ap
---     for _ = 1, ap do
---       wrap_reverse[revi] = i
---       revi = revi + 1
---     end
---     breaks = breaks + n
---     local lines = string.wrap_at(l, w)
---     for _, tl in ipairs(lines) do
---       table.insert(display, tl)
---     end
---   end
---   self.wrapped_text = display
---   self.cursor_wrap = cursor_wrap
---   self.wrap_reverse = wrap_reverse
---   self.n_breaks = breaks
--- end
-
 --- @return Highlight?
 function InputModel:highlight()
   local ev = self.evaluator
