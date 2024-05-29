@@ -11,8 +11,11 @@ describe('WrappedText #wrap', function()
     'Turtle graphics game inspired the LOGO family of languages.',
     '',
   }
+  local ex3 = { 'abc de' }
   local wrapper1 = WrappedText(5, ex1)
   local wrapper2 = WrappedText(30, ex2)
+  local wrapper3 = WrappedText(1, ex3)
+  local wrapper4 = WrappedText(80, ex3)
 
   describe('wraps text', function()
     local res1 = {
@@ -33,6 +36,23 @@ describe('WrappedText #wrap', function()
     it('2', function()
       assert.same(res2, wrapper2:get_text())
     end)
+
+    local res3 = {
+      'a',
+      'b',
+      'c',
+      ' ',
+      'd',
+      'e',
+    }
+    it('3', function()
+      assert.same(res3, wrapper3:get_text())
+    end)
+
+    local res4 = ex3
+    it('4', function()
+      assert.same(res4, wrapper4:get_text())
+    end)
   end)
   describe('produces forward mapping', function()
     it('1', function()
@@ -43,6 +63,14 @@ describe('WrappedText #wrap', function()
       local fwd2 = { { 1 }, { 2, 3 }, { 4 } }
       assert.same(fwd2, wrapper2.wrap_forward)
     end)
+    it('3', function()
+      local fwd3 = { { 1, 2, 3, 4, 5, 6 } }
+      assert.same(fwd3, wrapper3.wrap_forward)
+    end)
+    it('4', function()
+      local fwd4 = { { 1 } }
+      assert.same(fwd4, wrapper4.wrap_forward)
+    end)
   end)
   describe('produces reverse mapping', function()
     it('1', function()
@@ -52,6 +80,14 @@ describe('WrappedText #wrap', function()
     it('2', function()
       local rev2 = { 1, 2, 2, 3 }
       assert.same(rev2, wrapper2.wrap_reverse)
+    end)
+    it('3', function()
+      local rev3 = { 1, 1, 1, 1, 1, 1 }
+      assert.same(rev3, wrapper3.wrap_reverse)
+    end)
+    it('4', function()
+      local rev4 = { 1 }
+      assert.same(rev4, wrapper4.wrap_reverse)
     end)
   end)
 end)
