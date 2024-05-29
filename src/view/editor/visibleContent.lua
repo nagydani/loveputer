@@ -21,6 +21,11 @@ setmetatable(VisibleContent, {
 function VisibleContent.new(w, text)
   local self = setmetatable({}, VisibleContent)
   WrappedText._init(self, w, text)
+  -- phantom last line
+  local rev = self.wrap_reverse
+  local fw = self.wrap_forward
+  table.insert(rev, (#text + self.n_breaks))
+  table.insert(fw, { #text + self.n_breaks + 1 })
   self:_init()
 
   return self

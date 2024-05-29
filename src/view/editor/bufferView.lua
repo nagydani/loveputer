@@ -54,7 +54,7 @@ function BufferView:open(buffer)
   if off > 0 then
     self.more.up = true
   end
-  -- TODO visible
+
   local si = 1 + off
   local ei = math.min(L, clen) + off
   if ei == clen then ei = ei - 1 end
@@ -84,9 +84,9 @@ function BufferView:draw()
   end
   local draw_highlight = function(line)
     if not line then return end
+    G.setColor(colors.highlight)
     local l_y = (line - 1) * fh
 
-    G.setColor(colors.highlight)
     G.rectangle('fill', 0, l_y, width, fh)
   end
   local draw_text = function()
@@ -99,8 +99,9 @@ function BufferView:draw()
 
   draw_background()
   for _, s in ipairs(self.buffer.selection) do
-    -- TODO multiline
-    draw_highlight(s - self.offset)
+    for _, v in ipairs(self.visible.wrap_forward[s]) do
+      draw_highlight(v - self.offset)
+    end
   end
   draw_text()
 end
