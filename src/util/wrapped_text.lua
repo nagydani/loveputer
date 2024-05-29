@@ -1,3 +1,5 @@
+require("util.utf")
+
 --- Example text: {
 --- 'ABBA',
 --- 'EDDA AC/DC',
@@ -9,7 +11,7 @@
 --- }
 --- @alias WrapForward table<integer, integer[]>
 --- Mapping from original line numbers to wrapped line numbers.
---- e.g. {1: {1], 2: {2}, 3: {3, 4}}
+--- e.g. {1: {1}, 2: {2, 3}}
 --- @alias WrapReverse integer[]
 --- Inverse mapping from apparent line number to original
 --- Key is line number in wrapped, value is line number in
