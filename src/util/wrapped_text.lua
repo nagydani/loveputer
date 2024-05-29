@@ -73,9 +73,19 @@ function WrappedText:wrap(text)
   local revi = 1
   if text then
     for i, l in ipairs(text) do
-      local n = math.floor(string.ulen(l) / w)
+      local len = string.ulen(l)
+      local brk = (function()
+        if len == 0 then return 0 end
+        local div = math.floor(len / w)
+        if math.fmod(len, w) == 0 then
+          return div - 1
+        else
+          return div
+        end
+      end)()
+
       -- remember how many apparent lines will be overall
-      local ap = n + 1
+      local ap = brk + 1
       local fwd = {}
       for _ = 1, ap do
         wrap_reverse[revi] = i
@@ -83,7 +93,7 @@ function WrappedText:wrap(text)
         revi = revi + 1
       end
       wrap_forward[i] = fwd
-      breaks = breaks + n
+      breaks = breaks + brk
       local lines = string.wrap_at(l, w)
       for _, tl in ipairs(lines) do
         table.insert(display, tl)
