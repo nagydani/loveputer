@@ -21,7 +21,7 @@
 --- @field text string[]
 --- @field wrap_w integer
 --- @field cursor_wrap CursorWrap
---- @field reverse WrapReverse
+--- @field wrap_reverse WrapReverse
 --- @field n_breaks integer
 ---
 --- @field wrap function
@@ -54,7 +54,7 @@ function WrappedText:_init(w, text)
   self.text = {}
   self.wrap_w = w
   self.cursor_wrap = {}
-  self.reverse = {}
+  self.wrap_reverse = {}
   self.n_breaks = 0
   if text then
     self:wrap(text)
