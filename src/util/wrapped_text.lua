@@ -7,9 +7,6 @@
 --- 'EDDA ',
 --- 'AC/DC',
 --- }
---- @alias CursorWrap integer[]
---- Indexed with the original line number, values is the number
---- of wrapped lines, e.g. {1: 1, 2: 2}
 --- @alias WrapForward table<integer, integer[]>
 --- Mapping from original line numbers to wrapped line numbers.
 --- e.g. {1: {1], 2: {2}, 3: {3, 4}}
@@ -23,7 +20,6 @@
 --- @class WrappedText
 --- @field text string[]
 --- @field wrap_w integer
---- @field cursor_wrap CursorWrap
 --- @field wrap_forward WrapForward
 --- @field wrap_reverse WrapReverse
 --- @field n_breaks integer
@@ -57,7 +53,6 @@ end
 function WrappedText:_init(w, text)
   self.text = {}
   self.wrap_w = w
-  self.cursor_wrap = {}
   self.wrap_forward = {}
   self.wrap_reverse = {}
   self.n_breaks = 0
@@ -70,7 +65,6 @@ end
 function WrappedText:wrap(text)
   local w = self.wrap_w
   local display = {}
-  local cursor_wrap = {}
   local wrap_forward = {}
   local wrap_reverse = {}
   local breaks = 0
@@ -80,7 +74,6 @@ function WrappedText:wrap(text)
       local n = math.floor(string.ulen(l) / w)
       -- remember how many apparent lines will be overall
       local ap = n + 1
-      cursor_wrap[i] = ap
       local fwd = {}
       for _ = 1, ap do
         wrap_reverse[revi] = i
@@ -96,7 +89,6 @@ function WrappedText:wrap(text)
     end
   end
   self.text = display
-  self.cursor_wrap = cursor_wrap
   self.wrap_forward = wrap_forward
   self.wrap_reverse = wrap_reverse
   self.n_breaks = breaks
