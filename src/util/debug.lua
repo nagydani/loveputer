@@ -249,7 +249,6 @@ end
 
 local function once(kh, args)
   if not seen[kh] then
-    Log.debug(Debug.terse_t(seen))
     seen[kh] = true
     local s = annot('ONCE  ', Color.white, args)
     printer(s)
