@@ -1,7 +1,7 @@
 require("model.input.cursor")
 require("util.dequeue")
 
---- @class InputText : Dequeue
+--- @class InputText: Dequeue
 --- @field new function
 --- @field traverse function
 InputText = {}

@@ -19,10 +19,11 @@ require("util.debug")
 --- @field cfg Config
 --- methods
 --- @field new function
---- @field add_text function
---- @field line_feed function
---- @field get_text function
---- @field get_text_line function
+--- @field add_text fun(self, string)
+--- @field set_text fun(self, string, boolean)
+--- @field line_feed fun(self)
+--- @field get_text fun(self): string
+--- @field get_text_line fun(self, integer): string
 --- @field get_n_text_lines function
 InputModel = {}
 
@@ -83,7 +84,7 @@ function InputModel:add_text(text)
   end
 end
 
---- @param text string
+--- @param text string|string[]
 --- @param keep_cursor boolean
 function InputModel:set_text(text, keep_cursor)
   self.entered = nil

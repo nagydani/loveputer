@@ -4,6 +4,8 @@
 --- @field view EditorView?
 --- @field open fun(self, name: string, content: string[]?)
 --- @field close fun(self): string[]
+--- @field update_visible function
+--- @field update_more function
 EditorController = {}
 EditorController.__index = EditorController
 
@@ -27,7 +29,7 @@ end
 --- @param name string
 --- @param content string[]?
 function EditorController:open(name, content)
-  local b = BufferModel.new(name, content)
+  local b = BufferModel(name, content)
   self.model.buffer = b
   self.view.buffer:open(b)
 end
