@@ -68,6 +68,8 @@ function EditorController:keypressed(k)
   -- enter submits, handled in the input
   if Key.shift() and k == "escape" then
     -- insert selected line
+    local t = self:get_active_buffer():get_selected_text()
+    self.input:add_text(t)
   end
   if Key.ctrl() and
       (k == "delete" or k == "y") then

@@ -32,6 +32,11 @@ function InputController:textinput(t)
 end
 
 --- @param t string|string[]
+function InputController:add_text(t)
+  self.model:add_text(string.unlines(t))
+end
+
+--- @param t string|string[]
 function InputController:set_text(t)
   self.model:set_text(t)
 end
