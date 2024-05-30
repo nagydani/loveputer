@@ -1,9 +1,10 @@
 --- @alias Content Dequeue
+--- @alias Selected integer[]
 
 --- @class BufferModel
 --- @field name string
 --- @field content Content
---- @field selection integer[]
+--- @field selection Selected
 ---
 --- @field move_highlight function
 BufferModel = {}
@@ -29,6 +30,7 @@ function BufferModel.new(name, content)
   return self
 end
 
+--- @return string[]?
 function BufferModel:get_content()
   return self.content or {}
 end
@@ -47,4 +49,9 @@ function BufferModel:move_highlight(dir)
       self.selection[1] = cur + 1
     end
   end
+end
+
+--- @return Selected
+function BufferModel:get_selection()
+  return self.selection
 end
