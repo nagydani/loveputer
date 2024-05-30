@@ -1,3 +1,5 @@
+require('util.table')
+
 --- @alias Content Dequeue
 --- @alias Selected integer[]
 
@@ -54,4 +56,12 @@ end
 --- @return Selected
 function BufferModel:get_selection()
   return self.selection
+end
+
+--- @return string[]
+function BufferModel:get_selected_text()
+  local sel = self.selection
+  local si = sel[1]
+  local ei = sel[#sel]
+  return table.slice(self.content, si, ei)
 end

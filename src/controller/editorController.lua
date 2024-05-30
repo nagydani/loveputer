@@ -59,8 +59,11 @@ end
 --- @param k string
 function EditorController:keypressed(k)
   self.input:keypressed(k)
+
   if not Key.ctrl() and not Key.shift() and k == "escape" then
     -- open selected line, or reset it
+    local t = self:get_active_buffer():get_selected_text()
+    self.input:set_text(t)
   end
   -- enter submits, handled in the input
   if Key.shift() and k == "escape" then
