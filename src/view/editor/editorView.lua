@@ -35,3 +35,7 @@ function EditorView:draw()
   local IC = self.controller.input
   self.input:draw(IC:get_input())
 end
+
+function EditorView:refresh()
+  self.buffer:refresh()
+end

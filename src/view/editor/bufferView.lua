@@ -40,15 +40,28 @@ function BufferView.new(cfg)
   return self
 end
 
+--- @private
+--- @param si integer
+--- @param ei integer
+function BufferView:_update_visible(si, ei)
+  local w = self.cfg.drawableChars
+  local content = self.buffer:get_content()
+
+  local clen = self.buffer:get_content_length()
+  if ei == clen then ei = ei - 1 end
+  local vis = table.slice(content, si, ei)
+  self.visible = VisibleContent(w, vis)
+  self.visible:set_range(si, ei)
+end
+
 --- @param buffer BufferModel
 function BufferView:open(buffer)
   local L = self.LINES
-  local w = self.cfg.drawableChars
-  if buffer then
-    self.buffer = buffer
+  self.buffer = buffer
+  if not self.buffer then
+    error('no buffer')
   end
-  local content = self.buffer:get_content()
-  local clen = #content
+  local clen = self.buffer:get_content_length()
   self.offset = math.max(clen - L, 0)
   local off = self.offset
   if off > 0 then
@@ -58,9 +71,17 @@ function BufferView:open(buffer)
   local si = 1 + off
   local ei = math.min(L, clen) + off
   if ei == clen then ei = ei - 1 end
-  local vis = table.slice(content, si, ei)
-  self.visible = VisibleContent(w, vis)
-  self.visible:set_range(si, ei)
+  self:_update_visible(si, ei)
+end
+
+function BufferView:refresh()
+  if not self.visible then
+    error('no buffer is open')
+  end
+  local o_range = self.visible.range
+  local si = o_range.start
+  local ei = o_range.fin
+  self:_update_visible(si, ei)
 end
 
 function BufferView:draw()

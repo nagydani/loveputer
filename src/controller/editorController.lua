@@ -62,20 +62,19 @@ end
 function EditorController:keypressed(k)
   self.input:keypressed(k)
 
+  -- enter submits, handled in the input
   if not Key.ctrl() and not Key.shift() and k == "escape" then
-    -- open selected line, or reset it
     local t = self:get_active_buffer():get_selected_text()
     self.input:set_text(t)
   end
-  -- enter submits, handled in the input
   if Key.shift() and k == "escape" then
-    -- insert selected line
     local t = self:get_active_buffer():get_selected_text()
     self.input:add_text(t)
   end
   if Key.ctrl() and
       (k == "delete" or k == "y") then
-    -- delete selected line
+    self:get_active_buffer():delete_selected_text()
+    self.view:refresh()
   end
   if k == "up" then
     self:get_active_buffer():move_highlight('up')

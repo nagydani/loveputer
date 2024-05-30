@@ -32,9 +32,14 @@ function BufferModel.new(name, content)
   return self
 end
 
---- @return string[]?
+--- @return string[]
 function BufferModel:get_content()
   return self.content or {}
+end
+
+--- @return integer
+function BufferModel:get_content_length()
+  return #(self.content) or 0
 end
 
 --- @param dir VerticalDir
@@ -61,7 +66,16 @@ end
 --- @return string[]
 function BufferModel:get_selected_text()
   local sel = self.selection
+  -- continuous selection assumed
   local si = sel[1]
   local ei = sel[#sel]
   return table.slice(self.content, si, ei)
+end
+
+function BufferModel:delete_selected_text()
+  local sel = self.selection
+  -- continuous selection assumed
+  for i = #sel, 1, -1 do
+    self.content:remove(sel[i])
+  end
 end
