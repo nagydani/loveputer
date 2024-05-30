@@ -34,7 +34,7 @@ return function(lib)
   --- @param code table
   --- @return table lexstream
   local stream_tokens = function(code)
-    local c = string.join(code, '\n')
+    local c = string.unlines(code)
     local lexstream = mlc:src_to_lexstream(c)
     return lexstream
   end
@@ -80,7 +80,7 @@ return function(lib)
   --- @return number char
   --- @return string err_msg
   local get_error = function(result)
-    local err_lines = string.split(result, '\n')
+    local err_lines = string.lines(result)
     local err_first_line = err_lines[1]
     local err_second_line = err_lines[2]
     local colons = string.split(err_first_line, ':')
@@ -94,7 +94,7 @@ return function(lib)
 
   local pprint = function(code)
     local pprinter = require('metalua.metalua.pprint')
-    local c = string.join(code, '\n')
+    local c = string.unlines(code)
     return pprinter.tostring(c)
   end
 

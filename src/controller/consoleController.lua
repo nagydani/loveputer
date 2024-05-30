@@ -209,7 +209,7 @@ function ConsoleController.prepare_env(cc)
       local p = P.current
       local fpath = string.join_path(p.path, name)
       local ex = FS.exists(fpath)
-      local text = string.join(content, '\n')
+      local text = string.unlines(content)
       if ex then
         -- TODO: confirm overwrite
       end
@@ -348,7 +348,7 @@ function ConsoleController:evaluate_input()
 
   if eval.is_lua then
     if eval_ok then
-      local code = string.join(text, '\n')
+      local code = string.unlines(text)
       local run_env = (function()
         if love.state.app_state == 'inspect' then
           return self:get_project_env()

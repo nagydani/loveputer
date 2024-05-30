@@ -92,7 +92,7 @@ function BufferView:draw()
   local draw_text = function()
     G.setFont(font)
     G.setColor(colors.fg)
-    local text = string.join(content, '\n')
+    local text = string.unlines(content)
 
     G.print(text)
   end

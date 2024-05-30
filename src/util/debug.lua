@@ -182,7 +182,7 @@ Debug = {
       end
       table.insert(lines, 1, '\n' .. top)
       table.insert(lines, bottom)
-      return string.join(lines, '\n')
+      return string.unlines(lines)
     end
   end,
 }

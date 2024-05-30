@@ -49,11 +49,11 @@ function InputController:keypressed(k)
   end
   local function copy()
     local t = input:get_selected_text()
-    love.system.setClipboardText(string.join(t, '\n'))
+    love.system.setClipboardText(string.unlines(t))
   end
   local function cut()
     local t = input:pop_selected_text()
-    love.system.setClipboardText(string.join(t, '\n'))
+    love.system.setClipboardText(string.unlines(t))
   end
 
   -- action categories
