@@ -95,10 +95,12 @@ function EditorController:keypressed(k)
     self.view:refresh()
   end
   if k == "up" then
-    self:get_active_buffer():move_highlight('up')
+    local m = self:get_active_buffer():move_highlight('up')
+    if m then self.input:clear() end
   end
   if k == "down" then
-    self:get_active_buffer():move_highlight('down')
+    local m = self:get_active_buffer():move_highlight('down')
+    if m then self.input:clear() end
   end
   if k == "pageup" then
     -- scroll up

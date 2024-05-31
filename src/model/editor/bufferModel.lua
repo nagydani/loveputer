@@ -43,19 +43,23 @@ function BufferModel:get_content_length()
 end
 
 --- @param dir VerticalDir
+--- @return boolean moved
 function BufferModel:move_highlight(dir)
   -- TODO chunk selection
   local cur = self.selection[1]
   if dir == 'up' then
     if cur > 1 then
       self.selection[1] = cur - 1
+      return true
     end
   end
   if dir == 'down' then
     if cur < #(self.content) then
       self.selection[1] = cur + 1
+      return true
     end
   end
+  return false
 end
 
 --- @return Selected
