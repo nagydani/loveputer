@@ -52,7 +52,8 @@ function InterpreterView:draw(input)
     drawBackground()
     G.setColor(colors.input.error)
     for l, str in ipairs(err_text) do
-      ViewUtils.write_line(l, str, { y = start_y, breaks = #err_text - 1 }, self.cfg)
+      local breaks = #err_text - 1
+      ViewUtils.write_line(l, str, start_y, breaks, self.cfg)
     end
   else
     self.input:draw(input, time)

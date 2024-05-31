@@ -202,7 +202,7 @@ function InputView:draw(input, time)
     end
   else
     for l, str in ipairs(display) do
-      ViewUtils.write_line(l, str, { y = y, breaks = breaks }, self.cfg)
+      ViewUtils.write_line(l, str, y, breaks, self.cfg)
     end
   end
   G.pop()
