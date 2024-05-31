@@ -73,6 +73,7 @@ function BufferModel:get_selected_text()
   -- continuous selection assumed
   local si = sel[1]
   local ei = sel[#sel]
+  if ei == #(self.content) then ei = ei - 1 end
   return table.slice(self.content, si, ei)
 end
 
