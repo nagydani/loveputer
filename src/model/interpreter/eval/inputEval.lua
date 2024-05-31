@@ -8,9 +8,13 @@ InputEval = {}
 ---@return InputEval
 function InputEval:new(highlight)
   local noop = function() end
+  local kind = 'input'
+  if highlight then
+    kind = kind .. ' lua'
+  end
   --- @type InputEval
   --- @diagnostic disable-next-line -- TODO
-  local ie = EvalBase:inherit('input', noop, highlight)
+  local ie = EvalBase:inherit(kind, noop, highlight)
   if highlight then
     local luaParser = require("model.lang.parser")('metalua')
 
