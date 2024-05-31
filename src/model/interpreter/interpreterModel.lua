@@ -13,9 +13,9 @@ require("util.debug")
 --- @field input InputModel
 --- @field history table
 --- @field evaluator table
---- @field luaEval table
---- @field textInput table
---- @field luaInput table
+--- @field luaEval LuaEval
+--- @field textInput InputEval
+--- @field luaInput InputEval
 --- @field wrapped_error string[]?
 -- methods
 --- @field new function
@@ -78,6 +78,7 @@ function InterpreterModel:cancel()
   self:_handle(false)
 end
 
+--- @private
 --- @param eval boolean
 function InterpreterModel:_handle(eval)
   local ent = self:get_entered_text()

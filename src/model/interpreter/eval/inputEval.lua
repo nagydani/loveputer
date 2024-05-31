@@ -1,5 +1,6 @@
 require("model.interpreter.eval.evalBase")
 
+--- @class InputEval: EvalBase
 InputEval = {}
 
 --- Create input evaluator

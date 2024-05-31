@@ -22,7 +22,7 @@ require("util.debug")
 --- @field add_text fun(self, string)
 --- @field set_text fun(self, string, boolean)
 --- @field line_feed fun(self)
---- @field get_text fun(self): string
+--- @field get_text fun(self): InputText
 --- @field get_text_line fun(self, integer): string
 --- @field get_n_text_lines function
 InputModel = {}
@@ -551,7 +551,7 @@ end
 -- evaluation --
 ----------------
 
---- @return string[]
+--- @return InputText
 function InputModel:finish()
   local ent = self:get_text()
   --- @diagnostic disable-next-line: param-type-mismatch

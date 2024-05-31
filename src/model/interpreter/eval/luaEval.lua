@@ -9,7 +9,7 @@ LuaEval = {}
 
 --- Create a new evaluator
 ---@param parser string
----@return table
+---@return LuaEval
 function LuaEval:new(parser)
   local luaParser = require("model.lang.parser")(parser)
   local eval = function(args)
