@@ -124,6 +124,18 @@ function ConsoleController:_readfile(name)
   end
 end
 
+--- @private
+--- @param name string
+--- @param content string[]
+--- @return boolean success
+--- @return string? err
+function ConsoleController:_writefile(name, content)
+  local P = self.model.projects
+  local p = P.current
+  local text = string.unlines(content)
+  return p:writefile(name, text)
+end
+
 function ConsoleController.prepare_env(cc)
   local prepared            = cc.main_env
   prepared.G                = love.graphics
@@ -203,17 +215,16 @@ function ConsoleController.prepare_env(cc)
   end
 
   --- @param name string
-  --- @param content string
+  --- @param content string[]
   prepared.writefile        = function(name, content)
     return check_open_pr(function()
       local p = P.current
       local fpath = string.join_path(p.path, name)
       local ex = FS.exists(fpath)
-      local text = string.unlines(content)
       if ex then
         -- TODO: confirm overwrite
       end
-      local ok, err = p:writefile(name, text)
+      local ok, err = cc:_writefile(name, content)
       if ok then
         print(name .. ' written')
       else
