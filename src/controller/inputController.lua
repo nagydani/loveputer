@@ -36,6 +36,14 @@ function InputController:add_text(t)
   self.model:add_text(string.unlines(t))
 end
 
+----------------
+-- evaluation --
+----------------
+--- @param eval EvalBase
+function InputController:set_eval(eval)
+  self.model:set_eval(eval)
+end
+
 --- @param t string|string[]
 function InputController:set_text(t)
   self.model:set_text(t)
@@ -204,6 +212,9 @@ function InputController:get_cursor_info()
   return self.model:get_cursor_info()
 end
 
+---------------
+--   mouse   --
+---------------
 function InputController:_translate_to_input_grid(x, y)
   local cfg = self.model.cfg
   local h = cfg.view.h

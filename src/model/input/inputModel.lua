@@ -563,6 +563,12 @@ function InputModel:cancel()
   self:clear_input()
 end
 
+--- @param eval EvalBase
+function InputModel:set_eval(eval)
+  self.evaluator = eval
+  self.type = eval.kind
+end
+
 ----------------
 -- selection  --
 ----------------
