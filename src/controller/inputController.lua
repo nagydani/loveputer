@@ -49,6 +49,10 @@ function InputController:set_text(t)
   self.model:set_text(t)
 end
 
+function InputController:clear()
+  self.model:clear_input()
+end
+
 --- @param k string
 --- @return boolean? limit
 function InputController:keypressed(k)

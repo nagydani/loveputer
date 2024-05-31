@@ -3,7 +3,7 @@
 --- @field input InputController
 --- @field view EditorView?
 --- @field open fun(self, name: string, content: string[]?)
---- @field close fun(self): string[]
+--- @field close fun(self): string, string[]
 --- @field update_visible function
 --- @field update_more function
 EditorController = {}
@@ -42,10 +42,14 @@ function EditorController:open(name, content)
   self.view.buffer:open(b)
 end
 
---- @return string[]
+--- @return string name
+--- @return string[] content
 function EditorController:close()
-  -- close buffer, return content
-  return {}
+  local buf = self:get_active_buffer()
+  local content = buf.content
+  table.remove(content) -- drop EOF
+  self.input:clear()
+  return buf.name, content
 end
 
 --- @return BufferModel
@@ -73,6 +77,7 @@ function EditorController:keypressed(k)
   if not Key.ctrl() and not Key.shift() and Key.is_enter(k) then
     local newtext = self.input:get_input().text
     self:get_active_buffer():replace_selected_text(newtext)
+    self.input:clear()
     self.view:refresh()
   end
 

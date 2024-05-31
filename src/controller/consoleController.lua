@@ -499,9 +499,14 @@ function ConsoleController:edit(name)
 end
 
 function ConsoleController:finish_edit()
-  self.editor:close()
-  love.state.app_state = love.state.prev_state
-  love.state.prev_state = nil
+  local name, newcontent = self.editor:close()
+  local ok, err = self:_writefile(name, newcontent)
+  if ok then
+    love.state.app_state = love.state.prev_state
+    love.state.prev_state = nil
+  else
+    print(err)
+  end
 end
 
 --- Handlers ---
