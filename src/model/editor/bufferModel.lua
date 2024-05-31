@@ -79,3 +79,19 @@ function BufferModel:delete_selected_text()
     self.content:remove(sel[i])
   end
 end
+
+--- @param t string[]
+function BufferModel:replace_selected_text(t)
+  local sel = self.selection
+  if #sel == 1 then
+    if #t == 1 then
+      self.content[sel[1]] = t[1]
+    end
+  else
+    -- TODO multiine
+  end
+  -- -- continuous selection assumed
+  -- for i = #sel, 1, -1 do
+  --   self.content:remove(sel[i])
+  -- end
+end

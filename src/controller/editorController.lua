@@ -70,7 +70,12 @@ end
 function EditorController:keypressed(k)
   self.input:keypressed(k)
 
-  -- enter submits, handled in the input
+  if not Key.ctrl() and not Key.shift() and Key.is_enter(k) then
+    local newtext = self.input:get_input().text
+    self:get_active_buffer():replace_selected_text(newtext)
+    self.view:refresh()
+  end
+
   if not Key.ctrl() and not Key.shift() and k == "escape" then
     local t = self:get_active_buffer():get_selected_text()
     self.input:set_text(t)
