@@ -5,13 +5,16 @@ InputEval = {}
 
 --- Create input evaluator
 ---@param highlight boolean
----@return table
+---@return InputEval
 function InputEval:new(highlight)
-  local apply = function() end
-  local ie = EvalBase:inherit('input', apply, highlight)
+  local noop = function() end
+  --- @type InputEval
+  --- @diagnostic disable-next-line -- TODO
+  local ie = EvalBase:inherit('input', noop, highlight)
   if highlight then
     local luaParser = require("model.lang.parser")('metalua')
 
+    --- @diagnostic disable-next-line -- TODO
     ie.parser = luaParser
   end
 
