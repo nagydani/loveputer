@@ -8,7 +8,7 @@ require('util.table')
 --- @field content Content
 --- @field selection Selected
 ---
---- @field move_highlight function
+--- @field move_selection function
 BufferModel = {}
 BufferModel.__index = BufferModel
 
@@ -44,7 +44,7 @@ end
 
 --- @param dir VerticalDir
 --- @return boolean moved
-function BufferModel:move_highlight(dir)
+function BufferModel:move_selection(dir)
   -- TODO chunk selection
   local cur = self.selection[1]
   if dir == 'up' then
