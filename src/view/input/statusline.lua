@@ -74,18 +74,23 @@ function Statusline:draw(status, nLines, time)
     end
     local c = status.cursor
     if type(c) == 'table' then
-      local pos_l = 'L' .. c.l
       local pos_c = ':' .. c.c
+      local ln, l_lim
+      if custom then
+        ln = custom.line
+        l_lim = custom.buflen
+      else
+        ln = c.l
+        l_lim = status.n_lines
+      end
+      if ln == l_lim then
+        G.setColor(colors.indicator)
+      end
+      local pos_l = 'L' .. ln
+
       local lw = G.getFont():getWidth(pos_l)
       local cw = G.getFont():getWidth(pos_c)
       local sx = endTextX - (lw + cw)
-      if custom then
-        pos_l = 'L' .. custom.line
-      else
-        if c.l == status.n_lines then
-          G.setColor(colors.indicator)
-        end
-      end
       G.print(pos_l, sx, start_text.y)
       G.setColor(colors.fg)
       G.print(pos_c, sx + lw, start_text.y)

@@ -63,7 +63,8 @@ end
 --- @return CustomStatus
 function EditorController:_generate_status(sel)
   local cs = {
-    line = sel[1]
+    line = sel[1],
+    buflen = self:get_active_buffer():get_content_length()
   }
   cs.__tostring = function(t)
     return 'L' .. t.line
@@ -101,6 +102,7 @@ function EditorController:keypressed(k)
     self:get_active_buffer():replace_selected_text(newtext)
     self.input:clear()
     self.view:refresh()
+    self:update_selection()
   end
 
   if not Key.ctrl() and not Key.shift() and k == "escape" then
