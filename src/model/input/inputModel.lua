@@ -16,6 +16,7 @@ require("util.debug")
 --- @field wrapped_text WrappedText
 --- @field selection InputSelection
 --- @field cfg Config
+--- @field custom_status CustomStatus?
 --- methods
 --- @field new function
 --- @field add_text fun(self, string)
@@ -39,6 +40,7 @@ function InputModel:new(cfg, eval, oneshot)
     cursor = Cursor:new(),
     wrapped_text = WrappedText.new(cfg.view.drawableChars),
     selection = InputSelection:new(),
+    custom_status = nil,
 
     cfg = cfg,
   }
@@ -259,6 +261,7 @@ function InputModel:clear_input()
   self:clear_selection()
   self:_update_cursor(true)
   self.tokens = nil
+  self.custom_status = nil
 end
 
 function InputModel:reset()
@@ -539,12 +542,21 @@ function InputModel:jump_end()
   self:move_cursor(last_line, last_char, keep)
 end
 
+--- @return Status
 function InputModel:get_status()
   return {
     input_type = self.type,
     cursor = self.cursor,
     n_lines = self:get_n_text_lines(),
+    custom = self.custom_status
   }
+end
+
+--- @param cs CustomStatus
+function InputModel:set_custom_status(cs)
+  if type(cs) == 'table' then
+    self.custom_status = cs
+  end
 end
 
 ----------------

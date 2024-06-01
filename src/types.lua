@@ -46,6 +46,7 @@
 --- @field input_type string
 --- @field cursor Cursor?
 --- @field n_lines integer
+--- @field custom CustomStatus?
 
 --- @class InputDTO table
 --- @field text table
