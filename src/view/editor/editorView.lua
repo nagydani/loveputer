@@ -36,6 +36,7 @@ function EditorView:draw()
   self.input:draw(IC:get_input())
 end
 
-function EditorView:refresh()
-  self.buffer:refresh()
+--- @param insert boolean
+function EditorView:refresh(insert)
+  self.buffer:refresh(insert)
 end

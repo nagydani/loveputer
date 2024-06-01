@@ -96,12 +96,23 @@ end
 function EditorController:keypressed(k)
   self.input:keypressed(k)
 
+  --- @param dir VerticalDir
+  local function move_sel(dir)
+    local m = self:get_active_buffer():move_selection(dir)
+    if m then
+      self.input:clear()
+      self:update_selection()
+    end
+  end
+
+  --- handlers
   local function submit()
     if not Key.ctrl() and not Key.shift() and Key.is_enter(k) then
       local newtext = self.input:get_input().text
-      self:get_active_buffer():replace_selected_text(newtext)
+      local insert = self:get_active_buffer():replace_selected_text(newtext)
       self.input:clear()
-      self.view:refresh()
+      self.view:refresh(insert)
+      if insert then move_sel('down') end
       self:update_selection()
     end
   end
@@ -124,18 +135,10 @@ function EditorController:keypressed(k)
   end
   local function navigate()
     if k == "up" then
-      local m = self:get_active_buffer():move_selection('up')
-      if m then
-        self.input:clear()
-        self:update_selection()
-      end
+      move_sel('up')
     end
     if k == "down" then
-      local m = self:get_active_buffer():move_selection('down')
-      if m then
-        self.input:clear()
-        self:update_selection()
-      end
+      move_sel('down')
     end
     if k == "pageup" then
       -- scroll up
