@@ -97,45 +97,57 @@ end
 function EditorController:keypressed(k)
   self.input:keypressed(k)
 
-  if not Key.ctrl() and not Key.shift() and Key.is_enter(k) then
-    local newtext = self.input:get_input().text
-    self:get_active_buffer():replace_selected_text(newtext)
-    self.input:clear()
-    self.view:refresh()
-    self:update_selection()
+  local function submit()
+    if not Key.ctrl() and not Key.shift() and Key.is_enter(k) then
+      local newtext = self.input:get_input().text
+      self:get_active_buffer():replace_selected_text(newtext)
+      self.input:clear()
+      self.view:refresh()
+      self:update_selection()
+    end
+  end
+  local function load()
+    if not Key.ctrl() and not Key.shift() and k == "escape" then
+      local t = self:get_active_buffer():get_selected_text()
+      self.input:set_text(t)
+    end
+    if Key.shift() and k == "escape" then
+      local t = self:get_active_buffer():get_selected_text()
+      self.input:add_text(t)
+    end
+  end
+  local function delete()
+    if Key.ctrl() and
+        (k == "delete" or k == "y") then
+      self:get_active_buffer():delete_selected_text()
+      self.view:refresh()
+    end
+  end
+  local function navigate()
+    if k == "up" then
+      local m = self:get_active_buffer():move_selection('up')
+      if m then
+        self.input:clear()
+        self:update_selection()
+      end
+    end
+    if k == "down" then
+      local m = self:get_active_buffer():move_selection('down')
+      if m then
+        self.input:clear()
+        self:update_selection()
+      end
+    end
+    if k == "pageup" then
+      -- scroll up
+    end
+    if k == "pagedown" then
+      -- scroll down
+    end
   end
 
-  if not Key.ctrl() and not Key.shift() and k == "escape" then
-    local t = self:get_active_buffer():get_selected_text()
-    self.input:set_text(t)
-  end
-  if Key.shift() and k == "escape" then
-    local t = self:get_active_buffer():get_selected_text()
-    self.input:add_text(t)
-  end
-  if Key.ctrl() and
-      (k == "delete" or k == "y") then
-    self:get_active_buffer():delete_selected_text()
-    self.view:refresh()
-  end
-  if k == "up" then
-    local m = self:get_active_buffer():move_selection('up')
-    if m then
-      self.input:clear()
-      self:update_selection()
-    end
-  end
-  if k == "down" then
-    local m = self:get_active_buffer():move_selection('down')
-    if m then
-      self.input:clear()
-      self:update_selection()
-    end
-  end
-  if k == "pageup" then
-    -- scroll up
-  end
-  if k == "pagedown" then
-    -- scroll down
-  end
+  submit()
+  load()
+  delete()
+  navigate()
 end
