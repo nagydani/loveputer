@@ -14,8 +14,7 @@ require("util.debug")
 --- @field type InputType
 --- @field cursor Cursor
 --- @field wrapped_text WrappedText
---- @field get_wrapped_text function
---- @field selection table
+--- @field selection InputSelection
 --- @field cfg Config
 --- methods
 --- @field new function
@@ -24,7 +23,8 @@ require("util.debug")
 --- @field line_feed fun(self)
 --- @field get_text fun(self): InputText
 --- @field get_text_line fun(self, integer): string
---- @field get_n_text_lines function
+--- @field get_n_text_lines fun(self): integer
+--- @field get_wrapped_text fun(self): WrappedText
 InputModel = {}
 
 --- @param cfg Config
@@ -38,7 +38,7 @@ function InputModel:new(cfg, eval, oneshot)
     type = eval.kind,
     cursor = Cursor:new(),
     wrapped_text = WrappedText.new(cfg.view.drawableChars),
-    selection = Selection:new(),
+    selection = InputSelection:new(),
 
     cfg = cfg,
   }
@@ -661,7 +661,7 @@ end
 function InputModel:get_ordered_selection()
   local sel = self.selection
   local s, e = self:diff_cursors(sel.start, sel.fin)
-  local ret = Selection:new()
+  local ret = InputSelection:new()
   ret.start = s
   ret.fin = e
   ret.text = sel.text
@@ -688,7 +688,7 @@ function InputModel:pop_selected_text()
 end
 
 function InputModel:clear_selection()
-  self.selection = Selection:new()
+  self.selection = InputSelection:new()
   self:release_selection()
 end
 
