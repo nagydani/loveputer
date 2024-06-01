@@ -53,6 +53,11 @@ function InputController:clear()
   self.model:clear_input()
 end
 
+--- @param cs CustomStatus
+function InputController:set_custom_status(cs)
+  self.model:set_custom_status(cs)
+end
+
 --- @param k string
 --- @return boolean? limit
 function InputController:keypressed(k)

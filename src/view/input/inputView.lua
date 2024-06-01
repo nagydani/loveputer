@@ -141,7 +141,7 @@ function InputView:draw(input, time)
   G.setFont(self.cfg.font)
   G.setBackgroundColor(colors.bg)
   G.setColor(colors.fg)
-  self.statusline:draw(status, apparentLines, time, self.oneshot)
+  self.statusline:draw(status, apparentLines, time)
   drawBackground()
 
   G.setColor(colors.fg)

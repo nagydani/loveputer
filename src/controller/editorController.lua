@@ -40,6 +40,7 @@ function EditorController:open(name, content)
   local b = BufferModel(name, content)
   self.model.buffer = b
   self.view.buffer:open(b)
+  self:update_selection()
 end
 
 --- @return string name
@@ -55,6 +56,27 @@ end
 --- @return BufferModel
 function EditorController:get_active_buffer()
   return self.model.buffer
+end
+
+--- @private
+--- @param sel Selected
+--- @return CustomStatus
+function EditorController:_generate_status(sel)
+  local cs = {
+    line = sel[1]
+  }
+  cs.__tostring = function(t)
+    return 'L' .. t.line
+  end
+
+  return cs
+end
+
+-- @return BufferModel
+function EditorController:update_selection()
+  local sel = self:get_active_buffer():get_selection()
+  local cs = self:_generate_status(sel)
+  self.input:set_custom_status(cs)
 end
 
 --- @param t string
@@ -95,12 +117,18 @@ function EditorController:keypressed(k)
     self.view:refresh()
   end
   if k == "up" then
-    if m then self.input:clear() end
     local m = self:get_active_buffer():move_selection('up')
+    if m then
+      self.input:clear()
+      self:update_selection()
+    end
   end
   if k == "down" then
-    if m then self.input:clear() end
     local m = self:get_active_buffer():move_selection('down')
+    if m then
+      self.input:clear()
+      self:update_selection()
+    end
   end
   if k == "pageup" then
     -- scroll up

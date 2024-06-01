@@ -51,6 +51,7 @@ function Statusline:draw(status, nLines, time)
   end
 
   local function drawStatus()
+    local custom = status.custom
     local start_text = {
       x = start_box.x + fh,
       y = start_box.y - 2,
@@ -78,8 +79,12 @@ function Statusline:draw(status, nLines, time)
       local lw = G.getFont():getWidth(pos_l)
       local cw = G.getFont():getWidth(pos_c)
       local sx = endTextX - (lw + cw)
-      if c.l == status.n_lines then
-        G.setColor(colors.indicator)
+      if custom then
+        pos_l = 'L' .. custom.line
+      else
+        if c.l == status.n_lines then
+          G.setColor(colors.indicator)
+        end
       end
       G.print(pos_l, sx, start_text.y)
       G.setColor(colors.fg)
