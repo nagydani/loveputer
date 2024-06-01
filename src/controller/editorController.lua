@@ -48,7 +48,6 @@ end
 function EditorController:close()
   local buf = self:get_active_buffer()
   local content = buf.content
-  table.remove(content) -- drop EOF
   self.input:clear()
   return buf.name, content
 end
@@ -64,7 +63,7 @@ end
 function EditorController:_generate_status(sel)
   local cs = {
     line = sel[1],
-    buflen = self:get_active_buffer():get_content_length()
+    buflen = self:get_active_buffer():get_content_length() + 1
   }
   cs.__tostring = function(t)
     return 'L' .. t.line

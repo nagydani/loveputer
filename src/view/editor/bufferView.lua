@@ -47,8 +47,6 @@ function BufferView:_update_visible(si, ei)
   local w = self.cfg.drawableChars
   local content = self.buffer:get_content()
 
-  local clen = self.buffer:get_content_length()
-  if ei == clen then ei = ei - 1 end
   local vis = table.slice(content, si, ei)
   self.visible = VisibleContent(w, vis)
   self.visible:set_range(si, ei)
@@ -70,7 +68,6 @@ function BufferView:open(buffer)
 
   local si = 1 + off
   local ei = math.min(L, clen) + off
-  if ei == clen then ei = ei - 1 end
   self:_update_visible(si, ei)
 end
 

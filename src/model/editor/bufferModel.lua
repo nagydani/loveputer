@@ -22,11 +22,10 @@ setmetatable(BufferModel, {
 --- @param content string[]?
 function BufferModel.new(name, content)
   local buffer = Dequeue(content)
-  buffer:push_back('EOF')
   local self = setmetatable({
     name = name or 'untitled',
     content = buffer,
-    selection = { #buffer },
+    selection = { #buffer + 1 },
   }, BufferModel)
 
   return self
@@ -54,7 +53,7 @@ function BufferModel:move_selection(dir)
     end
   end
   if dir == 'down' then
-    if cur < #(self.content) then
+    if cur <= #(self.content) then
       self.selection[1] = cur + 1
       return true
     end
@@ -73,7 +72,6 @@ function BufferModel:get_selected_text()
   -- continuous selection assumed
   local si = sel[1]
   local ei = sel[#sel]
-  if ei == #(self.content) then ei = ei - 1 end
   return table.slice(self.content, si, ei)
 end
 
