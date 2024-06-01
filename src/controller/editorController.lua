@@ -109,10 +109,14 @@ function EditorController:keypressed(k)
   local function submit()
     if not Key.ctrl() and not Key.shift() and Key.is_enter(k) then
       local newtext = self.input:get_input().text
-      local insert = self:get_active_buffer():replace_selected_text(newtext)
+      local insert, n = self:get_active_buffer():replace_selected_text(newtext)
       self.input:clear()
       self.view:refresh(insert)
-      if insert then move_sel('down') end
+      if insert then
+        for _ = 1, n do
+          move_sel('down')
+        end
+      end
       self:update_selection()
     end
   end

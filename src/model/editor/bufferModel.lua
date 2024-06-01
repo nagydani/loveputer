@@ -85,16 +85,23 @@ end
 
 --- @param t string[]
 --- @return boolean insert
+--- @return integer?
 function BufferModel:replace_selected_text(t)
   local sel = self.selection
   local clen = #(self.content)
   if #sel == 1 then
+    local ti = sel[1]
     if #t == 1 then
-      local ti = sel[1]
       self.content[ti] = t[1]
       if ti > clen then
-        return true
+        return true, 1
       end
+    else
+      self.content:remove(ti)
+      for i = #t, 1, -1 do
+        self.content:insert(t[i], ti)
+      end
+      return true, #t
     end
   else
     -- TODO multiine
