@@ -29,7 +29,7 @@ require("util.string")
 --- @field wrap function
 --- @field get_text function
 --- @field get_line function
---- @field get_n_lines function
+--- @field get_text_length function
 WrappedText = {}
 WrappedText.__index = WrappedText
 
@@ -120,6 +120,6 @@ function WrappedText:get_line(l)
 end
 
 --- @return integer
-function WrappedText:get_n_lines()
-  return #(self.text)
+function WrappedText:get_text_length()
+  return #(self.text) or 0
 end
