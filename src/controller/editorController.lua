@@ -97,8 +97,9 @@ function EditorController:keypressed(k)
   self.input:keypressed(k)
 
   --- @param dir VerticalDir
-  local function move_sel(dir)
-    local m = self:get_active_buffer():move_selection(dir)
+  --- @param by integer?
+  local function move_sel(dir, by)
+    local m = self:get_active_buffer():move_selection(dir, by)
     if m then
       self.input:clear()
       self:update_selection()
@@ -112,11 +113,7 @@ function EditorController:keypressed(k)
       local insert, n = self:get_active_buffer():replace_selected_text(newtext)
       self.input:clear()
       self.view:refresh(insert)
-      if insert then
-        for _ = 1, n do
-          move_sel('down')
-        end
-      end
+      if insert then move_sel('down', n) end
       self:update_selection()
     end
   end

@@ -42,19 +42,21 @@ function BufferModel:get_content_length()
 end
 
 --- @param dir VerticalDir
+--- @param by integer
 --- @return boolean moved
-function BufferModel:move_selection(dir)
+function BufferModel:move_selection(dir, by)
   -- TODO chunk selection
   local cur = self.selection[1]
+  local by = by or 1
   if dir == 'up' then
-    if cur > 1 then
-      self.selection[1] = cur - 1
+    if (cur - by) >= 1 then
+      self.selection[1] = cur - by
       return true
     end
   end
   if dir == 'down' then
-    if cur <= #(self.content) then
-      self.selection[1] = cur + 1
+    if (cur + by) <= #(self.content) + 1 then
+      self.selection[1] = cur + by
       return true
     end
   end
@@ -107,8 +109,4 @@ function BufferModel:replace_selected_text(t)
     -- TODO multiine
   end
   return false
-  -- -- continuous selection assumed
-  -- for i = #sel, 1, -1 do
-  --   self.content:remove(sel[i])
-  -- end
 end
