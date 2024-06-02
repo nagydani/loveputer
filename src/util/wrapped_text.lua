@@ -1,4 +1,4 @@
-require("util.utf")
+require("util.string")
 
 --- Example text: {
 --- 'ABBA',
