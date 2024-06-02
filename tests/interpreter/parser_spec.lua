@@ -4,7 +4,7 @@ local term = require("util.termcolor")
 require("util.color")
 require("util.debug")
 
-local inputs = require("tests.parser_inputs")
+local inputs = require("tests.interpreter.parser_inputs")
 
 if not orig_print then
   _G.orig_print = print
