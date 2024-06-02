@@ -118,11 +118,15 @@ function EditorController:keypressed(k)
     end
   end
   local function load()
-    if not Key.ctrl() and not Key.shift() and k == "escape" then
+    if not Key.ctrl() and
+        not Key.shift()
+        and k == "escape" then
       local t = self:get_active_buffer():get_selected_text()
       self.input:set_text(t)
     end
-    if Key.shift() and k == "escape" then
+    if not Key.ctrl() and
+        Key.shift() and
+        k == "escape" then
       local t = self:get_active_buffer():get_selected_text()
       self.input:add_text(t)
     end

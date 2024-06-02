@@ -60,7 +60,7 @@ Debug = {
 
   text = text,
 
-  --- @param t string[]
+  --- @param t string[]?
   --- @param no_ln boolean?
   --- @param trunc boolean?
   --- @return string
