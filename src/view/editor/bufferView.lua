@@ -71,7 +71,7 @@ function BufferView:open(buffer)
   self:_update_visible(si, ei)
 end
 
---- @param insert boolean
+--- @param insert boolean?
 function BufferView:refresh(insert)
   if not self.visible then
     error('no buffer is open')
