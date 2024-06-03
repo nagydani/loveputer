@@ -7,7 +7,7 @@ return function(lib)
     'lib/' .. lib .. '/?.lua',
     'lib/?.lua'
   }
-  if love then
+  if love and not TESTING then
     local love_paths = string.join(add_paths, ';')
     love.filesystem.setRequirePath(love.filesystem.getRequirePath() .. love_paths)
   else
