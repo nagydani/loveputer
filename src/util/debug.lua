@@ -65,7 +65,7 @@ Debug = {
   --- @param trunc boolean?
   --- @return string
   text_table = function(t, no_ln, trunc)
-    local res = ''
+    local res = '\n'
     if type(t) == 'table' then
       for i, l in ipairs(t) do
         local line = (function()
