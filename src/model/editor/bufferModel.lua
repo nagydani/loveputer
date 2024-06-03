@@ -9,6 +9,10 @@ require('util.table')
 --- @field selection Selected
 ---
 --- @field move_selection function
+--- @field get_selection function
+--- @field get_selected_text function
+--- @field delete_selected_text function
+--- @field replace_selected_text function
 BufferModel = {}
 BufferModel.__index = BufferModel
 

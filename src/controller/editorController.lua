@@ -4,10 +4,15 @@ require("controller.inputController")
 --- @field model EditorModel
 --- @field input InputController
 --- @field view EditorView?
+---
 --- @field open fun(self, name: string, content: string[]?)
 --- @field close fun(self): string, string[]
---- @field update_visible function
---- @field update_more function
+--- @field get_active_buffer function
+--- @field update_selection function
+--- @field textinput fun(self, string)
+--- @field keypressed fun(self, string)
+-- @field update_visible function
+-- @field update_more function
 EditorController = {}
 EditorController.__index = EditorController
 

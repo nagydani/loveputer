@@ -13,6 +13,8 @@ require("util.table")
 --- @field offset integer
 --- @field buffer BufferModel
 ---
+--- @field open function
+--- @field refresh function
 --- @field draw function
 BufferView = {}
 BufferView.__index = BufferView
