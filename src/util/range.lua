@@ -1,6 +1,8 @@
 --- @class Range
 --- @field start integer
 --- @field fin integer
+
+
 Range = {}
 Range.__index = Range
 
@@ -13,8 +15,16 @@ setmetatable(Range, {
 --- @param s integer
 --- @param e integer
 function Range.new(s, e)
+  -- TODO: validate
   local self = setmetatable({
     start = s, fin = e
   }, Range)
   return self
+end
+
+--- @param n integer
+function Range:inc(n)
+  if self.start > n then return false end
+  if self.fin < n then return false end
+  return true
 end

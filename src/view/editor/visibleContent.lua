@@ -1,7 +1,5 @@
-require("view.editor.range")
-
 require("util.wrapped_text")
-require("util.table")
+require("util.range")
 
 --- @class VisibleContent: WrappedText
 --- @field range Range?
