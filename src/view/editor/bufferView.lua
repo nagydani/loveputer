@@ -3,13 +3,14 @@ require("view.editor.visibleContent")
 require("util.table")
 
 --- @class BufferView
---- @field visible VisibleContent
---- @field more {up: boolean, down: boolean}
---- @field offset integer
---- @field was_scrolled boolean
+--- @field cfg ViewConfig
 --- @field LINES integer
 --- @field SCROLL_BY integer
---- @field cfg ViewConfig
+--- @field w integer
+---
+--- @field content VisibleContent
+--- @field more {up: boolean, down: boolean}
+--- @field offset integer
 --- @field buffer BufferModel
 ---
 --- @field draw function
@@ -27,27 +28,23 @@ function BufferView.new(cfg)
   local l = cfg.lines
 
   local self = setmetatable({
+    cfg = cfg,
     LINES = l,
     SCROLL_BY = math.floor(l / 2),
-    visible = nil,
+    w = cfg.drawableChars,
+
+    content = nil,
     more = { up = false, down = false },
     offset = 0,
-    was_scrolled = false,
-
-    cfg = cfg,
     buffer = nil
   }, BufferView)
   return self
 end
 
 --- @private
-  local w = self.cfg.drawableChars
-  local content = self.buffer:get_content()
-
-  local vis = table.slice(content, si, ei)
-  self.visible = VisibleContent(w, vis)
 --- @param r Range
 function BufferView:_update_visible(r)
+  self.content:wrap(self.buffer:get_content())
   self.content:set_range(r)
 end
 
@@ -58,11 +55,15 @@ function BufferView:open(buffer)
   if not self.buffer then
     error('no buffer')
   end
-  local clen = self.buffer:get_content_length()
+
+  self.content = VisibleContent(self.w, buffer:get_content())
+  local clen = self.content:get_text_length()
   self.offset = math.max(clen - L, 0)
   local off = self.offset
   if off > 0 then
     self.more.up = true
+    self.offset = off + 1
+    off = off + 1
   end
 
   local si = 1 + off
@@ -72,13 +73,13 @@ end
 
 --- @param insert boolean?
 function BufferView:refresh(insert)
-  if not self.visible then
+  if not self.content or not self.content.range then
     error('no buffer is open')
   end
   local si, ei
   if insert then
   else
-    local o_range = self.visible.range
+    local o_range = self.content.range
     si = o_range.start
     ei = o_range.fin
   end
@@ -94,7 +95,7 @@ function BufferView:draw()
   local colors = self.cfg.colors.editor
   local font = self.cfg.font
   local fh = self.cfg.fh * 1.032 -- magic constant
-  local content = self.visible:get_text()
+  local content = self.content:get_visible()
   local last_line_n = #content
   local width, height = G.getDimensions()
 
@@ -124,9 +125,11 @@ function BufferView:draw()
   end
 
   draw_background()
+  local off = self.offset
   for _, s in ipairs(self.buffer.selection) do
-    for _, v in ipairs(self.visible.wrap_forward[s]) do
-      draw_highlight(v - self.offset)
+    local w_sel = self.content.wrap_forward[s]
+    for _, v in ipairs(w_sel) do
+      draw_highlight(v - off)
     end
   end
   draw_text()

@@ -1,11 +1,13 @@
 require("view.editor.range")
 
 require("util.wrapped_text")
+require("util.table")
 
 --- @class VisibleContent: WrappedText
 --- @field range Range?
 ---
 --- @field set_range function(s: integer, e: integer)
+--- @field get_visible function(): string[]
 
 VisibleContent = {}
 VisibleContent.__index = VisibleContent
@@ -18,27 +20,41 @@ setmetatable(VisibleContent, {
 })
 
 --- @param w integer
---- @param text string[]?
+--- @param fulltext string[]
 --- @return VisibleContent
-function VisibleContent.new(w, text)
-  local self = setmetatable({}, VisibleContent)
-  WrappedText._init(self, w, text)
+function VisibleContent.new(w, fulltext)
+  local self = setmetatable({
+  }, VisibleContent)
+  WrappedText._init(self, w, fulltext)
   self:_init()
 
-  local rev = self.wrap_reverse
-  local fw = self.wrap_forward
-  table.insert(rev, (#text + self.n_breaks))
-  table.insert(fw, { #text + self.n_breaks + 1 })
   return self
+end
+
+--- @private
+function VisibleContent:_update_meta()
+  local rev = self.wrap_reverse
+  local fwd = self.wrap_forward
+  table.insert(rev, (#(self.text)))
+  table.insert(fwd, { #(self.text) + 1 })
 end
 
 --- @protected
 function VisibleContent:_init()
-  self.range = { start = 0, fin = 0 }
+end
+
+--- @param text string[]
+function VisibleContent:wrap(text)
+  WrappedText.wrap(self, text)
+  self:_update_meta()
+end
 
 --- @param r Range
 function VisibleContent:set_range(r)
   self.range = r
 end
 
+function VisibleContent:get_visible()
+  local si, ei = self.range.start, self.range.fin
+  return table.slice(self.text, si, ei)
 end
