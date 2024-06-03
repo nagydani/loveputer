@@ -41,15 +41,14 @@ function BufferView.new(cfg)
 end
 
 --- @private
---- @param si integer
---- @param ei integer
-function BufferView:_update_visible(si, ei)
   local w = self.cfg.drawableChars
   local content = self.buffer:get_content()
 
   local vis = table.slice(content, si, ei)
   self.visible = VisibleContent(w, vis)
-  self.visible:set_range(si, ei)
+--- @param r Range
+function BufferView:_update_visible(r)
+  self.content:set_range(r)
 end
 
 --- @param buffer BufferModel
@@ -68,7 +67,7 @@ function BufferView:open(buffer)
 
   local si = 1 + off
   local ei = math.min(L, clen) + off
-  self:_update_visible(si, ei)
+  self:_update_visible(Range(si, ei))
 end
 
 --- @param insert boolean?
@@ -87,7 +86,7 @@ function BufferView:refresh(insert)
   local off = self.offset
   si = 1 + off
   ei = math.min(self.LINES, clen) + off
-  self:_update_visible(si, ei)
+  self:_update_visible(Range(si, ei))
 end
 
 function BufferView:draw()

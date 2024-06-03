@@ -1,7 +1,9 @@
+require("view.editor.range")
+
 require("util.wrapped_text")
 
 --- @class VisibleContent: WrappedText
---- @field range { start: integer, fin: integer }
+--- @field range Range?
 ---
 --- @field set_range function(s: integer, e: integer)
 
@@ -33,11 +35,10 @@ end
 --- @protected
 function VisibleContent:_init()
   self.range = { start = 0, fin = 0 }
+
+--- @param r Range
+function VisibleContent:set_range(r)
+  self.range = r
 end
 
---- @param s integer
---- @param e integer
-function VisibleContent:set_range(s, e)
-  if type(s) == 'number' then self.range.start = s end
-  if type(e) == 'number' then self.range.fin = e end
 end
