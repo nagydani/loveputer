@@ -111,8 +111,8 @@ function BufferView:draw()
   local colors = self.cfg.colors.editor
   local font = self.cfg.font
   local fh = self.cfg.fh * 1.032 -- magic constant
-  local content = self.content:get_visible()
-  local last_line_n = #content
+  local content_text = self.content:get_visible()
+  local last_line_n = #content_text
   local width, height = G.getDimensions()
 
 
@@ -135,7 +135,7 @@ function BufferView:draw()
   local draw_text = function()
     G.setFont(font)
     G.setColor(colors.fg)
-    local text = string.unlines(content)
+    local text = string.unlines(content_text)
 
     G.print(text)
   end
