@@ -1,5 +1,3 @@
-local G = love.graphics
-
 require("view.input.statusline")
 require("util.debug")
 require("util.view")
@@ -36,6 +34,7 @@ end
 --- @param input InputDTO
 --- @param time number
 function InputView:draw(input, time)
+  local G = love.graphics
   local status = self.controller:get_status()
   local cf_colors = self.cfg.colors
   local colors = (function()

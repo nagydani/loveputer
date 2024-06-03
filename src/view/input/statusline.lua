@@ -1,5 +1,3 @@
-local G = love.graphics
-
 --- @class Statusline
 --- @field cfg ViewConfig
 Statusline = {}
@@ -20,6 +18,7 @@ end
 --- @param nLines integer
 --- @param time number?
 function Statusline:draw(status, nLines, time)
+  local G = love.graphics
   local cf = self.cfg
   local colors = (function()
     if love.state.app_state == 'inspect' then
