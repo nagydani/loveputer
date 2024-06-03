@@ -1,8 +1,8 @@
 --- @class Range
 --- @field start integer
 --- @field fin integer
-
-
+---
+--- @field inc fun(self, integer): boolean
 Range = {}
 Range.__index = Range
 
