@@ -1,3 +1,5 @@
+require("controller.inputController")
+
 --- @class EditorController
 --- @field model EditorModel
 --- @field input InputController

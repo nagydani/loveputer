@@ -1,4 +1,5 @@
 require("model.editor.bufferModel")
+require("model.interpreter.interpreterModel")
 
 --- @class EditorModel
 --- @field interpreter InterpreterModel
