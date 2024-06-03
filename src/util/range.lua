@@ -3,6 +3,7 @@
 --- @field fin integer
 ---
 --- @field inc fun(self, integer): boolean
+--- @field translate fun(self, integer): Range
 Range = {}
 Range.__index = Range
 
@@ -28,3 +29,16 @@ function Range:inc(n)
   if self.fin < n then return false end
   return true
 end
+
+--- Translate functions do not modify the original
+
+--- @param by integer
+--- @return Range
+function Range:translate(by)
+  if type(by) == 'number' then
+    return Range(self.start + by, self.fin + by)
+  else
+    error()
+  end
+end
+
