@@ -153,10 +153,10 @@ function EditorController:keypressed(k)
       move_sel('down')
     end
     if k == "pageup" then
-      -- scroll up
+      self.view.buffer:_scroll('up')
     end
     if k == "pagedown" then
-      -- scroll down
+      self.view.buffer:_scroll('down')
     end
   end
 

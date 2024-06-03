@@ -6,8 +6,9 @@ require("util.table")
 --- @class VisibleContent: WrappedText
 --- @field range Range?
 ---
---- @field set_range function(s: integer, e: integer)
---- @field get_visible function(): string[]
+--- @field set_range fun(self, s: integer, e: integer)
+--- @field move_range fun(self, n: integer)
+--- @field get_visible fun(self): string[]
 
 VisibleContent = {}
 VisibleContent.__index = VisibleContent
@@ -54,6 +55,16 @@ function VisibleContent:set_range(r)
   self.range = r
 end
 
+--- @param n integer
+function VisibleContent:move_range(n)
+  if type(n) == "number" then
+    local r = self.range
+    local nr = Range(r.start + n, r.fin + n)
+    self:set_range(nr)
+  end
+end
+
+--- @return string[]
 function VisibleContent:get_visible()
   local si, ei = self.range.start, self.range.fin
   return table.slice(self.text, si, ei)

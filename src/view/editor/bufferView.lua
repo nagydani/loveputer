@@ -92,6 +92,20 @@ function BufferView:refresh(insert)
   self:_update_visible(Range(si, ei))
 end
 
+--- @param dir VerticalDir
+--- @param by integer?
+function BufferView:_scroll(dir, by)
+  local by = by or self.SCROLL_BY
+  local n = (function()
+    if dir == 'up' then
+      return -by
+    else
+      return by
+    end
+  end)()
+  self.content:move_range(n)
+end
+
 function BufferView:draw()
   local G = love.graphics
   local colors = self.cfg.colors.editor
@@ -131,7 +145,9 @@ function BufferView:draw()
   for _, s in ipairs(self.buffer.selection) do
     local w_sel = self.content.wrap_forward[s]
     for _, v in ipairs(w_sel) do
-      draw_highlight(v - off)
+      if self.content.range:inc(v) then
+        draw_highlight(v - off)
+      end
     end
   end
   draw_text()
