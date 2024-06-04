@@ -8,7 +8,7 @@ require("controller.inputController")
 --- @field open fun(self, name: string, content: string[]?)
 --- @field close fun(self): string, string[]
 --- @field get_active_buffer function
---- @field update_selection function
+--- @field update_status function
 --- @field textinput fun(self, string)
 --- @field keypressed fun(self, string)
 EditorController = {}
@@ -45,7 +45,7 @@ function EditorController:open(name, content)
   local b = BufferModel(name, content)
   self.model.buffer = b
   self.view.buffer:open(b)
-  self:update_selection()
+  self:update_status()
 end
 
 --- @return string name
@@ -85,7 +85,7 @@ function EditorController:_generate_status(sel)
   return cs
 end
 
-function EditorController:update_selection()
+function EditorController:update_status()
   local sel = self:get_active_buffer():get_selection()
   local cs = self:_generate_status(sel)
   self.input:set_custom_status(cs)
@@ -114,14 +114,14 @@ function EditorController:keypressed(k)
     local m = self:get_active_buffer():move_selection(dir, by)
     if m then
       self.input:clear()
-      self:update_selection()
+      self:update_status()
     end
   end
 
   --- @param dir VerticalDir
   local function scroll(dir)
     self.view.buffer:_scroll(dir)
-    self:update_selection()
+    self:update_status()
   end
 
   --- handlers
@@ -132,7 +132,7 @@ function EditorController:keypressed(k)
       self.input:clear()
       self.view:refresh()
       if insert then move_sel('down', n) end
-      self:update_selection()
+      self:update_status()
     end
   end
   local function load()
