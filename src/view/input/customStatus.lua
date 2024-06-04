@@ -1,6 +1,7 @@
 --- @class CustomStatus table
 --- @field line integer
 --- @field buflen integer
+--- @field more More
 --- @field __tostring fun(): string
 CustomStatus = {}
 CustomStatus.__index = CustomStatus
@@ -11,8 +12,7 @@ setmetatable(CustomStatus, {
   end,
 })
 
---- @param cfg Config
-function CustomStatus.new(cfg)
+function CustomStatus.new()
   local self = setmetatable({
   }, CustomStatus)
 

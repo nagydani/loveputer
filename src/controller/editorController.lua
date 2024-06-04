@@ -11,8 +11,6 @@ require("controller.inputController")
 --- @field update_selection function
 --- @field textinput fun(self, string)
 --- @field keypressed fun(self, string)
--- @field update_visible function
--- @field update_more function
 EditorController = {}
 EditorController.__index = EditorController
 
@@ -68,9 +66,17 @@ end
 --- @param sel Selected
 --- @return CustomStatus
 function EditorController:_generate_status(sel)
+  local len = self:get_active_buffer():get_content_length() + 1
+  local vrange = self.view.buffer.content:get_range()
+  local vlen = self.view.buffer.content:get_content_length()
+  local more = {
+    up = vrange.start > 1,
+    down = vrange.fin < vlen
+  }
   local cs = {
     line = sel[1],
-    buflen = self:get_active_buffer():get_content_length() + 1
+    buflen = len,
+    more = more,
   }
   cs.__tostring = function(t)
     return 'L' .. t.line
@@ -79,7 +85,6 @@ function EditorController:_generate_status(sel)
   return cs
 end
 
--- @return BufferModel
 function EditorController:update_selection()
   local sel = self:get_active_buffer():get_selection()
   local cs = self:_generate_status(sel)
@@ -111,6 +116,12 @@ function EditorController:keypressed(k)
       self.input:clear()
       self:update_selection()
     end
+  end
+
+  --- @param dir VerticalDir
+  local function scroll(dir)
+    self.view.buffer:_scroll(dir)
+    self:update_selection()
   end
 
   --- handlers
@@ -153,10 +164,10 @@ function EditorController:keypressed(k)
       move_sel('down')
     end
     if k == "pageup" then
-      self.view.buffer:_scroll('up')
+      scroll('up')
     end
     if k == "pagedown" then
-      self.view.buffer:_scroll('down')
+      scroll('down')
     end
   end
 

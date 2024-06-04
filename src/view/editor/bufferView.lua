@@ -9,7 +9,7 @@ require("util.table")
 --- @field w integer
 ---
 --- @field content VisibleContent
---- @field more {up: boolean, down: boolean}
+--- @field more More
 --- @field offset integer
 --- @field buffer BufferModel
 ---

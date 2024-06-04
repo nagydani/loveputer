@@ -42,6 +42,8 @@
 --- @field drawtest boolean
 --- @field sizedebug boolean
 
+--- @alias More {up: boolean, down: boolean}
+
 --- @class Status table
 --- @field input_type string
 --- @field cursor Cursor?

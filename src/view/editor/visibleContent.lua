@@ -7,6 +7,7 @@ require("util.range")
 --- @field overscroll integer
 ---
 --- @field set_range fun(self, Range)
+--- @field get_range fun(self): Range
 --- @field move_range fun(self, integer): integer
 --- @field get_visible fun(self): string[]
 --- @field get_content_length fun(self): integer
@@ -59,6 +60,11 @@ end
 function VisibleContent:wrap(text)
   WrappedText.wrap(self, text)
   self:_update_meta()
+end
+
+--- @return Range
+function VisibleContent:get_range()
+  return self.range
 end
 
 --- @param r Range
