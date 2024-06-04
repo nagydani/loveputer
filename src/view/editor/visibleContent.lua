@@ -21,8 +21,9 @@ setmetatable(VisibleContent, {
 --- @param w integer
 --- @param fulltext string[]
 --- @return VisibleContent
-function VisibleContent.new(w, fulltext)
+function VisibleContent.new(w, fulltext, overscroll)
   local self = setmetatable({
+    overscroll = overscroll
   }, VisibleContent)
   WrappedText._init(self, w, fulltext)
   self:_init()
@@ -53,13 +54,17 @@ function VisibleContent:set_range(r)
   self.range = r
 end
 
---- @param n integer
-function VisibleContent:move_range(n)
-  if type(n) == "number" then
+--- @param by integer
+--- @return integer n
+function VisibleContent:move_range(by)
+  if type(by) == "number" then
     local r = self.range
-    local nr = Range(r.start + n, r.fin + n)
+    local upper = self:get_text_length() + self.overscroll
+    local nr, n = r:translate_limit(by, 1, upper)
     self:set_range(nr)
+    return n
   end
+  return 0
 end
 
 --- @return string[]

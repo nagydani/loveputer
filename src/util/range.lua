@@ -43,9 +43,10 @@ function Range:translate(by)
 end
 
 --- @param by integer
---- @param ll integer
---- @param ul integer
+--- @param ll integer?
+--- @param ul integer?
 --- @return Range
+--- @return integer actual_by
 function Range:translate_limit(by, ll, ul)
   if type(by) == 'number' then
     local s, e = self.start, self.fin
@@ -56,7 +57,7 @@ function Range:translate_limit(by, ll, ul)
         end
         return by
       end)()
-      return self:translate(down)
+      return self:translate(down), down
     elseif by > 0 then
       local up = (function()
         if ul then
@@ -64,10 +65,10 @@ function Range:translate_limit(by, ll, ul)
         end
         return by
       end)()
-      return self:translate(up)
+      return self:translate(up), up
     end
   else
     error()
   end
-  return Range(self.start, self.fin)
+  return Range(self.start, self.fin), by
 end

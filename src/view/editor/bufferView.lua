@@ -58,7 +58,7 @@ function BufferView:open(buffer)
     error('no buffer')
   end
 
-  self.content = VisibleContent(self.w, buffer:get_content())
+  self.content = VisibleContent(self.w, buffer:get_content(), self.SCROLL_BY)
   local clen = self.content:get_text_length()
   self.offset = math.max(clen - L, 0)
   local off = self.offset
@@ -107,7 +107,8 @@ function BufferView:_scroll(dir, by)
       return by
     end
   end)()
-  self.content:move_range(n)
+  local o = self.content:move_range(n)
+  self.offset = self.offset + o
 end
 
 function BufferView:draw()
