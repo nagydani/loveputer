@@ -62,8 +62,6 @@ describe('Editor', function()
         },
       }
 
-      local wrapped_turtle = VisibleContent(w, turtle_doc)
-
       local model = EditorModel(mockConf)
       local controller = EditorController(model)
       local view = EditorView(mockConf.view, controller)
@@ -132,7 +130,7 @@ describe('Editor', function()
       end)
     end)
 
-    it('with scroll', function()
+    describe('with scroll', function()
       local l = 6
       local mockConf = {
         view = {
