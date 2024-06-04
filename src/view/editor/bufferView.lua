@@ -72,28 +72,15 @@ function BufferView:open(buffer)
   self:_update_visible(Range(si, ei))
 end
 
---- @param insert boolean?
-function BufferView:refresh(insert)
+function BufferView:refresh()
   if not self.content or not self.content.range then
     error('no buffer is open')
   end
-  local si, ei
-  if insert then
-  else
-    local o_range = self.content.range
-    if o_range then
-      si = o_range.start
-      ei = o_range.fin
-    else
-      return
-    end
-  end
-
   self.content:wrap(self.buffer:get_content())
   local clen = self.content:get_content_length()
   local off = self.offset
-  si = 1 + off
-  ei = math.min(self.LINES, clen + 1) + off
+  local si = 1 + off
+  local ei = math.min(self.LINES, clen + 1) + off
   self:_update_visible(Range(si, ei))
 end
 

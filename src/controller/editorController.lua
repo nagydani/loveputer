@@ -119,7 +119,7 @@ function EditorController:keypressed(k)
       local newtext = self.input:get_input().text
       local insert, n = self:get_active_buffer():replace_selected_text(newtext)
       self.input:clear()
-      self.view:refresh(insert)
+      self.view:refresh()
       if insert then move_sel('down', n) end
       self:update_selection()
     end
