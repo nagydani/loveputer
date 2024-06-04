@@ -114,6 +114,7 @@ function EditorController:keypressed(k)
     local m = self:get_active_buffer():move_selection(dir, by)
     if m then
       self.input:clear()
+      self.view.buffer:follow_selection()
       self:update_status()
     end
   end
