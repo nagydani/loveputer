@@ -46,7 +46,6 @@ end
 --- @private
 --- @param r Range
 function BufferView:_update_visible(r)
-  self.content:wrap(self.buffer:get_content())
   self.content:set_range(r)
 end
 
@@ -89,10 +88,12 @@ function BufferView:refresh(insert)
       return
     end
   end
-  local clen = self.buffer:get_content_length()
+
+  self.content:wrap(self.buffer:get_content())
+  local clen = self.content:get_content_length()
   local off = self.offset
   si = 1 + off
-  ei = math.min(self.LINES, clen) + off
+  ei = math.min(self.LINES, clen + 1) + off
   self:_update_visible(Range(si, ei))
 end
 

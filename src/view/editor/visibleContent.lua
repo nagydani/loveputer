@@ -3,10 +3,13 @@ require("util.range")
 
 --- @class VisibleContent: WrappedText
 --- @field range Range?
+--- @field overscroll_max integer
+--- @field overscroll integer
 ---
 --- @field set_range fun(self, Range)
---- @field move_range fun(self, n: integer)
+--- @field move_range fun(self, integer): integer
 --- @field get_visible fun(self): string[]
+--- @field get_content_length fun(self): integer
 
 VisibleContent = {}
 VisibleContent.__index = VisibleContent
@@ -23,7 +26,7 @@ setmetatable(VisibleContent, {
 --- @return VisibleContent
 function VisibleContent.new(w, fulltext, overscroll)
   local self = setmetatable({
-    overscroll = overscroll
+    overscroll_max = overscroll
   }, VisibleContent)
   WrappedText._init(self, w, fulltext)
   self:_init()
@@ -37,10 +40,19 @@ function VisibleContent:_update_meta()
   local fwd = self.wrap_forward
   table.insert(rev, (#(self.text)))
   table.insert(fwd, { #(self.text) + 1 })
+  self:_update_overscroll()
+end
+
+--- @protected
+function VisibleContent:_update_overscroll()
+  local len = WrappedText.get_text_length(self)
+  local over = math.min(self.overscroll_max, len)
+  self.overscroll = over
 end
 
 --- @protected
 function VisibleContent:_init()
+  self:_update_overscroll()
 end
 
 --- @param text string[]
@@ -71,4 +83,9 @@ end
 function VisibleContent:get_visible()
   local si, ei = self.range.start, self.range.fin
   return table.slice(self.text, si, ei)
+end
+
+--- @return integer
+function VisibleContent:get_content_length()
+  return self:get_text_length()
 end
