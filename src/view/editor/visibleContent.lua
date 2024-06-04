@@ -4,7 +4,7 @@ require("util.range")
 --- @class VisibleContent: WrappedText
 --- @field range Range?
 ---
---- @field set_range fun(self, s: integer, e: integer)
+--- @field set_range fun(self, Range)
 --- @field move_range fun(self, n: integer)
 --- @field get_visible fun(self): string[]
 
