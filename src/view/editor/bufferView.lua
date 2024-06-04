@@ -69,7 +69,7 @@ function BufferView:open(buffer)
   end
 
   local si = 1 + off
-  local ei = math.min(L, clen) + off
+  local ei = math.min(L, clen + 1) + off
   self:_update_visible(Range(si, ei))
 end
 
