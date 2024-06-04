@@ -42,3 +42,32 @@ function Range:translate(by)
   end
 end
 
+--- @param by integer
+--- @param ll integer
+--- @param ul integer
+--- @return Range
+function Range:translate_limit(by, ll, ul)
+  if type(by) == 'number' then
+    local s, e = self.start, self.fin
+    if by < 0 then
+      local down = (function()
+        if ll then
+          return math.max(by, ll - s, ll - e)
+        end
+        return by
+      end)()
+      return self:translate(down)
+    elseif by > 0 then
+      local up = (function()
+        if ul then
+          return math.min(by, ul - s, ul - e)
+        end
+        return by
+      end)()
+      return self:translate(up)
+    end
+  else
+    error()
+  end
+  return Range(self.start, self.fin)
+end
