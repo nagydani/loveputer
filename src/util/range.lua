@@ -4,6 +4,7 @@
 ---
 --- @field inc fun(self, integer): boolean
 --- @field translate fun(self, integer): Range
+--- @field __tostring fun(): string
 Range = {}
 Range.__index = Range
 
@@ -21,6 +22,12 @@ function Range.new(s, e)
     start = s, fin = e
   }, Range)
   return self
+end
+
+function Range:__tostring()
+  local s = self.start
+  local e = self.fin
+  return string.format('{%d-%d}[%d]', s, e, e - s)
 end
 
 --- @param n integer

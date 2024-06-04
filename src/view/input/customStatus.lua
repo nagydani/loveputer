@@ -2,7 +2,6 @@
 --- @field line integer
 --- @field buflen integer
 --- @field more More
---- @field __tostring fun(): string
 CustomStatus = {}
 CustomStatus.__index = CustomStatus
 
