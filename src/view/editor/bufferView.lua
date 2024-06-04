@@ -82,8 +82,12 @@ function BufferView:refresh(insert)
   if insert then
   else
     local o_range = self.content.range
-    si = o_range.start
-    ei = o_range.fin
+    if o_range then
+      si = o_range.start
+      ei = o_range.fin
+    else
+      return
+    end
   end
   local clen = self.buffer:get_content_length()
   local off = self.offset
