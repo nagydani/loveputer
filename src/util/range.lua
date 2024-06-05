@@ -4,7 +4,7 @@
 ---
 --- @field inc fun(self, integer): boolean
 --- @field translate fun(self, integer): Range
---- @field __tostring fun(): string
+--- @field __tostring fun(self): string
 Range = {}
 Range.__index = Range
 
@@ -27,7 +27,7 @@ end
 function Range:__tostring()
   local s = self.start
   local e = self.fin
-  return string.format('{%d-%d}[%d]', s, e, e - s)
+  return string.format('{%d-%d}[%d]', s, e, e - s + 1)
 end
 
 --- @param n integer
