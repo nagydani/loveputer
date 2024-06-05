@@ -164,6 +164,7 @@ function InputController:keypressed(k)
   if love.state.app_state == 'editor' then
     removers()
     horizontal()
+    vertical() -- sets return
     newline()
 
     copypaste()

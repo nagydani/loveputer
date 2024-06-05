@@ -106,7 +106,7 @@ end
 
 --- @param k string
 function EditorController:keypressed(k)
-  self.input:keypressed(k)
+  local vmove = self.input:keypressed(k)
 
   --- @param dir VerticalDir
   --- @param by integer?
@@ -158,10 +158,10 @@ function EditorController:keypressed(k)
     end
   end
   local function navigate()
-    if k == "up" then
+    if k == "up" and vmove then
       move_sel('up')
     end
-    if k == "down" then
+    if k == "down" and vmove then
       move_sel('down')
     end
     if k == "pageup" then
