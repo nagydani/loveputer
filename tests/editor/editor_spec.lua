@@ -130,6 +130,24 @@ describe('Editor', function()
       end)
     end)
 
+    local sierpinski = {
+      "function sierpinski(depth)",
+      "  lines = { '*' }",
+      "  for i = 2, depth + 1 do",
+      "    sp, tmp = string.rep(' ', 2 ^ (i - 2))",
+      "    tmp = {}",
+      "    for idx, line in ipairs(lines) do",
+      "      tmp[idx] = sp .. line .. sp",
+      "      tmp[idx + #lines] = line .. ' ' .. line",
+      "    end",
+      "    lines = tmp",
+      "  end",
+      "  return table.concat(lines, '\n')",
+      "end",
+      "",
+      "print(sierpinski(4))",
+    }
+
     describe('with scroll', function()
       local l = 6
       local mockConf = {
@@ -137,23 +155,6 @@ describe('Editor', function()
           lines = l,
           drawableChars = 80,
         },
-      }
-      local sierpinski = {
-        "function sierpinski(depth)",
-        "  lines = { '*' }",
-        "  for i = 2, depth + 1 do",
-        "    sp, tmp = string.rep(' ', 2 ^ (i - 2))",
-        "    tmp = {}",
-        "    for idx, line in ipairs(lines) do",
-        "      tmp[idx] = sp .. line .. sp",
-        "      tmp[idx + #lines] = line .. ' ' .. line",
-        "    end",
-        "    lines = tmp",
-        "  end",
-        "  return table.concat(lines, '\n')",
-        "end",
-        "",
-        "print(sierpinski(4))",
       }
 
       local model = EditorModel(mockConf)
@@ -166,33 +167,106 @@ describe('Editor', function()
       local visible = view.buffer.content
       local scroll = view.buffer.SCROLL_BY
 
-      -- inital scroll is at EOF, meaning last l lines are visible
-      -- plus the phantom line
       local off = #sierpinski - l + 1
-      assert.same(off, view.buffer.offset)
       local start_range = Range(off + 1, #sierpinski + 1)
-      assert.same(start_range, visible.range)
 
-      controller:keypressed('pageup')
-      assert.same(start_range:translate(-scroll), visible.range)
-      controller:keypressed('pageup')
-      assert.same(start_range:translate(-scroll * 2), visible.range)
-      controller:keypressed('pageup')
-      assert.same(start_range:translate(-scroll * 3), visible.range)
-      controller:keypressed('pageup')
+      it('loads', function()
+        -- inital scroll is at EOF, meaning last l lines are visible
+        -- plus the phantom line
+        assert.same(off, view.buffer.offset)
+        assert.same(start_range, visible.range)
+      end)
       local base = Range(1, l)
-      assert.same(base, visible.range)
-      controller:keypressed('pagedown')
-      assert.same(base:translate(scroll), visible.range)
-      controller:keypressed('pagedown')
-      assert.same(base:translate(scroll * 2), visible.range)
-      controller:keypressed('pagedown')
-      assert.same(base:translate(scroll * 3), visible.range)
-      controller:keypressed('pagedown')
-      assert.same(base:translate(scroll * 4), visible.range)
-      controller:keypressed('pagedown')
-      local limit = #sierpinski + visible.overscroll
-      assert.same(Range(limit - l + 1, limit), visible.range)
+      it('scrolls up', function()
+        controller:keypressed('pageup')
+        assert.same(start_range:translate(-scroll), visible.range)
+        controller:keypressed('pageup')
+        assert.same(start_range:translate(-scroll * 2), visible.range)
+        controller:keypressed('pageup')
+        assert.same(start_range:translate(-scroll * 3), visible.range)
+        controller:keypressed('pageup')
+      end)
+      it('tops out', function()
+        assert.same(base, visible.range)
+      end)
+      it('scrolls down', function()
+        controller:keypressed('pagedown')
+        assert.same(base:translate(scroll), visible.range)
+        controller:keypressed('pagedown')
+        assert.same(base:translate(scroll * 2), visible.range)
+        controller:keypressed('pagedown')
+        assert.same(base:translate(scroll * 3), visible.range)
+        controller:keypressed('pagedown')
+        assert.same(base:translate(scroll * 4), visible.range)
+        controller:keypressed('pagedown')
+      end)
+      it('bottoms out', function()
+        local limit = #sierpinski + visible.overscroll
+        assert.same(Range(limit - l + 1, limit), visible.range)
+      end)
+    end)
+
+    describe('with scroll and wrap', function()
+      local l = 6
+      local mockConf = {
+        view = {
+          lines = l,
+          drawableChars = 27,
+        },
+      }
+
+      local model = EditorModel(mockConf)
+      local controller = EditorController(model)
+      local view = EditorView(mockConf.view, controller)
+
+      controller:open('sierpinski.lua', sierpinski)
+      view.buffer:open(model.buffer)
+
+      --- @type VisibleContent
+      local visible = view.buffer.content
+      local scroll = view.buffer.SCROLL_BY
+
+      local clen = visible:get_content_length()
+      local off = clen - l + 1
+      local start_range = Range(off + 1, clen + 1)
+      it('loads', function()
+        -- inital scroll is at EOF, meaning last l lines are visible
+        -- plus the phantom line
+        assert.same(off, view.buffer.offset)
+        assert.same(start_range, visible.range)
+      end)
+      local base = Range(1, l)
+      it('scrolls up', function()
+        controller:keypressed('pageup')
+        assert.same(start_range:translate(-scroll), visible.range)
+        controller:keypressed('pageup')
+        assert.same(start_range:translate(-scroll * 2), visible.range)
+        controller:keypressed('pageup')
+        assert.same(start_range:translate(-scroll * 3), visible.range)
+        controller:keypressed('pageup')
+        assert.same(start_range:translate(-scroll * 4), visible.range)
+      end)
+      it('tops out', function()
+        controller:keypressed('pageup')
+        assert.same(base, visible.range)
+      end)
+      it('scrolls down', function()
+        controller:keypressed('pagedown')
+        assert.same(base:translate(scroll), visible.range)
+        controller:keypressed('pagedown')
+        assert.same(base:translate(scroll * 2), visible.range)
+        controller:keypressed('pagedown')
+        assert.same(base:translate(scroll * 3), visible.range)
+        controller:keypressed('pagedown')
+        assert.same(base:translate(scroll * 4), visible.range)
+        controller:keypressed('pagedown')
+        assert.same(base:translate(scroll * 5), visible.range)
+      end)
+      it('bottoms out', function()
+        controller:keypressed('pagedown')
+        local limit = clen + visible.overscroll
+        assert.same(Range(limit - l + 1, limit), visible.range)
+      end)
     end)
   end)
 end)
