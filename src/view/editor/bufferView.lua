@@ -157,9 +157,9 @@ function BufferView:draw()
 
   draw_background()
   local off = self.offset
-  for _, s in ipairs(self.buffer.selection) do
-    local w_sel = self.content.wrap_forward[s]
-    for _, v in ipairs(w_sel) do
+  local ws = self:get_wrapped_selection()
+  for _, w in ipairs(ws) do
+    for _, v in ipairs(w) do
       if self.content.range:inc(v) then
         draw_highlight(v - off)
       end
@@ -167,3 +167,14 @@ function BufferView:draw()
   end
   draw_text()
 end
+
+--- @return integer[][]
+function BufferView:get_wrapped_selection()
+  local ret = {}
+  local sel = self.buffer:get_selection()
+  for i, v in ipairs(sel) do
+    ret[i] = self.content.wrap_forward[v]
+  end
+  return ret
+end
+
