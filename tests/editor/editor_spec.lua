@@ -220,7 +220,9 @@ describe('Editor', function()
       local view = EditorView(mockConf.view, controller)
 
       controller:open('sierpinski.lua', sierpinski)
-      view.buffer:open(model.buffer)
+      --- @type BufferView
+      local bv = view.buffer
+      bv:open(model.buffer)
 
       --- @type VisibleContent
       local visible = view.buffer.content
@@ -266,6 +268,74 @@ describe('Editor', function()
         controller:keypressed('pagedown')
         local limit = clen + visible.overscroll
         assert.same(Range(limit - l + 1, limit), visible.range)
+      end)
+
+      describe('moving the selection affects scrolling', function()
+        --- @type BufferModel
+        local buffer = controller:get_active_buffer()
+        local sel = buffer:get_selection()
+        local sel_t = buffer:get_selected_text()
+
+        -- default selection is at the end
+        assert.same({ #sierpinski + 1 }, sel)
+        -- and it's an empty line, of course
+        assert.same({}, sel_t)
+
+        it('from below', function()
+          controller:keypressed('pageup')
+          controller:keypressed('up')
+          -- it's now one above the starting range, the phantom line not visible
+          assert.same(start_range:translate(-1), visible.range)
+          controller:keypressed('pageup')
+          controller:keypressed('down')
+          -- after scrolling up and moving the sel back, we are back to the start
+          assert.same(start_range, visible.range)
+        end)
+        it('to above', function()
+          local srs = visible.range.start
+          -- let's move up a screen's worth with the sel
+          for _ = 1, l do
+            controller:keypressed('up')
+          end
+          local cs = bv:get_wrapped_selection()[1][1]
+          local d = cs - srs
+          assert.same(start_range:translate(d), visible.range)
+          controller:keypressed('up')
+          assert.same(start_range:translate(d - 1), visible.range)
+        end)
+        it('tops out', function()
+          -- move up to the first line
+          for _ = 1, clen do
+            controller:keypressed('up')
+          end
+          assert.same(base, visible.range)
+        end)
+        it('from above', function()
+          controller:keypressed('pagedown')
+          controller:keypressed('pagedown')
+          controller:keypressed('down')
+          assert.same(base:translate(1), visible.range)
+        end)
+        it('to below', function()
+          for _ = 2, l do
+            controller:keypressed('down')
+          end
+          controller:keypressed('pageup')
+          controller:keypressed('down')
+          local ws = bv:get_wrapped_selection()[1]
+          local cs = ws[#ws]
+          assert.same(Range(cs - l + 1, cs), visible.range)
+        end)
+        it('bottoms out', function()
+          local s = buffer:get_selection()[1]
+          for _ = s, #sierpinski do
+            controller:keypressed('down')
+          end
+          assert.same(start_range, visible.range)
+          controller:keypressed('down')
+          controller:keypressed('down')
+          assert.same(start_range, visible.range)
+        end)
       end)
     end)
   end)
