@@ -49,6 +49,18 @@ function BufferView:_update_visible(r)
   self.content:set_range(r)
 end
 
+--- @private
+--- @return Range
+function BufferView:_calculate_end_range()
+  local L = self.LINES
+  local clen = self.content:get_text_length()
+  local off = math.max(clen - L, 0)
+  if off > 0 then off = off + 1 end
+  local si = 1 + off
+  local ei = math.min(L, clen + 1) + off
+  return Range(si, ei)
+end
+
 --- @param buffer BufferModel
 function BufferView:open(buffer)
   local L = self.LINES
@@ -67,9 +79,8 @@ function BufferView:open(buffer)
     off = off + 1
   end
 
-  local si = 1 + off
-  local ei = math.min(L, clen + 1) + off
-  self:_update_visible(Range(si, ei))
+  local ir = self:_calculate_end_range()
+  self:_update_visible(ir)
 end
 
 function BufferView:refresh()
@@ -108,13 +119,25 @@ end
 
 --- @param dir VerticalDir
 --- @param by integer?
-function BufferView:_scroll(dir, by)
+--- @param warp boolean?
+function BufferView:_scroll(dir, by, warp)
   local by = by or self.SCROLL_BY
+  local l = self.content:get_content_length()
   local n = (function()
     if dir == 'up' then
-      return -by
+      if warp then
+        return -l
+      else
+        return -by
+      end
     else
-      return by
+      if warp then
+        local ir = self:_calculate_end_range()
+        local c = self.content:get_range()
+        return ir.start - c.start
+      else
+        return by
+      end
     end
   end)()
   local o = self.content:move_range(n)
