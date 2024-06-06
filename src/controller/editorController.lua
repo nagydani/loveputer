@@ -110,8 +110,9 @@ function EditorController:keypressed(k)
 
   --- @param dir VerticalDir
   --- @param by integer?
-  local function move_sel(dir, by)
-    local m = self:get_active_buffer():move_selection(dir, by)
+  --- @param warp boolean?
+  local function move_sel(dir, by, warp)
+    local m = self:get_active_buffer():move_selection(dir, by, warp)
     if m then
       self.input:clear()
       self.view.buffer:follow_selection()
@@ -168,11 +169,11 @@ function EditorController:keypressed(k)
     end
     if Key.ctrl() and
         k == "home" then
-      -- scroll('up', true)
+      move_sel('up', nil, true)
     end
     if Key.ctrl() and
         k == "end" then
-      -- scroll('down', true)
+      move_sel('down', nil, true)
     end
 
     -- scroll

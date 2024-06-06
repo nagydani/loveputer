@@ -47,9 +47,22 @@ end
 
 --- @param dir VerticalDir
 --- @param by integer
+--- @param warp boolean?
 --- @return boolean moved
-function BufferModel:move_selection(dir, by)
+function BufferModel:move_selection(dir, by, warp)
   -- TODO chunk selection
+  if warp then
+    if dir == 'up' then
+      self.selection[1] = 1
+      return true
+    end
+    if dir == 'down' then
+      self.selection[1] = self:get_content_length() + 1
+      return true
+    end
+    return false
+  end
+
   local cur = self.selection[1]
   local by = by or 1
   if dir == 'up' then
