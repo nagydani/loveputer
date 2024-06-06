@@ -11,9 +11,6 @@ describe('Editor', function()
       --- @type AppState
       app_state = 'ready',
     },
-    keyboard = {
-      isDown = function() return false end
-    }
   }
   mock.mock_love(love)
   local turtle_doc = {
