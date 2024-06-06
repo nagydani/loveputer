@@ -37,6 +37,23 @@ first.
 | Jump to start                           | <kbd>Home</kbd>                          |
 | Jump to end                             | <kbd>End</kbd>                           |
 | Insert newline                          | <kbd>Shift</kbd>+<kbd>Enter</kbd>        |
+| Evaluate input                          | <kbd>Enter</kbd>                         |
+|                                    **Editor**                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  _same as Input, except for:_                 |
+| Scroll up                               | <kbd>PageUp</kbd>                        |
+| Scroll down                             | <kbd>PageDown</kbd>                      |
+| Move selection (if in first/last line)  | <kbd>⇧</kbd><kbd>⇩</kbd>                 |
+| Replace selection with input            | <kbd>Enter</kbd>                         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  _additionally_                               |
+| Delete selected (line)                  | <kbd>Ctrl</kbd>+<kbd>Delete</kbd>        |
+|                                         | <kbd>Ctrl</kbd>+<kbd>Y</kbd>             |
+| Replace input with selected content     | <kbd>Esc</kbd>                           |
+| Insert selected content into input      | <kbd>Shift</kbd>+<kbd>Esc</kbd>          |
+| Scroll to start                         | <kbd>Ctrl</kbd>+<kbd>PageUp</kbd>        |
+| Scroll to end                           | <kbd>Ctrl</kbd>+<kbd>PageDown</kbd>      |
+| Move selection to start                 | <kbd>Ctrl</kbd>+<kbd>Home</kbd>          |
+| Move selecion to end                    | <kbd>Ctrl</kbd>+<kbd>End</kbd>           |
+| Quit editor (save work)            | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Q</kbd> |
 
 ### Projects
 
@@ -70,6 +87,9 @@ quits and returns to the console
 
     Close currently opened project.
 
+* `edit(file)`
+
+    Open file in editor. If it does not exist yet, a new file will be created.
 ### Files
 
 Once a project is open, file operations are available on it's contents.
@@ -77,12 +97,18 @@ Once a project is open, file operations are available on it's contents.
 * `list_contents()`
 
     List files in the project.
+
 * `readfile(file)`
 
     Open *file* and display it's contents.
+
 * `writefile(file, content)`
 
     Write to *file* the text supplied as the *content* parameter. This can be
     either a string, or an array of strings.
+
+* `runfile(file)`
+
+    Run *file* if it's a lua script.
 
 
