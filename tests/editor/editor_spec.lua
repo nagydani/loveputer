@@ -45,9 +45,9 @@ describe('Editor', function()
 
       local sel = buffer:get_selection()
       local sel_t = buffer:get_selected_text()
-      -- default selection is at the end
+      --- default selection is at the end
       assert.same({ #turtle_doc + 1 }, sel)
-      -- and it's an empty line, of course
+      --- and it's an empty line, of course
       assert.same({}, sel_t)
     end)
   end)
@@ -81,9 +81,9 @@ describe('Editor', function()
 
         local sel = buffer:get_selection()
         local sel_t = buffer:get_selected_text()
-        -- default selection is at the end
+        --- default selection is at the end
         assert.same({ start_sel }, sel)
-        -- and it's an empty line, of course
+        --- and it's an empty line, of course
         assert.same({}, sel_t)
       end)
 
@@ -171,8 +171,8 @@ describe('Editor', function()
       local start_range = Range(off + 1, #sierpinski + 1)
 
       it('loads', function()
-        -- inital scroll is at EOF, meaning last l lines are visible
-        -- plus the phantom line
+        --- inital scroll is at EOF, meaning last l lines are visible
+        --- plus the phantom line
         assert.same(off, view.buffer.offset)
         assert.same(start_range, visible.range)
       end)
@@ -232,8 +232,8 @@ describe('Editor', function()
       local off = clen - l + 1
       local start_range = Range(off + 1, clen + 1)
       it('loads', function()
-        -- inital scroll is at EOF, meaning last l lines are visible
-        -- plus the phantom line
+        --- inital scroll is at EOF, meaning last l lines are visible
+        --- plus the phantom line
         assert.same(off, view.buffer.offset)
         assert.same(start_range, visible.range)
       end)
@@ -276,24 +276,24 @@ describe('Editor', function()
         local sel = buffer:get_selection()
         local sel_t = buffer:get_selected_text()
 
-        -- default selection is at the end
+        --- default selection is at the end
         assert.same({ #sierpinski + 1 }, sel)
-        -- and it's an empty line, of course
+        --- and it's an empty line, of course
         assert.same({}, sel_t)
 
         it('from below', function()
           controller:keypressed('pageup')
           controller:keypressed('up')
-          -- it's now one above the starting range, the phantom line not visible
-          assert.same(start_range:translate(-1), visible.range)
+          --- it's now one above the starting range, the phantom line not visible
+          --- assert.same(start_range:translate(-1), visible.range)
           controller:keypressed('pageup')
           controller:keypressed('down')
-          -- after scrolling up and moving the sel back, we are back to the start
+          --- after scrolling up and moving the sel back, we are back to the start
           assert.same(start_range, visible.range)
         end)
         it('to above', function()
           local srs = visible.range.start
-          -- let's move up a screen's worth with the sel
+          --- let's move up a screen's worth with the sel
           for _ = 1, l do
             controller:keypressed('up')
           end
@@ -304,7 +304,7 @@ describe('Editor', function()
           assert.same(start_range:translate(d - 1), visible.range)
         end)
         it('tops out', function()
-          -- move up to the first line
+          --- move up to the first line
           for _ = 1, clen do
             controller:keypressed('up')
           end
