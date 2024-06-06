@@ -34,6 +34,7 @@ describe('Editor', function()
       EditorView(mockConf.view, controller)
 
       controller:open('turtle', turtle_doc)
+
       local buffer = controller:get_active_buffer()
       local bc = buffer:get_content()
 
@@ -67,6 +68,10 @@ describe('Editor', function()
       controller:open('turtle', turtle_doc)
       view.buffer:open(model.buffer)
 
+      local function press(...)
+        controller:keypressed(...)
+      end
+
       local buffer = controller:get_active_buffer()
       local start_sel = #turtle_doc + 1
 
@@ -87,19 +92,19 @@ describe('Editor', function()
       --- additional tests
       it('interacts', function()
         -- select middle line
-        controller:keypressed('up')
+        mock.keystroke('up', press)
         assert.same({ start_sel - 1 }, buffer:get_selection())
-        controller:keypressed('up')
+        mock.keystroke('up', press)
         assert.same({ start_sel - 2 }, buffer:get_selection())
         assert.same({ turtle_doc[2] }, model.buffer:get_selected_text())
         -- load it
         local input = function()
           return controller.input:get_input().text
         end
-        controller:keypressed('escape')
+        mock.keystroke('escape', press)
         assert.same({ turtle_doc[2] }, input())
         -- moving selection clears input
-        controller:keypressed('down')
+        mock.keystroke('down', press)
         assert.same({ start_sel - 1 }, buffer:get_selection())
         assert.same({ '' }, input())
         -- add text
@@ -110,7 +115,7 @@ describe('Editor', function()
         controller:textinput('t')
         assert.same({ 'test' }, input())
         -- replace line with input content
-        controller:keypressed('return')
+        mock.keystroke('return', press)
         assert.same({ '' }, input())
         local bc = buffer:get_content()
         assert.same('test', bc[3])
@@ -122,7 +127,7 @@ describe('Editor', function()
         controller:textinput('r')
         controller:textinput('t')
         assert.same({ 'insert' }, input())
-        controller:keypressed('escape')
+        mock.keystroke('escape', press)
         assert.same({ 'test' }, input())
       end)
     end)
@@ -217,6 +222,12 @@ describe('Editor', function()
       local view = EditorView(mockConf.view, controller)
 
       controller:open('sierpinski.lua', sierpinski)
+
+      local function press(...)
+        controller:keypressed(...)
+      end
+
+      local buffer = controller:get_active_buffer()
       --- @type BufferView
       local bv = view.buffer
       bv:open(model.buffer)
@@ -235,99 +246,109 @@ describe('Editor', function()
         assert.same(start_range, visible.range)
       end)
       local base = Range(1, l)
-      it('scrolls up', function()
-        controller:keypressed('pageup')
-        assert.same(start_range:translate(-scroll), visible.range)
-        controller:keypressed('pageup')
-        assert.same(start_range:translate(-scroll * 2), visible.range)
-        controller:keypressed('pageup')
-        assert.same(start_range:translate(-scroll * 3), visible.range)
-        controller:keypressed('pageup')
-        assert.same(start_range:translate(-scroll * 4), visible.range)
-      end)
-      it('tops out', function()
-        controller:keypressed('pageup')
-        assert.same(base, visible.range)
-      end)
-      it('scrolls down', function()
-        controller:keypressed('pagedown')
-        assert.same(base:translate(scroll), visible.range)
-        controller:keypressed('pagedown')
-        assert.same(base:translate(scroll * 2), visible.range)
-        controller:keypressed('pagedown')
-        assert.same(base:translate(scroll * 3), visible.range)
-        controller:keypressed('pagedown')
-        assert.same(base:translate(scroll * 4), visible.range)
-        controller:keypressed('pagedown')
-        assert.same(base:translate(scroll * 5), visible.range)
-      end)
-      it('bottoms out', function()
-        controller:keypressed('pagedown')
-        local limit = clen + visible.overscroll
-        assert.same(Range(limit - l + 1, limit), visible.range)
-      end)
-
-      describe('moving the selection affects scrolling', function()
-        --- @type BufferModel
-        local buffer = controller:get_active_buffer()
-        local sel = buffer:get_selection()
-        local sel_t = buffer:get_selected_text()
-
-        --- default selection is at the end
-        assert.same({ #sierpinski + 1 }, sel)
-        --- and it's an empty line, of course
-        assert.same({}, sel_t)
-
-        it('from below', function()
-          controller:keypressed('pageup')
-          controller:keypressed('up')
-          --- it's now one above the starting range, the phantom line not visible
-          --- assert.same(start_range:translate(-1), visible.range)
-          controller:keypressed('pageup')
-          controller:keypressed('down')
-          --- after scrolling up and moving the sel back, we are back to the start
-          assert.same(start_range, visible.range)
-        end)
-        it('to above', function()
-          local srs = visible.range.start
-          --- let's move up a screen's worth with the sel
-          for _ = 1, l do
-            controller:keypressed('up')
-          end
-          local cs = bv:get_wrapped_selection()[1][1]
-          local d = cs - srs
-          assert.same(start_range:translate(d), visible.range)
-          controller:keypressed('up')
-          assert.same(start_range:translate(d - 1), visible.range)
+      describe('scrolls', function()
+        it('scrolls up', function()
+          mock.keystroke('pageup', press)
+          assert.same(start_range:translate(-scroll), visible.range)
+          mock.keystroke('pageup', press)
+          assert.same(start_range:translate(-scroll * 2), visible.range)
+          mock.keystroke('pageup', press)
+          assert.same(start_range:translate(-scroll * 3), visible.range)
+          mock.keystroke('pageup', press)
+          assert.same(start_range:translate(-scroll * 4), visible.range)
         end)
         it('tops out', function()
-          --- move up to the first line
-          for _ = 1, clen do
-            controller:keypressed('up')
-          end
+          mock.keystroke('pageup', press)
           assert.same(base, visible.range)
         end)
-        it('from above', function()
-          controller:keypressed('pagedown')
-          controller:keypressed('pagedown')
-          controller:keypressed('down')
-          assert.same(base:translate(1), visible.range)
-        end)
-        it('to below', function()
-          for _ = 2, l do
-            controller:keypressed('down')
-          end
-          controller:keypressed('pageup')
-          controller:keypressed('down')
-          local ws = bv:get_wrapped_selection()[1]
-          local cs = ws[#ws]
-          assert.same(Range(cs - l + 1, cs), visible.range)
+        it('scrolls down', function()
+          mock.keystroke('pagedown', press)
+          assert.same(base:translate(scroll), visible.range)
+          mock.keystroke('pagedown', press)
+          assert.same(base:translate(scroll * 2), visible.range)
+          mock.keystroke('pagedown', press)
+          assert.same(base:translate(scroll * 3), visible.range)
+          mock.keystroke('pagedown', press)
+          assert.same(base:translate(scroll * 4), visible.range)
+          mock.keystroke('pagedown', press)
+          assert.same(base:translate(scroll * 5), visible.range)
         end)
         it('bottoms out', function()
-          local s = buffer:get_selection()[1]
-          for _ = s, #sierpinski do
-            controller:keypressed('down')
-          end
+          mock.keystroke('pagedown', press)
+          mock.keystroke('pagedown', press)
+          mock.keystroke('pagedown', press)
+          local limit = clen + visible.overscroll
+          assert.same(Range(limit - l + 1, limit), visible.range)
+        end)
+
+        describe('moving the selection affects scrolling', function()
+          --- @type BufferModel
+          local sel = buffer:get_selection()
+          local sel_t = buffer:get_selected_text()
+
+          --- default selection is at the end
+          assert.same({ #sierpinski + 1 }, sel)
+          --- and it's an empty line, of course
+          assert.same({}, sel_t)
+
+          it('from below', function()
+            mock.keystroke('pageup', press)
+            mock.keystroke('up', press)
+            --- it's now one above the starting range, the phantom line not visible
+            --- assert.same(start_range:translate(-1), visible.range)
+            mock.keystroke('pageup', press)
+            mock.keystroke('down', press)
+            --- after scrolling up and moving the sel back, we are back to the start
+            assert.same(start_range, visible.range)
+          end)
+          it('to above', function()
+            local srs = visible.range.start
+            --- let's move up a screen's worth with the sel
+            for _ = 1, l do
+              mock.keystroke('up', press)
+            end
+            local cs = bv:get_wrapped_selection()[1][1]
+            local d = cs - srs
+            assert.same(start_range:translate(d), visible.range)
+            mock.keystroke('up', press)
+            assert.same(start_range:translate(d - 1), visible.range)
+          end)
+          it('tops out', function()
+            --- move up to the first line
+            for _ = 1, clen do
+              mock.keystroke('up', press)
+            end
+            assert.same(base, visible.range)
+          end)
+          it('from above', function()
+            mock.keystroke('pagedown', press)
+            mock.keystroke('pagedown', press)
+            mock.keystroke('down', press)
+            assert.same(base:translate(1), visible.range)
+          end)
+          it('to below', function()
+            for _ = 2, l do
+              mock.keystroke('down', press)
+            end
+            mock.keystroke('pageup', press)
+            mock.keystroke('down', press)
+            local ws = bv:get_wrapped_selection()[1]
+            local cs = ws[#ws]
+            assert.same(Range(cs - l + 1, cs), visible.range)
+          end)
+          it('bottoms out', function()
+            local s = buffer:get_selection()[1]
+            for _ = s, #sierpinski do
+              mock.keystroke('down', press)
+            end
+            assert.same(start_range, visible.range)
+            mock.keystroke('down', press)
+            mock.keystroke('down', press)
+            assert.same(start_range, visible.range)
+          end)
+        end)
+      end)
+
           assert.same(start_range, visible.range)
           controller:keypressed('down')
           controller:keypressed('down')
