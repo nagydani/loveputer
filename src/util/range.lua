@@ -57,25 +57,25 @@ end
 function Range:translate_limit(by, ll, ul)
   if type(by) == 'number' then
     local s, e = self.start, self.fin
+    --- @param limit integer?
+    --- @param picker function
+    local function calc_limited_by(limit, picker)
+      local ret = by
+      if limit then
+        ret = picker(by, limit - s, limit - e)
+      end
+      return ret
+    end
+
     if by < 0 then
-      local down = (function()
-        if ll then
-          return math.max(by, ll - s, ll - e)
-        end
-        return by
-      end)()
+      local down = calc_limited_by(ll, math.max)
       return self:translate(down), down
     elseif by > 0 then
-      local up = (function()
-        if ul then
-          return math.min(by, ul - s, ul - e)
-        end
-        return by
-      end)()
+      local up = calc_limited_by(ul, math.min)
       return self:translate(up), up
     end
   else
-    error()
+    error('invalid by')
   end
   return Range(self.start, self.fin), by
 end
