@@ -80,4 +80,21 @@ describe('Dequeue', function()
       'third',
     }, q)
   end)
+
+  describe('pops', function()
+    it('at the front', function()
+      local st = { 'a', 'b', 'c', 'd' }
+      local q = Dequeue(st)
+      assert.same(st[1], q:get(1))
+      assert.same(st[1], q:pop_front())
+      assert.same(st[2], q:get(1))
+    end)
+    it('at the back', function()
+      local st = { 'a', 'b', 'c', 'd' }
+      local q = Dequeue(st)
+      assert.same(st[4], q:last())
+      assert.same(st[4], q:pop_back())
+      assert.same(st[3], q:last())
+    end)
+  end)
 end)

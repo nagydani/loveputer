@@ -40,6 +40,14 @@ function Dequeue:push_front(v)
   table.insert(self, 1, v)
 end
 
+--- Pop element from the start, reorganizing the array
+--- @return any? element
+function Dequeue:pop_front()
+  local e = self:get(1)
+  table.remove(self, 1)
+  return e
+end
+
 --- Insert element at the start, reorganizing the array
 --- @param v any
 function Dequeue:prepend(v)
@@ -64,6 +72,15 @@ function Dequeue:push(v)
   self:push_back(v)
 end
 
+--- Pop element from the back
+--- @return any? element
+function Dequeue:pop_back()
+  local l = self:length()
+  local e = self:get(l)
+  table.remove(self, l)
+  return e
+end
+
 --- Insert element at index
 --- @param v any
 --- @param i integer
@@ -85,6 +102,16 @@ end
 --- @return any? element
 function Dequeue:get(i)
   return self[i]
+end
+
+--- @return any? element
+function Dequeue:first()
+  return self[1]
+end
+
+--- @return any? element
+function Dequeue:last()
+  return self:get(self:length())
 end
 
 --- Remove element at index
