@@ -65,6 +65,8 @@ local config_view = function(sizedebug)
   local font_dir = "assets/fonts/"
   local font_main = G.newFont(
     font_dir .. "ubuntu_mono_bold_nerd.ttf", font_size)
+  local font_icon = G.newFont(
+    font_dir .. "SFMonoNerdFontMono-Regular.otf", font_size)
   local lh = (function()
     if sizedebug then
       return 1
@@ -100,6 +102,7 @@ local config_view = function(sizedebug)
 
   return {
     font = font_main,
+    iconfont = font_icon,
     fh = fh,
     fw = fw,
     lh = lh,

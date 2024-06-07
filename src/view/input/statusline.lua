@@ -80,10 +80,13 @@ function Statusline:draw(status, nLines, time)
         ln = custom.line
         l_lim = custom.buflen
         local m = custom.more
-        if m.up then more_i = more_i .. '^^ ' end
-        more_i = more_i .. (function()
-          if m.down then return 'vv ' else return '   ' end
-        end)()
+        if m.up and not m.down then
+          more_i = more_i .. '↑↑ '
+        elseif not m.up and m.down then
+          more_i = more_i .. '↓↓ '
+        elseif m.up and m.down then
+          more_i = more_i .. '↕↕ '
+        end
       else
         ln = c.l
         l_lim = status.n_lines
@@ -93,14 +96,17 @@ function Statusline:draw(status, nLines, time)
       end
       local pos_l = 'L' .. ln
 
-      local mw = G.getFont():getWidth(more_i)
       local lw = G.getFont():getWidth(pos_l)
+      local mlw = G.getFont():getWidth("L99999:999")
       local cw = G.getFont():getWidth(pos_c)
       local sx = endTextX - (lw + cw)
-      local mx = sx - mw
       G.print(pos_l, sx, start_text.y)
       G.setColor(colors.fg)
-      G.print(more_i, mx, start_text.y)
+      G.setFont(self.cfg.iconfont)
+      local mw = G.getFont():getWidth(more_i)
+      local mx = endTextX - mlw - mw
+      G.print(more_i, mx, start_text.y - 3)
+      G.setFont(self.cfg.font)
       G.print(pos_c, sx + lw, start_text.y)
     end
   end
