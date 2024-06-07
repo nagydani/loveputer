@@ -36,12 +36,12 @@ end
 function EditorController:open(name, content)
   local input = self.input
   local interpreter = self.model.interpreter
-  local is_lua = string.match(name, '.lua$')
-  if is_lua then
-    input:set_eval(interpreter.luaInput)
-  else
-    input:set_eval(interpreter.textInput)
-  end
+  -- local is_lua = string.match(name, '.lua$')
+  -- if is_lua then
+  --   input:set_eval(interpreter.luaInput)
+  -- else
+  input:set_eval(interpreter.textInput)
+  -- end
   local b = BufferModel(name, content)
   self.model.buffer = b
   self.view.buffer:open(b)
