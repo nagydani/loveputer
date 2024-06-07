@@ -23,6 +23,7 @@
 --- @field fw integer -- font width
 --- @field lh integer -- line height
 --- @field lines integer
+--- @field show_append_hl boolean
 --- @field labelfont table
 --- @field lfh integer -- font height
 --- @field lfw integer -- font width

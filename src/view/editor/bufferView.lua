@@ -184,7 +184,12 @@ function BufferView:draw()
   for _, w in ipairs(ws) do
     for _, v in ipairs(w) do
       if self.content.range:inc(v) then
-        draw_highlight(v - off)
+        if (not self.cfg.show_append_hl)
+            and (v == self.content:get_content_length() + 1) then
+          --- skip hl
+        else
+          draw_highlight(v - off)
+        end
       end
     end
   end
