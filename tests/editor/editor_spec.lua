@@ -91,35 +91,38 @@ describe('Editor', function()
 
       --- additional tests
       it('interacts', function()
-        -- select middle line
+        --- select middle line
         mock.keystroke('up', press)
         assert.same({ start_sel - 1 }, buffer:get_selection())
         mock.keystroke('up', press)
         assert.same({ start_sel - 2 }, buffer:get_selection())
         assert.same({ turtle_doc[2] }, model.buffer:get_selected_text())
-        -- load it
+        --- load it
         local input = function()
           return controller.input:get_input().text
         end
         mock.keystroke('escape', press)
         assert.same({ turtle_doc[2] }, input())
-        -- moving selection clears input
+        --- moving selection clears input
         mock.keystroke('down', press)
         assert.same({ start_sel - 1 }, buffer:get_selection())
         assert.same({ '' }, input())
-        -- add text
+        --- add text
         controller:textinput('t')
         assert.same({ 't' }, input())
         controller:textinput('e')
         controller:textinput('s')
         controller:textinput('t')
         assert.same({ 'test' }, input())
-        -- replace line with input content
+        --- replace line with input content
         mock.keystroke('return', press)
+        --- input clears
         assert.same({ '' }, input())
-        local bc = buffer:get_content()
-        assert.same('test', bc[3])
-        -- replace
+        --- highlight moves down
+        assert.same({ start_sel }, buffer:get_selection())
+
+        mock.keystroke('up', press)
+        --- replace
         controller:textinput('i')
         controller:textinput('n')
         controller:textinput('s')

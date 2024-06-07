@@ -127,6 +127,12 @@ function EditorController:keypressed(k)
     self:update_status()
   end
 
+  local function load_selection()
+    local t = self:get_active_buffer():get_selected_text()
+    self.input:set_text(t)
+  end
+
+
   --- handlers
   local function submit()
     if not Key.ctrl() and not Key.shift() and Key.is_enter(k) then
@@ -134,7 +140,8 @@ function EditorController:keypressed(k)
       local insert, n = self:get_active_buffer():replace_selected_text(newtext)
       self.input:clear()
       self.view:refresh()
-      if insert then move_sel('down', n) end
+      move_sel('down', n)
+      load_selection()
       self:update_status()
     end
   end
@@ -142,8 +149,7 @@ function EditorController:keypressed(k)
     if not Key.ctrl() and
         not Key.shift()
         and k == "escape" then
-      local t = self:get_active_buffer():get_selected_text()
-      self.input:set_text(t)
+      load_selection()
     end
     if not Key.ctrl() and
         Key.shift() and
