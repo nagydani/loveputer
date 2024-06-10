@@ -38,8 +38,6 @@ local messages = {
   no_open_project     = 'No project is open',
 }
 
-local MAIN = 'main.lua'
-
 --- Determine if the supplied string is a valid filename
 --- @param name string
 --- @return boolean valid
@@ -66,16 +64,21 @@ end
 --- @field readfile function
 --- @field writefile function
 Project = {}
+Project.__index = Project
 
-function Project:new(pname)
-  local p = {
+setmetatable(Project, {
+  __call = function(cls, ...)
+    return cls.new(...)
+  end,
+})
+
+function Project.new(pname)
+  local self = setmetatable({
     name = pname,
     path = string.join_path(love.paths.project_path, pname)
-  }
-  setmetatable(p, self)
-  self.__index = self
+  }, Project)
 
-  return p
+  return self
 end
 
 --- @return table
@@ -122,6 +125,7 @@ end
 --- @field deploy_examples function
 --- @field run function
 ProjectService = {}
+ProjectService.MAIN = 'main.lua'
 
 
 --- @return ProjectService
@@ -146,7 +150,7 @@ local function is_project(path, name)
   if not FS.exists(p_path) then
     return nil, messages.pr_does_not_exist(name)
   end
-  local main = string.join_path(p_path, MAIN)
+  local main = string.join_path(p_path, ProjectService.MAIN)
   if not FS.exists(main) then
     return nil, messages.pr_does_not_exist(name)
   end
@@ -181,7 +185,7 @@ function ProjectService:create(name)
   if not dir_ok then
     return false, messages.write_error()
   end
-  local main = string.join_path(p_path, MAIN)
+  local main = string.join_path(p_path, ProjectService.MAIN)
   local example = [[
 print('Hello world!')
 ]]
@@ -195,12 +199,12 @@ end
 --- @return table projects
 function ProjectService:list()
   local folders = FS.dir(self.path)
-  local ret = Dequeue:new()
+  local ret = Dequeue()
   for _, f in pairs(folders) do
     if f.type and f.type == 'directory' then
       local ok = is_project(ProjectService.path, f.name)
       if ok then
-        ret:push_back(Project:new(f.name))
+        ret:push_back(Project(f.name))
       end
     end
   end
@@ -216,7 +220,7 @@ function ProjectService:open(name)
     return true
   end
   if path then
-    self.current = Project:new(name)
+    self.current = Project(name)
     nativefs.setWorkingDirectory(path)
     return true
   end
@@ -289,7 +293,7 @@ function ProjectService:run(name, env)
     p_path, err = is_project(ProjectService.path, name)
   end
   if p_path then
-    local main = string.join_path(p_path, MAIN)
+    local main = string.join_path(p_path, ProjectService.MAIN)
     self:open(name or self.current.name)
     return loadfile(main, 't', env), nil, p_path
   end

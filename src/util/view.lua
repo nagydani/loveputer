@@ -16,10 +16,11 @@ end
 --- Write a line of text to output
 --- @param l number
 --- @param str string
---- @param pos table
+--- @param y number
+--- @param breaks integer
 --- @param cfg ViewConfig
-local write_line = function(l, str, pos, cfg)
-  local dy = pos.y - (-l + 1) * cfg.fh
+local write_line = function(l, str, y, breaks, cfg)
+  local dy = y - (-l + 1 + breaks) * cfg.fh
   G.setFont(cfg.font)
   G.print(str, cfg.border, dy)
 end

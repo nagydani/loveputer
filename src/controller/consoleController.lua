@@ -1,4 +1,5 @@
 require("controller.inputController")
+require("controller.editorController")
 
 require("util.testTerminal")
 require("util.key")
@@ -13,7 +14,11 @@ require("util.table")
 --- @field base_env LuaEnv
 --- @field project_env LuaEnv
 --- @field input InputController
+--- @field editor EditorController
 --- @field view ConsoleView?
+-- methods
+--- @field edit function
+--- @field finish_edit function
 ConsoleController = {}
 ConsoleController.__index = ConsoleController
 
@@ -27,11 +32,15 @@ setmetatable(ConsoleController, {
 function ConsoleController.new(M)
   local env = getfenv()
   local pre_env = table.clone(env)
-  local IC = InputController:new(M.interpreter.input)
+  local config = M.cfg
+  pre_env.font = config.view.font
+  local IC = InputController.new(M.interpreter.input)
+  local EC = EditorController.new(M.editor)
   local self = setmetatable({
     time        = 0,
     model       = M,
     input       = IC,
+    editor      = EC,
     -- console runner env
     main_env    = env,
     -- copy of the application's env before the prep
@@ -43,6 +52,8 @@ function ConsoleController.new(M)
     project_env = {},
 
     view        = nil,
+
+    cfg         = config
   }, ConsoleController)
   -- initialize the stub env tables
   ConsoleController.prepare_env(self)
@@ -57,23 +68,23 @@ function ConsoleController:set_view(V)
 end
 
 --- @param f function
---- @param C ConsoleController
+--- @param cc ConsoleController
 --- @param project_path string?
 --- @return boolean success
 --- @return string? errmsg
-local function run_user_code(f, C, project_path)
+local function run_user_code(f, cc, project_path)
   local G = love.graphics
-  local output = C.model.output
-  local env = C:get_base_env()
+  local output = cc.model.output
+  local env = cc:get_base_env()
 
-  G.setCanvas(C:get_canvas())
+  G.setCanvas(cc:get_canvas())
   G.push('all')
   G.setColor(Color[Color.black])
   local old_path = package.path
   local ok, call_err
   if project_path then
     package.path = string.format('%s;%s/?.lua', package.path, project_path)
-    env = C.project_env
+    env = cc.project_env
   end
   ok, call_err = pcall(f)
   if project_path then -- user project exec
@@ -98,6 +109,33 @@ local function close_project(cc)
   end
 end
 
+--- @private
+--- @param name string
+--- @return string[]?
+function ConsoleController:_readfile(name)
+  local PS            = self.model.projects
+  local p             = PS.current
+  local ok, lines_err = p:readfile(name)
+  if ok then
+    local lines = lines_err
+    return lines
+  else
+    print(lines_err)
+  end
+end
+
+--- @private
+--- @param name string
+--- @param content string[]
+--- @return boolean success
+--- @return string? err
+function ConsoleController:_writefile(name, content)
+  local P = self.model.projects
+  local p = P.current
+  local text = string.unlines(content)
+  return p:writefile(name, text)
+end
+
 function ConsoleController.prepare_env(cc)
   local prepared            = cc.main_env
   prepared.G                = love.graphics
@@ -105,11 +143,11 @@ function ConsoleController.prepare_env(cc)
   local P                   = cc.model.projects
 
   --- @param f function
-  local check_open_pr       = function(f)
+  local check_open_pr       = function(f, ...)
     if not P.current then
       print(P.messages.no_open_project)
     else
-      return f()
+      return f(...)
     end
   end
 
@@ -173,36 +211,44 @@ function ConsoleController.prepare_env(cc)
   --- @param name string
   --- @return string[]?
   prepared.readfile         = function(name)
-    return check_open_pr(function()
-      local p = P.current
-      local ok, lines_err = p:readfile(name)
-      if ok then
-        local lines = lines_err
-        return lines
-      else
-        print(lines_err)
-      end
-    end)
+    return check_open_pr(cc._readfile, cc, name)
   end
 
   --- @param name string
-  --- @param content string
+  --- @param content string[]
   prepared.writefile        = function(name, content)
     return check_open_pr(function()
       local p = P.current
       local fpath = string.join_path(p.path, name)
       local ex = FS.exists(fpath)
-      local text = string.join(content, '\n')
       if ex then
         -- TODO: confirm overwrite
       end
-      local ok, err = p:writefile(name, text)
+      local ok, err = cc:_writefile(name, content)
       if ok then
         print(name .. ' written')
       else
         print(err)
       end
     end)
+  end
+
+  --- @param name string
+  --- @return any
+  prepared.runfile          = function(name)
+    local con = check_open_pr(cc._readfile, cc, name)
+    local code = string.unlines(con)
+    local chunk, err = load(code, '', 't')
+    if chunk then
+      chunk()
+    else
+      print(err)
+    end
+  end
+
+  --- @param name string
+  prepared.edit             = function(name)
+    return check_open_pr(cc.edit, cc, name)
   end
 
   prepared.run_project      = function(name)
@@ -276,8 +322,8 @@ function ConsoleController.prepare_project_env(cc)
     end
     local cb = function(v) table.insert(result, 1, v) end
     local input = InputModel:new(cfg, eval, true)
-    local controller = InputController:new(input, cb)
-    local view = InputView:new(cfg, controller)
+    local controller = InputController.new(input, cb)
+    local view = InputView.new(cfg.view, controller)
     love.state.user_input = {
       M = input, C = controller, V = view
     }
@@ -288,6 +334,11 @@ function ConsoleController.prepare_project_env(cc)
   end
   project_env.input_text    = function(result)
     return input('text', result)
+  end
+
+  --- @param name string
+  project_env.edit          = function(name)
+    return cc:edit(name)
   end
 
   local base                = table.clone(project_env)
@@ -308,24 +359,25 @@ function ConsoleController:get_timestamp()
 end
 
 function ConsoleController:evaluate_input()
-  --- @type Model
-  local M = self.model
+  -- @type Model
+  -- local M = self.model
   --- @type InterpreterModel
-  local interpreter = M.interpreter
+  local interpreter = self.model.interpreter
   local input = interpreter.input
 
   local text = input:get_text()
   local eval = input.evaluator
 
   local eval_ok, res = interpreter:evaluate()
+
   if eval.is_lua then
     if eval_ok then
-      local code = string.join(text, '\n')
+      local code = string.unlines(text)
       local run_env = (function()
         if love.state.app_state == 'inspect' then
           return self:get_project_env()
         end
-        return self:get_env()
+        return self:get_console_env()
       end)()
       local f, load_err = load(code, '', 't', run_env)
       if f then
@@ -358,8 +410,8 @@ function ConsoleController:reset()
 end
 
 ---@return LuaEnv
-function ConsoleController:get_env()
-  return table.clone(self.main_env)
+function ConsoleController:get_console_env()
+  return self.main_env
 end
 
 ---@return LuaEnv
@@ -428,22 +480,55 @@ function ConsoleController:quit_project()
   self:close_project()
 end
 
-function ConsoleController:clear_error()
-  self.model.interpreter:clear_error()
+--- @param name string
+function ConsoleController:edit(name)
+  if love.state.app_state == 'running' then return end
+
+  local PS       = self.model.projects
+  local p        = PS.current
+  local filename = name or ProjectService.MAIN
+  local fpath    = string.join_path(p.path, filename)
+  local ex       = FS.exists(fpath)
+  local text
+  if ex then
+    text = self:_readfile(filename)
+  end
+  love.state.prev_state = love.state.app_state
+  love.state.app_state = 'editor'
+  self.editor:open(filename, text)
 end
 
-function ConsoleController:textinput(t)
-  local interpreter = self.model.interpreter
-  if interpreter:has_error() then
-    interpreter:clear_error()
+function ConsoleController:finish_edit()
+  local name, newcontent = self.editor:close()
+  local ok, err = self:_writefile(name, newcontent)
+  if ok then
+    love.state.app_state = love.state.prev_state
+    love.state.prev_state = nil
   else
-    if Key.ctrl() and Key.shift() then
-      return
-    end
-    self.input:textinput(t)
+    print(err)
   end
 end
 
+--- Handlers ---
+
+--- @param t string
+function ConsoleController:textinput(t)
+  if love.state.app_state == 'editor' then
+    self.editor:textinput(t)
+  else
+    local interpreter = self.model.interpreter
+    if interpreter:has_error() then
+      interpreter:clear_error()
+    else
+      if Key.ctrl() and Key.shift() then
+        return
+      end
+      self.input:textinput(t)
+    end
+  end
+end
+
+--- @param k string
 function ConsoleController:keypressed(k)
   local out = self.model.output
   local interpreter = self.model.interpreter
@@ -459,62 +544,63 @@ function ConsoleController:keypressed(k)
     end
   end
 
-  if love.state.testing == 'running' then
-    return
-  end
-  if love.state.testing == 'waiting' then
-    terminal_test()
-    return
-  end
-
-  if self.model.interpreter:has_error() then
-    if k == 'space' or Key.is_enter(k)
-        or k == "up" or k == "down" then
-      self:clear_error()
+  if love.state.app_state == 'editor' then
+    self.editor:keypressed(k)
+  else
+    if love.state.testing == 'running' then
+      return
     end
-    return
-  end
+    if love.state.testing == 'waiting' then
+      terminal_test()
+      return
+    end
 
-  if k == "pageup" then
-    interpreter:history_back()
-  end
-  if k == "pagedown" then
-    interpreter:history_fwd()
-  end
-  local limit = self.input:keypressed(k)
-  if limit then
-    if k == "up" then
+    if self.model.interpreter:has_error() then
+      if k == 'space' or Key.is_enter(k)
+          or k == "up" or k == "down" then
+        interpreter:clear_error()
+      end
+      return
+    end
+
+    if k == "pageup" then
       interpreter:history_back()
     end
-    if k == "down" then
+    if k == "pagedown" then
       interpreter:history_fwd()
     end
-  end
-  if not Key.shift() and Key.is_enter(k) then
-    if not interpreter:has_error() then
-      self:evaluate_input()
-    end
-  end
-
-  -- Ctrl held
-  if Key.ctrl() then
-    if k == "l" then
-      self.model.output:reset()
-    end
-    if love.DEBUG then
-      if k == 't' then
-        terminal_test()
-        return
+    local limit = self.input:keypressed(k)
+    if limit then
+      if k == "up" then
+        interpreter:history_back()
+      end
+      if k == "down" then
+        interpreter:history_fwd()
       end
     end
-  end
-  -- Ctrl and Shift held
-  if Key.ctrl() and Key.shift() then
-    if k == "q" then
-      self:quit_project()
+    if not Key.shift() and Key.is_enter(k) then
+      if not interpreter:has_error() then
+        self:evaluate_input()
+      end
     end
-    if k == "r" then
-      self:reset()
+
+    -- Ctrl held
+    if Key.ctrl() then
+      if k == "l" then
+        self.model.output:reset()
+      end
+      if love.DEBUG then
+        if k == 't' then
+          terminal_test()
+          return
+        end
+      end
+    end
+    -- Ctrl and Shift held
+    if Key.ctrl() and Key.shift() then
+      if k == "r" then
+        self:reset()
+      end
     end
   end
 end
@@ -524,10 +610,12 @@ function ConsoleController:keyreleased(k)
   self.input:keyreleased(k)
 end
 
+--- @return Terminal
 function ConsoleController:get_terminal()
   return self.model.output.terminal
 end
 
+--- @return love.Canvas
 function ConsoleController:get_canvas()
   return self.model.output.canvas
 end

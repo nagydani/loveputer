@@ -1,49 +1,57 @@
-local G = love.graphics
-
 require("view.input.statusline")
 require("util.debug")
 require("util.view")
 
-
 --- @class InputView
+--- @field cfg ViewConfig
 --- @field controller InputController
---- @field cfg Config
---- @field draw function
 --- @field statusline table
 --- @field oneshot boolean
+--- @field draw function
 InputView = {}
+InputView.__index = InputView
 
-function InputView:new(cfg, ctrl)
-  local iv = {
+setmetatable(EditorController, {
+  __call = function(cls, ...)
+    return cls.new(...)
+  end,
+})
+
+--- @param cfg ViewConfig
+--- @param ctrl InputController
+function InputView.new(cfg, ctrl)
+  local self = setmetatable({
     cfg = cfg,
     controller = ctrl,
     statusline = Statusline:new(cfg),
-    oneshot = ctrl.model.oneshot
+    oneshot = ctrl.model.oneshot,
   }
-  setmetatable(iv, self)
-  self.__index = self
+  , InputView)
 
-  return iv
+  return self
 end
 
 --- @param input InputDTO
 --- @param time number
 function InputView:draw(input, time)
+  local G = love.graphics
   local status = self.controller:get_status()
-  local colors = self.cfg.view.colors
-  local fg, bg = (function()
-    if self.oneshot then
-      return
-          colors.input.user.fg, colors.input.user.bg
+  local cf_colors = self.cfg.colors
+  local colors = (function()
+    if love.state.app_state == 'inspect' then
+      return cf_colors.input.inspect
+    elseif love.state.app_state == 'running' then
+      return cf_colors.input.user
+    else
+      return cf_colors.input.console
     end
-    return colors.input.fg, colors.input.bg
   end)()
-  local b = self.cfg.view.border
-  local fh = self.cfg.view.fh
-  local fw = self.cfg.view.fw
-  local h = self.cfg.view.h
-  local drawableWidth = self.cfg.view.drawableWidth
-  local drawableChars = self.cfg.view.drawableChars
+  local b = self.cfg.border
+  local fh = self.cfg.fh
+  local fw = self.cfg.fw
+  local h = self.cfg.h
+  local drawableWidth = self.cfg.drawableWidth
+  local drawableChars = self.cfg.drawableChars
   -- drawtest hack
   if drawableWidth < love.fixWidth / 3 then
     drawableChars = drawableChars * 2
@@ -57,11 +65,11 @@ function InputView:draw(input, time)
   local y = h - b - inHeight
 
   local apparentHeight = inHeight
-  local display = input.wrapped_text
-  local wt_info = input.wt_info
-  local cursor_wrap = wt_info.cursor_wrap
-  local wrap_reverse = wt_info.wrap_reverse
-  local breaks = wt_info.breaks
+  local wt = input.wrapped_text
+  local display = wt.text
+  local wrap_forward = wt.wrap_forward
+  local wrap_reverse = wt.wrap_reverse
+  local breaks = wt.n_breaks
   apparentHeight = apparentHeight + breaks
   apparentLines = apparentLines + breaks
 
@@ -78,10 +86,10 @@ function InputView:draw(input, time)
     end)()
     local y_offset = math.floor((cc - 1) / drawableChars)
     local yh = 0
-    local n = cursor_wrap[cl] or 0
+    local n = #(wrap_forward[cl] or {})
     -- how many apparent lines we have so far?
     for i = 1, cl do
-      yh = yh + (cursor_wrap[i] or 0)
+      yh = yh + (#(wrap_forward[i] or {}))
     end
     local ch =
     -- top of the box
@@ -92,13 +100,13 @@ function InputView:draw(input, time)
         -- the number of line wraps
         - (n - y_offset) * fh
     G.push('all')
-    G.setColor(colors.input.cursor)
+    G.setColor(cf_colors.input.cursor)
     G.print('|', b + (x_offset - 1.5) * fw, ch)
     G.pop()
   end
 
   local drawBackground = function()
-    G.setColor(bg)
+    G.setColor(colors.bg)
     G.rectangle("fill",
       b,
       start_y,
@@ -118,7 +126,7 @@ function InputView:draw(input, time)
     if selected then
       G.setColor(color)
       G.print('█', dx, dy)
-      G.setColor(colors.input.bg)
+      G.setColor(colors.bg)
     else
       G.setColor(color)
     end
@@ -128,14 +136,14 @@ function InputView:draw(input, time)
 
   -- draw
   G.push('all')
-  G.scale(self.cfg.view.FAC, self.cfg.view.FAC)
-  G.setFont(self.cfg.view.font)
-  G.setBackgroundColor(colors.input.bg)
-  G.setColor(fg)
-  self.statusline:draw(status, apparentLines, time, self.oneshot)
+  G.scale(self.cfg.FAC, self.cfg.FAC)
+  G.setFont(self.cfg.font)
+  G.setBackgroundColor(colors.bg)
+  G.setColor(colors.fg)
+  self.statusline:draw(status, apparentLines, time)
   drawBackground()
 
-  G.setColor(fg)
+  G.setColor(colors.fg)
   if love.timer.getTime() % 1 > 0.5 then
     drawCursor()
   end
@@ -151,7 +159,7 @@ function InputView:draw(input, time)
         local char = string.usub(s, i, i)
         local hl_li = wrap_reverse[l]
         local hl_ci = (function()
-          if cursor_wrap[hl_li] > 1 then
+          if #(wrap_forward[hl_li]) > 1 then
             local offset = l - hl_li
             return i + drawableChars * offset
           else
@@ -163,9 +171,9 @@ function InputView:draw(input, time)
         local color
         if perr and l > el or
             (l == el and (i > ec or ec == 1)) then
-          color = colors.input.error
+          color = cf_colors.input.error
         else
-          color = colors.input.syntax[ttype] or colors.input.fg
+          color = cf_colors.input.syntax[ttype] or colors.fg
         end
         local selected = (function()
           local sel = input.selection
@@ -193,7 +201,7 @@ function InputView:draw(input, time)
     end
   else
     for l, str in ipairs(display) do
-      ViewUtils.write_line(l, str, { y = y, breaks = breaks }, self.cfg.view)
+      ViewUtils.write_line(l, str, y, breaks, self.cfg)
     end
   end
   G.pop()

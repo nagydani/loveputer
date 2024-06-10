@@ -24,7 +24,7 @@ first.
 ## Keys
 
 | Command                            |                  Keymap                       |
-| :--------------------------------- | :-------------------------------------------: |
+| :--------------------------------- | :-------------------------------------------- |
 | Clear terminal                     | <kbd>Ctrl</kbd>+<kbd>L</kbd>                  |
 | Quit project                       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Q</kbd> |
 | Reset application to initial state | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> |
@@ -37,6 +37,23 @@ first.
 | Jump to start                           | <kbd>Home</kbd>                          |
 | Jump to end                             | <kbd>End</kbd>                           |
 | Insert newline                          | <kbd>Shift</kbd>+<kbd>Enter</kbd>        |
+| Evaluate input                          | <kbd>Enter</kbd>                         |
+|                                    **Editor**                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  _same as Input, except for:_                 |
+| Scroll up                               | <kbd>PageUp</kbd>                        |
+| Scroll down                             | <kbd>PageDown</kbd>                      |
+| Move selection (if in first/last line)  | <kbd>⇧</kbd><kbd>⇩</kbd>                 |
+| Replace selection with input            | <kbd>Enter</kbd>                         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  _additionally_                               |
+| Delete selected (line)                  | <kbd>Ctrl</kbd>+<kbd>Delete</kbd>        |
+|                                         | <kbd>Ctrl</kbd>+<kbd>Y</kbd>             |
+| Replace input with selected content     | <kbd>Esc</kbd>                           |
+| Insert selected content into input      | <kbd>Shift</kbd>+<kbd>Esc</kbd>          |
+| Scroll to start                         | <kbd>Ctrl</kbd>+<kbd>PageUp</kbd>        |
+| Scroll to end                           | <kbd>Ctrl</kbd>+<kbd>PageDown</kbd>      |
+| Move selection to start                 | <kbd>Ctrl</kbd>+<kbd>Home</kbd>          |
+| Move selecion to end                    | <kbd>Ctrl</kbd>+<kbd>End</kbd>           |
+| Quit editor (save work)            | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Q</kbd> |
 
 ### Projects
 
@@ -48,20 +65,31 @@ quits and returns to the console
 * `list_projects()`
 
     List available projects.
+
 * `project(proj)`
 
     Open project *proj* or create a new one if it doesn't exist.
     New projects are supplied with example code to demonstrate the structure.
+
 * `current_project()`
 
     Print the currently open project's name (if any).
+
 * `run_project(proj?)`
 
     Run either *proj* or the currently open project if no arguments are passed.
+
 * `example_projects()`
 
     Copy the included example projects to the projects folder.
 
+* `close_project()`
+
+    Close currently opened project.
+
+* `edit(file)`
+
+    Open file in editor. If it does not exist yet, a new file will be created.
 ### Files
 
 Once a project is open, file operations are available on it's contents.
@@ -69,22 +97,18 @@ Once a project is open, file operations are available on it's contents.
 * `list_contents()`
 
     List files in the project.
+
 * `readfile(file)`
 
     Open *file* and display it's contents.
+
 * `writefile(file, content)`
 
     Write to *file* the text supplied as the *content* parameter. This can be
     either a string, or an array of strings.
 
+* `runfile(file)`
 
-### Plumbing
+    Run *file* if it's a lua script.
 
-* `switch(eval)`
 
-    Change the active interpreter to *eval*
-
-    *eval* is one of
-    * `lua` - the default lua interpreter
-    * `input-text` - plaintext user input
-    * `input-lua` - syntax highlighted lua input

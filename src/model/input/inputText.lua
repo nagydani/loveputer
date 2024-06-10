@@ -1,15 +1,17 @@
 require("model.input.cursor")
 require("util.dequeue")
 
---- @class InputText : Dequeue table
+--- @class InputText: Dequeue
 --- @field new function
 --- @field traverse function
 InputText = {}
 
 --- @param values string[]?
 function InputText:new(values)
-  local text = Dequeue:new(values)
-  if not values or values == '' then
+  local text = Dequeue(values)
+  if not values or values == '' or
+      (type(values) == "table" and #values == 0)
+  then
     text:append('')
   end
 
@@ -34,7 +36,7 @@ function InputText:traverse(from, to, options)
   local ce = to.c - 1
   local lines = string.lines(self)
 
-  local ret = Dequeue:new()
+  local ret = Dequeue()
   local defaults = {
     delete = false,
   }

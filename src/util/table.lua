@@ -5,7 +5,8 @@ table.keys = function(t)
   -- for k, v in pairs({ 1, 2, fos = 'asd' }) do print(k, v) end
   local keys = {}
   for k, _ in pairs(t) do
-    keys[k] = k
+    -- keys[k] = k
+    table.insert(keys, k)
   end
   return keys
 end
@@ -93,6 +94,20 @@ function table.diff(self, other)
   return diff
 end
 
+--- Determine if two tables have the same content
+--- @param other table
+--- @return boolean same
+function table.equal(self, other)
+  if type(other) ~= "table" then return false end
+
+  local diff = table.diff(self, other)
+  local next = next
+  if next(diff) == nil then
+    return true
+  end
+  return false
+end
+
 function table.toggle(self, k)
   if type(self) == "table" and k then
     if not self[k] then
@@ -101,4 +116,19 @@ function table.toggle(self, k)
       self[k] = false
     end
   end
+end
+
+-- https://stackoverflow.com/a/24823383
+--- @param self table
+--- @param first integer?
+--- @param last integer?
+--- @param step integer?
+function table.slice(self, first, last, step)
+  local sliced = {}
+
+  for i = first or 1, last or #self, step or 1 do
+    sliced[#sliced + 1] = self[i]
+  end
+
+  return sliced
 end

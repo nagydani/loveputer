@@ -1,4 +1,5 @@
 require("view.titleView")
+require("view.editor.editorView")
 require("view.canvas.canvasView")
 require("view.input.interpreterView")
 require("util.color")
@@ -11,27 +12,33 @@ local G = love.graphics
 --- @field title table
 --- @field canvas CanvasView
 --- @field interpreter InterpreterView
+--- @field editor EditorView
 --- @field controller ConsoleController
 --- @field cfg Config
 --- @field drawable_height number
 ConsoleView = {}
+ConsoleView.__index = ConsoleView
+
+setmetatable(ConsoleView, {
+  __call = function(cls, ...)
+    return cls.new(...)
+  end,
+})
 
 --- @param cfg Config
 --- @param ctrl ConsoleController
-function ConsoleView:new(cfg, ctrl)
-  local view = {
+function ConsoleView.new(cfg, ctrl)
+  local self = setmetatable({
     title = TitleView,
     canvas = CanvasView:new(cfg),
-    interpreter = InterpreterView:new(cfg, ctrl),
+    interpreter = InterpreterView:new(cfg.view, ctrl),
+    editor = EditorView(cfg.view, ctrl.editor),
     controller = ctrl,
     cfg = cfg,
     drawable_height = ViewUtils.get_drawable_height(cfg.view),
-  }
+  }, ConsoleView)
 
-  setmetatable(view, self)
-  self.__index = self
-
-  return view
+  return self
 end
 
 --- @param terminal table
@@ -44,11 +51,23 @@ function ConsoleView:draw(terminal, canvas, input, snapshot)
     self:draw_placeholder()
   end
 
-  local tc = self.controller.model.output.term_canvas
-  self.canvas:draw(terminal, canvas, tc, self.drawable_height, snapshot)
+  local function drawConsole()
+    local tc = self.controller.model.output.term_canvas
+    self.canvas:draw(terminal, canvas, tc, self.drawable_height, snapshot)
 
-  if ViewUtils.conditional_draw('show_input') then
-    self.interpreter:draw(input)
+    if ViewUtils.conditional_draw('show_input') then
+      self.interpreter:draw(input)
+    end
+  end
+
+  local function drawEditor()
+    self.editor:draw()
+  end
+
+  if love.state.app_state == 'editor' then
+    drawEditor()
+  else
+    drawConsole()
   end
 end
 

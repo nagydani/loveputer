@@ -13,26 +13,33 @@ require("util.debug")
 --- @field input InputModel
 --- @field history table
 --- @field evaluator table
---- @field luaEval table
---- @field textInput table
---- @field luaInput table
+--- @field luaEval LuaEval
+--- @field textInput InputEval
+--- @field luaInput InputEval
 --- @field wrapped_error string[]?
 -- methods
 --- @field new function
 --- @field get_entered_text function
 --- @todo
 InterpreterModel = {}
+InterpreterModel.__index = InterpreterModel
+
+setmetatable(InterpreterModel, {
+  __call = function(cls, ...)
+    return cls.new(...)
+  end,
+})
 
 --- @return InterpreterModel
 --- @param cfg Config
-function InterpreterModel:new(cfg)
+function InterpreterModel.new(cfg)
   local luaEval   = LuaEval:new('metalua')
   local textInput = InputEval:new(false)
   local luaInput  = InputEval:new(true)
-  local im        = {
+  local self      = setmetatable({
     cfg = cfg,
     input = InputModel:new(cfg, luaEval),
-    history = Dequeue:new(),
+    history = Dequeue(),
     -- starter
     evaluator = luaEval,
     -- available options
@@ -41,17 +48,15 @@ function InterpreterModel:new(cfg)
     luaInput = luaInput,
 
     wrapped_error = nil
-  }
-  setmetatable(im, self)
-  self.__index = self
+  }, InterpreterModel)
 
-  return im
+  return self
 end
 
 --- @param history boolean?
 function InterpreterModel:reset(history)
   if history then
-    self.history = Dequeue:new()
+    self.history = Dequeue()
   end
   self.input:clear_input()
 end
@@ -73,6 +78,7 @@ function InterpreterModel:cancel()
   self:_handle(false)
 end
 
+--- @private
 --- @param eval boolean
 function InterpreterModel:_handle(eval)
   local ent = self:get_entered_text()
@@ -118,7 +124,7 @@ end
 function InterpreterModel:set_error(error, is_call_error)
   if string.is_non_empty_string(error) then
     self.error = error
-    self.wrapped_error = string.wrap_at(error, self.input.wrap)
+    self.wrapped_error = string.wrap_at(error, self.input.wrapped_text.wrap_w)
     if not is_call_error then
       self:history_back()
     end
@@ -155,7 +161,7 @@ function InterpreterModel:history_back()
       if string.is_non_empty_string_array(current) then
         self.history[hi] = current
       end
-      self.input:_set_text(prev, false)
+      self.input:set_text(prev, false)
       self.historic_index = hi - 1
       self.input:jump_end()
     end
@@ -163,7 +169,7 @@ function InterpreterModel:history_back()
     self.historic_index = self.history:get_last_index()
     self:_remember(ent)
     local prev = self.history[self.historic_index] or ''
-    self.input:_set_text(prev, false)
+    self.input:set_text(prev, false)
     self.input:jump_end()
   end
   self.input:clear_selection()
@@ -178,7 +184,7 @@ function InterpreterModel:history_fwd()
       self.history[hi] = current
     end
     if next then
-      self.input:_set_text(next, false)
+      self.input:set_text(next, false)
       self.historic_index = hi + 1
     else
       self.input:clear_input()

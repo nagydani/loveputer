@@ -4,19 +4,23 @@ require("util.key")
 --- @field model InputModel
 --- @field result function
 InputController = {}
+InputController.__index = InputController
+
+setmetatable(InputController, {
+  __call = function(cls, ...)
+    return cls.new(...)
+  end,
+})
 
 --- @param M InputModel
 --- @param result function?
-function InputController:new(M, result)
-  local ic = {
+function InputController.new(M, result)
+  local self = setmetatable({
     model = M,
     result = result,
-  }
+  }, InputController)
 
-  setmetatable(ic, self)
-  self.__index = self
-
-  return ic
+  return self
 end
 
 --- @param t string
@@ -27,108 +31,182 @@ function InputController:textinput(t)
   self.model:add_text(t)
 end
 
+--- @param t string|string[]
+function InputController:add_text(t)
+  self.model:add_text(string.unlines(t))
+end
+
+----------------
+-- evaluation --
+----------------
+--- @param eval EvalBase
+function InputController:set_eval(eval)
+  self.model:set_eval(eval)
+end
+
+--- @param t string|string[]
+function InputController:set_text(t)
+  self.model:set_text(t)
+end
+
+function InputController:clear()
+  self.model:clear_input()
+end
+
+--- @param cs CustomStatus
+function InputController:set_custom_status(cs)
+  self.model:set_custom_status(cs)
+end
+
 --- @param k string
 --- @return boolean? limit
 function InputController:keypressed(k)
   local input = self.model
+  local ret
 
-  if k == "backspace" then
-    input:backspace()
-  end
-  if k == "delete" then
-    input:delete()
-  end
-
-  if k == "up" then
-    local l = input:cursor_vertical_move('up')
-    return l
-  end
-  if k == "down" then
-    local l = input:cursor_vertical_move('down')
-    return l
-  end
-  if k == "left" then
-    input:cursor_left()
-  end
-  if k == "right" then
-    input:cursor_right()
-  end
-
-  if k == "home" then
-    input:jump_home()
-  end
-  if k == "end" then
-    input:jump_end()
-  end
-
-  if not Key.ctrl() and k == "escape" then
-    input:cancel()
-  end
+  -- utility functions
   local function paste()
     input:paste(love.system.getClipboardText())
     input:clear_selection()
   end
   local function copy()
     local t = input:get_selected_text()
-    love.system.setClipboardText(string.join(t, '\n'))
+    love.system.setClipboardText(string.unlines(t))
   end
   local function cut()
     local t = input:pop_selected_text()
-    love.system.setClipboardText(string.join(t, '\n'))
+    love.system.setClipboardText(string.unlines(t))
   end
 
-  -- Ctrl held
-  if Key.ctrl() then
-    if k == "v" then
-      paste()
-    end
-    if k == "c" or k == "insert" then
-      copy()
-    end
-    if k == "x" then
-      cut()
-    end
-  end
-
-  -- Shift held
-  if Key.shift() then
-    if k == "insert" then
-      paste()
+  -- action categories
+  local function removers()
+    if k == "backspace" then
+      input:backspace()
     end
     if k == "delete" then
-      cut()
+      input:delete()
     end
-    if Key.is_enter(k) then
-      input:line_feed()
+  end
+  local function vertical()
+    if k == "up" then
+      local l = input:cursor_vertical_move('up')
+      ret = l
     end
-    input:hold_selection()
+    if k == "down" then
+      local l = input:cursor_vertical_move('down')
+      ret = l
+    end
+  end
+  local function horizontal()
+    if k == "left" then
+      input:cursor_left()
+    end
+    if k == "right" then
+      input:cursor_right()
+    end
+
+    if k == "home" then
+      input:jump_home()
+    end
+    if k == "end" then
+      input:jump_end()
+    end
+  end
+  local function newline()
+    if Key.shift() then
+      if Key.is_enter(k) then
+        input:line_feed()
+      end
+    end
+  end
+  local function copypaste()
+    if Key.ctrl() then
+      if k == "v" then
+        paste()
+      end
+      if k == "c" or k == "insert" then
+        copy()
+      end
+      if k == "x" then
+        cut()
+      end
+    end
+    if Key.shift() then
+      if k == "insert" then
+        paste()
+      end
+      if k == "delete" then
+        cut()
+      end
+    end
+  end
+  local function selection()
+    if Key.shift() then
+      input:hold_selection()
+    end
   end
 
-  if not Key.shift() and Key.is_enter(k) then
-    input:finish()
-    local res = self.result
-    if res and type(res) == "function" then
-      res(string.unlines(input:get_text()))
+  local function cancel()
+    if not Key.ctrl() and k == "escape" then
+      input:cancel()
     end
   end
+  local function submit()
+    if not Key.shift() and Key.is_enter(k) then
+      input:finish()
+      local res = self.result
+      if type(res) == "function" then
+        res(string.unlines(input:get_text()))
+      end
+    end
+  end
+
+  if love.state.app_state == 'editor' then
+    removers()
+    horizontal()
+    vertical() -- sets return
+    newline()
+
+    copypaste()
+    selection()
+
+    submit()
+  else
+    -- normal behavior
+    removers()
+    vertical()
+    horizontal()
+    newline()
+
+    copypaste()
+    selection()
+
+    cancel()
+    submit()
+  end
+
+
+  return ret
 end
 
 --- @param k string
 function InputController:keyreleased(k)
-  if Key.shift() then
-    local im = self.model
-    im:release_selection()
+  local input = self.model
+  local function selection()
+    if Key.shift() then
+      input:release_selection()
+    end
   end
+
+  selection()
 end
 
 --- @return InputDTO
 function InputController:get_input()
   local im = self.model
-  local wt, wt_info = im:get_wrapped_text()
   return {
     text = im:get_text(),
-    wrapped_text = wt,
-    wt_info = wt_info,
+    wrapped_text = im:get_wrapped_text(),
     highlight = im:highlight(),
     selection = im:get_ordered_selection(),
   }
@@ -144,6 +222,9 @@ function InputController:get_cursor_info()
   return self.model:get_cursor_info()
 end
 
+---------------
+--   mouse   --
+---------------
 function InputController:_translate_to_input_grid(x, y)
   local cfg = self.model.cfg
   local h = cfg.view.h
@@ -159,7 +240,7 @@ end
 function InputController:_handle_mouse(x, y, btn, handler)
   if btn == 1 then
     local im = self.model
-    local n_lines = #(im:get_wrapped_text())
+    local n_lines = im:get_wrapped_text():get_text_length()
     local c, l = self:_translate_to_input_grid(x, y)
     if l < n_lines then
       handler(n_lines - l, c)

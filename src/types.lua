@@ -18,10 +18,13 @@
 ---| 2
 
 --- @class ViewConfig table
---- @field font table
+--- @field font love.Font
+--- @field iconfont love.Font
 --- @field fh integer -- font height
 --- @field fw integer -- font width
 --- @field lh integer -- line height
+--- @field lines integer
+--- @field show_append_hl boolean
 --- @field labelfont table
 --- @field lfh integer -- font height
 --- @field lfw integer -- font width
@@ -41,15 +44,17 @@
 --- @field drawtest boolean
 --- @field sizedebug boolean
 
+--- @alias More {up: boolean, down: boolean}
+
 --- @class Status table
 --- @field input_type string
---- @field cursor Cursor
+--- @field cursor Cursor?
 --- @field n_lines integer
+--- @field custom CustomStatus?
 
 --- @class InputDTO table
 --- @field text table
---- @field wrapped_text string[]
---- @field wt_info table
+--- @field wrapped_text WrappedText
 --- @field highlight Highlight
 --- @field selection table
 
@@ -70,6 +75,7 @@
 ---| 'title'
 ---| 'ready'
 ---| 'project_open'
+---| 'editor'
 ---| 'running'
 ---| 'inspect'
 
@@ -78,6 +84,7 @@
 --- @field has_removable boolean
 --- @field user_input UserInput?
 --- @field app_state AppState
+--- @field prev_state AppState?
 
 --- @class LoveDebug table
 --- @field show_snapshot boolean

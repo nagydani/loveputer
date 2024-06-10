@@ -1,8 +1,13 @@
 require("model.input.cursor")
 
-Selection = {}
+--- @class InputSelection
+--- @field start Cursor?
+--- @field fin Cursor?
+--- @field text string[]
+--- @field held boolean
+InputSelection = {}
 
-function Selection:new()
+function InputSelection:new()
   local s = {
     start = nil,
     fin = nil,
@@ -15,6 +20,6 @@ function Selection:new()
   return s
 end
 
-function Selection:is_held()
+function InputSelection:is_held()
   return self.held
 end

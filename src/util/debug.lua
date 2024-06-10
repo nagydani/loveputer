@@ -60,13 +60,13 @@ Debug = {
 
   text = text,
 
-  --- @param t table
+  --- @param t string[]?
   --- @param no_ln boolean?
   --- @param trunc boolean?
   --- @return string
   text_table = function(t, no_ln, trunc)
-    local res = ''
-    if t then
+    local res = '\n'
+    if type(t) == 'table' then
       for i, l in ipairs(t) do
         local line = (function()
           if not no_ln then
@@ -91,7 +91,7 @@ Debug = {
     return res
   end,
 
-  --- @param t table
+  --- @param t table?
   --- @param level integer?
   --- @param prev_seen table?
   ---@return string
@@ -182,7 +182,7 @@ Debug = {
       end
       table.insert(lines, 1, '\n' .. top)
       table.insert(lines, bottom)
-      return string.join(lines, '\n')
+      return string.unlines(lines)
     end
   end,
 }
@@ -249,7 +249,6 @@ end
 
 local function once(kh, args)
   if not seen[kh] then
-    Log.debug(Debug.terse_t(seen))
     seen[kh] = true
     local s = annot('ONCE  ', Color.white, args)
     printer(s)

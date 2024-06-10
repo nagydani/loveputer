@@ -2,6 +2,7 @@ require("model.input.inputModel")
 require("model.interpreter.eval.luaEval")
 
 if not orig_print then
+  --- @diagnostic disable: duplicate-set-field
   _G.orig_print = function() end
 end
 
@@ -31,7 +32,7 @@ describe("input model spec #input", function()
     end)
 
     it('sets text', function()
-      model:_set_text(test1)
+      model:set_text(test1)
       local t = model:get_text()
       assert.same({ test1 }, t)
     end)
@@ -42,7 +43,7 @@ describe("input model spec #input", function()
     end)
 
     it('appends text', function()
-      model:_set_text(test1)
+      model:set_text(test1)
       assert.same({ test1 }, model:get_text())
     end)
 
@@ -139,7 +140,7 @@ describe("input model spec #input", function()
     local test_char2 = 'い'
 
     it('sets UTF-8 text', function()
-      model:_set_text(test1)
+      model:set_text(test1)
       assert.same({ test1 }, model:get_text())
       assert.are_equal(1 + test1_len, model:get_cursor_x())
     end)
@@ -262,7 +263,7 @@ describe("input model spec #input", function()
     describe('deletes', function()
       local line_end = 1 + string.ulen(test2)
       it('none at the end', function()
-        model:_set_text(test2)
+        model:set_text(test2)
         local cc = model:get_cursor_x()
         assert.are_equal(line_end, cc)
         model:delete()

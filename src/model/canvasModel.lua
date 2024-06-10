@@ -65,7 +65,7 @@ end
 
 function CanvasModel:push(newResult)
   if type(newResult) == 'table' then
-    local t = string.join(newResult, '\n')
+    local t = string.unlines(newResult)
     self:write(t)
   else
     self:write(tostring(newResult) .. '\n')

@@ -95,12 +95,6 @@ Controller = {
   set_love_keyreleased = function(C)
     --- @diagnostic disable-next-line: duplicate-set-field
     local function keyreleased(k)
-      -- Ctrl held
-      if Key.ctrl() then
-        if k == "escape" then
-          love.event.quit()
-        end
-      end
       C:keyreleased(k)
     end
     Controller._defaults.keyreleased = keyreleased
@@ -264,7 +258,11 @@ Controller = {
         if Key.shift() then
           -- Ensure the user can get back to the console
           if k == "q" then
-            C:quit_project()
+            if love.state.app_state == 'running' then
+              C:quit_project()
+            elseif love.state.app_state == 'editor' then
+              C:finish_edit()
+            end
           end
         end
       end
@@ -287,6 +285,11 @@ Controller = {
     end
 
     handlers.keyreleased = function(k)
+      if Key.ctrl() then
+        if k == "escape" then
+          love.event.quit()
+        end
+      end
       local user_input = get_user_input()
       if user_input then
         user_input.C:keyreleased(k)

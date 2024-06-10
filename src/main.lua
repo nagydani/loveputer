@@ -1,9 +1,9 @@
-require("model.model")
+require("model.consoleModel")
 local redirect_to = require("model.io.redirect")
-require("view.consoleView")
 require("controller.controller")
 require("controller.consoleController")
 require("view.view")
+require("view.consoleView")
 local colors = require("conf.colors")
 
 require("util.key")
@@ -63,8 +63,10 @@ local config_view = function(sizedebug)
   local border = 0 * FAC
 
   local font_dir = "assets/fonts/"
-  local font_main = love.graphics.newFont(
+  local font_main = G.newFont(
     font_dir .. "ubuntu_mono_bold_nerd.ttf", font_size)
+  local font_icon = G.newFont(
+    font_dir .. "SFMonoNerdFontMono-Regular.otf", font_size)
   local lh = (function()
     if sizedebug then
       return 1
@@ -75,9 +77,13 @@ local config_view = function(sizedebug)
   font_main:setLineHeight(lh)
   local fh = font_main:getHeight()
   -- we use a monospace font, so the width should be the same for any input
-  local fw = font_main:getWidth('█')
+  local fw = font_main:getWidth('█') -- 16x32
 
-  local font_labels = love.graphics.newFont(
+  -- this should lead to 16 lines visible by default on the
+  -- console and the editor
+  local lines = 16
+
+  local font_labels = G.newFont(
     font_dir .. "PressStart2P-Regular.ttf", 12)
 
   local w = G.getWidth() - 2 * border
@@ -96,9 +102,12 @@ local config_view = function(sizedebug)
 
   return {
     font = font_main,
+    iconfont = font_icon,
     fh = fh,
     fw = fw,
     lh = lh,
+    lines = lines,
+    show_append_hl = false,
 
     labelfont = font_labels,
     lfh = font_labels:getHeight(),
@@ -168,6 +177,7 @@ local setup_storage = function()
 end
 
 --- @param args table
+---@diagnostic disable-next-line: duplicate-set-field
 function love.load(args)
   local autotest, drawtest, sizedebug = argparse(args)
 
@@ -203,15 +213,15 @@ function love.load(args)
     sizedebug = sizedebug,
   }
   --- MVC wiring
-  local M = Model:new(baseconf)
-  redirect_to(M)
-  local C = ConsoleController.new(M)
-  local CV = ConsoleView:new(baseconf, C)
-  C:set_view(CV)
+  local CM = ConsoleModel(baseconf)
+  redirect_to(CM)
+  local CC = ConsoleController(CM)
+  local CV = ConsoleView(baseconf, CC)
+  CC:set_view(CV)
 
-  Controller.setup_callback_handlers(C)
-  Controller.set_default_handlers(C, CV)
+  Controller.setup_callback_handlers(CC)
+  Controller.set_default_handlers(CC, CV)
 
   --- run autotest on startup if invoked
-  if autotest then C:autotest() end
+  if autotest then CC:autotest() end
 end

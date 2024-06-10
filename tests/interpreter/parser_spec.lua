@@ -4,7 +4,7 @@ local term = require("util.termcolor")
 require("util.color")
 require("util.debug")
 
-local inputs = require("tests.parser_inputs")
+local inputs = require("tests.interpreter.parser_inputs")
 
 if not orig_print then
   _G.orig_print = print
@@ -27,7 +27,7 @@ describe('parse #parser', function()
       -- print(Debug.terse_t(r))
       local l, c, err
       if not ok then
-        l, c, err = parser.get_error(string.join(r, '\n'))
+        l, c, err = parser.get_error(string.unlines(r))
         if input.error then
           local el = input.error.l
           local ec = input.error.c

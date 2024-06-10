@@ -2,33 +2,30 @@ require("model.interpreter.item")
 require("model.input.inputText")
 require("model.input.selection")
 
+require("util.wrapped_text")
 require("util.dequeue")
 require("util.string")
 require("util.debug")
 
 --- @class InputModel
 --- @field oneshot boolean
---- @field entered table
+--- @field entered InputText
 --- @field evaluator EvalBase
 --- @field type InputType
 --- @field cursor Cursor
---- @field wrap integer
---- @field wrapped_text table
---- @field wrapped_error table
---- @field cursor_wrap table
---- @field wrap_reverse table
---- @field n_breaks integer
---- @field selection table
+--- @field wrapped_text WrappedText
+--- @field selection InputSelection
 --- @field cfg Config
--- methods
+--- @field custom_status CustomStatus?
+--- methods
 --- @field new function
---- @field add_text function
---- @field line_feed function
---- @field get_text function
---- @field get_text_line function
---- @field get_n_text_lines function
---- @field get_wrapped_text function
---- @field get_wrapped_text_line function
+--- @field add_text fun(self, string)
+--- @field set_text fun(self, string, boolean)
+--- @field line_feed fun(self)
+--- @field get_text fun(self): InputText
+--- @field get_text_line fun(self, integer): string
+--- @field get_n_text_lines fun(self): integer
+--- @field get_wrapped_text fun(self): WrappedText
 InputModel = {}
 
 --- @param cfg Config
@@ -41,14 +38,9 @@ function InputModel:new(cfg, eval, oneshot)
     evaluator = eval,
     type = eval.kind,
     cursor = Cursor:new(),
-    -- TODO: factor out WrappedText
-    wrap = cfg.view.drawableChars,
-    wrapped_text = {},
-    wrapped_error = {},
-    cursor_wrap = {},
-    wrap_reverse = {},
-    n_breaks = 0,
-    selection = Selection:new(),
+    wrapped_text = WrappedText.new(cfg.view.drawableChars),
+    selection = InputSelection:new(),
+    custom_status = nil,
 
     cfg = cfg,
   }
@@ -94,9 +86,9 @@ function InputModel:add_text(text)
   end
 end
 
---- @param text string
+--- @param text string|string[]
 --- @param keep_cursor boolean
-function InputModel:_set_text(text, keep_cursor)
+function InputModel:set_text(text, keep_cursor)
   self.entered = nil
   if type(text) == 'string' then
     local lines = string.lines(text)
@@ -114,6 +106,10 @@ function InputModel:_set_text(text, keep_cursor)
   self:text_change()
 end
 
+--- @private
+--- @param text string|string[]
+--- @param ln integer
+--- @param keep_cursor boolean
 function InputModel:_set_text_line(text, ln, keep_cursor)
   if type(text) == 'string' then
     local ent = self:get_text()
@@ -122,16 +118,21 @@ function InputModel:_set_text_line(text, ln, keep_cursor)
       if not keep_cursor then
         self:_update_cursor(true)
       end
-    elseif ln == 1 then
+    elseif type(text) == 'table' and ln == 1 then
       self.entered = InputText:new(text)
     end
   end
 end
 
+--- @private
+--- @param ln integer
 function InputModel:_drop_text_line(ln)
   self:get_text():remove(ln)
 end
 
+--- @private
+--- @param text string
+--- @param li integer
 function InputModel:_insert_text_line(text, li)
   local l = li or self:get_cursor_y()
   self.cursor.l = l + 1
@@ -166,21 +167,19 @@ function InputModel:get_n_text_lines()
   return ent:length()
 end
 
+--- @return WrappedText
 function InputModel:get_wrapped_text()
-  return self.wrapped_text, {
-    cursor_wrap = self.cursor_wrap,
-    wrap_reverse = self.wrap_reverse,
-    breaks = self.n_breaks
-  }
+  return self.wrapped_text
 end
 
 --- @param l integer
 --- @return string
 function InputModel:get_wrapped_text_line(l)
-  local wt = self:get_wrapped_text()
-  return wt[l]
+  return self.wrapped_text:get_line(l)
 end
 
+--- @private
+--- @return string
 function InputModel:_get_current_line()
   local cl = self:get_cursor_y() or 1
   return self:get_text():get(cl)
@@ -262,6 +261,7 @@ function InputModel:clear_input()
   self:clear_selection()
   self:_update_cursor(true)
   self.tokens = nil
+  self.custom_status = nil
 end
 
 function InputModel:reset()
@@ -271,45 +271,20 @@ end
 function InputModel:text_change()
   local ev = self.evaluator
   if ev.kind == 'lua' then
+    -- TODO enforce this kind-parser invariant in types
+    ---@diagnostic disable-next-line: undefined-field
     local ts = ev.parser.tokenize(self:get_text())
     self.tokens = ts
   end
-  self:wrap_text()
-end
-
-function InputModel:wrap_text()
-  local drawableChars = self.wrap
-  local text = self:get_text()
-  local display = {}
-  local cursor_wrap = {}
-  local wrap_reverse = {}
-  local breaks = 0
-  local revi = 1
-  for i, l in ipairs(text) do
-    local n = math.floor(string.ulen(l) / drawableChars)
-    -- remember how many apparent lines will be overall
-    local ap = n + 1
-    cursor_wrap[i] = ap
-    for _ = 1, ap do
-      wrap_reverse[revi] = i
-      revi = revi + 1
-    end
-    breaks = breaks + n
-    local lines = string.wrap_at(l, drawableChars)
-    for _, tl in ipairs(lines) do
-      table.insert(display, tl)
-    end
-  end
-  self.wrapped_text = display
-  self.cursor_wrap = cursor_wrap
-  self.wrap_reverse = wrap_reverse
-  self.n_breaks = breaks
+  self.wrapped_text:wrap(self.entered)
 end
 
 --- @return Highlight?
 function InputModel:highlight()
   local ev = self.evaluator
   if ev.highlight then
+    -- TODO enforce this highligh-parser invariant in types
+    ---@diagnostic disable-next-line: undefined-field
     local p = ev.parser
     local text = self:get_text()
     local lex = p.stream_tokens(text)
@@ -332,6 +307,9 @@ end
 ----------------
 --   cursor   --
 ----------------
+
+--- @private
+--- @param replace_line boolean
 function InputModel:_update_cursor(replace_line)
   local cl = self:get_cursor_y()
   local t = self:get_text()
@@ -343,6 +321,9 @@ function InputModel:_update_cursor(replace_line)
   end
 end
 
+--- @private
+--- @param x integer
+--- @param y integer
 function InputModel:_advance_cursor(x, y)
   local cur_l, cur_c = self:_get_cursor_pos()
   local move_x = x or 1
@@ -384,6 +365,9 @@ function InputModel:move_cursor(y, x, selection)
   end
 end
 
+--- @private
+--- @return integer l
+--- @return integer c
 function InputModel:_get_cursor_pos()
   return self.cursor.l, self.cursor.c
 end
@@ -407,7 +391,7 @@ end
 --- @return boolean? limit
 function InputModel:cursor_vertical_move(dir)
   local cl, cc = self:_get_cursor_pos()
-  local w = self.wrap
+  local w = self.wrapped_text.wrap_w
   local n = self:get_n_text_lines()
   local llen = string.ulen(self:get_text_line(cl))
   local full_lines = math.floor(llen / w)
@@ -430,8 +414,8 @@ function InputModel:cursor_vertical_move(dir)
     end
     if llen > w and is_inline() then
       local newc = sgn(
-        function() return math.max(cc - self.wrap, 0) end,
-        function() return math.min(cc + self.wrap, llen + 1) end
+        function() return math.max(cc - w, 0) end,
+        function() return math.min(cc + w, llen + 1) end
       )
       self:move_cursor(cl, newc, keep)
       if keep then self:end_selection() end
@@ -558,19 +542,28 @@ function InputModel:jump_end()
   self:move_cursor(last_line, last_char, keep)
 end
 
+--- @return Status
 function InputModel:get_status()
   return {
     input_type = self.type,
     cursor = self.cursor,
     n_lines = self:get_n_text_lines(),
+    custom = self.custom_status
   }
+end
+
+--- @param cs CustomStatus
+function InputModel:set_custom_status(cs)
+  if type(cs) == 'table' then
+    self.custom_status = cs
+  end
 end
 
 ----------------
 -- evaluation --
 ----------------
 
---- @return string[]
+--- @return InputText
 function InputModel:finish()
   local ent = self:get_text()
   --- @diagnostic disable-next-line: param-type-mismatch
@@ -582,17 +575,23 @@ function InputModel:cancel()
   self:clear_input()
 end
 
+--- @param eval EvalBase
+function InputModel:set_eval(eval)
+  self.evaluator = eval
+  self.type = eval.kind
+end
+
 ----------------
 -- selection  --
 ----------------
 function InputModel:translate_grid_to_cursor(l, c)
-  local wt       = self.wrap_reverse
+  local wt       = self.wrapped_text.wrap_reverse
   local li       = wt[l] or wt[#wt]
   local line     = self:get_wrapped_text_line(l)
   local llen     = string.ulen(line)
   local c_offset = math.min(llen + 1, c)
   local c_base   = l - li
-  local ci       = c_base * self.wrap + c_offset
+  local ci       = c_base * self.wrapped_text.wrap_w + c_offset
   return li, ci
 end
 
@@ -674,7 +673,7 @@ end
 function InputModel:get_ordered_selection()
   local sel = self.selection
   local s, e = self:diff_cursors(sel.start, sel.fin)
-  local ret = Selection:new()
+  local ret = InputSelection:new()
   ret.start = s
   ret.fin = e
   ret.text = sel.text
@@ -701,7 +700,7 @@ function InputModel:pop_selected_text()
 end
 
 function InputModel:clear_selection()
-  self.selection = Selection:new()
+  self.selection = InputSelection:new()
   self:release_selection()
 end
 
