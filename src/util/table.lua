@@ -132,3 +132,15 @@ function table.slice(self, first, last, step)
 
   return sliced
 end
+
+--- @param self table
+--- @return boolean same
+function table.is_array(self)
+  local is_array = true
+  for k, _ in pairs(self) do
+    if type(k) ~= 'number' then
+      return false
+    end
+  end
+  return is_array
+end
