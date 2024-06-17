@@ -120,20 +120,38 @@ string.wrap_at = function(s, i)
   return res
 end
 
+--- @param t string[]
+--- @param i integer
+string.wrap_array = function(t, i)
+  local res = {}
+  for _, s in ipairs(t) do
+    local ws = string.wrap_at(s, i)
+    for _, l in ipairs(ws) do
+      table.insert(res, l)
+    end
+  end
+
+  return res
+end
+
 -- https://stackoverflow.com/a/51893646
 string.split = function(str, delimiter)
   local del = delimiter or ' '
-  if str and type(str) == 'string' and string.is_non_empty_string(str, true) then
-    local result               = {}
-    local from                 = 1
-    local delim_from, delim_to = string.find(str, del, from)
-    while delim_from do
-      table.insert(result, string.sub(str, from, delim_from - 1))
-      from                 = delim_to + 1
-      delim_from, delim_to = string.find(str, del, from)
+  if str and type(str) == 'string' then
+    if string.is_non_empty_string(str, true) then
+      local result               = {}
+      local from                 = 1
+      local delim_from, delim_to = string.find(str, del, from)
+      while delim_from do
+        table.insert(result, string.sub(str, from, delim_from - 1))
+        from                 = delim_to + 1
+        delim_from, delim_to = string.find(str, del, from)
+      end
+      table.insert(result, string.sub(str, from))
+      return result
+    else
+      return { '' }
     end
-    table.insert(result, string.sub(str, from))
-    return result
   else
     return {}
   end
@@ -143,9 +161,13 @@ string.split_array = function(str_arr, char)
   if not type(str_arr) == 'table' then return {} end
   local words = {}
   for _, line in ipairs(str_arr) do
-    local ws = string.split(line, char)
-    for _, word in ipairs(ws) do
-      table.insert(words, word)
+    if line == '' then
+      table.insert(words, line)
+    else
+      local ws = string.split(line, char)
+      for _, word in ipairs(ws) do
+        table.insert(words, word)
+      end
     end
   end
   return words
