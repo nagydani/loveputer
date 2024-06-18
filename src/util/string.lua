@@ -1,13 +1,22 @@
+--- @diagnostic disable: duplicate-set-field
 utf8 = require('util.utf')
 
+--- @param t string
+--- @return string?
 string.debug_text = function(t)
   if not t or type(t) ~= 'string' then return end
   return string.format("'%s'", t)
 end
 
+--- @param s string
+--- @return string
 string.normalize = function(s)
-  return string.gsub(s, "%s+", "")
+  local r, _ = string.gsub(s, "%s+", "")
+  return r
 end
+
+--- @param s string
+--- @return string
 string.trim = function(s)
   if not s then return '' end
   local pre = string.gsub(s, "^%s+", "")
@@ -15,8 +24,11 @@ string.trim = function(s)
   return post
 end
 
+--- @param s string?
+--- @param no_trim boolean?
+--- @return boolean
 string.is_non_empty_string = function(s, no_trim)
-  if s and type(s) == 'string' and s ~= '' then
+  if type(s) == 'string' and s ~= '' then
     local str = (function()
       if no_trim then
         return s
@@ -31,6 +43,8 @@ string.is_non_empty_string = function(s, no_trim)
   return false
 end
 
+--- @param sa string[]
+--- @return boolean
 string.is_non_empty_string_array = function(sa)
   if type(sa) ~= 'table' then
     return false
@@ -44,6 +58,8 @@ string.is_non_empty_string_array = function(sa)
   end
 end
 
+--- @param s string
+--- @return integer
 string.ulen = function(s)
   if s then
     return utf8.len(s)
@@ -53,6 +69,10 @@ string.ulen = function(s)
 end
 
 -- original from http://lua-users.org/lists/lua-l/2014-04/msg00590.html
+--- @param s string
+--- @param i integer
+--- @param j integer?
+--- @return string
 string.usub = function(s, i, j)
   i = i or 1
   j = j or -1
@@ -83,6 +103,10 @@ string.usub = function(s, i, j)
   end
 end
 
+--- @param s string
+--- @param i integer
+--- @return string
+--- @return string
 string.split_at = function(s, i)
   local str = s or ''
   local pre, post = '', ''
@@ -97,6 +121,9 @@ string.split_at = function(s, i)
   return pre, post
 end
 
+--- @param s string
+--- @param i integer
+--- @return string[]
 string.wrap_at = function(s, i)
   if
       not s or type(s) ~= 'string' or s == '' or
@@ -122,6 +149,7 @@ end
 
 --- @param t string[]
 --- @param i integer
+--- @return string[]
 string.wrap_array = function(t, i)
   local res = {}
   for _, s in ipairs(t) do
@@ -135,6 +163,9 @@ string.wrap_array = function(t, i)
 end
 
 -- https://stackoverflow.com/a/51893646
+--- @param str string
+--- @param delimiter string
+--- @return string[]
 string.split = function(str, delimiter)
   local del = delimiter or ' '
   if str and type(str) == 'string' then
@@ -157,6 +188,9 @@ string.split = function(str, delimiter)
   end
 end
 
+--- @param str_arr string[]
+--- @param char string
+--- @return string[]
 string.split_array = function(str_arr, char)
   if not type(str_arr) == 'table' then return {} end
   local words = {}
@@ -173,6 +207,8 @@ string.split_array = function(str_arr, char)
   return words
 end
 
+--- @param s string|string[]
+--- @return string[]
 string.lines = function(s)
   if type(s) == 'string' then
     return string.split(s, '\n')
@@ -180,9 +216,10 @@ string.lines = function(s)
   if type(s) == 'table' then
     return string.split_array(s, '\n')
   end
+  return {}
 end
 
---- @param strs string|table
+--- @param strs string|string[]
 --- @param char string?
 --- @return string
 string.join = function(strs, char)
