@@ -17,7 +17,7 @@ local function invalid(code, error)
 end
 
 return {
-  -- identifiers
+  --- identifiers
   valid({ 'local s = "úő"' }),
   valid({ 'local a' }),
   valid({ 'local x = 1', }),
@@ -37,13 +37,13 @@ return {
   valid({ 'a[[foo]]' }),
   valid({ 'do end' }),
 
-  -- branching
+  --- branching
   valid({ 'if 1 then end' }),
   valid({ 'if 1 then return end' }),
   valid({ 'if 1 then else end' }),
   valid({ 'if 1 then elseif 2 then end' }),
 
-  -- loops
+  --- loops
   valid({ 'repeat until 0' }),
   valid({ 'for i=1, 5 do print(i) end' }),
   valid({ 'for a in b do end' }),
@@ -54,7 +54,7 @@ return {
     'end',
   }),
 
-  -- function
+  --- function
   valid({ 'function f() end' }),
   valid({ 'function f(p) end' }),
   valid({ 'function a.f() end' }),
@@ -73,7 +73,7 @@ return {
   valid({ 'a = { [1]=a, [2]=b, }' }),
   valid({ 'a = { true, a=1; ["foo"]="bar", }' }),
 
-  -- comments
+  --- comments
   valid({
     '-- this loop is rad',
     'for i=1,5 do',
@@ -129,6 +129,10 @@ return {
     'end --]]',
   }),
   valid({
+    "--[[ function foo()",
+    'end --]]',
+  }),
+  valid({
     '  --[[',
     '     wtf',
     '  --]]',
@@ -168,7 +172,7 @@ return {
   invalid({ 'do do end' }, Cursor:inline(9)),
   invalid({ 'do end do' }, Cursor:inline(9)),
 
-  -- loop
+  --- loop
   invalid({ 'while 1 do 2 end' }, Cursor:inline(10)),
   invalid({ 'while 1 end' }, Cursor:inline(7)),
   invalid({ 'repeat until' }, Cursor:inline(12)),
@@ -209,11 +213,11 @@ return {
   invalid({ 'then' }, Cursor:inline(1)),
   invalid({ 'if then' }, Cursor:inline(2)),
 
-  -- tables
+  --- tables
   invalid({ 'a = {' }, Cursor:inline(5)),
   invalid({ 'a = {,}' }, Cursor:inline(5)),
 
-  -- comments
+  --- comments
   invalid({
     'for i=1,5 do --[[ inserting',
     '  a multiline comment',
@@ -229,6 +233,6 @@ return {
     '  without closing',
   }, Cursor:inline(10)),
 
-  -- literal
+  --- literal
   invalid({ "local x = 'asd" }, Cursor:inline(9)),
 }

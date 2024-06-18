@@ -15,7 +15,6 @@ if not _G.unpack then
   _G.unpack = table.unpack
 end
 
-
 local parser_debug = os.getenv("PARSER_DEBUG")
 describe('parse #parser', function()
   -- print(Debug.print_t(parser))
@@ -23,8 +22,6 @@ describe('parse #parser', function()
     local tag = 'input #' .. i
     it('parses ' .. tag, function()
       local ok, r = parser.parse_prot(input.code)
-      -- print(Debug.text_table(input.code, true))
-      -- print(Debug.terse_t(r))
       local l, c, err
       if not ok then
         l, c, err = parser.get_error(string.unlines(r))
