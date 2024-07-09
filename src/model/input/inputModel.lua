@@ -322,8 +322,8 @@ function InputModel:_update_cursor(replace_line)
 end
 
 --- @private
---- @param x integer
---- @param y integer
+--- @param x integer?
+--- @param y integer?
 function InputModel:_advance_cursor(x, y)
   local cur_l, cur_c = self:_get_cursor_pos()
   local move_x = x or 1

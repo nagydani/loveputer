@@ -70,7 +70,7 @@ return function(lib)
   end
 
   --- Parses code to AST
-  --- @param code table
+  --- @param code string[]
   --- @return table|string ast|errmsg
   local parse = function(code)
     local stream = stream_tokens(code)
