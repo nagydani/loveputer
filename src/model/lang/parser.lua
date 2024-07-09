@@ -54,6 +54,9 @@ return function(lib)
     return mlc:lexstream_to_ast(stream)
   end
 
+  local ast_to_src = function(ast, ...)
+    return mlc:ast_to_src(ast, ...)
+  end
 
   --- Parses code to AST
   --- @param code table
@@ -257,5 +260,6 @@ return function(lib)
     pprint         = pprint,
     get_error      = get_error,
     syntax_hl      = syntax_hl,
+    ast_to_src     = ast_to_src,
   }
 end
