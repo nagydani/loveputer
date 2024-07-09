@@ -4,14 +4,18 @@ local term = require("util.termcolor")
 require("util.color")
 require("util.debug")
 
-local inputs = require("tests.interpreter.ast_inputs")
+local inputs = (function()
+  local ok, i = pcall(require, "lib.metalua.spec.ast_inputs")
+  if ok then
+    return i
+  else
+    Log.warn('AST inputs missing, are submodules checked out?')
+    return {}
+  end
+end)()
 
 if not orig_print then
   _G.orig_print = print
-end
-
-if not _G.unpack then
-  _G.unpack = table.unpack
 end
 
 local show_ast = os.getenv("SHOW_AST")
@@ -51,44 +55,50 @@ describe('parser #ast', function()
   end
 
   describe('produces ASTs', function()
-    for i, tc in ipairs(inputs) do
-      local input = tc[1]
-      local output = tc[2]
+    for _, test_t in pairs(inputs) do
+      local tag = test_t[1]
+      local tests = test_t[2]
+      describe('for ' .. tag, function()
+        for i, tc in ipairs(tests) do
+          local input = tc[1]
+          local output = tc[2]
 
-      local ok, r = parser.parse_prot(input)
-      local result = {}
-      if ok then
-        if parser_debug then
-          io.write(string.rep('=', 80))
-          print(Debug.text_table(input))
-        end
-        local has_lines = false
-        local seen_comments = {}
-        for _, v in ipairs(r) do
-          has_lines = true
-          local ct, _ = do_code(v, seen_comments)
-          for _, cl in ipairs(string.lines(ct) or {}) do
-            table.insert(result, cl)
+          local ok, r = parser.parse_prot(input)
+          local result = {}
+          if ok then
+            if parser_debug then
+              io.write(string.rep('=', 80))
+              print(Debug.text_table(input))
+            end
+            local has_lines = false
+            local seen_comments = {}
+            for _, v in ipairs(r) do
+              has_lines = true
+              local ct, _ = do_code(v, seen_comments)
+              for _, cl in ipairs(string.lines(ct) or {}) do
+                table.insert(result, cl)
+              end
+            end
+            --- corner case, e.g comments only
+            --- it is valid code, but gets parsed a bit differently
+            if not has_lines then
+              result = string.lines(do_code(r)) or {}
+            end
+
+            --- remove trailing newline
+            if result[#result] == '' then
+              table.remove(result)
+            end
+            it('matches ' .. i, function()
+              assert.same(output, result)
+              assert.is_true(parser.parse_prot(output))
+            end)
+          else
+            Log.warn('syntax error in input #' .. i)
+            Log.error(r:gsub('\\n', '\n'))
           end
         end
-        --- corner case, e.g comments only
-        --- it is valid code, but gets parsed a bit differently
-        if not has_lines then
-          result = string.lines(do_code(r)) or {}
-        end
-
-        --- remove trailing newline
-        if result[#result] == '' then
-          table.remove(result)
-        end
-        it('matches ' .. i, function()
-          assert.same(output, result)
-          assert.is_true(parser.parse_prot(output))
-        end)
-      else
-        Log.warn('syntax error in input #' .. i)
-        Log.error(r:gsub('\\n', '\n'))
-      end
+      end)
     end
   end)
 end)
