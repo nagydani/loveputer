@@ -5,6 +5,7 @@ require("controller.interpreterController")
 --- @field model EditorModel
 --- @field interpreter InterpreterController
 --- @field view EditorView?
+--- @field is_lua boolean
 ---
 --- @field open fun(self, name: string, content: string[]?)
 --- @field close fun(self): string, string[]
@@ -28,6 +29,7 @@ function EditorController.new(M)
     interpreter = InterpreterController.new(M.interpreter, IC),
     model = M,
     view = nil,
+    is_lua = false,
   }, EditorController)
 
   return self
@@ -36,13 +38,14 @@ end
 --- @param name string
 --- @param content string[]?
 function EditorController:open(name, content)
-  -- local is_lua = string.match(name, '.lua$')
-  -- if is_lua then
-  --   input:set_eval(interpreter.luaInput)
-  -- else
-  input:set_eval(interpreter.textInput)
-  -- end
   local interM = self.model.interpreter
+  local is_lua = string.match(name, '.lua$')
+  if is_lua then
+    self.interpreter:set_eval(interM.luaInput)
+  else
+    self.interpreter:set_eval(interM.textInput)
+  end
+  self.is_lua = is_lua
   local b = BufferModel(name, content)
   self.model.buffer = b
   self.view.buffer:open(b)
@@ -141,13 +144,20 @@ function EditorController:keypressed(k)
   --- handlers
   local function submit()
     if not Key.ctrl() and not Key.shift() and Key.is_enter(k) then
-      local insert, n = self:get_active_buffer():replace_selected_text(newtext)
-      self.input:clear()
-      self.view:refresh()
-      move_sel('down', n)
-      load_selection()
-      self:update_status()
       local newtext = self.interpreter:get_text()
+      local inter = self.model.interpreter
+      local ok, res = inter:evaluate()
+      if ok then
+        local _, n = self:get_active_buffer():replace_selected_text(newtext)
+        self.interpreter:clear()
+        self.view:refresh()
+        move_sel('down', n)
+        load_selection()
+        self:update_status()
+      else
+        local _, _, eval_err = inter:get_eval_error(res)
+        inter:set_error(eval_err)
+      end
     end
   end
   local function load()
