@@ -1,8 +1,9 @@
 require("controller.inputController")
+require("controller.interpreterController")
 
 --- @class EditorController
 --- @field model EditorModel
---- @field input InputController
+--- @field interpreter InterpreterController
 --- @field view EditorView?
 ---
 --- @field open fun(self, name: string, content: string[]?)
@@ -22,8 +23,9 @@ setmetatable(EditorController, {
 
 --- @param M EditorModel
 function EditorController.new(M)
+  local IC = InputController.new(M.interpreter.input)
   local self = setmetatable({
-    input = InputController.new(M.interpreter.input),
+    interpreter = InterpreterController.new(M.interpreter, IC),
     model = M,
     view = nil,
   }, EditorController)
@@ -34,14 +36,13 @@ end
 --- @param name string
 --- @param content string[]?
 function EditorController:open(name, content)
-  local input = self.input
-  local interpreter = self.model.interpreter
   -- local is_lua = string.match(name, '.lua$')
   -- if is_lua then
   --   input:set_eval(interpreter.luaInput)
   -- else
   input:set_eval(interpreter.textInput)
   -- end
+  local interM = self.model.interpreter
   local b = BufferModel(name, content)
   self.model.buffer = b
   self.view.buffer:open(b)
@@ -53,7 +54,7 @@ end
 function EditorController:close()
   local buf = self:get_active_buffer()
   local content = buf.content
-  self.input:clear()
+  self.interpreter:clear()
   return buf.name, content
 end
 
@@ -88,7 +89,7 @@ end
 function EditorController:update_status()
   local sel = self:get_active_buffer():get_selection()
   local cs = self:_generate_status(sel)
-  self.input:set_custom_status(cs)
+  self.interpreter:set_custom_status(cs)
 end
 
 --- @param t string
@@ -100,13 +101,17 @@ function EditorController:textinput(t)
     if Key.ctrl() and Key.shift() then
       return
     end
-    self.input:textinput(t)
+    self.interpreter:textinput(t)
   end
+end
+
+function EditorController:get_input()
+  return self.interpreter:get_input()
 end
 
 --- @param k string
 function EditorController:keypressed(k)
-  local vmove = self.input:keypressed(k)
+  local vmove = self.interpreter:keypressed(k)
 
   --- @param dir VerticalDir
   --- @param by integer?
@@ -114,7 +119,7 @@ function EditorController:keypressed(k)
   local function move_sel(dir, by, warp)
     local m = self:get_active_buffer():move_selection(dir, by, warp)
     if m then
-      self.input:clear()
+      self.interpreter:clear()
       self.view.buffer:follow_selection()
       self:update_status()
     end
@@ -129,20 +134,20 @@ function EditorController:keypressed(k)
 
   local function load_selection()
     local t = self:get_active_buffer():get_selected_text()
-    self.input:set_text(t)
+    self.interpreter:set_text(t)
   end
 
 
   --- handlers
   local function submit()
     if not Key.ctrl() and not Key.shift() and Key.is_enter(k) then
-      local newtext = self.input:get_input().text
       local insert, n = self:get_active_buffer():replace_selected_text(newtext)
       self.input:clear()
       self.view:refresh()
       move_sel('down', n)
       load_selection()
       self:update_status()
+      local newtext = self.interpreter:get_text()
     end
   end
   local function load()
@@ -155,7 +160,7 @@ function EditorController:keypressed(k)
         Key.shift() and
         k == "escape" then
       local t = self:get_active_buffer():get_selected_text()
-      self.input:add_text(t)
+      self.interpreter:add_text(t)
     end
   end
   local function delete()

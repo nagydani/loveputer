@@ -33,8 +33,8 @@ function EditorView:draw()
   local ctrl = self.controller
   self.buffer:draw(ctrl:get_active_buffer())
 
-  local IC = self.controller.input
-  self.interpreter:draw(IC:get_input())
+  local input = self.controller:get_input()
+  self.interpreter:draw(input)
 end
 
 function EditorView:refresh()
