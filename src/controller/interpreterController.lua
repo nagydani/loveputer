@@ -60,17 +60,6 @@ function InterpreterController:add_text(t)
   self.input:add_text(t)
 end
 
---- @param t string
-function InterpreterController:textinput(t)
-  self.input:textinput(t)
-end
-
---- @param k string
---- @return boolean?
-function InterpreterController:keypressed(k)
-  return self.input:keypressed(k)
-end
-
 function InterpreterController:clear()
   self.input:clear()
 end
@@ -88,4 +77,36 @@ end
 --- @param cs CustomStatus
 function InterpreterController:set_custom_status(cs)
   self.input:set_custom_status(cs)
+end
+
+----------------------
+--- event handlers ---
+----------------------
+
+--- @param t string
+function InterpreterController:textinput(t)
+  self.input:textinput(t)
+end
+
+--- @param k string
+--- @return boolean?
+function InterpreterController:keypressed(k)
+  return self.input:keypressed(k)
+end
+
+--- @param k string
+function InterpreterController:keyreleased(k)
+  return self.input:keyreleased(k)
+end
+
+function InterpreterController:mousepressed(x, y, btn)
+  self.input:mousepressed(x, y, btn)
+end
+
+function InterpreterController:mousereleased(x, y, btn)
+  self.input:mousereleased(x, y, btn)
+end
+
+function InterpreterController:mousemoved(x, y, dx, dy)
+  self.input:mousemoved(x, y, dx, dy)
 end

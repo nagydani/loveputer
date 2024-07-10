@@ -119,7 +119,7 @@ Controller = {
       if love.DEBUG then
         Log.info(string.format('click! {%d, %d}', x, y))
       end
-      C.input:mousepressed(x, y, button)
+      C.interpreter:mousepressed(x, y, button)
     end
 
     Controller._defaults.mousepressed = mousepressed
@@ -128,7 +128,7 @@ Controller = {
   --- @param C ConsoleController
   set_love_mousereleased = function(C)
     local function mousereleased(x, y, button)
-      C.input:mousereleased(x, y, button)
+      C.interpreter:mousereleased(x, y, button)
     end
 
     Controller._defaults.mousereleased = mousereleased
@@ -137,7 +137,7 @@ Controller = {
   --- @param C ConsoleController
   set_love_mousemoved = function(C)
     local function mousemoved(x, y, dx, dy)
-      C.input:mousemoved(x, y)
+      C.interpreter:mousemoved(x, y)
     end
 
     Controller._defaults.mousemoved = mousemoved

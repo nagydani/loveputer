@@ -42,7 +42,6 @@ function ConsoleController.new(M)
   local self = setmetatable({
     time        = 0,
     model       = M,
-    input       = IpC,
     interpreter = InC,
     editor      = EC,
     -- console runner env
@@ -367,10 +366,9 @@ function ConsoleController:evaluate_input()
   -- local M = self.model
   --- @type InterpreterModel
   local interpreter = self.model.interpreter
-  local input = interpreter.input
 
-  local text = input:get_text()
-  local eval = input.evaluator
+  local text = self.interpreter:get_text()
+  local eval = self.interpreter:get_eval()
 
   local eval_ok, res = interpreter:evaluate()
 
@@ -527,7 +525,7 @@ function ConsoleController:textinput(t)
       if Key.ctrl() and Key.shift() then
         return
       end
-      self.input:textinput(t)
+      self.interpreter:textinput(t)
     end
   end
 end
@@ -573,7 +571,7 @@ function ConsoleController:keypressed(k)
     if k == "pagedown" then
       interpreter:history_fwd()
     end
-    local limit = self.input:keypressed(k)
+    local limit = self.interpreter:keypressed(k)
     if limit then
       if k == "up" then
         interpreter:history_back()
@@ -611,7 +609,7 @@ end
 
 --- @param k string
 function ConsoleController:keyreleased(k)
-  self.input:keyreleased(k)
+  self.interpreter:keyreleased(k)
 end
 
 --- @return Terminal
@@ -632,8 +630,10 @@ function ConsoleController:get_viewdata()
 end
 
 function ConsoleController:autotest()
-  local input = self.model.interpreter.input
-  input:add_text('list_projects()')
+  local inter = self.interpreter
+
+  inter:add_text('project("turtle")')
   self:evaluate_input()
-  input:add_text('run_project("turtle")')
+  inter:add_text('edit("short.lua")')
+  self:evaluate_input()
 end

@@ -11,7 +11,7 @@ View = {
     G.push('all')
     local terminal = C:get_terminal()
     local canvas = C:get_canvas()
-    local input = C.input:get_input()
+    local input = C.interpreter:get_input()
     CV:draw(terminal, canvas, input, canvas_snapshot)
     G.pop()
   end,

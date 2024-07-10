@@ -1,4 +1,4 @@
-require("view.input.inputView")
+require("view.input.interpreterView")
 require("view.editor.bufferView")
 
 require("util.string")
