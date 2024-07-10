@@ -3,7 +3,7 @@ require("controller.editorController")
 
 require("util.testTerminal")
 require("util.key")
-require("util.eval")
+local LANG = require("util.eval")
 require("util.table")
 
 --- @class ConsoleController

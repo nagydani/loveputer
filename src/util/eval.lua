@@ -1,7 +1,5 @@
 require("util.string")
 
-LANG = {}
-
 local function parse_error(err)
   if string.is_non_empty_string(err) then
     local colons = string.split(err, ':')
@@ -11,6 +9,7 @@ local function parse_error(err)
   end
 end
 
-LANG.parse_error = parse_error
 
-return LANG
+return {
+  parse_error = parse_error
+}
