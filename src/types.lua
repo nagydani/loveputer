@@ -63,7 +63,21 @@
 
 --- @class Highlight table
 --- @field parse_err table
---- @field hl table
+--- @field hl SyntaxColoring
+
+--- @alias TokenType
+--- | 'kw_single'
+--- | 'kw_multi'
+--- | 'number'
+--- | 'string'
+--- | 'identifier'
+
+--- @alias LexType
+--- | TokenType
+--- | 'comment'
+--- | 'error'
+
+--- @alias SyntaxColoring LexType[][]
 
 --- @class UserInput table
 --- @field M InputModel

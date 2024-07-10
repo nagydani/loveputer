@@ -103,18 +103,23 @@ return function(lib)
 
   --- Read lexstream and determine highlighting
   --- @param tokens table
-  --- @return table
+  --- @return SyntaxColoring
   local syntax_hl = function(tokens)
     if not tokens then return {} end
 
+    --- @type SyntaxColoring
     local colored_tokens = {}
     setmetatable(colored_tokens, {
       __index = function(table, key)
+        --- default value is an empty array
         table[key] = {}
         return table[key]
       end
     })
 
+    --- @param tag string
+    --- @param single boolean
+    --- @return TokenType?
     local function getType(tag, single)
       if tag == 'Keyword' then
         if single then
@@ -133,12 +138,18 @@ return function(lib)
       end
     end
 
-    local function multiline(first, last, text, ttype, tl)
+    --- @param first Cursor
+    --- @param last Cursor
+    --- @param text string
+    --- @param lex_t LexType
+    --- @param tl integer
+    local function multiline(first, last, text, lex_t, tl)
       local ls = first.l
       local le = last.l
       local cs = first.c
       local ce = last.c
       local lines = string.lines(text)
+
       local n_lines = #lines
       local till = le + 1 - ls
       -- if the first line has no text after the block starter,
@@ -149,21 +160,22 @@ return function(lib)
 
       -- first line
       for i = cs, cs + string.ulen(lines[1]) + tl do
-        colored_tokens[ls][i] = ttype
+        colored_tokens[ls][i] = lex_t
       end
       for i = 2, till - 1 do
         local e = string.ulen(lines[i])
         for j = 1, e do
-          colored_tokens[ls + i - 1][j] = ttype
+          colored_tokens[ls + i - 1][j] = lex_t
         end
       end
       -- last line
       for i = 1, ce do
-        colored_tokens[le][i] = ttype
+        colored_tokens[le][i] = lex_t
       end
     end
 
-    local colorize = function(t)
+    --- @param t token
+    local function colorize(t)
       local text     = t[1]
       local tag      = t.tag
       local lfi      = t.lineinfo.first
