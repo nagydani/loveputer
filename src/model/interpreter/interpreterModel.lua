@@ -80,6 +80,8 @@ end
 
 --- @private
 --- @param eval boolean
+--- @return boolean
+--- @return string
 function InterpreterModel:_handle(eval)
   local ent = self:get_entered_text()
   self.historic_index = nil
@@ -120,11 +122,11 @@ function InterpreterModel:has_error()
 end
 
 --- @param error string?
---- @param is_call_error boolean
+--- @param is_call_error boolean?
 function InterpreterModel:set_error(error, is_call_error)
   if string.is_non_empty_string(error) then
-    self.error = error
-    self.wrapped_error = string.wrap_at(error, self.input.wrapped_text.wrap_w)
+    self.error = error or ''
+    self.wrapped_error = string.wrap_at(self.error, self.input.wrapped_text.wrap_w)
     if not is_call_error then
       self:history_back()
     end
