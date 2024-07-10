@@ -136,6 +136,9 @@ end
 --- @param self table
 --- @return boolean same
 function table.is_array(self)
+  if not self or not type(self) == "table" then
+    return false
+  end
   local is_array = true
   for k, _ in pairs(self) do
     if type(k) ~= 'number' then

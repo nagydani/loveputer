@@ -173,10 +173,12 @@ Debug = {
   terse_hash = terse_hash,
   terse_array = terse_array,
   terse_t = function(t, ...)
-    if table.is_array(t) then
-      return terse_array(t)
-    else
-      return terse_hash(t, ...)
+    if t and type(t) == "table" then
+      if table.is_array(t) then
+        return terse_array(t)
+      else
+        return terse_hash(t, ...)
+      end
     end
   end,
   -- terse_hash, -- TODO: branch on is_array
