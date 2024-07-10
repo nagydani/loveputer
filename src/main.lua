@@ -9,6 +9,8 @@ local colors = require("conf.colors")
 require("util.key")
 require("util.debug")
 
+require("lib/error_explorer")
+
 G = love.graphics
 
 --- Find removable and user-writable storage
