@@ -57,7 +57,7 @@ function InterpreterView:draw(input)
     drawBackground()
     G.setColor(colors.input.error)
     for l, str in ipairs(err_text) do
-      local breaks = #err_text - 1
+      local breaks = 0 -- starting height is already calculated
       ViewUtils.write_line(l, str, start_y, breaks, self.cfg)
     end
   else
