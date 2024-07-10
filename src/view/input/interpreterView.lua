@@ -5,19 +5,24 @@ require("view.input.inputView")
 --- @field controller ConsoleController
 --- @field input InputView
 InterpreterView = {}
+InterpreterView.__index = InterpreterView
+
+setmetatable(InterpreterView, {
+  __call = function(cls, ...)
+    return cls.new(...)
+  end,
+})
 
 --- @param cfg ViewConfig
 --- @param ctrl ConsoleController
-function InterpreterView:new(cfg, ctrl)
-  local iv = {
+function InterpreterView.new(cfg, ctrl)
+  local self = setmetatable({
     cfg = cfg,
     controller = ctrl,
     input = InputView.new(cfg, ctrl.input),
-  }
-  setmetatable(iv, self)
-  self.__index = self
+  }, InterpreterView)
 
-  return iv
+  return self
 end
 
 --- @param input InputDTO
