@@ -5,7 +5,7 @@ require("util.string")
 
 --- @class EditorView
 --- @field controller EditorController
---- @field input InputView
+--- @field interpreter InterpreterView
 --- @field buffer BufferView
 EditorView = {}
 EditorView.__index = EditorView
@@ -22,7 +22,7 @@ function EditorView.new(cfg, ctrl)
   local self = setmetatable({
     cfg = cfg,
     controller = ctrl,
-    input = InputView.new(cfg, ctrl.input),
+    interpreter = InterpreterView.new(cfg, ctrl.interpreter),
     buffer = BufferView(cfg)
   }, EditorView)
   ctrl.view = self
@@ -34,7 +34,7 @@ function EditorView:draw()
   self.buffer:draw(ctrl:get_active_buffer())
 
   local IC = self.controller.input
-  self.input:draw(IC:get_input())
+  self.interpreter:draw(IC:get_input())
 end
 
 function EditorView:refresh()

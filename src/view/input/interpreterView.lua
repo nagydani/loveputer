@@ -2,7 +2,7 @@ require("view.input.inputView")
 
 --- @class InterpreterView
 --- @field cfg ViewConfig
---- @field controller ConsoleController
+--- @field controller InterpreterController
 --- @field input InputView
 InterpreterView = {}
 InterpreterView.__index = InterpreterView
@@ -14,7 +14,7 @@ setmetatable(InterpreterView, {
 })
 
 --- @param cfg ViewConfig
---- @param ctrl ConsoleController
+--- @param ctrl InterpreterController
 function InterpreterView.new(cfg, ctrl)
   local self = setmetatable({
     cfg = cfg,
@@ -26,9 +26,8 @@ function InterpreterView.new(cfg, ctrl)
 end
 
 --- @param input InputDTO
-function InterpreterView:draw(input)
+function InterpreterView:draw(input, time)
   local vd = self.controller:get_viewdata()
-  local time = self.controller:get_timestamp()
 
   local isError = string.is_non_empty_string_array(vd.w_error)
   local err_text = vd.w_error or {}

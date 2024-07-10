@@ -31,7 +31,7 @@ function ConsoleView.new(cfg, ctrl)
   local self = setmetatable({
     title = TitleView,
     canvas = CanvasView:new(cfg),
-    interpreter = InterpreterView.new(cfg.view, ctrl),
+    interpreter = InterpreterView.new(cfg.view, ctrl.interpreter),
     editor = EditorView(cfg.view, ctrl.editor),
     controller = ctrl,
     cfg = cfg,
@@ -56,7 +56,8 @@ function ConsoleView:draw(terminal, canvas, input, snapshot)
     self.canvas:draw(terminal, canvas, tc, self.drawable_height, snapshot)
 
     if ViewUtils.conditional_draw('show_input') then
-      self.interpreter:draw(input)
+      local time = self.controller:get_timestamp()
+      self.interpreter:draw(input, time)
     end
   end
 

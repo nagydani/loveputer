@@ -1,4 +1,5 @@
 require("controller.inputController")
+require("controller.interpreterController")
 require("controller.editorController")
 
 require("util.testTerminal")
@@ -14,6 +15,7 @@ require("util.table")
 --- @field base_env LuaEnv
 --- @field project_env LuaEnv
 --- @field input InputController
+--- @field interpreter InterpreterController
 --- @field editor EditorController
 --- @field view ConsoleView?
 -- methods
@@ -34,12 +36,14 @@ function ConsoleController.new(M)
   local pre_env = table.clone(env)
   local config = M.cfg
   pre_env.font = config.view.font
-  local IC = InputController.new(M.interpreter.input)
+  local IpC = InputController.new(M.interpreter.input)
+  local InC = InterpreterController.new(M.interpreter, IpC)
   local EC = EditorController.new(M.editor)
   local self = setmetatable({
     time        = 0,
     model       = M,
-    input       = IC,
+    input       = IpC,
+    interpreter = InC,
     editor      = EC,
     -- console runner env
     main_env    = env,
