@@ -12,7 +12,7 @@ describe("input model spec #input", function()
       drawableChars = 80,
     },
   }
-  local luaEval  = LuaEval:new('metalua')
+  local luaEval  = LuaEval.new()
 
   -----------------
   --   ASCII     --

@@ -33,7 +33,7 @@ setmetatable(InterpreterModel, {
 --- @return InterpreterModel
 --- @param cfg Config
 function InterpreterModel.new(cfg)
-  local luaEval   = LuaEval:new('metalua')
+  local luaEval   = LuaEval.new()
   local textInput = InputEval:new(false)
   local luaInput  = InputEval:new(true)
   local self      = setmetatable({

@@ -8,11 +8,19 @@ require("util.debug")
 LuaEval = {}
 LuaEval.__index = LuaEval
 
+setmetatable(LuaEval, {
+  __call = function(cls, ...)
+    return cls.new(...)
+  end,
+})
+
 --- Create a new evaluator
----@param parser string
+---@param parser string?
 ---@return LuaEval
-function LuaEval:new(parser)
-  local luaParser = require("model.lang.parser")(parser)
+function LuaEval.new(parser)
+  local luaParser = require("model.lang.parser")(
+    parser or 'metalua'
+  )
   local eval = function(args)
     return luaParser.parse(args[1])
   end
