@@ -258,7 +258,7 @@ function ConsoleController.prepare_env(cc)
     if love.state.app_state == 'inspect' or
         love.state.app_state == 'running'
     then
-      cc.model.interpreter:set_error("There's already a project running!", true)
+      cc.interpreter:set_error("There's already a project running!", true)
       return
     end
     local runner_env = cc:get_project_env()
@@ -362,15 +362,13 @@ function ConsoleController:get_timestamp()
 end
 
 function ConsoleController:evaluate_input()
-  -- @type Model
-  -- local M = self.model
-  --- @type InterpreterModel
-  local interpreter = self.model.interpreter
+  --- @type InterpreterController
+  local inter = self.interpreter
 
-  local text = self.interpreter:get_text()
-  local eval = self.interpreter:get_eval()
+  local text = inter:get_text()
+  local eval = inter:get_eval()
 
-  local eval_ok, res = interpreter:evaluate()
+  local eval_ok, res = inter:evaluate()
 
   if eval.is_lua then
     if eval_ok then
@@ -385,18 +383,18 @@ function ConsoleController:evaluate_input()
       if f then
         local _, err = run_user_code(f, self)
         if err then
-          interpreter:set_error(err, true)
+          inter:set_error(err, true)
         end
       else
         -- this means that metalua failed to catch some invalid code
         Log.error('Load error:', LANG.parse_error(load_err))
-        interpreter:set_error(load_err, true)
+        inter:set_error(load_err, true)
       end
     else
-      local _, _, eval_err = interpreter:get_eval_error(res)
+      local _, _, eval_err = inter:get_eval_error(res)
       if string.is_non_empty_string(eval_err) then
         orig_print(eval_err)
-        interpreter:set_error(eval_err, false)
+        inter:set_error(eval_err, false)
       end
     end
   end
@@ -408,7 +406,7 @@ end
 
 function ConsoleController:reset()
   self:quit_project()
-  self.model.interpreter:reset(true) -- clear history
+  self.interpreter:reset(true) -- clear history
 end
 
 ---@return LuaEnv
@@ -452,7 +450,7 @@ function ConsoleController:suspend_run(msg)
   Log.info('Suspending project run')
   love.state.app_state = 'inspect'
   if msg then
-    self.model.interpreter:set_error(tostring(msg), true)
+    self.interpreter:set_error(tostring(msg), true)
   end
 
   self.model.output:invalidate_terminal()
@@ -472,7 +470,7 @@ end
 
 function ConsoleController:quit_project()
   self.model.output:reset()
-  self.model.interpreter:reset()
+  self.interpreter:reset()
   nativefs.setWorkingDirectory(love.filesystem.getSourceBaseDirectory())
   Controller.set_default_handlers(self, self.view)
   Controller.set_love_update(self)
@@ -518,14 +516,14 @@ function ConsoleController:textinput(t)
   if love.state.app_state == 'editor' then
     self.editor:textinput(t)
   else
-    local interpreter = self.model.interpreter
-    if interpreter:has_error() then
-      interpreter:clear_error()
+    local inter = self.interpreter
+    if inter:has_error() then
+      inter:clear_error()
     else
       if Key.ctrl() and Key.shift() then
         return
       end
-      self.interpreter:textinput(t)
+      inter:textinput(t)
     end
   end
 end
@@ -533,12 +531,12 @@ end
 --- @param k string
 function ConsoleController:keypressed(k)
   local out = self.model.output
-  local interpreter = self.model.interpreter
+  local inter = self.interpreter
 
   local function terminal_test()
     if not love.state.testing then
       love.state.testing = 'running'
-      interpreter:cancel()
+      inter:cancel()
       TerminalTest:test(out.terminal)
     elseif love.state.testing == 'waiting' then
       TerminalTest:reset(out.terminal)
@@ -557,31 +555,31 @@ function ConsoleController:keypressed(k)
       return
     end
 
-    if self.model.interpreter:has_error() then
+    if inter:has_error() then
       if k == 'space' or Key.is_enter(k)
           or k == "up" or k == "down" then
-        interpreter:clear_error()
+        inter:clear_error()
       end
       return
     end
 
     if k == "pageup" then
-      interpreter:history_back()
+      inter:history_back()
     end
     if k == "pagedown" then
-      interpreter:history_fwd()
+      inter:history_fwd()
     end
-    local limit = self.interpreter:keypressed(k)
+    local limit = inter:keypressed(k)
     if limit then
       if k == "up" then
-        interpreter:history_back()
+        inter:history_back()
       end
       if k == "down" then
-        interpreter:history_fwd()
+        inter:history_fwd()
       end
     end
     if not Key.shift() and Key.is_enter(k) then
-      if not interpreter:has_error() then
+      if not inter:has_error() then
         self:evaluate_input()
       end
     end
@@ -625,7 +623,7 @@ end
 --- @return ViewData
 function ConsoleController:get_viewdata()
   return {
-    w_error = self.model.interpreter:get_wrapped_error(),
+    w_error = self.interpreter:get_wrapped_error(),
   }
 end
 

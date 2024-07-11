@@ -114,7 +114,9 @@ end
 
 --- @param k string
 function EditorController:keypressed(k)
-  local vmove = self.interpreter:keypressed(k)
+  local inter = self.interpreter
+
+  local vmove = inter:keypressed(k)
 
   --- @param dir VerticalDir
   --- @param by integer?
@@ -122,7 +124,7 @@ function EditorController:keypressed(k)
   local function move_sel(dir, by, warp)
     local m = self:get_active_buffer():move_selection(dir, by, warp)
     if m then
-      self.interpreter:clear()
+      inter:clear()
       self.view.buffer:follow_selection()
       self:update_status()
     end
@@ -137,7 +139,7 @@ function EditorController:keypressed(k)
 
   local function load_selection()
     local t = self:get_active_buffer():get_selected_text()
-    self.interpreter:set_text(t)
+    inter:set_text(t)
   end
 
 
@@ -145,11 +147,10 @@ function EditorController:keypressed(k)
   local function submit()
     if not Key.ctrl() and not Key.shift() and Key.is_enter(k) then
       local newtext = self.interpreter:get_text()
-      local inter = self.model.interpreter
       local ok, res = inter:evaluate()
       if ok then
         local _, n = self:get_active_buffer():replace_selected_text(newtext)
-        self.interpreter:clear()
+        inter:clear()
         self.view:refresh()
         move_sel('down', n)
         load_selection()
@@ -170,7 +171,7 @@ function EditorController:keypressed(k)
         Key.shift() and
         k == "escape" then
       local t = self:get_active_buffer():get_selected_text()
-      self.interpreter:add_text(t)
+      inter:add_text(t)
     end
   end
   local function delete()

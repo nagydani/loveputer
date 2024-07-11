@@ -74,9 +74,58 @@ function InterpreterController:get_text()
   return self:get_input().text
 end
 
+--- @return boolean
+function InterpreterController:has_error()
+  return self.model:has_error()
+end
+
+function InterpreterController:clear_error()
+  self.model:clear_error()
+end
+
+--- @param error string?
+--- @param is_call_error boolean?
+function InterpreterController:set_error(error, is_call_error)
+  self.model:set_error(error, is_call_error)
+end
+
+--- @param errors string
+--- @return string?
+function InterpreterController:get_eval_error(errors)
+  return self.model:get_eval_error(errors)
+end
+
+--- @return string[]?
+function InterpreterController:get_wrapped_error()
+  return self.model:get_wrapped_error()
+end
+
+--- @return boolean
+--- @return string
+function InterpreterController:evaluate()
+  return self.model:handle(true)
+end
+
+function InterpreterController:cancel()
+  self.model:handle(false)
+end
+
+--- @param history boolean?
+function InterpreterController:reset(history)
+  self.model:reset(history)
+end
+
 --- @param cs CustomStatus
 function InterpreterController:set_custom_status(cs)
   self.input:set_custom_status(cs)
+end
+
+function InterpreterController:history_back()
+  self.model:history_back()
+end
+
+function InterpreterController:history_fwd()
+  self.model:history_fwd()
 end
 
 ----------------------

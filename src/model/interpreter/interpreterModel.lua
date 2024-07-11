@@ -70,19 +70,20 @@ end
 -- evaluation --
 ----------------
 
+--- @return boolean
+--- @return string
 function InterpreterModel:evaluate()
-  return self:_handle(true)
+  return self:handle(true)
 end
 
 function InterpreterModel:cancel()
-  self:_handle(false)
+  self:handle(false)
 end
 
---- @private
 --- @param eval boolean
 --- @return boolean
 --- @return string
-function InterpreterModel:_handle(eval)
+function InterpreterModel:handle(eval)
   local ent = self:get_entered_text()
   self.historic_index = nil
   local ok, result
@@ -113,10 +114,12 @@ function InterpreterModel:clear_error()
   self.wrapped_error = nil
 end
 
+--- @return string[]?
 function InterpreterModel:get_wrapped_error()
   return self.wrapped_error
 end
 
+--- @return boolean
 function InterpreterModel:has_error()
   return string.is_non_empty_string_array(self.wrapped_error)
 end
@@ -133,6 +136,8 @@ function InterpreterModel:set_error(error, is_call_error)
   end
 end
 
+--- @param errors string
+--- @return string?
 function InterpreterModel:get_eval_error(errors)
   local ev = self.evaluator
   local t = self:get_entered_text()
@@ -208,6 +213,7 @@ function InterpreterModel:_get_history_entry(i)
   return self.history[i]
 end
 
+--- @return string[]
 function InterpreterModel:_get_history_entries()
   return self.history:items()
 end
