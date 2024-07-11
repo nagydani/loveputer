@@ -1,4 +1,7 @@
+require("model.interpreter.eval.luaEval")
+
 require('util.table')
+require('util.dequeue')
 
 --- @alias Content Dequeue
 --- @alias Selected integer[]
