@@ -46,7 +46,7 @@ function EditorController:open(name, content)
     self.interpreter:set_eval(interM.textInput)
   end
   self.is_lua = is_lua
-  local b = BufferModel(name, content)
+  local b = BufferModel(name, content, is_lua)
   self.model.buffer = b
   self.view.buffer:open(b)
   self:update_status()
@@ -122,6 +122,7 @@ function EditorController:keypressed(k)
   --- @param by integer?
   --- @param warp boolean?
   local function move_sel(dir, by, warp)
+    if inter:has_error() then return end
     local m = self:get_active_buffer():move_selection(dir, by, warp)
     if m then
       inter:clear()
@@ -158,6 +159,7 @@ function EditorController:keypressed(k)
       else
         local _, _, eval_err = inter:get_eval_error(res)
         inter:set_error(eval_err)
+        inter:history_back()
       end
     end
   end

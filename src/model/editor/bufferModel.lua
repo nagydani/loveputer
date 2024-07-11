@@ -7,6 +7,7 @@ require('util.table')
 --- @field name string
 --- @field content Content
 --- @field selection Selected
+--- @field luaEval LuaEval?
 ---
 --- @field move_selection function
 --- @field get_selection function
@@ -24,12 +25,18 @@ setmetatable(BufferModel, {
 
 --- @param name string
 --- @param content string[]?
-function BufferModel.new(name, content)
+--- @param is_lua boolean
+function BufferModel.new(name, content, is_lua)
   local buffer = Dequeue(content)
   local self = setmetatable({
     name = name or 'untitled',
     content = buffer,
     selection = { #buffer + 1 },
+    luaEval = (function()
+      if is_lua then
+        return LuaEval.new()
+      end
+    end)(),
   }, BufferModel)
 
   return self
