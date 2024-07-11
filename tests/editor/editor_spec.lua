@@ -5,7 +5,7 @@ require("view.editor.visibleContent")
 
 local mock = require("tests.mock")
 
-describe('Editor', function()
+describe('Editor #editor', function()
   local love = {
     state = {
       --- @type AppState
@@ -99,7 +99,7 @@ describe('Editor', function()
         assert.same({ turtle_doc[2] }, model.buffer:get_selected_text())
         --- load it
         local input = function()
-          return controller.input:get_input().text
+          return controller.interpreter:get_text()
         end
         mock.keystroke('escape', press)
         assert.same({ turtle_doc[2] }, input())
@@ -387,24 +387,24 @@ describe('Editor', function()
       end)
       describe('input', function()
         --- @type InputController
-        local input = controller.input
+        local inter = controller.interpreter
         it('loads', function()
-          input:add_text('asd')
+          inter:add_text('asd')
           local selected = buffer:get_selected_text()
           mock.keystroke('escape', press)
-          assert.same(selected, input:get_input().text)
+          assert.same(selected, inter:get_input().text)
         end)
         it('clears', function()
           mock.keystroke('C-end', press)
-          assert.same({ '' }, input:get_input().text)
+          assert.same({ '' }, inter:get_input().text)
         end)
         it('inserts', function()
           mock.keystroke('up', press)
           local prefix = 'asd '
           local selected = buffer:get_selected_text()
-          input:add_text(prefix)
+          inter:add_text(prefix)
           mock.keystroke('S-escape', press)
-          local res = string.join(input:get_input().text)
+          local res = string.join(inter:get_input().text)
           assert.same(prefix .. selected[1], res)
         end)
       end)
