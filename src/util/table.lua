@@ -118,7 +118,7 @@ function table.toggle(self, k)
   end
 end
 
--- https://stackoverflow.com/a/24823383
+--- https://stackoverflow.com/a/24823383
 --- @param self table
 --- @param first integer?
 --- @param last integer?

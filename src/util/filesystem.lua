@@ -38,6 +38,7 @@ function FS.dir(path, filtertype, vfs)
       for _, n in ipairs(ls) do
         local fi = love.filesystem.getInfo(string.join_path(path, n), filtertype)
         if fi then
+          --- @diagnostic disable-next-line: inject-field
           fi.name = n
           table.insert(items, fi)
         end

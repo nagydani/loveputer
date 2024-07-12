@@ -1,7 +1,7 @@
 --- @diagnostic disable: duplicate-set-field
 utf8 = require('util.utf')
 
---- @param t string
+--- @param t string?
 --- @return string?
 string.debug_text = function(t)
   if not t or type(t) ~= 'string' then return end
@@ -43,7 +43,7 @@ string.is_non_empty_string = function(s, no_trim)
   return false
 end
 
---- @param sa string[]
+--- @param sa string[]?
 --- @return boolean
 string.is_non_empty_string_array = function(sa)
   if type(sa) ~= 'table' then
