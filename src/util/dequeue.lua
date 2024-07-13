@@ -1,4 +1,4 @@
---- @class Dequeue<T> : table
+--- @class Dequeue<T>: { [integer]: T }
 --- @field new function
 --- @field push_front function
 --- @field prepend function
@@ -16,6 +16,8 @@
 Dequeue = {}
 Dequeue.__index = Dequeue
 
+local tags = {}
+
 setmetatable(Dequeue, {
   __call = function(cls, ...)
     return cls.new(...)
@@ -24,14 +26,44 @@ setmetatable(Dequeue, {
 
 --- Create a new double-ended queue
 --- @param values table?
-function Dequeue.new(values)
-  local self = setmetatable({}, Dequeue)
+--- @param tag string? -- define type if created empty
+function Dequeue.new(values, tag)
+  local ttag
+  if tag then
+    ttag = tag or ''
+  elseif values
+      and type(values) == 'table'
+  then
+    if
+        type(values[1]) == 'table'
+    then
+      local fv = values[1]
+      ttag = fv.tag or type(fv) or ''
+    else
+      ttag = type(values[1])
+    end
+  end
+
+  local mt = Dequeue
+  local self = setmetatable({}, mt)
   if values and type(values) == 'table' then
     for _, v in ipairs(values) do
       self:push_back(v)
     end
   end
+  local addr = tostring(self)
+  tags[addr] = ttag
   return self
+end
+
+--- Return item type
+--- @return string?
+function Dequeue:type()
+  return tags[tostring(self)]
+end
+
+function Dequeue:get_type()
+  return self:type()
 end
 
 --- Insert element at the start, reorganizing the array
