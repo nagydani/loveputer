@@ -99,6 +99,14 @@ function Dequeue:append(v)
 end
 
 --- Insert element at the end
+--- @param d Dequeue -- <T>
+function Dequeue:append_all(d)
+  for _, v in ipairs(d) do
+    self:push_back(v)
+  end
+end
+
+--- Insert element at the end
 --- @param v any
 function Dequeue:push(v)
   self:push_back(v)
