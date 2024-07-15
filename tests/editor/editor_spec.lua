@@ -44,7 +44,7 @@ describe('Editor #editor', function()
       local sel = buffer:get_selection()
       local sel_t = buffer:get_selected_text()
       --- default selection is at the end
-      assert.same({ #turtle_doc + 1 }, sel)
+      assert.same(#turtle_doc + 1, sel)
       --- and it's an empty line, of course
       assert.same({}, sel_t)
     end)
@@ -84,7 +84,7 @@ describe('Editor #editor', function()
         local sel = buffer:get_selection()
         local sel_t = buffer:get_selected_text()
         --- default selection is at the end
-        assert.same({ start_sel }, sel)
+        assert.same(start_sel, sel)
         --- and it's an empty line, of course
         assert.same({}, sel_t)
       end)
@@ -93,10 +93,10 @@ describe('Editor #editor', function()
       it('interacts', function()
         --- select middle line
         mock.keystroke('up', press)
-        assert.same({ start_sel - 1 }, buffer:get_selection())
+        assert.same(start_sel - 1, buffer:get_selection())
         mock.keystroke('up', press)
-        assert.same({ start_sel - 2 }, buffer:get_selection())
-        assert.same({ turtle_doc[2] }, model.buffer:get_selected_text())
+        assert.same(start_sel - 2, buffer:get_selection())
+        assert.same(turtle_doc[2], model.buffer:get_selected_text())
         --- load it
         local input = function()
           return controller.interpreter:get_text()
@@ -105,7 +105,7 @@ describe('Editor #editor', function()
         assert.same({ turtle_doc[2] }, input())
         --- moving selection clears input
         mock.keystroke('down', press)
-        assert.same({ start_sel - 1 }, buffer:get_selection())
+        assert.same(start_sel - 1, buffer:get_selection())
         assert.same({ '' }, input())
         --- add text
         controller:textinput('-')
@@ -121,7 +121,7 @@ describe('Editor #editor', function()
         --- input clears
         assert.same({ '' }, input())
         --- highlight moves down
-        assert.same({ start_sel }, buffer:get_selection())
+        assert.same(start_sel, buffer:get_selection())
 
         mock.keystroke('up', press)
         --- replace
@@ -342,7 +342,7 @@ describe('Editor #editor', function()
             assert.same(Range(cs - l + 1, cs), visible.range)
           end)
           it('bottoms out', function()
-            local s = buffer:get_selection()[1]
+            local s = buffer:get_selection()
             for _ = s, #sierpinski do
               mock.keystroke('down', press)
             end
@@ -407,7 +407,7 @@ describe('Editor #editor', function()
           inter:add_text(prefix)
           mock.keystroke('S-escape', press)
           local res = string.join(inter:get_input().text)
-          assert.same(prefix .. selected[1], res)
+          assert.same(prefix .. selected, res)
         end)
       end)
     end)

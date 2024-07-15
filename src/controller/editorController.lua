@@ -78,7 +78,7 @@ function EditorController:_generate_status(sel)
     down = vrange.fin < vlen
   }
   local cs = {
-    line = sel[1],
+    line = sel,
     buflen = len,
     more = more,
   }

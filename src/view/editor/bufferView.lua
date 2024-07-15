@@ -99,7 +99,7 @@ function BufferView:follow_selection()
   local sel = self.buffer:get_selection()
   local r = self.content:get_range()
   -- TODO multiline
-  local s_w = self.content.wrap_forward[sel[1]]
+  local s_w = self.content.wrap_forward[sel]
   local sel_s = s_w[1]
   local sel_e = s_w[#s_w]
   if r:inc(sel_s) and r:inc(sel_e) then return end
