@@ -27,6 +27,7 @@ setmetatable(Dequeue, {
 --- Create a new double-ended queue
 --- @param values table?
 --- @param tag string? -- define type if created empty
+--- @return Dequeue
 function Dequeue.new(values, tag)
   local ttag
   if tag then
@@ -54,6 +55,13 @@ function Dequeue.new(values, tag)
   local addr = tostring(self)
   tags[addr] = ttag
   return self
+end
+
+--- @param tag string
+--- @param values table?
+--- @return Dequeue
+function Dequeue.typed(tag, values)
+  return Dequeue.new(values, tag)
 end
 
 --- Return item type
