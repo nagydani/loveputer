@@ -164,7 +164,7 @@ return function(lib)
       end
       for i = 2, till - 1 do
         local e = string.ulen(lines[i])
-        for j = 1, e do
+        for j = 1, e + 2 do
           colored_tokens[ls + i - 1][j] = lex_t
         end
       end
@@ -228,7 +228,7 @@ return function(lib)
           colored_tokens[l][i] = getType(tag, single)
         end
       else
-        local tl = 2 -- a string block starts with '[['
+        local tl = 2 --- a string block starts with '[['
         multiline(first, last, text, 'string', tl)
       end
 
@@ -243,7 +243,7 @@ return function(lib)
             colored_tokens[ls][i] = 'comment'
           end
         else
-          local tl = 4 -- a block comment starts with '--[['
+          local tl = 4 --- a block comment starts with '--[['
           multiline(co.first, co.last, co.text, 'comment', tl)
         end
       end
