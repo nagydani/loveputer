@@ -105,11 +105,21 @@ function InputController:keypressed(k)
       input:cursor_right()
     end
 
-    if k == "home" then
+    if not Key.alt()
+        and k == "home" then
       input:jump_home()
     end
-    if k == "end" then
+    if not Key.alt()
+        and k == "end" then
       input:jump_end()
+    end
+    if Key.alt()
+        and k == "home" then
+      input:jump_line_start()
+    end
+    if Key.alt()
+        and k == "end" then
+      input:jump_line_end()
     end
   end
   local function newline()

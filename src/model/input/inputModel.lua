@@ -337,6 +337,9 @@ function InputModel:_advance_cursor(x, y)
   end
 end
 
+--- @param y integer?
+--- @param x integer?
+--- @param selection 'keep'|'move'?
 function InputModel:move_cursor(y, x, selection)
   local prev_l, prev_c = self:_get_cursor_pos()
   local c, l
@@ -550,6 +553,31 @@ function InputModel:get_status()
     n_lines = self:get_n_text_lines(),
     custom = self.custom_status
   }
+end
+
+function InputModel:jump_line_start()
+  local keep = (function()
+    if self.selection:is_held() then
+      return 'keep'
+    end
+  end)()
+  local l = self.cursor.l
+  local nc = 1
+  self:end_selection(l, nc)
+  self:move_cursor(l, nc, keep)
+end
+
+function InputModel:jump_line_end()
+  local ent = self:get_text()
+  local line = self.cursor.l
+  local char = string.ulen(ent[line]) + 1
+  local keep = (function()
+    if self.selection:is_held() then
+      return 'keep'
+    end
+  end)()
+  self:end_selection(line, char)
+  self:move_cursor(line, char, keep)
 end
 
 --- @param cs CustomStatus
