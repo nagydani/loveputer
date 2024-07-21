@@ -171,10 +171,14 @@ end
 
 function BufferView:draw()
   local G = love.graphics
-  local colors = self.cfg.colors.editor
+  local cf_colors = self.cfg.colors
+  local colors = cf_colors.editor
   local font = self.cfg.font
   local fh = self.cfg.fh * 1.032 -- magic constant
-  local content_text = self.content:get_visible()
+  local fw = self.cfg.fw
+  local vc = self.content
+  --- @type VisibleContent|VisibleStructuredContent
+  local content_text = vc:get_visible()
   local last_line_n = #content_text
   local width, height = G.getDimensions()
 
@@ -188,46 +192,120 @@ function BufferView:draw()
     G.rectangle("fill", 0, 0, width, bh)
     G.pop()
   end
-  local draw_highlight = function(line)
-    if not line then return end
-    G.setColor(colors.highlight)
-    local l_y = (line - 1) * fh
 
-    G.rectangle('fill', 0, l_y, width, fh)
-  end
-  local draw_text = function()
-    G.setFont(font)
-    G.setColor(colors.fg)
-    local text = string.unlines(content_text)
+  local draw_highlight = function()
+    local highlight_line = function(ln)
+      if not ln then return end
+      G.setColor(colors.highlight)
+      local l_y = (ln - 1) * fh
+      G.rectangle('fill', 0, l_y, width, fh)
+    end
 
-    G.print(text)
-  end
-
-  draw_background()
-  local off = self.offset
-  local ws = self:get_wrapped_selection()
-  for _, w in ipairs(ws) do
-    for _, v in ipairs(w) do
-      if self.content.range:inc(v) then
-        if (not self.cfg.show_append_hl)
-            and (v == self.content:get_content_length() + 1) then
-          --- skip hl
-        else
-          draw_highlight(v - off)
+    local off = self.offset
+    local ws = self:get_wrapped_selection()
+    for _, w in ipairs(ws) do
+      for _, v in ipairs(w) do
+        if self.content.range:inc(v) then
+          if (not self.cfg.show_append_hl)
+              and (v == self.content:get_content_length() + 1) then
+            --- skip hl
+          else
+            highlight_line(v - off)
+          end
         end
       end
     end
   end
+
+  local draw_text = function()
+    G.setFont(font)
+    if self.content_type == 'lua' then
+      --- @type VisibleBlock[]
+      local vbl = vc:get_visible_blocks()
+      for _, block in ipairs(vbl) do
+        local rs = block.app_pos.start
+        --- @type WrappedText
+        local wt = block.wrapped
+        for l, line in ipairs(wt:get_text()) do
+          local ln = rs + (l - 1) - self.offset
+          for ci = 1, string.ulen(line) do
+            local char = string.usub(line, ci, ci)
+            local hl = block.highlight
+            if hl then
+              local lex_t = (function()
+                if hl[l] then
+                  return hl[l][ci] or colors.fg
+                end
+                return colors.fg
+              end)()
+              local color =
+                  cf_colors.input.syntax[lex_t] or colors.fg
+
+              G.setColor(color)
+            else
+              G.setColor(colors.fg)
+            end
+            G.print(char, (ci - 1) * fw, (ln - 1) * fh)
+          end
+        end
+      end -- for
+
+      if love.DEBUG then
+        --- phantom text
+        G.setColor(Color.with_alpha(colors.fg, 0.3))
+        local text = string.unlines(content_text)
+        G.print(text)
+      end
+    elseif self.content_type == 'plain' then
+      G.setColor(colors.fg)
+      local text = string.unlines(content_text)
+
+      G.print(text)
+    end
+  end
+
+  local draw_debuginfo = function()
+    if not love.DEBUG then return end
+    local lnc = colors.fg
+    local x = self.cfg.w - font:getWidth('   ') - 3
+    G.setColor(Color.with_alpha(lnc, 0.2))
+    G.rectangle("fill", x, 0, 2, self.cfg.h)
+    G.setColor(lnc)
+    local seen = {}
+    for ln = 1, self.LINES do
+      local l_y = (ln - 1) * fh
+      local ln_w = self.content.wrap_reverse[ln + self.offset]
+      if ln_w then
+        local l = string.format('%3d', ln_w)
+        local l_x = self.cfg.w - font:getWidth(l)
+        if not seen[ln_w] then
+          G.print(l, l_x, l_y)
+          seen[ln_w] = true
+        end
+      end
+    end
+  end
+
+  draw_background()
+  draw_highlight()
   draw_text()
+  draw_debuginfo()
 end
 
 --- @return integer[][]
 function BufferView:get_wrapped_selection()
-  local ret = {}
   local sel = self.buffer:get_selection()
-  for i, v in ipairs(sel) do
-    ret[i] = self.content.wrap_forward[v]
+  local cont = self.content
+  local ret = {}
+  if self.content_type == 'lua'
+  then
+    local sb = cont.blocks[sel]
+    for _, l in ipairs(sb.pos:enumerate()) do
+      table.insert(ret, self.content.wrap_forward[l])
+    end
+  elseif self.content_type == 'plain'
+  then
+    ret[1] = self.content.wrap_forward[sel]
   end
   return ret
 end
-
