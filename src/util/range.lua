@@ -41,6 +41,15 @@ function Range:inc(n)
   return true
 end
 
+--- @return integer[]
+function Range:enumerate()
+  local ret = {}
+  for i = self.start, self.fin do
+    table.insert(ret, i)
+  end
+  return ret
+end
+
 --- Translate functions do not modify the original
 
 --- @param by integer
