@@ -24,6 +24,10 @@ function Range.new(s, e)
   return self
 end
 
+function Range.singleton(n)
+  return Range(n, n)
+end
+
 function Range:__tostring()
   local s = self.start
   local e = self.fin
