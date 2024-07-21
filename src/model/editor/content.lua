@@ -1,6 +1,8 @@
+require("util.range")
+
 --- @class Empty
 --- @field tag 'empty'
---- @field line integer
+--- @field pos Range
 Empty = {}
 setmetatable(Empty, {
   __call = function(cls, ...)
@@ -13,7 +15,7 @@ setmetatable(Empty, {
 function Empty.new(ln)
   local self = setmetatable({
     tag = 'empty',
-    line = ln,
+    pos = Range.singleton(ln),
   }, Empty)
 
   return self
@@ -34,9 +36,8 @@ setmetatable(Chunk, {
 })
 
 --- @param lines string|string[]
---- @param hl SyntaxColoring?
 --- @return Chunk
-function Chunk.new(lines, hl, pos)
+function Chunk.new(lines, pos)
   local ls = (function()
     if type(lines) == 'string' then return { lines } end
     return lines
@@ -44,7 +45,6 @@ function Chunk.new(lines, hl, pos)
   local self = setmetatable({
     tag = 'chunk',
     lines = ls,
-    hl = hl,
     pos = pos,
   }, Chunk)
 
