@@ -9,7 +9,7 @@ require("util.string")
 --- 'EDDA ',
 --- 'AC/DC',
 --- }
---- @alias WrapForward table<integer, integer[]>
+--- @alias WrapForward integer[][]
 --- Mapping from original line numbers to wrapped line numbers.
 --- e.g. {1: {1}, 2: {2, 3}}
 --- @alias WrapReverse integer[]
@@ -18,12 +18,16 @@ require("util.string")
 --- unwrapped original, e.g. {1: 1, 2: 2, 3: 2} means two
 --- lines of text were broken up into three, because the second
 --- exceeded the width limit
+--- @alias WrapRank integer[]
+--- The number of wraps that produced this line
+--- (i.e. offset from the original line number)
 
 --- @class WrappedText
 --- @field text string[]
 --- @field wrap_w integer
 --- @field wrap_forward WrapForward
 --- @field wrap_reverse WrapReverse
+--- @field wrap_rank WrapRank
 --- @field n_breaks integer
 ---
 --- @field wrap function
@@ -60,6 +64,7 @@ function WrappedText:_init(w, text)
   self.wrap_w = w
   self.wrap_forward = {}
   self.wrap_reverse = {}
+  self.wrap_rank = {}
   self.n_breaks = 0
   if text then
     self:wrap(text)
@@ -72,6 +77,7 @@ function WrappedText:wrap(text)
   local display = {}
   local wrap_forward = {}
   local wrap_reverse = {}
+  local wrap_rank = {}
   local breaks = 0
   local revi = 1
   if text then
@@ -90,8 +96,9 @@ function WrappedText:wrap(text)
       -- remember how many apparent lines will be overall
       local ap = brk + 1
       local fwd = {}
-      for _ = 1, ap do
+      for r = 1, ap do
         wrap_reverse[revi] = i
+        wrap_rank[revi] = r - 1
         table.insert(fwd, revi)
         revi = revi + 1
       end
@@ -106,6 +113,7 @@ function WrappedText:wrap(text)
   self.text = display
   self.wrap_forward = wrap_forward
   self.wrap_reverse = wrap_reverse
+  self.wrap_rank = wrap_rank
   self.n_breaks = breaks
 end
 
