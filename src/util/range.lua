@@ -34,8 +34,10 @@ function Range:__tostring()
   return string.format('{%d-%d}[%d]', s, e, e - s + 1)
 end
 
+--- Determine whether `n` is in the range
 --- @param n integer
 function Range:inc(n)
+  if type(n) ~= 'number' then return false end
   if self.start > n then return false end
   if self.fin < n then return false end
   return true
