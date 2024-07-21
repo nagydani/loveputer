@@ -64,6 +64,15 @@ function Dequeue.typed(tag, values)
   return Dequeue.new(values, tag)
 end
 
+function Dequeue:__tostring()
+  local res = '['
+  for i, v in ipairs(self) do
+    res = res .. i .. ': ' .. tostring(v) .. ',\n'
+  end
+  res = res .. ']'
+  return res
+end
+
 --- Return item type
 --- @return string?
 function Dequeue:type()
