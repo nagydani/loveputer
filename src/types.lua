@@ -13,6 +13,10 @@
 ---| '"lua"'
 ---| '"text"'
 
+---@alias ContentType
+---| 'plain'
+---| 'lua'
+
 ---@alias Fac # scaling
 ---| 1
 ---| 2
