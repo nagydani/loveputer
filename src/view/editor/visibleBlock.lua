@@ -50,3 +50,21 @@ function VisibleBlock.new(w, lines, hl, pos, apos)
 
   return self
 end
+
+function VisibleBlock:__tostring()
+  local r = string.format("%s\t%s",
+    tostring(self.pos),
+    tostring(self.app_pos)
+  )
+  local l1 = self.wrapped.text[1]
+  local txt
+  if string.is_non_empty_string(l1) then
+    txt = l1
+    if self.wrapped.text[2] then
+      txt = txt .. '...'
+    end
+  else
+    txt = '<empty>'
+  end
+  return string.format("%s\t%s", r, txt)
+end
