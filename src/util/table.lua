@@ -134,7 +134,7 @@ function table.slice(self, first, last, step)
 end
 
 --- @param self table
---- @return boolean same
+--- @return boolean is_array
 function table.is_array(self)
   if not self or not type(self) == "table" then
     return false
@@ -146,4 +146,15 @@ function table.is_array(self)
     end
   end
   return is_array
+end
+
+--- @param self table
+--- @param t string
+--- @return boolean
+function table.is_instance(self, t)
+  if not self or not t then return false end
+  local typ = string.lower(type(self))
+  local tag = string.lower(self.tag)
+  local tt  = string.lower(t)
+  return tt == typ or tt == tag
 end
