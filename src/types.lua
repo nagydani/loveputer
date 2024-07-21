@@ -25,7 +25,7 @@
 --- @field lh integer -- line height
 --- @field lines integer
 --- @field show_append_hl boolean
---- @field labelfont table
+--- @field labelfont love.Font
 --- @field lfh integer -- font height
 --- @field lfw integer -- font width
 --- @field border integer
@@ -53,16 +53,21 @@
 --- @field custom CustomStatus?
 
 --- @class InputDTO table
---- @field text table
+--- @field text InputText
 --- @field wrapped_text WrappedText
 --- @field highlight Highlight
---- @field selection table
+--- @field selection InputSelection
 
 --- @class ViewData table
 --- @field w_error string[]
 
+--- @class ParseError table
+--- @field l number
+--- @field c number
+--- @field msg string
+
 --- @class Highlight table
---- @field parse_err table
+--- @field parse_err ParseError
 --- @field hl SyntaxColoring
 
 --- @alias TokenType
