@@ -71,14 +71,24 @@ function Statusline:draw(status, nLines, time)
       end
       G.setColor(colors.fg)
     end
+
     local c = status.cursor
     if type(c) == 'table' then
-      local pos_c = ':' .. c.c
-      local ln, l_lim
-      local more_i = ''
       if custom then
-        ln = custom.line
-        l_lim = custom.buflen
+        local cpos = ':' .. c.c
+        local n, lim, bpos, lpos
+        local more_i = ''
+        if custom.content_type == 'plain' then
+          n = custom.line
+          lim = custom.buflen
+          lpos = 'L' .. n
+        end
+        if custom.content_type == 'lua' then
+          n = custom.block
+          lim = custom.buflen - 1
+          bpos = 'B' .. n .. ' '
+          lpos = custom.range:ln_label()
+        end
         local m = custom.more
         if m.up and not m.down then
           more_i = more_i .. '↑↑ '
@@ -87,27 +97,57 @@ function Statusline:draw(status, nLines, time)
         elseif m.up and m.down then
           more_i = more_i .. '↕↕ '
         end
-      else
-        ln = c.l
-        l_lim = status.n_lines
-      end
-      if ln == l_lim then
-        G.setColor(colors.indicator)
-      end
-      local pos_l = 'L' .. ln
 
-      local lw = G.getFont():getWidth(pos_l)
-      local mlw = G.getFont():getWidth("L99999:999")
-      local cw = G.getFont():getWidth(pos_c)
-      local sx = endTextX - (lw + cw)
-      G.print(pos_l, sx, start_text.y)
-      G.setColor(colors.fg)
-      G.setFont(self.cfg.iconfont)
-      local mw = G.getFont():getWidth(more_i)
-      local mx = endTextX - mlw - mw
-      G.print(more_i, mx, start_text.y - 3)
-      G.setFont(self.cfg.font)
-      G.print(pos_c, sx + lw, start_text.y)
+        G.setColor(colors.fg)
+        --- more indicator
+        local mlw = G.getFont():getWidth("B999 L999-999(99):999")
+        local mw = G.getFont():getWidth(more_i)
+        local mx = endTextX - mlw - mw
+        G.setFont(self.cfg.iconfont)
+        G.print(more_i, mx, start_text.y - 3)
+
+        G.setFont(self.cfg.font)
+        local lpw = G.getFont():getWidth(lpos)
+        local cw  = G.getFont():getWidth(cpos)
+        local sxl = endTextX - (lpw + cw)
+        if custom.content_type == 'lua' then
+          local bpw = G.getFont():getWidth(bpos)
+          local sxb = sxl - bpw
+          --- block number
+          if n == lim then
+            G.setColor(colors.indicator)
+          end
+          G.print(bpos, sxb, start_text.y)
+        end
+
+        --- line range
+        G.setColor(colors.fg)
+        G.print(lpos, sxl, start_text.y)
+        --- char number
+        G.print(cpos, sxl + lpw, start_text.y)
+      else
+        --- normal statusline
+        local pos_c = ':' .. c.c
+        local ln, l_lim
+        if custom then
+          ln = custom.line
+          l_lim = custom.buflen
+        else
+          ln = c.l
+          l_lim = status.n_lines
+        end
+        if ln == l_lim then
+          G.setColor(colors.indicator)
+        end
+        local pos_l = 'L' .. ln
+
+        local lw = G.getFont():getWidth(pos_l)
+        local cw = G.getFont():getWidth(pos_c)
+        local sx = endTextX - (lw + cw)
+        G.print(pos_l, sx, start_text.y)
+        G.setColor(colors.fg)
+        G.print(pos_c, sx + lw, start_text.y)
+      end
     end
   end
 

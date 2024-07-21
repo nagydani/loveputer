@@ -1,5 +1,8 @@
 --- @class CustomStatus table
---- @field line integer
+--- @field content_type ContentType
+--- @field line integer?
+--- @field block integer?
+--- @field range Range?
 --- @field buflen integer
 --- @field more More
 CustomStatus = {}
