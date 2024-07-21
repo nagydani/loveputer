@@ -5,6 +5,7 @@ require("util.string")
 --- @field wrapped WrappedText
 --- @field highlight SyntaxColoring
 --- @field pos Range
+--- @field app_pos Range
 VisibleBlock = {}
 VisibleBlock.__index = VisibleBlock
 
@@ -18,7 +19,7 @@ setmetatable(VisibleBlock, {
 --- @param lines string|string[]
 --- @param pos Range
 --- @return VisibleBlock
-function VisibleBlock.new(w, lines, hl, pos)
+function VisibleBlock.new(w, lines, hl, pos, apos)
   local ls = (function()
     if type(lines) == 'string' then return { lines } end
     return lines
@@ -44,6 +45,7 @@ function VisibleBlock.new(w, lines, hl, pos)
     wrapped = wrapped_text,
     highlight = wrapped_highlight,
     pos = pos,
+    app_pos = apos,
   }, VisibleBlock)
 
   return self
