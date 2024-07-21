@@ -34,6 +34,16 @@ function Range:__tostring()
   return string.format('{%d-%d}[%d]', s, e, e - s + 1)
 end
 
+function Range:ln_label()
+  local s = self.start
+  local e = self.fin
+  if s == e then
+    return string.format('L%d', s, 1)
+  else
+    return string.format('L%d-%d(%d)', s, e, e - s + 1)
+  end
+end
+
 --- Determine whether `n` is in the range
 --- @param n integer
 function Range:inc(n)
