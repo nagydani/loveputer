@@ -1,4 +1,5 @@
 require("view.editor.visibleContent")
+require("view.editor.visibleStructuredContent")
 
 require("util.table")
 
@@ -8,7 +9,8 @@ require("util.table")
 --- @field SCROLL_BY integer
 --- @field w integer
 ---
---- @field content VisibleContent
+--- @field content VisibleContent|VisibleStructuredContent
+--- @field content_type ContentType
 --- @field more More
 --- @field offset integer
 --- @field buffer BufferModel
@@ -36,6 +38,7 @@ function BufferView.new(cfg)
     w = cfg.drawableChars,
 
     content = nil,
+    content_type = nil,
     more = { up = false, down = false },
     offset = 0,
     buffer = nil
@@ -68,8 +71,24 @@ function BufferView:open(buffer)
   if not self.buffer then
     error('no buffer')
   end
+  local cont = buffer.content_type
+  self.content_type = cont
 
-  self.content = VisibleContent(self.w, buffer:get_content(), self.SCROLL_BY)
+  local bufcon = buffer:get_content()
+  if cont == 'plain' then
+    self.content = VisibleContent(
+      self.w, bufcon, self.SCROLL_BY)
+  elseif cont == 'lua' then
+    self.content =
+        VisibleStructuredContent(
+          self.w,
+          bufcon,
+          buffer.highlighter,
+          self.SCROLL_BY)
+  else
+    error 'unknown filetype'
+  end
+
   local clen = self.content:get_text_length()
   self.offset = math.max(clen - L, 0)
   local off = self.offset
@@ -84,10 +103,10 @@ function BufferView:open(buffer)
 end
 
 function BufferView:refresh()
-  if not self.content or not self.content.range then
+  if not self.content then
     error('no buffer is open')
   end
-  self.content:wrap(self.buffer:get_content())
+  self.content:wrap(self.buffer:get_text_content())
   local clen = self.content:get_content_length()
   local off = self.offset
   local si = 1 + off
@@ -98,8 +117,14 @@ end
 function BufferView:follow_selection()
   local sel = self.buffer:get_selection()
   local r = self.content:get_range()
-  -- TODO multiline
-  local s_w = self.content.wrap_forward[sel]
+  local s_w
+  if self.content_type == 'lua'
+  then
+    s_w = self.content.blocks[sel].pos:enumerate()
+  elseif self.content_type == 'plain'
+  then
+    s_w = self.content.wrap_forward[sel]
+  end
   local sel_s = s_w[1]
   local sel_e = s_w[#s_w]
   if r:inc(sel_s) and r:inc(sel_e) then return end

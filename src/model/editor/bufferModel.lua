@@ -1,16 +1,27 @@
+require("model.editor.content")
 require("model.interpreter.eval.luaEval")
 
 require('util.table')
+require('util.range')
+require('util.string')
 require('util.dequeue')
 
---- @alias Content Dequeue
---- @alias Selected integer[]
+--- @alias Block Empty|Chunk
+--- @alias Content Dequeue<string>|Dequeue<Block>
+--- @alias Selected integer
+
+--- @alias Chunker fun(s: string[], s: boolean?): Dequeue<Block>
+--- @alias Highlighter fun(c: string[]): SyntaxColoring
 
 --- @class BufferModel
 --- @field name string
---- @field content Content
+--- @field content Dequeue -- Content
+--- @field content_type ContentType
+--- @field chunker Chunker
+--- @field highlighter Highlighter
 --- @field selection Selected
---- @field luaEval LuaEval?
+--- @field readonly boolean
+--- @field revmap table
 ---
 --- @field move_selection function
 --- @field get_selection function
@@ -27,27 +38,72 @@ setmetatable(BufferModel, {
 })
 
 --- @param name string
---- @param content string[]?
---- @param is_lua boolean
-function BufferModel.new(name, content, is_lua)
-  local buffer = Dequeue(content)
+--- @param content string[]
+--- @param chunker Chunker
+--- @param highlighter Highlighter
+--- @return BufferModel?
+function BufferModel.new(name, content, chunker, highlighter)
+  local _content, sel, ct
+  local readonly = false
+
+  if type(chunker) == "function" then
+    ct = 'lua'
+    local ok, blocks = chunker(content)
+    if ok then
+      local len = #blocks
+      sel = len
+    else
+      readonly = true
+      sel = 1
+    end
+    _content = blocks
+  else
+    ct = 'plain'
+    _content = Dequeue(content, 'string')
+    sel = #_content + 1
+  end
+
   local self = setmetatable({
     name = name or 'untitled',
-    content = buffer,
-    selection = { #buffer + 1 },
-    luaEval = (function()
-      if is_lua then
-        return LuaEval.new()
-      end
-    end)(),
+    content = _content,
+    content_type = ct,
+    chunker = chunker,
+    highlighter = highlighter,
+    selection = sel,
+    readonly = readonly
   }, BufferModel)
 
   return self
 end
 
---- @return string[]
+--- @return Dequeue
 function BufferModel:get_content()
-  return self.content or {}
+  return self.content
+end
+
+--- @return string[]
+function BufferModel:get_text_content()
+  if self.content_type == 'lua'
+  then
+    return self:render_blocks(self.content)
+  elseif self.content_type == 'plain'
+  then
+    return self.content
+  end
+  return {}
+end
+
+--- @return string[]
+function BufferModel:render_blocks(blocks)
+  local ret = Dequeue.typed('string')
+  for _, v in ipairs(blocks) do
+    if v.tag == 'chunk' then
+      ret:append_all(v.lines)
+    elseif v.tag == 'empty' then
+      ret:append('')
+    end
+  end
+  return ret
 end
 
 --- @return integer
@@ -60,30 +116,36 @@ end
 --- @param warp boolean?
 --- @return boolean moved
 function BufferModel:move_selection(dir, by, warp)
-  -- TODO chunk selection
+  local of = (function()
+    if self.content_type == 'plain' then
+      return 1
+    else
+      return 0
+    end
+  end)()
   if warp then
     if dir == 'up' then
-      self.selection[1] = 1
+      self.selection = 1
       return true
     end
     if dir == 'down' then
-      self.selection[1] = self:get_content_length() + 1
+      self.selection = self:get_content_length() + of
       return true
     end
     return false
   end
 
-  local cur = self.selection[1]
+  local cur = self.selection
   local by = by or 1
   if dir == 'up' then
     if (cur - by) >= 1 then
-      self.selection[1] = cur - by
+      self.selection = cur - by
       return true
     end
   end
   if dir == 'down' then
-    if (cur + by) <= #(self.content) + 1 then
-      self.selection[1] = cur + by
+    if (cur + by) <= self:get_content_length() + of then
+      self.selection = cur + by
       return true
     end
   end
@@ -98,10 +160,17 @@ end
 --- @return string[]
 function BufferModel:get_selected_text()
   local sel = self.selection
-  -- continuous selection assumed
-  local si = sel[1]
-  local ei = sel[#sel]
-  return table.slice(self.content, si, ei)
+  if self.content_type == 'lua' then
+    --- @type Block
+    local s = self.content[sel]
+    if table.is_instance(s, 'chunk') then
+      return table.clone(s.lines)
+    else
+      return {}
+    end
+  else
+    return self.content[sel] or {}
+  end
 end
 
 function BufferModel:delete_selected_text()
