@@ -25,7 +25,7 @@ return function(lib)
   --- @param stream table
   --- @return table tokens
   local realize_stream = function(stream)
-    local tokens = Dequeue()
+    local tokens = Dequeue.typed('string')
     local n
     repeat
       n = stream:next()
@@ -35,7 +35,7 @@ return function(lib)
   end
 
   --- Parses text table to lexstream
-  --- @param code table
+  --- @param code string|string[]
   --- @return table lexstream
   local stream_tokens = function(code)
     local c = string.unlines(code)
@@ -44,7 +44,7 @@ return function(lib)
   end
 
   --- Parses text table to tokens
-  --- @param code table
+  --- @param code string|string[]
   --- @return table
   local tokenize = function(code)
     local stream = stream_tokens(code)
@@ -58,12 +58,24 @@ return function(lib)
     return mlc:lexstream_to_ast(stream)
   end
 
+  --- @param ast token
+  --- @param ... any
+  --- @return string
   local ast_to_src = function(ast, ...)
-    return mlc:ast_to_src(ast, ...)
+    local a2s = mlc:a2s(...)
+    return a2s:run(ast)
+  end
+
+  --- @param ast token
+  --- @param ... any
+  --- @return table[]
+  local ast_extract_comments = function(ast, ...)
+    local a2s = mlc:a2s(...)
+    return a2s:extract_comments(ast)
   end
 
   --- Parses code to AST
-  --- @param code table
+  --- @param code string[]
   --- @return boolean success
   --- @return any result
   --- @return any ...
