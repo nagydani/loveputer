@@ -1,18 +1,22 @@
+require("util.debug")
 require("util.string")
 require("util.dequeue")
 
 return function(lib)
+  local l = lib or 'metalua'
   local add_paths = {
     '',
-    'lib/' .. lib .. '/?.lua',
-    'lib/?.lua'
+    'lib/' .. l .. '/?.lua',
+    'lib/?.lua',
+    -- 'lib/lua/5.1/?'
   }
   if love and not TESTING then
     local love_paths = string.join(add_paths, ';')
-    love.filesystem.setRequirePath(love.filesystem.getRequirePath() .. love_paths)
+    love.filesystem.setRequirePath(
+      love.filesystem.getRequirePath() .. love_paths)
   else
     local lib_paths = string.join(add_paths, ';src/')
-    package.path = package.path .. lib_paths
+    package.path = lib_paths .. ';' .. package.path
   end
 
   local mlc = require('metalua.metalua.compiler').new()
