@@ -5,7 +5,6 @@ require("controller.interpreterController")
 --- @field model EditorModel
 --- @field interpreter InterpreterController
 --- @field view EditorView?
---- @field is_lua boolean
 ---
 --- @field open fun(self, name: string, content: string[]?)
 --- @field close fun(self): string, string[]
@@ -29,7 +28,6 @@ function EditorController.new(M)
     interpreter = InterpreterController.new(M.interpreter, IC),
     model = M,
     view = nil,
-    is_lua = false,
   }, EditorController)
 
   return self
@@ -45,8 +43,20 @@ function EditorController:open(name, content)
   else
     self.interpreter:set_eval(interM.textInput)
   end
-  self.is_lua = is_lua
-  local b = BufferModel(name, content, is_lua)
+  local ch, hl = (function()
+    if is_lua then
+      local luaEval = LuaEval.new()
+      local parser = luaEval.parser
+      local ch = function(t, single)
+        return parser.chunker(t,
+          self.model.cfg.view.drawableChars,
+          single)
+      end
+      return ch, parser.highlighter
+    end
+  end)()
+
+  local b = BufferModel(name, content, ch, hl)
   self.model.buffer = b
   self.view.buffer:open(b)
   self:update_status()

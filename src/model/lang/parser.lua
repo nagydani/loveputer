@@ -278,16 +278,143 @@ return function(lib)
     return colored_tokens
   end
 
+  --- Highlight string array
+  --- @param code string|string[]
+  --- @return SyntaxColoring
+  local highlighter = function(code)
+    return syntax_hl(tokenize(code))
+  end
+
+  --- @param text string[]
+  --- @param w integer
+  --- @param single boolean
+  --- @return boolean ok
+  --- @return Block[]
+  local chunker = function(text, w, single)
+    if string.is_non_empty_string_array(text) then
+      local wrap = w
+      local ret = Dequeue.typed('block')
+      local ok, r = parse_prot(text)
+      local has_lines = false
+      if ok then
+        local idx = 1  -- block number
+        local last = 0 -- last line number
+        local comment_ids = {}
+        local add_comment_block = function(ctext, c, range)
+          ret:insert(
+            Chunk.new(ctext, range),
+            idx)
+          comment_ids[c.idf] = true
+          comment_ids[c.idl] = true
+        end
+        --- @param comments Comment[]
+        --- @param pos CPos
+        local get_comments = function(comments, pos)
+          for _, c in ipairs(comments) do
+            -- Log.warn('c', c.position)
+            -- Log.warn(Debug.terse_t(c, nil, nil, true))
+            if c.position == pos
+                and not (comment_ids[c.idl] or comment_ids[c.idf])
+            then
+              local cfl, cll = c.first.l, c.last.l
+              -- account for empty lines
+              if cfl > last + 1 then
+                ret:insert(Empty(last + 1), idx)
+                idx = idx + 1
+                comment_ids[c.idf] = true
+                comment_ids[c.idl] = true
+              end
+              if cfl == cll then
+                local ctext = '--' .. c.text
+                add_comment_block(ctext, c, Range.singleton(cfl))
+                idx = idx + 1
+                last = cll
+              else
+                local lines = string.lines(c.text)
+                if c.multiline then
+                  if c.prepend_newline then
+                    table.insert(lines, 1, '')
+                  end
+                  local l1 = lines[1] or ''
+                  if #lines == 1 then
+                    lines[1] = '--[[' .. l1 .. ']]'
+                  else
+                    local llast = lines[#lines] or ''
+                    lines[1] = '--[[' .. l1
+                    lines[#lines] = llast .. ']]'
+                  end
+                  local wrapped = string.wrap_array(lines, wrap)
+                  local w_t = string.unlines(wrapped)
+
+                  add_comment_block(wrapped, c, Range(cfl, cll))
+                  idx = idx + 1
+                  last = cll
+                else
+                  for i, l in ipairs(lines) do
+                    local ln = cfl + i - 1
+                    local ctext = '--' .. l
+                    add_comment_block(ctext, c, Range.singleton(ln))
+                    idx = idx + 1
+                    last = cll
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        for _, v in ipairs(r) do
+          has_lines = true
+          local li = v.lineinfo
+          local fl, ll = li.first.line, li.last.line
+
+          local comments = ast_extract_comments(v, {}, wrap)
+
+          get_comments(comments, 'first')
+
+          -- account for empty lines, including the zeroth
+          if fl > last + 1 then
+            ret:insert(Empty(last + 1), idx)
+            idx = idx + 1
+          end
+          local tex = table.slice(text or {}, fl, ll)
+          local chunk = Chunk.new(tex, Range(fl, ll))
+          ret:insert(chunk, idx)
+          idx = idx + 1
+          last = ll
+
+          get_comments(comments, 'last')
+        end
+
+        if single or not has_lines then
+          local single_comment = ast_extract_comments(r, {}, wrap)
+          get_comments(single_comment, 'first')
+        end
+
+        if not single then ret:insert(Empty(last + 1), idx) end
+        return true, ret
+      else
+        --- content is not valid lua
+        return false, Dequeue(text, 'string')
+      end
+    else
+      return true, Dequeue(Empty(1), 'block')
+    end
+  end
+
   return {
-    stream_tokens  = stream_tokens,
-    realize_stream = realize_stream,
-    tokenize       = tokenize,
-    parse          = parse,
-    parse_prot     = parse_prot,
-    parse_stream   = parse_stream,
-    pprint         = pprint,
-    get_error      = get_error,
-    syntax_hl      = syntax_hl,
-    ast_to_src     = ast_to_src,
+    stream_tokens        = stream_tokens,
+    realize_stream       = realize_stream,
+    tokenize             = tokenize,
+    parse                = parse,
+    parse_prot           = parse_prot,
+    parse_stream         = parse_stream,
+    pprint               = pprint,
+    get_error            = get_error,
+    syntax_hl            = syntax_hl,
+    highlighter          = highlighter,
+    ast_to_src           = ast_to_src,
+    ast_extract_comments = ast_extract_comments,
+    chunker              = chunker,
   }
 end
