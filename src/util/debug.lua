@@ -54,6 +54,10 @@ local function terse_hash(t, level, prev_seen, jsonify)
         else
           res = res .. '{},' .. '\n' .. string.times(tab, indent + 1)
         end
+      elseif type(v) == nil and jsonify then
+        res = res .. 'null, '
+      elseif type(v) == 'boolean' and v == false then
+        res = res .. 'false, '
       else
         res = res .. Debug.terse_hash(v, indent + 1, seen, jsonify)
       end
