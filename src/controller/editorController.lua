@@ -80,20 +80,39 @@ end
 --- @param sel Selected
 --- @return CustomStatus
 function EditorController:_generate_status(sel)
-  local len = self:get_active_buffer():get_content_length() + 1
-  local vrange = self.view.buffer.content:get_range()
-  local vlen = self.view.buffer.content:get_content_length()
+  local buffer = self:get_active_buffer()
+  local len = buffer:get_content_length() + 1
+  local bufview = self.view.buffer
+  local vrange = bufview.content:get_range()
+  local vlen = bufview.content:get_content_length()
   local more = {
     up = vrange.start > 1,
     down = vrange.fin < vlen
   }
-  local cs = {
-    line = sel,
-    buflen = len,
-    more = more,
-  }
-  cs.__tostring = function(t)
-    return 'L' .. t.line
+  local cs
+  if bufview.content_type == 'plain' then
+    cs = {
+      content_type = bufview.content_type,
+      line = sel,
+      buflen = len,
+      more = more,
+    }
+    cs.__tostring = function(t)
+      return 'L' .. t.line
+    end
+  end
+  if bufview.content_type == 'lua' then
+    local range = buffer.content:get(sel).pos
+    cs = {
+      content_type = bufview.content_type,
+      block = sel,
+      range = range,
+      buflen = len,
+      more = more,
+    }
+    cs.__tostring = function(t)
+      return 'B' .. t.range
+    end
   end
 
   return cs
