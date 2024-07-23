@@ -15,20 +15,17 @@ G = love.graphics
 
 --- Find removable and user-writable storage
 --- Assumptions are made, which might be specific to the target platform/device
----@return boolean success
----@return string? path
+--- @return boolean success
+--- @return string? path
 local android_storage_find = function()
+  local OS = require("util.os")
   -- Yes, I know. We are working with the limitations of Android here.
   local quadhex = string.times('[0-9A-F]', 4)
   local uuid_regex = quadhex .. '-' .. quadhex
   local regex = '/dev/fuse /storage/' .. uuid_regex
-  local handle = io.popen(string.format("grep /proc/mounts -e '%s'", regex))
-  if not handle then
-    return false
-  end
-  local result = handle:read("*a")
-  handle:close()
-  local lines = string.lines(result)
+  local grep = string.format("grep /proc/mounts -e '%s'", regex)
+  local _, result = OS.runcmd(grep)
+  local lines = string.lines(result or '')
   if not string.is_non_empty_string_array(lines) then
     return false
   end
