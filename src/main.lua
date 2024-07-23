@@ -102,6 +102,9 @@ local config_view = function(sizedebug)
     drawableWidth = drawableWidth * 2
   end
 
+  local drawableChars = math.floor(drawableWidth / fw)
+  if love.DEBUG then drawableChars = drawableChars - 3 end
+
   return {
     font = font_main,
     iconfont = font_icon,
@@ -124,7 +127,7 @@ local config_view = function(sizedebug)
     debugheight = debugheight,
     debugwidth = debugwidth,
     drawableWidth = drawableWidth,
-    drawableChars = math.floor(drawableWidth / fw),
+    drawableChars = drawableChars,
   }
 end
 
