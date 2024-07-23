@@ -111,6 +111,8 @@ return function(lib)
     return line, char, errmsg
   end
 
+  --- @param code string[]
+  --- @return string?
   local pprint = function(code)
     local pprinter = require('metalua.metalua.pprint')
     local c = string.unlines(code)
@@ -191,6 +193,7 @@ return function(lib)
     end
 
     --- @param t token
+    --- @return SyntaxColoring?
     local function colorize(t)
       local text     = t[1]
       local tag      = t.tag

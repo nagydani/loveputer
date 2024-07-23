@@ -1,4 +1,5 @@
 require("util.dequeue")
+require("util.debug")
 
 
 describe('Dequeue', function()

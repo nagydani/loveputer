@@ -9,7 +9,7 @@ describe('InputText', function()
   local l1 = 'local a = 1 --[[ ml'
   local l2 = 'c --]] -- ac'
   local l3 = 'a = 2'
-  local t = Dequeue()
+  local t = Dequeue.typed('string')
   t:append(l1)
   t:append(l2)
   t:append(l3)

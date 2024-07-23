@@ -64,7 +64,9 @@ function Dequeue.typed(tag, values)
   return Dequeue.new(values, tag)
 end
 
-function Dequeue:__tostring()
+--- Return a string representation
+--- @return string
+function Dequeue:repr()
   local res = '['
   for i, v in ipairs(self) do
     res = res .. i .. ': ' .. tostring(v) .. ',\n'
