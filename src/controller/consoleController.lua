@@ -278,6 +278,10 @@ function ConsoleController.prepare_env(cc)
       print(err)
     end
   end
+
+  prepared.quit             = function()
+    love.event.quit()
+  end
 end
 
 --- API functions for the user
