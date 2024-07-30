@@ -28,10 +28,16 @@ function Range.singleton(n)
   return Range(n, n)
 end
 
+function Range:len()
+  local s = self.start
+  local e = self.fin
+  return e - s + 1
+end
+
 function Range:__tostring()
   local s = self.start
   local e = self.fin
-  return string.format('{%d-%d}[%d]', s, e, e - s + 1)
+  return string.format('{%d-%d}[%d]', s, e, self:len())
 end
 
 function Range:ln_label()
@@ -40,7 +46,7 @@ function Range:ln_label()
   if s == e then
     return string.format('L%d', s, 1)
   else
-    return string.format('L%d-%d(%d)', s, e, e - s + 1)
+    return string.format('L%d-%d(%d)', s, e, self:len())
   end
 end
 
