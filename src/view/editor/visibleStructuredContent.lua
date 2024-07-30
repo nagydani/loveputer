@@ -16,6 +16,7 @@ require("util.range")
 --- @field set_range fun(self, Range)
 --- @field get_range fun(self): Range
 --- @field move_range fun(self, integer): integer
+--- @field load_blocks fun(self, blocks: Block[])
 --- @field get_visible fun(self): string[]
 --- @field get_visible_blocks fun(self): Block[]
 --- @field get_content_length fun(self): integer
@@ -34,24 +35,37 @@ setmetatable(VisibleStructuredContent, {
 --- @param blocks Block[]
 --- @param highlighter fun(c: string[]): SyntaxColoring
 --- @return VisibleStructuredContent
-function VisibleStructuredContent.new(w, blocks, highlighter, overscroll)
+function VisibleStructuredContent.new(w, blocks,
+                                      highlighter, overscroll)
+  local self = setmetatable({
+    highlighter = highlighter,
+    overscroll_max = overscroll,
+    w = w,
+  }, VisibleStructuredContent)
+  self:load_blocks(blocks)
+
+  return self
+end
+
+--- @param blocks Block[]
+function VisibleStructuredContent:load_blocks(blocks)
   local fulltext = Dequeue.typed('string')
   local revmap = Dequeue.typed('integer')
   local visible_blocks = Dequeue()
   local off = 0
   for bi, v in ipairs(blocks) do
-    -- Log.info(bi, v.pos, string.join(v.lines, '\\n'))
     if v.tag == 'chunk' then
       fulltext:append_all(v.lines)
-      local hl = highlighter(v.lines)
-      local vblock = VisibleBlock(w, v.lines, hl,
+      local hl = self.highlighter(v.lines)
+      local vblock = VisibleBlock(self.w, v.lines, hl,
         v.pos, v.pos:translate(off))
       off = off + vblock.wrapped.n_breaks
       visible_blocks:append(vblock)
     elseif v.tag == 'empty' then
       fulltext:append('')
       local npos = v.pos:translate(off)
-      visible_blocks:append(VisibleBlock(w, { '' }, {}, v.pos, npos))
+      visible_blocks:append(
+        VisibleBlock(self.w, { '' }, {}, v.pos, npos))
     end
     if (v.pos) then
       for _, l in ipairs(v.pos:enumerate()) do
@@ -59,15 +73,10 @@ function VisibleStructuredContent.new(w, blocks, highlighter, overscroll)
       end
     end
   end
-  local self = setmetatable({
-    overscroll_max = overscroll,
-    blocks = visible_blocks,
-  }, VisibleStructuredContent)
-  WrappedText._init(self, w, fulltext)
+  WrappedText._init(self, self.w, fulltext)
   self:_init()
   self.reverse_map = revmap
-
-  return self
+  self.blocks = visible_blocks
 end
 
 --- @private
