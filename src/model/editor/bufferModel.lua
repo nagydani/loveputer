@@ -41,8 +41,9 @@ setmetatable(BufferModel, {
 --- @param content string[]
 --- @param chunker Chunker
 --- @param highlighter Highlighter
+--- @param printer function
 --- @return BufferModel?
-function BufferModel.new(name, content, chunker, highlighter)
+function BufferModel.new(name, content, chunker, highlighter, printer)
   local _content, sel, ct
   local readonly = false
 
@@ -69,6 +70,7 @@ function BufferModel.new(name, content, chunker, highlighter)
     content_type = ct,
     chunker = chunker,
     highlighter = highlighter,
+    printer = printer,
     selection = sel,
     readonly = readonly
   }, BufferModel)

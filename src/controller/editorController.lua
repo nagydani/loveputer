@@ -43,7 +43,7 @@ function EditorController:open(name, content)
   else
     self.interpreter:set_eval(interM.textInput)
   end
-  local ch, hl = (function()
+  local ch, hl, pp = (function()
     if is_lua then
       local luaEval = LuaEval.new()
       local parser = luaEval.parser
@@ -52,11 +52,15 @@ function EditorController:open(name, content)
           self.model.cfg.view.drawableChars,
           single)
       end
-      return ch, parser.highlighter
+      local pp = function(t)
+        return parser.pprint(t,
+          self.model.cfg.view.drawableChars)
+      end
+      return ch, parser.highlighter, pp
     end
   end)()
 
-  local b = BufferModel(name, content, ch, hl)
+  local b = BufferModel(name, content, ch, hl, pp)
   self.model.buffer = b
   self.view.buffer:open(b)
   self:update_status()
