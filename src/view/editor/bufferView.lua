@@ -112,6 +112,9 @@ function BufferView:refresh()
   local si = 1 + off
   local ei = math.min(self.LINES, clen + 1) + off
   self:_update_visible(Range(si, ei))
+  if self.content_type == 'lua' then
+    self.content:load_blocks(self.buffer.content)
+  end
 end
 
 function BufferView:follow_selection()

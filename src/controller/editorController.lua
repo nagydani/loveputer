@@ -180,19 +180,32 @@ function EditorController:keypressed(k)
   --- handlers
   local function submit()
     if not Key.ctrl() and not Key.shift() and Key.is_enter(k) then
-      local newtext = self.interpreter:get_text()
-      local ok, res = inter:evaluate()
-      if ok then
-        local _, n = self:get_active_buffer():replace_selected_text(newtext)
+      local function go(newtext)
+        local _, n = self:get_active_buffer()
+            :replace_selected_text(newtext)
         inter:clear()
         self.view:refresh()
         move_sel('down', n)
         load_selection()
         self:update_status()
+      end
+
+      local ct = self:get_active_buffer().content_type
+      if ct == 'lua' then
+        local buf = self:get_active_buffer()
+        local raw = self.interpreter:get_text()
+        local pretty = buf.printer(raw)
+        local ok, res = inter:evaluate()
+        local _, chunks = buf.chunker(pretty, true)
+        if ok then
+          go(chunks)
+        else
+          local _, _, eval_err = inter:get_eval_error(res)
+          inter:set_error(eval_err)
+          inter:history_back()
+        end
       else
-        local _, _, eval_err = inter:get_eval_error(res)
-        inter:set_error(eval_err)
-        inter:history_back()
+        go(self.interpreter:get_text())
       end
     end
   end

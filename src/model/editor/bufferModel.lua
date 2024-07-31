@@ -177,20 +177,52 @@ end
 
 function BufferModel:delete_selected_text()
   local sel = self.selection
-  -- continuous selection assumed
-  for i = #sel, 1, -1 do
-    self.content:remove(sel[i])
+  if self.content_type == 'lua' then
+    local sb = self.content[sel]
+    local l = sb.pos:len()
+    self.content:remove(sel)
+    for i = sel, self:get_content_length() do
+      local b = self.content[i]
+      local r = b.pos
+      b.pos = r:translate(-l)
+    end
+  else
+    self.content:remove(sel)
   end
 end
 
---- @param t string[]
+--- @param t string[]|Block[]
 --- @return boolean insert
---- @return integer?
+--- @return integer? inserted_lines
 function BufferModel:replace_selected_text(t)
-  local sel = self.selection
-  local clen = #(self.content)
-  if #sel == 1 then
-    local ti = sel[1]
+  if self.content_type == 'lua' then
+    local sel = self.selection
+    --- @type Block
+    local current = self.content[sel]
+    local cs = current.pos.start
+    local chunks = t
+    local n = #chunks
+    if n == 0 then
+      return false
+    end
+
+    self.content:remove(sel)
+    for i = #chunks, 1, -1 do
+      local c = chunks[i]
+      local nr = c.pos:translate(cs - 1)
+      c.pos = nr
+      self.content:insert(c, sel)
+    end
+    local diff = chunks[n].pos.fin - cs
+    for i = sel + diff + 1, self:get_content_length() do
+      local b = self.content[i]
+      b.pos = b.pos:translate(diff)
+    end
+    return true, n
+  else
+    local sel = self.selection
+    local clen = #(self.content)
+    local ti = sel
     if #t == 1 then
       self.content[ti] = t[1]
       if ti > clen then
@@ -203,8 +235,6 @@ function BufferModel:replace_selected_text(t)
       end
       return true, #t
     end
-  else
-    -- TODO multiine
+    return false
   end
-  return false
 end
