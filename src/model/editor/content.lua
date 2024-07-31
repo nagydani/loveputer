@@ -21,6 +21,10 @@ function Empty.new(ln)
   return self
 end
 
+function Empty:__tostring()
+  return string.format('L%d: <empty>', self.pos.start)
+end
+
 --- @class Chunk
 --- @field tag 'chunk'
 --- @field lines string[]
@@ -49,4 +53,13 @@ function Chunk.new(lines, pos)
   }, Chunk)
 
   return self
+end
+
+function Chunk:__tostring()
+  local ret = ''
+  for i, l in ipairs(self.lines) do
+    ret = ret .. string.format('\nL%d:\t%s',
+      self.pos.start + i - 1, l)
+  end
+  return ret
 end
