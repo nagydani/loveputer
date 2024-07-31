@@ -18,8 +18,8 @@ require("util.debug")
 --- @field luaInput InputEval
 --- @field wrapped_error string[]?
 -- methods
---- @field new function
---- @field get_entered_text function
+--- @field reset fun(self, h: boolean?)
+--- @field get_entered_text fun(self): InputText
 --- @todo
 InterpreterModel = {}
 InterpreterModel.__index = InterpreterModel
@@ -137,7 +137,9 @@ function InterpreterModel:set_error(error, is_call_error)
 end
 
 --- @param errors string
---- @return string?
+--- @return number? line
+--- @return number? char
+--- @return string? err_msg
 function InterpreterModel:get_eval_error(errors)
   local ev = self.evaluator
   local t = self:get_entered_text()

@@ -4,6 +4,7 @@ require("view.editor.bufferView")
 require("util.string")
 
 --- @class EditorView
+--- @field cfg ViewConfig
 --- @field controller EditorController
 --- @field interpreter InterpreterView
 --- @field buffer BufferView

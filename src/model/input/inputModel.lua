@@ -284,7 +284,7 @@ function InputModel:highlight()
   local ev = self.evaluator
   if ev.highlight then
     --- TODO enforce this highlight-parser invariant in types
-    ---@diagnostic disable-next-line: undefined-field
+    --- @diagnostic disable-next-line: undefined-field
     local p = ev.parser
     local text = self:get_text()
     local lex = p.stream_tokens(text)
