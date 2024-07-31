@@ -297,6 +297,7 @@ return function(lib)
   --- @return boolean ok
   --- @return Block[]
   local chunker = function(text, w, single)
+    require("model.editor.content")
     if string.is_non_empty_string_array(text) then
       local wrap = w
       local ret = Dequeue.typed('block')
