@@ -112,11 +112,14 @@ return function(lib)
   end
 
   --- @param code string[]
-  --- @return string?
-  local pprint = function(code)
-    local pprinter = require('metalua.metalua.pprint')
-    local c = string.unlines(code)
-    return pprinter.tostring(c)
+  --- @return string[]?
+  local pprint = function(code, wrap)
+    local w = wrap or 80
+    local ok, r = parse_prot(code)
+    if ok then
+      local src = ast_to_src(r, {}, w)
+      return string.lines(src)
+    end
   end
 
   --- Read lexstream and determine highlighting
