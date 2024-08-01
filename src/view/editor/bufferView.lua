@@ -123,7 +123,7 @@ function BufferView:follow_selection()
   local s_w
   if self.content_type == 'lua'
   then
-    s_w = self.content.blocks[sel].pos:enumerate()
+    s_w = self.content.blocks[sel].app_pos:enumerate()
   elseif self.content_type == 'plain'
   then
     s_w = self.content.wrap_forward[sel]

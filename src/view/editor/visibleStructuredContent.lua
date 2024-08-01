@@ -10,7 +10,7 @@ require("util.range")
 --- @field overscroll_max integer
 --- @field overscroll integer
 --- @field range Range?
---- @field blocks Block[]
+--- @field blocks VisibleBlock[]
 --- @field reverse_map ReverseMap
 ---
 --- @field set_range fun(self, Range)
