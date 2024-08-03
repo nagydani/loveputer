@@ -28,6 +28,7 @@
 --- @field fw integer -- font width
 --- @field lh integer -- line height
 --- @field lines integer
+--- @field input_max integer
 --- @field show_append_hl boolean
 --- @field labelfont love.Font
 --- @field lfh integer -- font height
