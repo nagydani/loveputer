@@ -269,19 +269,26 @@ function BufferView:draw()
 
   local draw_debuginfo = function()
     if not love.DEBUG then return end
+    local showap = false
     local lnc = colors.fg
     local x = self.cfg.w - font:getWidth('   ') - 3
-    G.setColor(Color.with_alpha(lnc, 0.2))
+    local lnvc = Color.with_alpha(lnc, 0.2)
     G.rectangle("fill", x, 0, 2, self.cfg.h)
-    G.setColor(lnc)
     local seen = {}
     for ln = 1, self.LINES do
       local l_y = (ln - 1) * fh
-      local ln_w = self.content.wrap_reverse[ln + self.offset]
+      local vln = ln + self.offset
+      local ln_w = self.content.wrap_reverse[vln]
       if ln_w then
         local l = string.format('%3d', ln_w)
         local l_x = self.cfg.w - font:getWidth(l)
+        local l_xv = l_x - font:getWidth(l) - 3.5
+        if showap then
+          G.setColor(lnvc)
+          G.print(string.format('%3d', vln), l_xv, l_y)
+        end
         if not seen[ln_w] then
+          G.setColor(lnc)
           G.print(l, l_x, l_y)
           seen[ln_w] = true
         end
