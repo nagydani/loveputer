@@ -166,8 +166,9 @@ function EditorController:keypressed(k)
 
   --- @param dir VerticalDir
   --- @param warp boolean?
-  local function scroll(dir, warp)
-    self.view.buffer:_scroll(dir, nil, warp)
+  --- @param by integer?
+  local function scroll(dir, warp, by)
+    self.view.buffer:_scroll(dir, by, warp)
     self:update_status()
   end
 
@@ -247,11 +248,21 @@ function EditorController:keypressed(k)
     end
 
     -- scroll
-    if k == "pageup" then
+    if not Key.shift()
+        and k == "pageup" then
       scroll('up', Key.ctrl())
     end
-    if k == "pagedown" then
+    if not Key.shift()
+        and k == "pagedown" then
       scroll('down', Key.ctrl())
+    end
+    if Key.shift()
+        and k == "pageup" then
+      scroll('up', false, 1)
+    end
+    if Key.shift()
+        and k == "pagedown" then
+      scroll('down', false, 1)
     end
   end
 
