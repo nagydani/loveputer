@@ -53,7 +53,7 @@ function BufferModel.new(name, content, chunker, highlighter, printer)
     local ok, blocks = chunker(content)
     if ok then
       local len = #blocks
-      sel = len
+      sel = len + 1
     else
       readonly = true
       sel = 1
@@ -119,20 +119,14 @@ end
 --- @param warp boolean?
 --- @return boolean moved
 function BufferModel:move_selection(dir, by, warp)
-  local of = (function()
-    if self.content_type == 'plain' then
-      return 1
-    else
-      return 0
-    end
-  end)()
+  local last = self:get_content_length() + 1
   if warp then
     if dir == 'up' then
       self.selection = 1
       return true
     end
     if dir == 'down' then
-      self.selection = self:get_content_length() + of
+      self.selection = last
       return true
     end
     return false
@@ -147,7 +141,7 @@ function BufferModel:move_selection(dir, by, warp)
     end
   end
   if dir == 'down' then
-    if (cur + by) <= self:get_content_length() + of then
+    if (cur + by) <= last then
       self.selection = cur + by
       return true
     end
@@ -180,6 +174,7 @@ function BufferModel:delete_selected_text()
   local sel = self.selection
   if self.content_type == 'lua' then
     local sb = self.content[sel]
+    if not sb then return end
     local l = sb.pos:len()
     self.content:remove(sel)
     for i = sel, self:get_content_length() do
@@ -197,15 +192,17 @@ end
 --- @return integer? inserted_lines
 function BufferModel:replace_selected_text(t)
   if self.content_type == 'lua' then
-    local sel = self.selection
-    --- @type Block
-    local current = self.content[sel]
-    local cs = current.pos.start
     local chunks = t
     local n = #chunks
     if n == 0 then
       return false
     end
+    local sel = self.selection
+    local cs = (function()
+      local current = self.content[sel]
+      if current then return current.pos.start end
+      return self.content:last().pos.fin + 1
+    end)()
 
     self.content:remove(sel)
     for i = #chunks, 1, -1 do
@@ -219,6 +216,7 @@ function BufferModel:replace_selected_text(t)
       local b = self.content[i]
       b.pos = b.pos:translate(diff)
     end
+
     return true, n
   else
     local sel = self.selection

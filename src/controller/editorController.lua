@@ -86,6 +86,7 @@ end
 --- @param sel integer
 --- @return CustomStatus
 function EditorController:_generate_status(sel)
+  --- @type BufferModel
   local buffer = self:get_active_buffer()
   local len = buffer:get_content_length() + 1
   local bufview = self.view.buffer
@@ -108,7 +109,7 @@ function EditorController:_generate_status(sel)
     end
   end
   if bufview.content_type == 'lua' then
-    local range = buffer.content:get(sel).pos
+    local range = bufview.content:get_block_pos(sel)
     cs = {
       content_type = bufview.content_type,
       block = sel,

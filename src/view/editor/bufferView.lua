@@ -124,7 +124,7 @@ function BufferView:follow_selection()
   local s_w
   if self.content_type == 'lua'
   then
-    s_w = self.content.blocks[sel].app_pos:enumerate()
+    s_w = self.content:get_block_app_pos(sel):enumerate()
   elseif self.content_type == 'plain'
   then
     s_w = self.content.wrap_forward[sel]
@@ -310,9 +310,12 @@ function BufferView:get_wrapped_selection()
   local ret = {}
   if self.content_type == 'lua'
   then
-    local sb = cont.blocks[sel]
-    for _, l in ipairs(sb.pos:enumerate()) do
-      table.insert(ret, self.content.wrap_forward[l])
+    --- @type Range?
+    local br = cont:get_block_pos(sel)
+    if br then
+      for _, l in ipairs(br:enumerate()) do
+        table.insert(ret, self.content.wrap_forward[l])
+      end
     end
   elseif self.content_type == 'plain'
   then

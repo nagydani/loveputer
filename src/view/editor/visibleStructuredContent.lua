@@ -20,6 +20,8 @@ require("util.range")
 --- @field get_visible fun(self): string[]
 --- @field get_visible_blocks fun(self): Block[]
 --- @field get_content_length fun(self): integer
+--- @field get_block_pos fun(self, integer): integer
+--- @field get_block_app_pos fun(self, integer): integer
 
 VisibleStructuredContent = {}
 VisibleStructuredContent.__index = VisibleStructuredContent
@@ -83,8 +85,9 @@ end
 --- @private
 function VisibleStructuredContent:_update_meta()
   local rev = self.wrap_reverse
+  local rl = #rev
   local fwd = self.wrap_forward
-  table.insert(rev, (#(self.text)))
+  table.insert(rev, ((rev[rl] or 0) + 1))
   table.insert(fwd, { #(self.text) + 1 })
   self:_update_overscroll()
 end
@@ -148,4 +151,27 @@ end
 --- @return integer
 function VisibleStructuredContent:get_content_length()
   return self:get_text_length()
+end
+
+--- @param bn integer
+--- @return Range?
+function VisibleStructuredContent:get_block_pos(bn)
+  local cl = #(self.blocks)
+  if bn > 0 and bn <= cl then
+    return self.blocks[bn].pos
+  elseif bn == cl + 1 then
+    return Range.singleton(self.blocks[cl].pos.fin + 1)
+  end
+end
+
+--- @param bn integer
+--- @return Range?
+function VisibleStructuredContent:get_block_app_pos(bn)
+  local cl = #(self.blocks)
+  if bn > 0 and bn <= cl then
+    return self.blocks[bn].app_pos
+  elseif bn == cl + 1 then
+    local wr = self.wrap_reverse
+    return Range.singleton(#wr)
+  end
 end

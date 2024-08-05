@@ -398,7 +398,6 @@ return function(lib)
           get_comments(single_comment, 'first')
         end
 
-        if not single then ret:insert(Empty(last + 1), idx) end
         return true, ret
       else
         --- content is not valid lua

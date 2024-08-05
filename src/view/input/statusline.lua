@@ -85,7 +85,7 @@ function Statusline:draw(status, nLines, time)
         end
         if custom.content_type == 'lua' then
           n = custom.block
-          lim = custom.buflen - 1
+          lim = custom.buflen
           bpos = 'B' .. n .. ' '
           lpos = custom.range:ln_label()
         end
