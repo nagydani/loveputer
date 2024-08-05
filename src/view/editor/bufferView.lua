@@ -5,15 +5,16 @@ require("util.table")
 
 --- @class BufferView
 --- @field cfg ViewConfig
---- @field LINES integer
---- @field SCROLL_BY integer
---- @field w integer
 ---
 --- @field content VisibleContent|VisibleStructuredContent
 --- @field content_type ContentType
---- @field more More
---- @field offset integer
 --- @field buffer BufferModel
+---
+--- @field LINES integer
+--- @field SCROLL_BY integer
+--- @field w integer
+--- @field offset integer
+--- @field more More
 ---
 --- @field open function
 --- @field refresh function

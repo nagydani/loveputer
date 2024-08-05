@@ -47,6 +47,7 @@ function VisibleStructuredContent.new(w, blocks,
   return self
 end
 
+--- Process a list of blocks into VisibleBlocks
 --- @param blocks Block[]
 function VisibleStructuredContent:load_blocks(blocks)
   local fulltext = Dequeue.typed('string')
@@ -142,13 +143,6 @@ function VisibleStructuredContent:get_visible_blocks()
   local ei = self.wrap_reverse[self.range.fin]
   local sbi, sei = self.reverse_map[si], self.reverse_map[ei]
   return table.slice(self.blocks, sbi, sei)
-
-  -- local ret = Dequeue.typed('visibleBlock')
-  -- for i = self.range.start, self.range.fin do
-  --   local ri = self.reverse_map[i]
-  --   ret:append(self.blocks[ri])
-  -- end
-  -- return ret
 end
 
 --- @return integer

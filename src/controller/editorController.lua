@@ -47,6 +47,8 @@ function EditorController:open(name, content)
     if is_lua then
       local luaEval = LuaEval.new()
       local parser = luaEval.parser
+      --- @param t string[]
+      --- @param single boolean
       local ch = function(t, single)
         return parser.chunker(t,
           self.model.cfg.view.drawableChars,

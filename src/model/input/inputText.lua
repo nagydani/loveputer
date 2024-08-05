@@ -7,6 +7,7 @@ require("util.dequeue")
 InputText = {}
 
 --- @param values string[]?
+--- @return InputText
 function InputText:new(values)
   local text = Dequeue.typed('string', values)
   if not values or values == '' or

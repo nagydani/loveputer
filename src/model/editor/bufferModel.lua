@@ -11,17 +11,19 @@ require('util.dequeue')
 
 --- @alias Chunker fun(s: string[], s: boolean?): Dequeue<Block>
 --- @alias Highlighter fun(c: string[]): SyntaxColoring
+--- @alias Printer fun(c: string[]): string[]?
 
 --- @class BufferModel
 --- @field name string
 --- @field content Dequeue -- Content
 --- @field content_type ContentType
---- @field chunker Chunker
---- @field highlighter Highlighter
 --- @field selection integer
 --- @field readonly boolean
 --- @field revmap table
 ---
+--- @field chunker Chunker
+--- @field highlighter Highlighter
+--- @field printer Printer
 --- @field move_selection function
 --- @field get_selection function
 --- @field get_selected_text function
