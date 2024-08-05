@@ -8,7 +8,6 @@ require('util.dequeue')
 
 --- @alias Block Empty|Chunk
 --- @alias Content Dequeue<string>|Dequeue<Block>
---- @alias Selected integer
 
 --- @alias Chunker fun(s: string[], s: boolean?): Dequeue<Block>
 --- @alias Highlighter fun(c: string[]): SyntaxColoring
@@ -19,7 +18,7 @@ require('util.dequeue')
 --- @field content_type ContentType
 --- @field chunker Chunker
 --- @field highlighter Highlighter
---- @field selection Selected
+--- @field selection integer
 --- @field readonly boolean
 --- @field revmap table
 ---
@@ -154,7 +153,7 @@ function BufferModel:move_selection(dir, by, warp)
   return false
 end
 
---- @return Selected
+--- @return integer
 function BufferModel:get_selection()
   return self.selection
 end

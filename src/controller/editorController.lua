@@ -81,7 +81,7 @@ function EditorController:get_active_buffer()
 end
 
 --- @private
---- @param sel Selected
+--- @param sel integer
 --- @return CustomStatus
 function EditorController:_generate_status(sel)
   local buffer = self:get_active_buffer()
