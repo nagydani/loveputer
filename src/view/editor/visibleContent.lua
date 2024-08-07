@@ -3,6 +3,7 @@ require("util.range")
 
 --- @class VisibleContent: WrappedText
 --- @field range Range?
+--- @field size_max integer
 --- @field overscroll_max integer
 --- @field overscroll integer
 ---
@@ -25,9 +26,10 @@ setmetatable(VisibleContent, {
 --- @param w integer
 --- @param fulltext string[]
 --- @return VisibleContent
-function VisibleContent.new(w, fulltext, overscroll)
+function VisibleContent.new(w, fulltext, overscroll, size_max)
   local self = setmetatable({
-    overscroll_max = overscroll
+    overscroll_max = overscroll,
+    size_max = size_max,
   }, VisibleContent)
   WrappedText._init(self, w, fulltext)
   self:_init()
