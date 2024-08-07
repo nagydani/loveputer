@@ -1,3 +1,4 @@
+--- @diagnostic disable: invisible
 require("model.editor.editorModel")
 require("controller.editorController")
 require("view.editor.editorView")
@@ -313,7 +314,7 @@ describe('Editor #editor', function()
             for _ = 1, l do
               mock.keystroke('up', press)
             end
-            local cs = bv:get_wrapped_selection()[1][1]
+            local cs = bv:_get_wrapped_selection()[1][1]
             local d = cs - srs
             assert.same(start_range:translate(d), visible.range)
             mock.keystroke('up', press)
@@ -338,7 +339,7 @@ describe('Editor #editor', function()
             end
             mock.keystroke('pageup', press)
             mock.keystroke('down', press)
-            local ws = bv:get_wrapped_selection()[1]
+            local ws = bv:_get_wrapped_selection()[1]
             local cs = ws[#ws]
             assert.same(Range(cs - l + 1, cs), visible.range)
           end)

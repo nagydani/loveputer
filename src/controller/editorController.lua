@@ -171,7 +171,7 @@ function EditorController:keypressed(k)
   --- @param warp boolean?
   --- @param by integer?
   local function scroll(dir, warp, by)
-    self.view.buffer:_scroll(dir, by, warp)
+    self.view.buffer:scroll(dir, by, warp)
     self:update_status()
   end
 

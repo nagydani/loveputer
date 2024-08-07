@@ -60,6 +60,54 @@ function BufferView:_get_end_range()
   local clen = self.content:get_text_length()
   return S.calculate_end_range(self.LINES, clen)
 end
+
+--- @param dir VerticalDir
+--- @param by integer?
+--- @param warp boolean?
+function BufferView:scroll(dir, by, warp)
+  local by = by or self.SCROLL_BY
+  local l = self.content:get_content_length()
+  local n = (function()
+    if dir == 'up' then
+      if warp then
+        return -l
+      else
+        return -by
+      end
+    else
+      if warp then
+        local ir = self:_get_end_range()
+        local c = self.content:get_range()
+        return ir.start - c.start
+      else
+        return by
+      end
+    end
+  end)()
+  local o = self.content:move_range(n)
+  self.offset = self.offset + o
+end
+
+--- @private
+--- @return integer[][]
+function BufferView:_get_wrapped_selection()
+  local sel = self.buffer:get_selection()
+  local cont = self.content
+  local ret = {}
+  if self.content_type == 'lua'
+  then
+    --- @type Range?
+    local br = cont:get_block_pos(sel)
+    if br then
+      for _, l in ipairs(br:enumerate()) do
+        table.insert(ret, self.content.wrap_forward[l])
+      end
+    end
+  elseif self.content_type == 'plain'
+  then
+    ret[1] = self.content.wrap_forward[sel]
+  end
+  return ret
 end
 
 --- @param buffer BufferModel
@@ -136,38 +184,11 @@ function BufferView:follow_selection()
   end)()
   if dir == 'up' then
     local d = r.start - sel_s
-    self:_scroll(dir, d)
+    self:scroll(dir, d)
   elseif dir == 'down' then
     local d = sel_e - r.fin
-    self:_scroll(dir, d)
+    self:scroll(dir, d)
   end
-end
-
---- @param dir VerticalDir
---- @param by integer?
---- @param warp boolean?
-function BufferView:_scroll(dir, by, warp)
-  local by = by or self.SCROLL_BY
-  local l = self.content:get_content_length()
-  local n = (function()
-    if dir == 'up' then
-      if warp then
-        return -l
-      else
-        return -by
-      end
-    else
-      if warp then
-        local ir = self:_calculate_end_range()
-        local c = self.content:get_range()
-        return ir.start - c.start
-      else
-        return by
-      end
-    end
-  end)()
-  local o = self.content:move_range(n)
-  self.offset = self.offset + o
 end
 
 function BufferView:draw()
@@ -203,7 +224,7 @@ function BufferView:draw()
     end
 
     local off = self.offset
-    local ws = self:get_wrapped_selection()
+    local ws = self:_get_wrapped_selection()
     for _, w in ipairs(ws) do
       for _, v in ipairs(w) do
         if self.content.range:inc(v) then
@@ -298,25 +319,4 @@ function BufferView:draw()
   draw_highlight()
   draw_text()
   draw_debuginfo()
-end
-
---- @return integer[][]
-function BufferView:get_wrapped_selection()
-  local sel = self.buffer:get_selection()
-  local cont = self.content
-  local ret = {}
-  if self.content_type == 'lua'
-  then
-    --- @type Range?
-    local br = cont:get_block_pos(sel)
-    if br then
-      for _, l in ipairs(br:enumerate()) do
-        table.insert(ret, self.content.wrap_forward[l])
-      end
-    end
-  elseif self.content_type == 'plain'
-  then
-    ret[1] = self.content.wrap_forward[sel]
-  end
-  return ret
 end
