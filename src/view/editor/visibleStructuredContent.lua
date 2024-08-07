@@ -20,8 +20,8 @@ require("util.range")
 --- @field get_visible fun(self): string[]
 --- @field get_visible_blocks fun(self): Block[]
 --- @field get_content_length fun(self): integer
---- @field get_block_pos fun(self, integer): integer
---- @field get_block_app_pos fun(self, integer): integer
+--- @field get_block_pos fun(self, integer): Range?
+--- @field get_block_app_pos fun(self, integer): Range?
 
 VisibleStructuredContent = {}
 VisibleStructuredContent.__index = VisibleStructuredContent
