@@ -55,14 +55,11 @@ end
 
 --- @private
 --- @return Range
-function BufferView:_calculate_end_range()
-  local L = self.LINES
+function BufferView:_get_end_range()
+  local S = require("util.scrollable")
   local clen = self.content:get_text_length()
-  local off = math.max(clen - L, 0)
-  if off > 0 then off = off + 1 end
-  local si = 1 + off
-  local ei = math.min(L, clen + 1) + off
-  return Range(si, ei)
+  return S.calculate_end_range(self.LINES, clen)
+end
 end
 
 --- @param buffer BufferModel
@@ -99,7 +96,7 @@ function BufferView:open(buffer)
     off = off + 1
   end
 
-  local ir = self:_calculate_end_range()
+  local ir = self:_get_end_range()
   self:_update_visible(ir)
 end
 
