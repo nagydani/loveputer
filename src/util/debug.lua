@@ -1,6 +1,7 @@
 require("util.string")
 require("util.table")
 local tc = require("util.termcolor")
+local OS = require("util.os")
 
 local tab = '  '
 
@@ -236,6 +237,29 @@ Debug = {
       table.insert(lines, bottom)
       return string.unlines(lines)
     end
+  end,
+
+  --- @param content string|string[]
+  --- @param ext string?
+  --- @param fixname string?
+  write_tempfile = function(content, ext, fixname)
+    local function create_temp()
+      local cmd = 'mktemp -u -p .'
+      if string.is_non_empty_string(ext) then
+        cmd = string.format('%s --suffix .%s', cmd, ext)
+      end
+      local _, result = OS.runcmd(cmd)
+      return result
+    end
+    local name =
+        string.is_non_empty_string(fixname)
+        and fixname .. (ext and '.' .. ext or '')
+        or create_temp()
+    local path = string.join_path('./.debug', name)
+
+    local data = string.unlines(content)
+    local FS = require('util.filesystem')
+    FS.write(path, data)
   end,
 }
 
