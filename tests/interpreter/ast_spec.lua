@@ -73,6 +73,18 @@ describe('parser #ast', function()
             local has_lines = false
             local seen_comments = {}
             for _, v in ipairs(r) do
+              if show_ast then
+                local fn = string.format('%s_input_%d', tag, i)
+
+                local skip_lineinfo = true
+                local tree = Debug.terse_ast(r, skip_lineinfo)
+                local f = string.format('/*\n%s\n*/\n%s',
+                  string.unlines(input),
+                  tree
+                )
+                Debug.write_tempfile(f, 'json5', fn)
+              end
+
               has_lines = true
               local ct, _ = do_code(v, seen_comments)
               for _, cl in ipairs(string.lines(ct) or {}) do
