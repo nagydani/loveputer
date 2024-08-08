@@ -10,6 +10,8 @@ describe("input model spec #input", function()
   local mockConf = {
     view = {
       drawableChars = 80,
+      lines = 16,
+      input_max = 14
     },
   }
   local luaEval  = LuaEval.new()
@@ -609,6 +611,8 @@ describe("input model spec #input", function()
     local cfg = {
       view = {
         drawableChars = w,
+        lines = 16,
+        input_max = 14
       }
     }
     local model = InputModel:new(cfg, luaEval)

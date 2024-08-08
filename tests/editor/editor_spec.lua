@@ -43,8 +43,9 @@ describe('Editor #editor', function()
       local w = 80
       local mockConf = {
         view = {
-          lines = 16,
           drawableChars = w,
+          lines = 16,
+          input_max = 14
         },
       }
 
@@ -74,8 +75,9 @@ describe('Editor #editor', function()
       local w = 16
       local mockConf = {
         view = {
-          lines = 16,
           drawableChars = w,
+          lines = 16,
+          input_max = 14
         },
       }
 
@@ -161,8 +163,9 @@ describe('Editor #editor', function()
       local l = 6
       local mockConf = {
         view = {
-          lines = l,
           drawableChars = 80,
+          lines = l,
+          input_max = 14
         },
       }
 
@@ -222,6 +225,7 @@ describe('Editor #editor', function()
         view = {
           lines = l,
           drawableChars = 27,
+          input_max = 14,
         },
       }
 

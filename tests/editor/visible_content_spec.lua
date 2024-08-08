@@ -9,8 +9,13 @@ describe('VisibleContent #wrap', function()
     '',
   }
 
-  local content1 = VisibleContent(80, {}, 8)
-  local content2 = VisibleContent(30, turtle_doc, 8)
+  local os_max = 8
+  local input_max = 16
+
+  local content1 = VisibleContent(80, {},
+    os_max, input_max)
+  local content2 = VisibleContent(30, turtle_doc,
+    os_max, input_max)
   describe('produces forward mapping', function()
     it('1', function()
       local fwd1 = { { 1 } }

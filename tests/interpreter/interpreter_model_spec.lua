@@ -8,6 +8,8 @@ describe("interpreter model spec #interpreter", function()
   local mockConf = {
     view = {
       drawableChars = 80,
+      lines = 16,
+      input_max = 14
     },
   }
 
