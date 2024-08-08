@@ -75,7 +75,7 @@ function Statusline:draw(status, nLines, time)
     local c = status.cursor
     if type(c) == 'table' then
       if custom then
-        local cpos = ':' .. c.c
+        local cpos = ' ' .. c.l .. ':' .. c.c
         local n, lim, bpos, lpos
         local more_i = ''
         if custom.content_type == 'plain' then
@@ -100,7 +100,8 @@ function Statusline:draw(status, nLines, time)
 
         G.setColor(colors.fg)
         --- more indicator
-        local mlw = G.getFont():getWidth("B999 L999-999(99):999")
+        local mlw =
+            G.getFont():getWidth("B999 L999-999(99) 999:999")
         local mw = G.getFont():getWidth(more_i)
         local mx = endTextX - mlw - mw
         G.setFont(self.cfg.iconfont)
@@ -120,10 +121,10 @@ function Statusline:draw(status, nLines, time)
           G.print(bpos, sxb, start_text.y)
         end
 
-        --- line range
+        --- block line range
         G.setColor(colors.fg)
         G.print(lpos, sxl, start_text.y)
-        --- char number
+        --- cursor pos
         G.print(cpos, sxl + lpw, start_text.y)
       else
         --- normal statusline
