@@ -87,14 +87,23 @@ local function terse_hash(t, level, prev_seen, jsonify)
 end
 
 --- @param a table?
-local function terse_array(a)
+--- @param skip integer?
+local function terse_array(a, skip)
   if type(a) == 'table' then
     local res = '['
-    for i, v in ipairs(a) do
-      res = res .. string.format('\n/* %d */\n%s', i, terse_hash(v, 1, {}))
-      -- res = res .. string.format('\n/* %d */\n%s', i, '{ ... }')
+    if skip then
+      for i = skip, #a do
+        res = res .. i .. ': ' .. terse_hash(a[i], nil, nil, true) .. ', '
+      end
+      res = res .. ']'
+    else
+      for i, v in ipairs(a) do
+        res = res .. string.format('\n/* %d */\n%s', i, terse_hash(v, 1, {}))
+        -- res = res .. string.format('\n/* %d */\n%s', i, '{ ... }')
+      end
+      res = res .. '\n]'
     end
-    res = res .. '\n]'
+
     return res
   else
     return ''
