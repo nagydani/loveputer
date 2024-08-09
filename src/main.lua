@@ -81,7 +81,7 @@ local config_view = function(sizedebug)
   -- this should lead to 16 lines visible by default on the
   -- console and the editor
   local lines = 16
-  local input_max = 8
+  local input_max = 14
 
   local font_labels = G.newFont(
     font_dir .. "PressStart2P-Regular.ttf", 12)
