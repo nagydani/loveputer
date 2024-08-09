@@ -115,5 +115,6 @@
 --- @field show_terminal boolean
 --- @field show_canvas boolean
 --- @field show_input boolean
+--- @field once integer
 
 --- @class LuaEnv : table

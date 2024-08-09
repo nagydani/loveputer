@@ -352,11 +352,17 @@ Log = {
   end,
 
   once = function(...)
+    if not love.DEBUG then return end
     local args = { ... }
-    local key = string.join(args, '')
+    local key = love.debug.once .. string.join(args, '')
     local kh = hash(key)
     once(kh, args)
   end,
+
+  fire_once = function()
+    if not love.DEBUG then return end
+    love.debug.once = love.debug.once + 1
+  end
 }
 
 setmetatable(Log, {

@@ -206,6 +206,7 @@ function love.load(args)
       show_terminal = true,
       show_canvas = true,
       show_input = true,
+      once = 0
     }
   end
 

@@ -32,7 +32,7 @@ end
 --- @return boolean
 local conditional_draw = function(k)
   if love.DEBUG then
-    return love.debug[k]
+    return love.debug[k] == true
   end
   return true
 end
