@@ -140,12 +140,11 @@ function BufferView:open(buffer)
   local off = self.offset
   if off > 0 then
     self.more.up = true
-    self.offset = off + 1
-    off = off + 1
   end
 
   local ir = self:_get_end_range()
   self:_update_visible(ir)
+  self:scroll('down', 1)
 end
 
 function BufferView:refresh()
