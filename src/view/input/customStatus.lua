@@ -4,7 +4,7 @@
 --- @field block integer?
 --- @field range Range?
 --- @field buflen integer
---- @field more More
+--- @field buffer_more More
 CustomStatus = {}
 CustomStatus.__index = CustomStatus
 

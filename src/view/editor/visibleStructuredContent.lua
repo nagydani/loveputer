@@ -22,6 +22,7 @@ require("util.range")
 --- @field get_content_length fun(self): integer
 --- @field get_block_pos fun(self, integer): Range?
 --- @field get_block_app_pos fun(self, integer): Range?
+--- @field get_more fun(self): More
 
 VisibleStructuredContent = {}
 VisibleStructuredContent.__index = VisibleStructuredContent
@@ -174,4 +175,15 @@ function VisibleStructuredContent:get_block_app_pos(bn)
     local wr = self.wrap_reverse
     return Range.singleton(#wr)
   end
+end
+
+--- @return More
+function VisibleStructuredContent:get_more()
+  local vrange = self:get_range()
+  local vlen = self:get_content_length()
+  local more = {
+    up = vrange.start > 1,
+    down = vrange.fin < vlen
+  }
+  return more
 end

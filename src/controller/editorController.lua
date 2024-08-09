@@ -90,19 +90,14 @@ function EditorController:_generate_status(sel)
   local buffer = self:get_active_buffer()
   local len = buffer:get_content_length() + 1
   local bufview = self.view.buffer
-  local vrange = bufview.content:get_range()
-  local vlen = bufview.content:get_content_length()
-  local more = {
-    up = vrange.start > 1,
-    down = vrange.fin < vlen
-  }
+  local more = bufview.content:get_more()
   local cs
   if bufview.content_type == 'plain' then
     cs = {
       content_type = bufview.content_type,
       line = sel,
       buflen = len,
-      more = more,
+      buffer_more = more,
     }
     cs.__tostring = function(t)
       return 'L' .. t.line
@@ -115,7 +110,7 @@ function EditorController:_generate_status(sel)
       block = sel,
       range = range,
       buflen = len,
-      more = more,
+      buffer_more = more,
     }
     cs.__tostring = function(t)
       return 'B' .. t.range
