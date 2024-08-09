@@ -213,13 +213,7 @@ end
 
 --- @return InputDTO
 function InputController:get_input()
-  local im = self.model
-  return {
-    text = im:get_text(),
-    wrapped_text = im:get_wrapped_text(),
-    highlight = im:highlight(),
-    selection = im:get_ordered_selection(),
-  }
+  return self.model:get_input()
 end
 
 --- @return Status

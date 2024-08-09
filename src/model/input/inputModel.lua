@@ -390,6 +390,16 @@ function InputModel:get_cursor_y()
   return self.cursor.l
 end
 
+--- @return InputDTO
+function InputModel:get_input()
+  return {
+    text         = self:get_text(),
+    wrapped_text = self:get_wrapped_text(),
+    highlight    = self:highlight(),
+    selection    = self:get_ordered_selection(),
+  }
+end
+
 --- @param dir VerticalDir
 --- @return boolean? limit
 function InputModel:cursor_vertical_move(dir)
