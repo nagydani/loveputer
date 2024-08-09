@@ -249,6 +249,8 @@ function BufferView:draw()
         local wt = block.wrapped
         for l, line in ipairs(wt:get_text()) do
           local ln = rs + (l - 1) - self.offset
+          if ln > self.cfg.lines then return end
+
           for ci = 1, string.ulen(line) do
             local char = string.usub(line, ci, ci)
             local hl = block.highlight
@@ -291,6 +293,7 @@ function BufferView:draw()
     local lnc = colors.fg
     local x = self.cfg.w - font:getWidth('   ') - 3
     local lnvc = Color.with_alpha(lnc, 0.2)
+    G.setColor(lnvc)
     G.rectangle("fill", x, 0, 2, self.cfg.h)
     local seen = {}
     for ln = 1, self.LINES do
