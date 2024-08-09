@@ -324,11 +324,12 @@ local function hash(s)
 end
 
 local once_seen = {}
+local once_color = Color.white + Color.bright
 
 local function once(kh, args)
   if not once_seen[kh] then
     once_seen[kh] = true
-    local s = annot('ONCE  ', (Color.white + Color.bright), args)
+    local s = annot('ONCE  ', once_color, args)
     printer(s)
   end
 end
@@ -362,7 +363,14 @@ Log = {
   fire_once = function()
     if not love.DEBUG then return end
     love.debug.once = love.debug.once + 1
-  end
+  end,
+  --- @param color integer
+  set_once_color = function(color)
+    if color >= 0 and
+        color <= 15 then
+      once_color = color
+    end
+  end,
 }
 
 setmetatable(Log, {
