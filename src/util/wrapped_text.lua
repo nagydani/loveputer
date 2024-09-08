@@ -129,5 +129,5 @@ end
 
 --- @return integer
 function WrappedText:get_text_length()
-  return #(self.text) or 0
+  return #(self.text or {})
 end
