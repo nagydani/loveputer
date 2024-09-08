@@ -11,7 +11,7 @@ require("util.view")
 InputView = {}
 InputView.__index = InputView
 
-setmetatable(EditorController, {
+setmetatable(InputView, {
   __call = function(cls, ...)
     return cls.new(...)
   end,
