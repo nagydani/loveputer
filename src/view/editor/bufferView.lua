@@ -57,8 +57,8 @@ end
 --- @private
 --- @return Range
 function BufferView:_get_end_range()
-  local S = require("util.scrollable")
   local clen = self.content:get_text_length()
+  return Scrollable.calculate_end_range(self.LINES, clen)
 end
 
 --- @param dir VerticalDir
