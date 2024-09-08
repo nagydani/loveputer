@@ -1,5 +1,5 @@
 require("util.wrapped_text")
-local S = require("util.scrollable")
+require("util.scrollable")
 require("util.range")
 
 --- @class VisibleContent: WrappedText
@@ -35,7 +35,6 @@ function VisibleContent.new(w, fulltext, overscroll, size_max)
   }, VisibleContent)
   WrappedText._init(self, w, fulltext)
   self:_init()
-  S.calculate_end_range(size_max, self:get_text_length())
 
   return self
 end

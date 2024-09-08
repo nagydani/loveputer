@@ -1,9 +1,13 @@
 require("util.range")
 
+--- @class Scrollable
+Scrollable = {}
+Scrollable.__index = Scrollable
+
 --- @param size_max integer
 --- @param len integer
 --- @return Range
-local function calculate_end_range(size_max, len)
+function Scrollable.calculate_end_range(size_max, len)
   local L = size_max
   local clen = len
   local off = math.max(clen - L, 0)
@@ -12,6 +16,3 @@ local function calculate_end_range(size_max, len)
   return Range(si, ei):translate(off)
 end
 
-return {
-  calculate_end_range = calculate_end_range,
-}

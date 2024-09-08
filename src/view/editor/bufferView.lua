@@ -2,6 +2,7 @@ require("view.editor.visibleContent")
 require("view.editor.visibleStructuredContent")
 
 require("util.table")
+require("util.scrollable")
 
 --- @class BufferView
 --- @field cfg ViewConfig
@@ -58,7 +59,6 @@ end
 function BufferView:_get_end_range()
   local S = require("util.scrollable")
   local clen = self.content:get_text_length()
-  return S.calculate_end_range(self.LINES, clen)
 end
 
 --- @param dir VerticalDir
