@@ -16,3 +16,7 @@ function Scrollable.calculate_end_range(size_max, len)
   return Range(si, ei):translate(off)
 end
 
+function Scrollable.to_end(size_max, len)
+  local end_r = Scrollable.calculate_end_range(size_max, len)
+  return end_r
+end

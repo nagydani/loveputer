@@ -14,7 +14,7 @@ require("util.range")
 --- @field get_visible fun(self): string[]
 --- @field get_content_length fun(self): integer
 --- @field get_more fun(self): More
-
+--- @field to_end fun(self)
 VisibleContent = {}
 VisibleContent.__index = VisibleContent
 
@@ -35,10 +35,18 @@ function VisibleContent.new(w, fulltext, overscroll, size_max)
   }, VisibleContent)
   WrappedText._init(self, w, fulltext)
   self:_init()
+  self:to_end()
+
 
   return self
 end
 
+
+--- Set the visible range so that last of the content is visible
+function VisibleContent:to_end()
+  self.range = Scrollable.to_end(
+    self.size_max, self:get_text_length())
+end
 --- @private
 function VisibleContent:_update_meta()
   local rev = self.wrap_reverse

@@ -23,6 +23,7 @@ require("util.range")
 --- @field get_block_pos fun(self, integer): Range?
 --- @field get_block_app_pos fun(self, integer): Range?
 --- @field get_more fun(self): More
+--- @field to_end fun(self)
 
 VisibleStructuredContent = {}
 VisibleStructuredContent.__index = VisibleStructuredContent
@@ -46,8 +47,16 @@ function VisibleStructuredContent.new(w, blocks,
     w = w,
   }, VisibleStructuredContent)
   self:load_blocks(blocks)
+  self:to_end()
 
   return self
+end
+
+--- Set the visible range so that last of the content is visible
+function VisibleStructuredContent:to_end()
+  local size_max = 16
+  self.range = Scrollable.to_end(
+    size_max, self:get_text_length())
 end
 
 --- Process a list of blocks into VisibleBlocks
@@ -108,7 +117,6 @@ end
 --- @param text string[]
 function VisibleStructuredContent:wrap(text)
   WrappedText.wrap(self, text)
-
   self:_update_meta()
 end
 
