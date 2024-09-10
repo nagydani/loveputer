@@ -52,11 +52,30 @@ end
 
 --- Determine whether `n` is in the range
 --- @param n integer
+--- @return boolean
 function Range:inc(n)
   if type(n) ~= 'number' then return false end
   if self.start > n then return false end
   if self.fin < n then return false end
   return true
+end
+
+--- Determine the how much `n` is in outside the range
+--- (signed result)
+--- @param n integer
+--- @return integer?
+function Range:outside(n)
+  if type(n) ~= 'number' then return nil end
+  if self:inc(n) then
+    return 0
+  else
+    if n < self.start then
+      return n - self.start
+    end
+    if n > self.fin then
+      return n - self.fin
+    end
+  end
 end
 
 --- @return integer[]
