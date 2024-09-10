@@ -123,14 +123,15 @@ function BufferView:open(buffer)
   local bufcon = buffer:get_content()
   if cont == 'plain' then
     self.content = VisibleContent(
-      self.w, bufcon, self.SCROLL_BY)
+      self.w, bufcon, self.SCROLL_BY, L)
   elseif cont == 'lua' then
     self.content =
         VisibleStructuredContent(
           self.w,
           bufcon,
           buffer.highlighter,
-          self.SCROLL_BY)
+          self.SCROLL_BY,
+          L)
   else
     error 'unknown filetype'
   end

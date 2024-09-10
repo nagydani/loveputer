@@ -39,10 +39,11 @@ setmetatable(VisibleStructuredContent, {
 --- @param blocks Block[]
 --- @param highlighter fun(c: string[]): SyntaxColoring
 --- @return VisibleStructuredContent
-function VisibleStructuredContent.new(w, blocks,
-                                      highlighter, overscroll)
+function VisibleStructuredContent.new(w, blocks, highlighter,
+                                      overscroll, size_max)
   local self = setmetatable({
     highlighter = highlighter,
+    size_max = size_max,
     overscroll_max = overscroll,
     w = w,
   }, VisibleStructuredContent)
@@ -54,9 +55,9 @@ end
 
 --- Set the visible range so that last of the content is visible
 function VisibleStructuredContent:to_end()
-  local size_max = 16
   self.range = Scrollable.to_end(
-    size_max, self:get_text_length())
+    self.size_max, self:get_text_length())
+  self.offset = self.range.start - 1
 end
 
 --- Process a list of blocks into VisibleBlocks
