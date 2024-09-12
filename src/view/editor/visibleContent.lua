@@ -32,6 +32,7 @@ function VisibleContent.new(w, fulltext, overscroll, size_max)
   local self = setmetatable({
     overscroll_max = overscroll,
     size_max = size_max,
+    offset = 0,
   }, VisibleContent)
   WrappedText._init(self, w, fulltext)
   self:_init()
@@ -41,12 +42,30 @@ function VisibleContent.new(w, fulltext, overscroll, size_max)
   return self
 end
 
+function VisibleContent:get_default_range()
+  return Range(1, self.size_max)
+end
 
 --- Set the visible range so that last of the content is visible
 function VisibleContent:to_end()
   self.range = Scrollable.to_end(
     self.size_max, self:get_text_length())
+  self.offset = self.range.start - 1
 end
+
+--- Invoked after text changes, validate range
+function VisibleContent:check_range()
+  local l = self:get_text_length()
+  local r = self.range
+  if r then
+    if r.fin > l then
+      r.fin = l
+    end
+  else
+    self.range = self:get_default_range()
+  end
+end
+
 --- @private
 function VisibleContent:_update_meta()
   local rev = self.wrap_reverse
@@ -58,7 +77,7 @@ end
 
 --- @protected
 function VisibleContent:_update_overscroll()
-  local len = WrappedText.get_text_length(self)
+  local len = self:get_text_length()
   local over = math.min(self.overscroll_max, len)
   self.overscroll = over
 end
@@ -81,7 +100,14 @@ end
 
 --- @param r Range
 function VisibleContent:set_range(r)
-  self.range = r
+  if r then
+    self.offset = r.start - 1
+    self.range = r
+  end
+end
+
+function VisibleContent:set_default_range()
+  self.range = Range(1, self:get_content_length())
 end
 
 --- @param by integer
@@ -90,9 +116,11 @@ function VisibleContent:move_range(by)
   if type(by) == "number" then
     local r = self.range
     local upper = self:get_text_length() + self.overscroll
-    local nr, n = r:translate_limit(by, 1, upper)
-    self:set_range(nr)
-    return n
+    if r then
+      local nr, n = r:translate_limit(by, 1, upper)
+      self:set_range(nr)
+      return n
+    end
   end
   return 0
 end
