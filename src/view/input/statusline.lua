@@ -109,14 +109,14 @@ function Statusline:draw(status, nLines, time)
         local more_i = morelabel(status.input_more) .. ' '
 
         G.setColor(colors.fg)
-        --- more indicator
-        local w_il  = G.getFont():getWidth(" 999:999")
+        local w_il  = G.getFont():getWidth(" 999:9999")
         local w_br  = G.getFont():getWidth("B999 L999-999(99)")
-        local w_mi  = G.getFont():getWidth(" ↕↕ ")
-        local s_mb  = endTextX - w_br - w_il - w_mi - w_mi
+        local w_mb  = G.getFont():getWidth(" ↕↕ ")
+        local w_mi  = G.getFont():getWidth("  ↕↕ ")
+        local s_mb  = endTextX - w_br - w_il - w_mi - w_mb
         local cw_p  = G.getFont():getWidth(t_blp)
         local cw_il = G.getFont():getWidth(t_ic)
-        local sxl   = endTextX - (cw_p + cw_il + w_mi)
+        local sxl   = endTextX - (cw_p + w_il + w_mi)
         local s_mi  = endTextX - w_il
 
 
@@ -127,7 +127,7 @@ function Statusline:draw(status, nLines, time)
 
         --- input more
         G.setFont(self.cfg.iconfont)
-        -- G.print(more_i, s_mi, start_text.y - 3)
+        G.print(more_i, s_mi, start_text.y - 3)
 
         --- block line range / line
         G.setFont(self.cfg.font)

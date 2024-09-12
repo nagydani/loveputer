@@ -598,7 +598,8 @@ function InputModel:get_status()
     input_type = self.type,
     cursor = self.cursor,
     n_lines = self:get_n_text_lines(),
-    custom = self.custom_status
+    custom = self.custom_status,
+    input_more = self.visible:get_more(),
   }
 end
 
