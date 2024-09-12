@@ -326,6 +326,17 @@ end
 --   cursor   --
 ----------------
 
+--- Follow cursor movement with visible range
+--- @private
+function InputModel:_follow_cursor()
+  local cursor_line, _ = self:_get_cursor_pos()
+  local vrange = self.visible:get_range()
+  local diff = vrange:outside(cursor_line)
+  if diff ~= 0 then
+    self.visible:move_range(diff)
+  end
+end
+
 --- @private
 --- @param replace_line boolean
 function InputModel:_update_cursor(replace_line)
@@ -504,6 +515,7 @@ function InputModel:cursor_vertical_move(dir)
   else
     return
   end
+  if not limit then self:_follow_cursor() end
   return limit
 end
 
@@ -559,6 +571,7 @@ function InputModel:jump_home()
   local nl, nc = 1, 1
   self:end_selection(nl, nc)
   self:move_cursor(nl, nc, keep)
+  self:_follow_cursor()
 end
 
 function InputModel:jump_end()
@@ -572,6 +585,8 @@ function InputModel:jump_end()
   end)()
   self:end_selection(last_line, last_char)
   self:move_cursor(last_line, last_char, keep)
+  self.visible:to_end()
+  self.visible:check_range()
 end
 
 --- @return Status
