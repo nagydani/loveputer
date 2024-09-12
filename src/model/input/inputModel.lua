@@ -1,6 +1,7 @@
 require("model.interpreter.item")
 require("model.input.inputText")
 require("model.input.selection")
+require("view.editor.visibleContent")
 
 require("util.wrapped_text")
 require("util.dequeue")
@@ -14,6 +15,7 @@ require("util.debug")
 --- @field type InputType
 --- @field cursor Cursor
 --- @field wrapped_text WrappedText
+--- @field visible VisibleContent
 --- @field selection InputSelection
 --- @field cfg Config
 --- @field custom_status CustomStatus?
@@ -32,13 +34,14 @@ InputModel = {}
 --- @param eval EvalBase
 --- @param oneshot boolean?
 function InputModel:new(cfg, eval, oneshot)
+  local w = cfg.view.drawableChars
   local im = {
     oneshot = oneshot,
     entered = InputText:new(),
     evaluator = eval,
     type = eval.kind,
     cursor = Cursor:new(),
-    wrapped_text = WrappedText.new(cfg.view.drawableChars),
+    wrapped_text = WrappedText.new(w),
     selection = InputSelection:new(),
     custom_status = nil,
 
@@ -47,7 +50,17 @@ function InputModel:new(cfg, eval, oneshot)
   setmetatable(im, self)
   self.__index = self
 
+  im:init_visible({ '' })
+
   return im
+end
+
+--- @param text string[]
+function InputModel:init_visible(text)
+  local w = self.cfg.view.drawableChars
+  local s = self.cfg.view.input_max
+  self.visible = VisibleContent(w, text, 1, s)
+  self.visible:set_default_range()
 end
 
 ----------------
@@ -102,8 +115,11 @@ function InputModel:set_text(text, keep_cursor)
   elseif type(text) == 'table' then
     self.entered = InputText:new(text)
   end
-  self:jump_end()
   self:text_change()
+  if not keep_cursor then
+    self:init_visible(self.entered)
+  end
+  self:jump_end()
 end
 
 --- @private
@@ -257,6 +273,7 @@ end
 
 function InputModel:clear_input()
   self.entered = InputText:new()
+  self.visible.set_range(Range(1, 1))
   self:text_change()
   self:clear_selection()
   self:_update_cursor(true)
@@ -277,6 +294,7 @@ function InputModel:text_change()
     self.tokens = ts
   end
   self.wrapped_text:wrap(self.entered)
+  self.visible:wrap(self.entered)
 end
 
 --- @return Highlight?
@@ -397,6 +415,7 @@ function InputModel:get_input()
     wrapped_text = self:get_wrapped_text(),
     highlight    = self:highlight(),
     selection    = self:get_ordered_selection(),
+    visible      = self.visible,
   }
 end
 

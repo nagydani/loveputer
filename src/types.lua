@@ -62,6 +62,7 @@
 --- @field wrapped_text WrappedText
 --- @field highlight Highlight
 --- @field selection InputSelection
+--- @field visible VisibleContent
 
 --- @class ViewData table
 --- @field w_error string[]
