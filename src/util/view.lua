@@ -1,3 +1,5 @@
+require("util.string")
+
 --- @param cfg ViewConfig
 --- @return number
 local get_drawable_height = function(cfg)
@@ -14,6 +16,7 @@ local get_drawable_height = function(cfg)
 end
 
 --- Write a line of text to output
+--- pass 0 for breaks if the text is already wrapped!
 --- @param l number
 --- @param str string
 --- @param y number
@@ -23,6 +26,28 @@ local write_line = function(l, str, y, breaks, cfg)
   local dy = y - (-l + 1 + breaks) * cfg.fh
   G.setFont(cfg.font)
   G.print(str, cfg.border, dy)
+end
+
+--- Write a token to output
+--- @param dy number
+--- @param dx number
+--- @param token string
+--- @param color table
+--- @param bgcolor table
+--- @param selected boolean
+local write_token = function(dy, dx, token,
+                             color, bgcolor, selected)
+  G.push('all')
+  if selected then
+    G.setColor(color)
+    local back = string.rep('█', string.ulen(token))
+    G.print(back, dx, dy)
+    G.setColor(bgcolor)
+  else
+    G.setColor(color)
+  end
+  G.print(token, dx, dy)
+  G.pop()
 end
 
 --- Hide elements for debugging
@@ -112,6 +137,7 @@ local blendModes = {
 ViewUtils = {
   get_drawable_height = get_drawable_height,
   write_line = write_line,
+  write_token = write_token,
   conditional_draw = conditional_draw,
 
   blendModes = blendModes,
