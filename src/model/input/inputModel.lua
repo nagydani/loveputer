@@ -329,9 +329,11 @@ end
 --- Follow cursor movement with visible range
 --- @private
 function InputModel:_follow_cursor()
-  local cursor_line, _ = self:_get_cursor_pos()
+  local cl, cc = self:_get_cursor_pos()
+  local w = self.cfg.view.drawableChars
+  local acl = cl + (math.floor(cc / w) or 0)
   local vrange = self.visible:get_range()
-  local diff = vrange:outside(cursor_line)
+  local diff = vrange:outside(acl)
   if diff ~= 0 then
     self.visible:move_range(diff)
   end
@@ -395,6 +397,7 @@ function InputModel:move_cursor(y, x, selection)
   else
     self:clear_selection()
   end
+  self:_follow_cursor()
 end
 
 --- @private
