@@ -122,13 +122,14 @@ function Statusline:draw(status, nLines, time)
 
         G.setFont(self.cfg.font)
         G.setColor(colors.fg)
+        if colors.fg2 then G.setColor(colors.fg2) end
         --- cursor pos
         G.print(t_ic, endTextX - cw_il, start_text.y)
-
         --- input more
         G.setFont(self.cfg.iconfont)
         G.print(more_i, s_mi, start_text.y - 3)
 
+        G.setColor(colors.fg)
         --- block line range / line
         G.setFont(self.cfg.font)
         G.print(t_blp, sxl, start_text.y)
