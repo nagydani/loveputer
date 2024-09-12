@@ -16,6 +16,10 @@ function Cursor:new(l, c)
   return cur
 end
 
+function Cursor:__tostring()
+  return string.format('{l%d, %d}', self.l, self.c)
+end
+
 function Cursor:inline(c)
   return Cursor:new(1, c)
 end
