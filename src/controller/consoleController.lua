@@ -614,6 +614,30 @@ function ConsoleController:keyreleased(k)
   self.interpreter:keyreleased(k)
 end
 
+function ConsoleController:mousepressed(x, y, button)
+  if love.state.app_state == 'editor' then
+    self.editor.interpreter:mousepressed(x, y, button)
+  else
+    self.interpreter:mousepressed(x, y, button)
+  end
+end
+
+function ConsoleController:mousereleased(x, y, button)
+  if love.state.app_state == 'editor' then
+    self.editor.interpreter:mousereleased(x, y, button)
+  else
+    self.interpreter:mousereleased(x, y, button)
+  end
+end
+
+function ConsoleController:mousemoved(x, y, dx, dy)
+  if love.state.app_state == 'editor' then
+    self.editor.interpreter:mousemoved(x, y)
+  else
+    self.interpreter:mousemoved(x, y)
+  end
+end
+
 --- @return Terminal
 function ConsoleController:get_terminal()
   return self.model.output.terminal
