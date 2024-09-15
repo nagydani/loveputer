@@ -1,3 +1,5 @@
+require('util.lua')
+
 function love.conf(t)
   t.identity = 'loveputer'
   t.window.title = 'LÖVEputer'
@@ -25,7 +27,10 @@ function love.conf(t)
   -- Android: use SD card for storage
   t.externalstorage = true
 
-  pcall(function()
-    require('host').spec(t)
-  end)
+  --- the language server is not aware of the additions
+  --- @diagnostic disable-next-line undefined-global
+  local hostconf = prequire('host')
+  if hostconf then
+    hostconf.spec(t)
+  end
 end

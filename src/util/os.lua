@@ -12,5 +12,5 @@ local function runcmd(cmd)
 end
 
 return {
-  runcmd = runcmd
+  runcmd = runcmd,
 }
