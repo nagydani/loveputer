@@ -2,6 +2,7 @@ require("controller.inputController")
 require("controller.interpreterController")
 require("controller.editorController")
 
+require("util.lua")
 require("util.testTerminal")
 require("util.key")
 local LANG = require("util.eval")
@@ -656,10 +657,9 @@ function ConsoleController:get_viewdata()
 end
 
 function ConsoleController:autotest()
-  local inter = self.interpreter
-
-  inter:add_text('project("turtle")')
-  self:evaluate_input()
-  inter:add_text('edit("short.lua")')
-  self:evaluate_input()
+  --- @diagnostic disable-next-line undefined-global
+  local autotest = prequire('tests/autotest')
+  if autotest then
+    autotest(self)
+  end
 end
