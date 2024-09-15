@@ -23,9 +23,9 @@ setmetatable(EditorController, {
 
 --- @param M EditorModel
 function EditorController.new(M)
-  local IC = InputController.new(M.interpreter.input)
+  local IC = InputController(M.interpreter.input)
   local self = setmetatable({
-    interpreter = InterpreterController.new(M.interpreter, IC),
+    interpreter = InterpreterController(M.interpreter, IC),
     model = M,
     view = nil,
   }, EditorController)
