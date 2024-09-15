@@ -38,7 +38,7 @@ function InterpreterModel.new(cfg)
   local luaInput  = InputEval:new(true)
   local self      = setmetatable({
     cfg = cfg,
-    input = InputModel:new(cfg, luaEval),
+    input = InputModel(cfg, luaEval),
     history = Dequeue(),
     -- starter
     evaluator = luaEval,

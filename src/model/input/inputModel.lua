@@ -29,13 +29,20 @@ require("util.debug")
 --- @field get_n_text_lines fun(self): integer
 --- @field get_wrapped_text fun(self): WrappedText
 InputModel = {}
+InputModel.__index = InputModel
+
+setmetatable(InputModel, {
+  __call = function(cls, ...)
+    return cls.new(...)
+  end,
+})
 
 --- @param cfg Config
 --- @param eval EvalBase
 --- @param oneshot boolean?
-function InputModel:new(cfg, eval, oneshot)
+function InputModel.new(cfg, eval, oneshot)
   local w = cfg.view.drawableChars
-  local im = {
+  local self = setmetatable({
     oneshot = oneshot,
     entered = InputText:new(),
     evaluator = eval,
@@ -46,13 +53,11 @@ function InputModel:new(cfg, eval, oneshot)
     custom_status = nil,
 
     cfg = cfg,
-  }
-  setmetatable(im, self)
-  self.__index = self
+  }, InputModel)
 
-  im:init_visible({ '' })
+  InputModel.init_visible(self, { '' })
 
-  return im
+  return self
 end
 
 --- @param text string[]

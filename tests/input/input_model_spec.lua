@@ -20,7 +20,7 @@ describe("input model spec #input", function()
   --   ASCII     --
   -----------------
   describe('basics', function()
-    local model = InputModel:new(mockConf, luaEval)
+    local model = InputModel(mockConf, luaEval)
 
     it('initializes', function()
       assert.are.equal(getmetatable(model), InputModel)
@@ -65,7 +65,7 @@ describe("input model spec #input", function()
   --   cursor    --
   -----------------
   describe('cursor', function()
-    local model = InputModel:new(mockConf, luaEval)
+    local model = InputModel(mockConf, luaEval)
     local test1 = 'text'
     local test_char1 = 'x'
 
@@ -132,7 +132,7 @@ describe("input model spec #input", function()
   --   UTF-8     --
   -----------------
   describe('handles UTF-8', function()
-    local model = InputModel:new(mockConf, luaEval)
+    local model = InputModel(mockConf, luaEval)
 
     local test1 = 'когда'
     local test2 = 'あいうえお'
@@ -255,7 +255,7 @@ describe("input model spec #input", function()
   --   Del/Bksp  --
   -----------------
   describe('delete and backspace', function()
-    local model = InputModel:new(mockConf, luaEval)
+    local model = InputModel(mockConf, luaEval)
 
     local test1 = 'когда'
     local test2 = 'asdf'
@@ -348,7 +348,7 @@ describe("input model spec #input", function()
   --  Multiline  --
   -----------------
   describe('handles multiline', function()
-    local model = InputModel:new(mockConf, luaEval)
+    local model = InputModel(mockConf, luaEval)
     local test1 = 'first\nsecond'
     local test1_l1 = 'first'
     local test1_l2 = 'second'
@@ -442,7 +442,7 @@ describe("input model spec #input", function()
   end)
   --   cursor    --
   describe('multiline cursor', function()
-    local model = InputModel:new(mockConf, luaEval)
+    local model = InputModel(mockConf, luaEval)
     local test1 = 'first\nsecond'
     local test1_l1 = 'first'
     local test1_l2 = 'second'
@@ -567,7 +567,7 @@ describe("input model spec #input", function()
 
   --   Del/Bksp  --
   describe('multiline delete', function()
-    local model = InputModel:new(mockConf, luaEval)
+    local model = InputModel(mockConf, luaEval)
     local test1 = 'firstsecond'
     local test1_l1 = 'first'
     local test1_l2 = 'second'
@@ -615,7 +615,7 @@ describe("input model spec #input", function()
         input_max = 14
       }
     }
-    local model = InputModel:new(cfg, luaEval)
+    local model = InputModel.new(cfg, luaEval)
     local n_char = w * 2 + 4
     local char1 = 'щ'
     describe('cursor', function()
