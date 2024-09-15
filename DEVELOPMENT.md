@@ -15,7 +15,6 @@ luarocks --local --lua-version 5.1 install luautf8
 
 For information about installing [LÖVE2D] and [LuaRocks], visit their respective webpages.
 
-
 ### Running unit tests
 
 ```sh
@@ -37,6 +36,7 @@ This is currently used for testing the canvas terminal, therefore it causes the 
 Certain diagnostic key combinations are only available in debug mode,
 to access this, run the project with the `DEBUG` environment variable set
 (it's value doesn't matter, just that it's set):
+
 ```sh
 DEBUG=1 love src
 ```
@@ -46,11 +46,31 @@ In this mode, a VT-100 terminal test can be activated with ^T (C-t, or Ctrl+t).
 ### HiDPI
 
 Similarly, to set double scaling, set the `HIDPI` variable to `true`
+
 ```sh
 HIDPI=true love src
 ```
 
+## `util/lua.lua` (luautils)
+
+The contents of this module will be put into the global
+namespace (`_G`). However, the language server does not pick up
+on this (yet), so usages will be littered with warnings unless
+silenced.
+
+#### `prequire()`
+
+Analogous to `pcall()`, require a lua file that may or may not
+exist. Example:
+
+```lua
+--- @diagnostic disable-next-line undefined-global
+local autotest = prequire('tests/autotest')
+if autotest then
+  autotest(self)
+end
+```
 
 [löve2d]: https://love2d.org
 [busted]: https://lunarmodules.github.io/busted/
-[LuaRocks]: https://luarocks.org/
+[luarocks]: https://luarocks.org/
