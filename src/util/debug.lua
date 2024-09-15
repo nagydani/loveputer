@@ -18,6 +18,31 @@ end
 
 local text = string.debug_text
 
+local debugdebug = function(...)
+  if love and not TESTING
+  then
+  else
+    local args = { ... }
+    io.write(tc.to_control(6))
+    for _, v in ipairs(args) do
+      local s = v
+      if type(v) == 'string' then s = text(v) end
+      io.write(s .. '\t')
+    end
+    print(tc.reset)
+  end
+end
+
+local debugappend = function(res, str)
+  if love and not TESTING
+  then
+  else
+    io.write(tc.to_control(5))
+    io.write(str .. '\t')
+    print(tc.reset)
+    return res .. str
+  end
+end
 
 --- @param t table?
 --- @param level integer?
@@ -287,7 +312,7 @@ local annot = function(tag, color, args)
   local ret = tc.to_control(color)
   ret = ret .. tag .. ': '
   for _, s in ipairs(args) do
-    ret = ret .. tostring(s) .. '\t'
+    ret = ret .. tostring(s or '') .. '\t'
   end
   ret = ret .. tc.reset
   return ret
