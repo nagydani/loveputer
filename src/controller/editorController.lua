@@ -104,7 +104,7 @@ function EditorController:_generate_status(sel)
     end
   end
   if bufview.content_type == 'lua' then
-    local range = bufview.content:get_block_pos(sel)
+    local range = bufview.content:get_block_app_pos(sel)
     cs = {
       content_type = bufview.content_type,
       block = sel,

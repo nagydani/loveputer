@@ -169,6 +169,8 @@ function VisibleStructuredContent:get_block_pos(bn)
   local cl = #(self.blocks)
   if bn > 0 and bn <= cl then
     return self.blocks[bn].pos
+  elseif cl == 0 then --- empty/new file
+    Range.singleton(1)
   elseif bn == cl + 1 then
     return Range.singleton(self.blocks[cl].pos.fin + 1)
   end

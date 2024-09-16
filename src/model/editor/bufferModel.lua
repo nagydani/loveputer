@@ -205,7 +205,13 @@ function BufferModel:replace_selected_text(t)
         return current.pos.start,
             self.content[sel].pos:len()
       end
-      return self.content:last().pos.fin + 1, 0
+      local last = self.content:last()
+      if last then
+        return
+            self.content:last().pos.fin + 1, 0
+      else --- empty file
+        return 1, 0
+      end
     end)()
 
     --- remove old chunk
