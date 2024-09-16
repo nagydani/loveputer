@@ -8,7 +8,7 @@ require("controller.interpreterController")
 ---
 --- @field open fun(self, name: string, content: string[]?)
 --- @field close fun(self): string, string[]
---- @field get_active_buffer function
+--- @field get_active_buffer fun(self): BufferModel
 --- @field update_status function
 --- @field textinput fun(self, string)
 --- @field keypressed fun(self, string)
@@ -69,11 +69,11 @@ function EditorController:open(name, content)
 end
 
 --- @return string name
---- @return string[] content
+--- @return Dequeue content
 function EditorController:close()
   local buf = self:get_active_buffer()
-  local content = buf.content
   self.interpreter:clear()
+  local content = buf:get_text_content()
   return buf.name, content
 end
 

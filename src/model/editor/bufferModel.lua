@@ -88,7 +88,7 @@ end
 function BufferModel:get_text_content()
   if self.content_type == 'lua'
   then
-    return self:render_blocks(self.content)
+    return self:_render_blocks(self.content)
   elseif self.content_type == 'plain'
   then
     return self.content
@@ -97,7 +97,7 @@ function BufferModel:get_text_content()
 end
 
 --- @return string[]
-function BufferModel:render_blocks(blocks)
+function BufferModel:_render_blocks(blocks)
   local ret = Dequeue.typed('string')
   for _, v in ipairs(blocks) do
     if v.tag == 'chunk' then
