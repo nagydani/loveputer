@@ -193,7 +193,7 @@ function EditorController:keypressed(k)
       if ct == 'lua' then
         local buf = self:get_active_buffer()
         local raw = self.interpreter:get_text()
-        local pretty = buf.printer(raw)
+        local pretty = buf.printer(raw) or { '' }
         local ok, res = inter:evaluate()
         local _, chunks = buf.chunker(pretty, true)
         if ok then
