@@ -3,6 +3,7 @@ require("model.input.inputText")
 require("model.input.selection")
 require("view.editor.visibleContent")
 
+local class = require('util.class')
 require("util.wrapped_text")
 require("util.dequeue")
 require("util.string")
@@ -28,14 +29,8 @@ require("util.debug")
 --- @field get_text_line fun(self, integer): string
 --- @field get_n_text_lines fun(self): integer
 --- @field get_wrapped_text fun(self): WrappedText
-InputModel = {}
-InputModel.__index = InputModel
+InputModel = class.create()
 
-setmetatable(InputModel, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
 
 --- @param cfg Config
 --- @param eval EvalBase
