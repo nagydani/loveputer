@@ -1,3 +1,5 @@
+local class = require('util.class')
+
 require("model.canvasModel")
 require("model.editor.editorModel")
 require("model.interpreter.interpreterModel")
@@ -9,23 +11,12 @@ require("model.project.project")
 --- @field output CanvasModel
 --- @field projects ProjectService
 --- @field cfg Config
-ConsoleModel = {}
-ConsoleModel.__index = ConsoleModel
-
-setmetatable(ConsoleModel, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
-
---- @param cfg Config
-function ConsoleModel.new(cfg)
-  local self = setmetatable({
+ConsoleModel = class.create(function(cfg)
+  return {
     interpreter = InterpreterModel(cfg),
     editor      = EditorModel(cfg),
     output      = CanvasModel(cfg),
     projects    = ProjectService:new(),
     cfg         = cfg
-  }, ConsoleModel)
-  return self
-end
+  }
+end)
