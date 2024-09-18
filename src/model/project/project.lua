@@ -1,6 +1,6 @@
 require("util.string")
 require("util.filesystem")
-
+local class = require('util.class')
 
 local function error_annot(base)
   return function(err)
@@ -63,23 +63,12 @@ end
 --- @field contents function
 --- @field readfile function
 --- @field writefile function
-Project = {}
-Project.__index = Project
-
-setmetatable(Project, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
-
-function Project.new(pname)
-  local self = setmetatable({
+Project = class.create(function(pname)
+  return {
     name = pname,
     path = string.join_path(love.paths.project_path, pname)
-  }, Project)
-
-  return self
-end
+  }
+end)
 
 --- @return table
 function Project:contents()
