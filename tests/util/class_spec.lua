@@ -53,6 +53,42 @@ describe('Class factory `create`', function()
     M:method2()
     assert.is_true(M.hello)
   end)
+
+  it('new', function()
+    N = class.create()
+    local sample = 'sample'
+    N.new = function(cfg)
+      local self = setmetatable({
+        sample = sample,
+        cfg = cfg,
+      }, N)
+
+      return self
+    end
+
+    local cfg = 'config'
+    local n = N(cfg)
+    assert.same(cfg, n.cfg)
+    assert.same(sample, n.sample)
+
+    R = class.create()
+    R.new = function(dim)
+      local width = dim.width or 10
+      local height = dim.height or 5
+      local self = setmetatable({
+        width = width,
+        height = height,
+        area = width * height,
+      }, R)
+
+      return self
+    end
+
+    local rect = R({ width = 80, height = 25 })
+    assert.same(80, rect.width)
+    assert.same(25, rect.height)
+    assert.same(2000, rect.area)
+  end)
 end)
 
 describe('Class factory `newclass`', function()

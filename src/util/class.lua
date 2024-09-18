@@ -13,9 +13,13 @@ return {
 
     setmetatable(ret, {
       __call = function(cls, ...)
-        local instance = new(...)
-        setmetatable(instance, cls)
-        return instance
+        if type(cls.new) == "function" then
+          return cls.new(...)
+        else
+          local instance = new(...)
+          setmetatable(instance, cls)
+          return instance
+        end
       end,
     })
 
