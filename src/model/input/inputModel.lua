@@ -44,7 +44,7 @@ function InputModel.new(cfg, eval, oneshot)
     type = eval.kind,
     cursor = Cursor(),
     wrapped_text = WrappedText.new(w),
-    selection = InputSelection:new(),
+    selection = InputSelection(),
     custom_status = nil,
 
     cfg = cfg,
@@ -749,7 +749,7 @@ end
 function InputModel:get_ordered_selection()
   local sel = self.selection
   local s, e = self:diff_cursors(sel.start, sel.fin)
-  local ret = InputSelection:new()
+  local ret = InputSelection()
   ret.start = s
   ret.fin = e
   ret.text = sel.text
@@ -776,7 +776,7 @@ function InputModel:pop_selected_text()
 end
 
 function InputModel:clear_selection()
-  self.selection = InputSelection:new()
+  self.selection = InputSelection()
   self:release_selection()
 end
 
