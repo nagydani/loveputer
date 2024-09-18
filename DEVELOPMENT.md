@@ -1,6 +1,7 @@
-## Development
+## Installing
 
-To run the code, [LÖVE2D] is required. It's been tested and developed on version 11.4 (Mysterious Mysteries).
+To run the code, [LÖVE2D] is required. It's been tested and developed on version
+11.4 (Mysterious Mysteries).
 
 For unit tests, we are using the [busted] framework.
 Also, we need to supplement a utf-8 library, which comes with LOVE, but
@@ -13,23 +14,69 @@ luarocks --local --lua-version 5.1 install busted
 luarocks --local --lua-version 5.1 install luautf8
 ```
 
-For information about installing [LÖVE2D] and [LuaRocks], visit their respective webpages.
+For information about installing [LÖVE2D] and [LuaRocks], visit their respective
+webpages.
 
-### Running unit tests
+## Development
 
-```sh
-busted tests
+### `util/lua.lua` (luautils)
+
+The contents of this module will be put into the global
+namespace (`_G`). However, the language server does not pick up
+on this (yet), so usages will be littered with warnings unless
+silenced.
+
+#### `prequire()`
+
+Analogous to `pcall()`, require a lua file that may or may not
+exist. Example:
+
+```lua
+--- @diagnostic disable-next-line undefined-global
+local autotest = prequire('tests/autotest')
+if autotest then
+  autotest(self)
+end
 ```
 
-### Test mode
+## Testing
 
-The game can be run with the `--test` flag, which causes it to launch in test mode.
+### Test modes
+
+#### normal
+
+The game can be run with the `--test` flag, which causes it to launch in test
+mode.
 
 ```sh
 love src --test
 ```
 
-This is currently used for testing the canvas terminal, therefore it causes the terminal to be smaller (so overflows are clearly visible), and pre-fills it with characters.
+This is currently used for testing the canvas terminal, therefore it causes the
+terminal to be smaller (so overflows are clearly visible), and pre-fills it with
+characters.
+
+#### autotest
+
+```sh
+love src --autotest
+```
+
+#### drawtest
+
+```sh
+love src --drawtest
+```
+
+### Running unit tests
+
+In project root:
+
+```sh
+busted tests
+```
+
+## Environment variables
 
 ### Debug mode
 
@@ -49,26 +96,6 @@ Similarly, to set double scaling, set the `HIDPI` variable to `true`
 
 ```sh
 HIDPI=true love src
-```
-
-## `util/lua.lua` (luautils)
-
-The contents of this module will be put into the global
-namespace (`_G`). However, the language server does not pick up
-on this (yet), so usages will be littered with warnings unless
-silenced.
-
-#### `prequire()`
-
-Analogous to `pcall()`, require a lua file that may or may not
-exist. Example:
-
-```lua
---- @diagnostic disable-next-line undefined-global
-local autotest = prequire('tests/autotest')
-if autotest then
-  autotest(self)
-end
 ```
 
 [löve2d]: https://love2d.org
