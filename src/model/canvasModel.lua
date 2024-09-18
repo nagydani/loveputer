@@ -1,6 +1,7 @@
 require("util.dequeue")
 require("util.string")
 require("util.view")
+local class = require('util.class')
 local Terminal = require("lib.terminal")
 
 local G = love.graphics
@@ -17,14 +18,7 @@ local G = love.graphics
 --- @field get_canvas function
 --- @field draw_to function
 --- @field restore_main function
-CanvasModel = {}
-CanvasModel.__index = CanvasModel
-
-setmetatable(CanvasModel, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
+CanvasModel = class.create()
 
 --- @param cfg Config
 function CanvasModel.new(cfg)
