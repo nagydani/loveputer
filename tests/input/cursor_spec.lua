@@ -6,9 +6,9 @@ if not orig_print then
 end
 
 describe('cursor', function()
-  local c1 = Cursor:new(1, 2)
-  local c2 = Cursor:new(1, 1)
-  local c3 = Cursor:new(1, 1)
+  local c1 = Cursor(1, 2)
+  local c2 = Cursor(1, 1)
+  local c3 = Cursor(1, 1)
 
   it('compares', function()
     assert.are.equal(-1, c1:compare(c2))

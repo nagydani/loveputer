@@ -47,7 +47,7 @@ function InputModel.new(cfg, eval, oneshot)
     entered = InputText:new(),
     evaluator = eval,
     type = eval.kind,
-    cursor = Cursor:new(),
+    cursor = Cursor(),
     wrapped_text = WrappedText.new(w),
     selection = InputSelection:new(),
     custom_status = nil,
@@ -698,9 +698,9 @@ end
 function InputModel:start_selection(l, c)
   local start = (function()
     if l and c then
-      return Cursor:new(l, c)
+      return Cursor(l, c)
     else -- default to current cursor position
-      return Cursor:new(self:_get_cursor_pos())
+      return Cursor(self:_get_cursor_pos())
     end
   end)()
   self.selection.start = start
@@ -710,9 +710,9 @@ function InputModel:end_selection(l, c)
   local start         = self.selection.start
   local fin           = (function()
     if l and c then
-      return Cursor:new(l, c)
+      return Cursor(l, c)
     else -- default to current cursor position
-      return Cursor:new(self:_get_cursor_pos())
+      return Cursor(self:_get_cursor_pos())
     end
   end)()
   local from, to      = self:diff_cursors(start, fin)

@@ -22,8 +22,8 @@ describe('InputText', function()
   end)
 
   it('traverses', function()
-    local from = Cursor:new(1, 12)
-    local to   = Cursor:new(2, 7 + 1)
+    local from = Cursor(1, 12)
+    local to   = Cursor(2, 7 + 1)
     local trav = text:traverse(from, to)
     local exp  = {
       ' --[[ ml',
@@ -40,8 +40,8 @@ describe('InputText', function()
     assert.same(rem, text)
 
     local text2  = InputText:new(t)
-    -- from   = Cursor:new(1, 12)
-    to           = Cursor:new(3, 1)
+    -- from   = Cursor(1, 12)
+    to           = Cursor(3, 1)
     local exp2   = {
       ' --[[ ml',
       'c --]] -- ac',
@@ -57,7 +57,7 @@ describe('InputText', function()
     assert.same(rem2, text2)
 
     -- from   = Cursor:new(1, 12)
-    to            = Cursor:new(2, string.ulen(l2) + 1)
+    to            = Cursor(2, string.ulen(l2) + 1)
     local text2b  = InputText:new(t)
     local exp2b   = {
       ' --[[ ml',
@@ -72,8 +72,8 @@ describe('InputText', function()
     assert.same(rem2b, text2b)
 
     local text3  = InputText:new(t)
-    from         = Cursor:new(2, 7)
-    to           = Cursor:new(2, 12 + 1)
+    from         = Cursor(2, 7)
+    to           = Cursor(2, 12 + 1)
     local trav_3 = text3:traverse(from, to)
     local exp3   = {
       ' -- ac',
