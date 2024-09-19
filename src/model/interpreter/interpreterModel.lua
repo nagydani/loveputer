@@ -4,6 +4,7 @@ require("model.interpreter.eval.inputEval")
 require("model.interpreter.item")
 require("model.input.inputModel")
 
+local class = require('util.class')
 require("util.dequeue")
 require("util.string")
 require("util.debug")
@@ -20,38 +21,27 @@ require("util.debug")
 -- methods
 --- @field reset fun(self, h: boolean?)
 --- @field get_entered_text fun(self): InputText
---- @todo
-InterpreterModel = {}
-InterpreterModel.__index = InterpreterModel
-
-setmetatable(InterpreterModel, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
-
---- @return InterpreterModel
+InterpreterModel = class.create(
 --- @param cfg Config
-function InterpreterModel.new(cfg)
-  local luaEval   = LuaEval.new()
-  local textInput = InputEval:new(false)
-  local luaInput  = InputEval:new(true)
-  local self      = setmetatable({
-    cfg = cfg,
-    input = InputModel(cfg, luaEval),
-    history = Dequeue(),
-    -- starter
-    evaluator = luaEval,
-    -- available options
-    luaEval = luaEval,
-    textInput = textInput,
-    luaInput = luaInput,
+--- @return InterpreterModel
+  function(cfg)
+    local luaEval   = LuaEval.new()
+    local textInput = InputEval:new(false)
+    local luaInput  = InputEval:new(true)
+    return {
+      cfg = cfg,
+      input = InputModel(cfg, luaEval),
+      history = Dequeue(),
+      -- starter
+      evaluator = luaEval,
+      -- available options
+      luaEval = luaEval,
+      textInput = textInput,
+      luaInput = luaInput,
 
-    wrapped_error = nil
-  }, InterpreterModel)
-
-  return self
-end
+      wrapped_error = nil
+    }
+  end)
 
 --- @param history boolean?
 function InterpreterModel:reset(history)
