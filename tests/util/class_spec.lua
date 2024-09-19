@@ -1,6 +1,69 @@
 local class = require('util.class')
 
-describe('Class factory `create`', function()
+describe('Working code', function()
+  it('chain inheritance', function()
+    --- Base class A
+    local A = {}
+    A.__index = A
+
+    function A:new(x)
+      local instance = setmetatable({}, self)
+      instance.a = 'a'
+      instance.x = x
+      return instance
+    end
+
+    function A:a_method()
+      return 'aaa'
+    end
+
+    --- Derived class B inheriting from A
+    local B = {}
+    B.__index = B
+    setmetatable(B, { __index = A })
+
+    function B:new(x, y)
+      local instance = A.new(self, x) --- Call A's constructor
+      instance.b = 'b'
+      instance.y = y
+      return instance
+    end
+
+    function B:b_method()
+      return 'bbb'
+    end
+
+    --- Derived class C inheriting from B
+    local C = {}
+    C.__index = C
+    setmetatable(C, { __index = B })
+
+    function C:new(x, y, z)
+      local instance = B.new(self, x, y) --- Call B's constructor
+      instance.c = 'c'
+      instance.z = z
+      return instance
+    end
+
+    function C:c_method()
+      return 'ccc'
+    end
+
+    local c = C:new(1, 2, 3)
+    assert.same('c', c.c)
+    assert.same('b', c.b)
+    assert.same('a', c.a)
+    assert.same(1, c.x)
+    assert.same(2, c.y)
+    assert.same(3, c.z)
+
+    assert.same('aaa', c:a_method())
+    assert.same('bbb', c:b_method())
+    assert.same('ccc', c:c_method())
+  end)
+end)
+
+describe('Class factory `create` handles', function()
   it('very simple', function()
     local ctr_a = function()
       return { a = 'a' }
@@ -9,6 +72,7 @@ describe('Class factory `create`', function()
     local a = A()
     assert.same('a', a.a)
   end)
+
   it('params', function()
     local ctr = function(x, y)
       return { x = x, y = y }
