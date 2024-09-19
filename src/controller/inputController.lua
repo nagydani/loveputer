@@ -1,16 +1,10 @@
+local class = require('util.class')
 require("util.key")
 
 --- @class InputController
 --- @field model InputModel
 --- @field result function
-InputController = {}
-InputController.__index = InputController
-
-setmetatable(InputController, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
+InputController = class.create()
 
 --- @param M InputModel
 --- @param result function?

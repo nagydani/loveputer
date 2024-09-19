@@ -2,6 +2,7 @@ require("controller.inputController")
 require("controller.interpreterController")
 require("controller.editorController")
 
+local class = require('util.class')
 require("util.lua")
 require("util.testTerminal")
 require("util.key")
@@ -22,14 +23,7 @@ require("util.table")
 -- methods
 --- @field edit function
 --- @field finish_edit function
-ConsoleController = {}
-ConsoleController.__index = ConsoleController
-
-setmetatable(ConsoleController, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
+ConsoleController = class.create()
 
 --- @param M Model
 function ConsoleController.new(M)

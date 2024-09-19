@@ -1,3 +1,5 @@
+local class = require('util.class')
+
 --- @class InterpreterController
 --- @field model InterpreterModel
 --- @field input InputController
@@ -13,14 +15,7 @@
 --- @field get_input fun(self): InputDTO
 --- @field get_text fun(self): string[]
 --- @field set_custom_status fun(self, CustomStatus)
-InterpreterController = {}
-InterpreterController.__index = InterpreterController
-
-setmetatable(InterpreterController, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
+InterpreterController = class.create()
 
 --- @param model InterpreterModel
 --- @param input InputController

@@ -2,6 +2,8 @@ require("controller.inputController")
 require("controller.interpreterController")
 require("view.input.customStatus")
 
+local class = require('util.class')
+
 --- @class EditorController
 --- @field model EditorModel
 --- @field interpreter InterpreterController
@@ -13,14 +15,7 @@ require("view.input.customStatus")
 --- @field update_status function
 --- @field textinput fun(self, string)
 --- @field keypressed fun(self, string)
-EditorController = {}
-EditorController.__index = EditorController
-
-setmetatable(EditorController, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
+EditorController = class.create()
 
 --- @param M EditorModel
 function EditorController.new(M)

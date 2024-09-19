@@ -1,25 +1,15 @@
+local class = require('util.class')
 require("util.range")
 
 --- @class Empty
 --- @field tag 'empty'
 --- @field pos Range
-Empty = {}
-setmetatable(Empty, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
-
---- @param ln integer
---- @return Empty
-function Empty.new(ln)
-  local self = setmetatable({
+Empty = class.create(function(ln)
+  return {
     tag = 'empty',
     pos = Range.singleton(ln),
-  }, Empty)
-
-  return self
-end
+  }
+end)
 
 function Empty:__tostring()
   return string.format('L%d: <empty>', self.pos.start)
@@ -30,14 +20,7 @@ end
 --- @field lines string[]
 --- @field hl SyntaxColoring
 --- @field pos Range
-Chunk = {}
-Chunk.__index = Chunk
-
-setmetatable(Chunk, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
+Chunk = class.create()
 
 --- @param lines string|string[]
 --- @return Chunk
