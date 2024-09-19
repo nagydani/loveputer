@@ -1,3 +1,4 @@
+local class = require('util.class')
 require("util.string")
 
 --- Example text: {
@@ -34,14 +35,7 @@ require("util.string")
 --- @field get_text function
 --- @field get_line function
 --- @field get_text_length function
-WrappedText = {}
-WrappedText.__index = WrappedText
-
-setmetatable(WrappedText, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
+WrappedText = class.create()
 
 --- @param w integer
 --- @param text string[]?

@@ -542,9 +542,9 @@ function ConsoleController:keypressed(k)
     if not love.state.testing then
       love.state.testing = 'running'
       inter:cancel()
-      TerminalTest:test(out.terminal)
+      TerminalTest.test(out.terminal)
     elseif love.state.testing == 'waiting' then
-      TerminalTest:reset(out.terminal)
+      TerminalTest.reset(out.terminal)
       love.state.testing = false
     end
   end

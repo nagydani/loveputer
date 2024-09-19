@@ -1,3 +1,5 @@
+local class = require('util.class')
+
 --- @class Range
 --- @field start integer
 --- @field fin integer
@@ -5,24 +7,15 @@
 --- @field inc fun(self, integer): boolean
 --- @field translate fun(self, integer): Range
 --- @field __tostring fun(self): string
-Range = {}
-Range.__index = Range
-
-setmetatable(Range, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
-
+Range = class.create(
 --- @param s integer
 --- @param e integer
-function Range.new(s, e)
-  -- TODO: validate
-  local self = setmetatable({
-    start = s, fin = e
-  }, Range)
-  return self
-end
+  function(s, e)
+    --- TODO: validate
+    return {
+      start = s, fin = e
+    }
+  end)
 
 function Range.singleton(n)
   return Range(n, n)

@@ -4,14 +4,7 @@ local Terminal = require("lib.terminal")
 
 TerminalTest = {}
 
-function TerminalTest:new(ctrl)
-  setmetatable({}, self)
-  self.__index = self
-
-  return self
-end
-
-function TerminalTest:test(term)
+function TerminalTest.test(term)
   local w = term.width
   local h = term.height
   -- save previous state
@@ -96,7 +89,7 @@ function TerminalTest:test(term)
   set_colors()
 end
 
-function TerminalTest:reset(term)
+function TerminalTest.reset(term)
   term:move_to(1, 1)
   term:clear()
 end

@@ -1,3 +1,5 @@
+local class = require('util.class')
+
 --- @class Dequeue<T>: { [integer]: T }
 --- @field new function
 --- @field push_front function
@@ -13,16 +15,9 @@
 --- @field items function
 --- @field length function
 --- @field is_empty function
-Dequeue = {}
-Dequeue.__index = Dequeue
+Dequeue = class.create()
 
 local tags = {}
-
-setmetatable(Dequeue, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
 
 --- Create a new double-ended queue
 --- @param values table?

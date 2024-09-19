@@ -2,11 +2,7 @@ require("util.range")
 local class = require('util.class')
 
 --- @class Scrollable
-Scrollable = class.newclass()
-
---- @class Scrollable
-Scrollable = {}
-Scrollable.__index = Scrollable
+Scrollable = class.create()
 
 --- @param size_max integer
 --- @param len integer
