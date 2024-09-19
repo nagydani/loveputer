@@ -273,7 +273,7 @@ Debug = {
     end
   end,
 
-  --- @param content string|string[]
+  --- @param content str
   --- @param ext string?
   --- @param fixname string?
   write_tempfile = function(content, ext, fixname)

@@ -22,7 +22,7 @@ end
 --- @field pos Range
 Chunk = class.create()
 
---- @param lines string|string[]
+--- @param lines str
 --- @return Chunk
 function Chunk.new(lines, pos)
   local ls = (function()

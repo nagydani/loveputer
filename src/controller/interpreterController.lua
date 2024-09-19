@@ -7,8 +7,8 @@ local class = require('util.class')
 --- @field set_eval fun(self, EvalBase)
 --- @field get_eval fun(self): EvalBase
 --- @field get_viewdata fun(self): ViewData
---- @field set_text fun(self, t: string|string[])
---- @field add_text fun(self, t: string|string[])
+--- @field set_text fun(self, t: str)
+--- @field add_text fun(self, t: str)
 --- @field textinput fun(self, t: string)
 --- @field keypressed fun(self, k: string): boolean?
 --- @field clear fun(self)
@@ -45,12 +45,12 @@ function InterpreterController:get_viewdata()
   }
 end
 
---- @param t string|string[]
+--- @param t str
 function InterpreterController:set_text(t)
   self.input:set_text(t)
 end
 
---- @param t string|string[]
+--- @param t str
 function InterpreterController:add_text(t)
   self.input:add_text(t)
 end

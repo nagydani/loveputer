@@ -16,7 +16,7 @@ setmetatable(VisibleBlock, {
 })
 
 --- @param w integer
---- @param lines string|string[]
+--- @param lines str
 --- @param pos Range
 --- @return VisibleBlock
 function VisibleBlock.new(w, lines, hl, pos, apos)

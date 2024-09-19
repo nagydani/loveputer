@@ -1,4 +1,3 @@
-require("model.interpreter.item")
 require("model.input.inputText")
 require("model.input.selection")
 require("model.lang.parse_error")
@@ -100,7 +99,7 @@ function InputModel:add_text(text)
   end
 end
 
---- @param text string|string[]
+--- @param text str
 --- @param keep_cursor boolean
 function InputModel:set_text(text, keep_cursor)
   self.entered = nil
@@ -124,7 +123,7 @@ function InputModel:set_text(text, keep_cursor)
 end
 
 --- @private
---- @param text string|string[]
+--- @param text str
 --- @param ln integer
 --- @param keep_cursor boolean
 function InputModel:_set_text_line(text, ln, keep_cursor)

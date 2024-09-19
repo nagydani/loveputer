@@ -1,7 +1,6 @@
 require("model.interpreter.eval.textEval")
 require("model.interpreter.eval.luaEval")
 require("model.interpreter.eval.inputEval")
-require("model.interpreter.item")
 require("model.input.inputModel")
 
 local class = require('util.class')

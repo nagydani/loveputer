@@ -207,7 +207,7 @@ string.split_array = function(str_arr, char)
   return words
 end
 
---- @param s string|string[]
+--- @param s str
 --- @return string[]
 string.lines = function(s)
   if type(s) == 'string' then
@@ -219,7 +219,7 @@ string.lines = function(s)
   return {}
 end
 
---- @param strs string|string[]
+--- @param strs str
 --- @param char string?
 --- @return string
 string.join = function(strs, char)
@@ -242,7 +242,7 @@ string.join = function(strs, char)
   return res
 end
 
---- @param strs string|table
+--- @param strs str
 --- @return string
 string.unlines = function(strs)
   return string.join(strs, '\n')

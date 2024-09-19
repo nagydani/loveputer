@@ -25,7 +25,7 @@ function InputController:textinput(t)
   self.model:add_text(t)
 end
 
---- @param t string|string[]
+--- @param t str
 function InputController:add_text(t)
   self.model:add_text(string.unlines(t))
 end
@@ -38,7 +38,7 @@ function InputController:set_eval(eval)
   self.model:set_eval(eval)
 end
 
---- @param t string|string[]
+--- @param t str
 function InputController:set_text(t)
   self.model:set_text(t)
 end
