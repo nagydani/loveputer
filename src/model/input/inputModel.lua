@@ -39,7 +39,7 @@ function InputModel.new(cfg, eval, oneshot)
   local w = cfg.view.drawableChars
   local self = setmetatable({
     oneshot = oneshot,
-    entered = InputText:new(),
+    entered = InputText(),
     evaluator = eval,
     type = eval.kind,
     cursor = Cursor(),
@@ -107,13 +107,13 @@ function InputModel:set_text(text, keep_cursor)
     local lines = string.lines(text)
     local n_added = #lines
     if n_added == 1 then
-      self.entered = InputText:new({ text })
+      self.entered = InputText({ text })
     end
     if not keep_cursor then
       self:_update_cursor(true)
     end
   elseif type(text) == 'table' then
-    self.entered = InputText:new(text)
+    self.entered = InputText(text)
   end
   self:text_change()
   if not keep_cursor then
@@ -135,7 +135,7 @@ function InputModel:_set_text_line(text, ln, keep_cursor)
         self:_update_cursor(true)
       end
     elseif type(text) == 'table' and ln == 1 then
-      self.entered = InputText:new(text)
+      self.entered = InputText(text)
     end
   end
 end

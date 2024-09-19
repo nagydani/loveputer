@@ -13,7 +13,7 @@ describe('InputText', function()
   t:append(l1)
   t:append(l2)
   t:append(l3)
-  local text = InputText:new(t)
+  local text = InputText(t)
 
   it('inherits Dequeue', function()
     local empty = InputText:new()
@@ -39,7 +39,7 @@ describe('InputText', function()
     assert.same(exp, trav_d)
     assert.same(rem, text)
 
-    local text2  = InputText:new(t)
+    local text2  = InputText(t)
     -- from   = Cursor(1, 12)
     to           = Cursor(3, 1)
     local exp2   = {
@@ -58,7 +58,7 @@ describe('InputText', function()
 
     -- from   = Cursor:new(1, 12)
     to            = Cursor(2, string.ulen(l2) + 1)
-    local text2b  = InputText:new(t)
+    local text2b  = InputText(t)
     local exp2b   = {
       ' --[[ ml',
       'c --]] -- ac',
@@ -71,7 +71,7 @@ describe('InputText', function()
     assert.same(exp2b, trav_2b)
     assert.same(rem2b, text2b)
 
-    local text3  = InputText:new(t)
+    local text3  = InputText(t)
     from         = Cursor(2, 7)
     to           = Cursor(2, 12 + 1)
     local trav_3 = text3:traverse(from, to)
