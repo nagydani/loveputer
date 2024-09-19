@@ -1,5 +1,6 @@
 require("controller.inputController")
 require("controller.interpreterController")
+require("view.input.customStatus")
 
 --- @class EditorController
 --- @field model EditorModel
@@ -93,22 +94,12 @@ function EditorController:_generate_status(sel)
   local more = bufview.content:get_more()
   local cs
   if bufview.content_type == 'plain' then
-    cs = {
-      content_type = bufview.content_type,
-      buflen = len,
-      buffer_more = more,
-      selection = sel,
-    }
+    cs = CustomStatus(bufview.content_type, len, more, sel)
   end
   if bufview.content_type == 'lua' then
     local range = bufview.content:get_block_app_pos(sel)
-    cs = {
-      content_type = bufview.content_type,
-      buflen = len,
-      buffer_more = more,
-      selection = sel,
-      range = range,
-    }
+    cs = CustomStatus(
+      bufview.content_type, len, more, sel, range)
   end
 
   return cs

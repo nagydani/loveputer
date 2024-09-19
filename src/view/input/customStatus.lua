@@ -6,7 +6,15 @@ local class = require('util.class')
 --- @field buffer_more More
 --- @field selection integer
 --- @field range Range?
-CustomStatus = class.create()
+CustomStatus = class.create(function(ct, len, more, sel, range)
+  return {
+    content_type = ct,
+    buflen = len,
+    buffer_more = more,
+    selection = sel,
+    range = range,
+  }
+end)
 
 function CustomStatus:__tostring()
   if self.range then
