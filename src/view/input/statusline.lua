@@ -97,11 +97,11 @@ function Statusline:draw(status, nLines, time)
         local sel, t_bbp, t_blp
         -- local more_i = ''
         if custom.content_type == 'plain' then
-          sel = custom.line
+          sel = custom.selection
           t_blp = 'L' .. sel
         end
         if custom.content_type == 'lua' then
-          sel = custom.block
+          sel = custom.selection
           t_bbp = 'B' .. sel .. ' '
           t_blp = custom.range:ln_label()
         end

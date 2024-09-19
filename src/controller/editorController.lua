@@ -95,26 +95,20 @@ function EditorController:_generate_status(sel)
   if bufview.content_type == 'plain' then
     cs = {
       content_type = bufview.content_type,
-      line = sel,
       buflen = len,
       buffer_more = more,
+      selection = sel,
     }
-    cs.__tostring = function(t)
-      return 'L' .. t.line
-    end
   end
   if bufview.content_type == 'lua' then
     local range = bufview.content:get_block_app_pos(sel)
     cs = {
       content_type = bufview.content_type,
-      block = sel,
-      range = range,
       buflen = len,
       buffer_more = more,
+      selection = sel,
+      range = range,
     }
-    cs.__tostring = function(t)
-      return 'B' .. t.range
-    end
   end
 
   return cs
