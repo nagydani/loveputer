@@ -29,6 +29,8 @@ setmetatable(VisibleContent, {
 --- @param fulltext string[]
 --- @return VisibleContent
 function VisibleContent.new(w, fulltext, overscroll, size_max)
+  --- @type VisibleContent
+  --- @diagnostic disable-next-line: assign-type-mismatch
   local self = setmetatable({
     overscroll_max = overscroll,
     size_max = size_max,
