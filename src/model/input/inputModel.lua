@@ -298,7 +298,7 @@ function InputModel:highlight()
     --- @diagnostic disable-next-line: undefined-field
     local p = ev.parser
     local text = self:get_text()
-    local ok, err = p.parse_prot(text)
+    local ok, err = p.parse(text)
     local parse_err
     if not ok then
       parse_err = p.get_error(err)

@@ -1,18 +1,12 @@
 require("model.interpreter.eval.evalBase")
 
+local class = require('util.class')
 require("util.string")
 require("util.debug")
 
 --- @class LuaEval: EvalBase
 --- @field parser table
-LuaEval = {}
-LuaEval.__index = LuaEval
-
-setmetatable(LuaEval, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
+LuaEval = class.create()
 
 --- Create a new evaluator
 ---@param parser string?
@@ -21,15 +15,12 @@ function LuaEval.new(parser)
   local luaParser = require("model.lang.parser")(
     parser or 'metalua'
   )
-  local eval = function(args)
-    return luaParser.parse(args[1])
-  end
 
-  --- @type LuaEval
-  --- @diagnostic disable-next-line -- TODO
-  local ev = EvalBase:inherit('lua', eval, true)
-  ev.parser = luaParser
-  ev.is_lua = true
-
-  return ev
+  return {
+    kind = 'lua',
+    parser = luaParser,
+    apply = luaParser.parse,
+    is_lua = true,
+    highlight = true,
+  }
 end

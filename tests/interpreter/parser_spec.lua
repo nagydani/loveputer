@@ -21,7 +21,7 @@ describe('parse #parser', function()
   for i, input in ipairs(inputs) do
     local tag = 'input #' .. i
     it('parses ' .. tag, function()
-      local ok, r = parser.parse_prot(input.code)
+      local ok, r = parser.parse(input.code)
       local l, c, err
       if not ok then
         local p_err = parser.get_error(string.unlines(r))
@@ -81,8 +81,7 @@ describe('highlight #parser', function()
   for i, input in ipairs(inputs) do
     local tag = 'input #' .. i
     it('parses ' .. tag, function()
-      local tokens = parser.tokenize(input.code)
-      local hl = parser.syntax_hl(tokens)
+      local hl = parser.highlighter(input.code)
       -- print(Debug.text_table(input.code, true))
       if highlighter_debug then
         for l, line in ipairs(input.code) do

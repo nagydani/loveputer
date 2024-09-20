@@ -31,8 +31,7 @@ describe('parser #ast', function()
       --- if a table was passed in, this modifies it
       seen[k] = v
     end
-    local tokens = parser.tokenize(code)
-    local hl = parser.syntax_hl(tokens)
+    local hl = parser.highlighter(code)
     if parser_debug then
       local code_t = string.lines(code)
       for l, line in ipairs(code_t) do
@@ -63,7 +62,7 @@ describe('parser #ast', function()
           local input = tc[1]
           local output = tc[2]
 
-          local ok, r = parser.parse_prot(input)
+          local ok, r = parser.parse(input)
           local result = {}
           if ok then
             if parser_debug then
@@ -103,7 +102,7 @@ describe('parser #ast', function()
             end
             it('matches ' .. i, function()
               assert.same(output, result)
-              assert.is_true(parser.parse_prot(output))
+              assert.is_true(parser.parse(output))
             end)
           else
             Log.warn('syntax error in input #' .. i)

@@ -1,6 +1,38 @@
+require("model.lang.parse_error")
+
 require("util.debug")
 require("util.string")
 require("util.dequeue")
+
+--- @alias CPos 'first'|'last'
+
+--- @class Comment
+--- @field text string
+--- @field position CPos
+--- @field idf integer
+--- @field idl integer
+--- @field first Cursor
+--- @field last Cursor
+--- @field multiline boolean
+--- @field prepend_newline boolean
+
+--- type representing metalua AST
+--- @alias AST token[]
+
+--- @alias ParseResult AST|string
+
+--- @class Parser
+--- @field parse fun(code: string[]): AST|string
+--- @field get_error fun(string): ParseError
+--- @field chunker function
+--- @field highlighter fun(str): SyntaxColoring
+--- @field pprint fun(c: string[]): string[]?
+---
+--- @field tokenize fun(str): table
+--- @field syntax_hl fun(table): SyntaxColoring
+
+--- AST scope, i.e. where a validation applies
+--- @class Scope
 
 return function(lib)
   local l = lib or 'metalua'
@@ -35,7 +67,7 @@ return function(lib)
   end
 
   --- Parses text table to lexstream
-  --- @param code string|string[]
+  --- @param code str
   --- @return table lexstream
   local stream_tokens = function(code)
     local c = string.unlines(code)
@@ -44,7 +76,7 @@ return function(lib)
   end
 
   --- Parses text table to tokens
-  --- @param code string|string[]
+  --- @param code str
   --- @return table
   local tokenize = function(code)
     local stream = stream_tokens(code)
@@ -53,7 +85,7 @@ return function(lib)
 
   --- Parses lexstream to AST
   --- @param stream table
-  --- @return table|string ast|errmsg
+  --- @return ParseResult
   local parse_stream = function(stream)
     return mlc:lexstream_to_ast(stream)
   end
@@ -68,29 +100,20 @@ return function(lib)
 
   --- @param ast token
   --- @param ... any
-  --- @return table[]
+  --- @return Comment[]
   local ast_extract_comments = function(ast, ...)
     local a2s = mlc:a2s(...)
     return a2s:extract_comments(ast)
   end
 
   --- Parses code to AST
-  --- @param code string[]
+  --- @param code str
   --- @return boolean success
-  --- @return any result
-  --- @return any ...
-  local parse_prot = function(code)
+  --- @return ParseResult
+  local parse = function(code)
     local stream = stream_tokens(code)
     -- return parse_stream_prot(stream)
     return pcall(parse_stream, stream)
-  end
-
-  --- Parses code to AST
-  --- @param code string[]
-  --- @return table|string ast|errmsg
-  local parse = function(code)
-    local stream = stream_tokens(code)
-    return parse_stream(stream)
   end
 
   --- Finds error location and message in parse result
@@ -113,7 +136,7 @@ return function(lib)
   --- @return string[]?
   local pprint = function(code, wrap)
     local w = wrap or 80
-    local ok, r = parse_prot(code)
+    local ok, r = parse(code)
     if ok then
       local src = ast_to_src(r, {}, w)
       return string.lines(src)
@@ -283,7 +306,7 @@ return function(lib)
   end
 
   --- Highlight string array
-  --- @param code string|string[]
+  --- @param code str
   --- @return SyntaxColoring
   local highlighter = function(code)
     return syntax_hl(tokenize(code))
@@ -299,7 +322,7 @@ return function(lib)
     if string.is_non_empty_string_array(text) then
       local wrap = w
       local ret = Dequeue.typed('block')
-      local ok, r = parse_prot(text)
+      local ok, r = parse(text)
       local has_lines = false
       if ok then
         local idx = 1  -- block number
@@ -407,18 +430,11 @@ return function(lib)
   end
 
   return {
-    stream_tokens        = stream_tokens,
-    realize_stream       = realize_stream,
-    tokenize             = tokenize,
-    parse                = parse,
-    parse_prot           = parse_prot,
-    parse_stream         = parse_stream,
-    pprint               = pprint,
-    get_error            = get_error,
-    syntax_hl            = syntax_hl,
-    highlighter          = highlighter,
-    ast_to_src           = ast_to_src,
-    ast_extract_comments = ast_extract_comments,
-    chunker              = chunker,
+    parse       = parse,
+    pprint      = pprint,
+    get_error   = get_error,
+    highlighter = highlighter,
+    ast_to_src  = ast_to_src,
+    chunker     = chunker,
   }
 end

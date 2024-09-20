@@ -1,5 +1,4 @@
 require("model.editor.content")
-require("model.interpreter.eval.luaEval")
 
 local class = require('util.class')
 require('util.table')
