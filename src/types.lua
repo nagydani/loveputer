@@ -1,3 +1,5 @@
+--- @alias str string|string[]
+
 --- @class PathInfo table
 --- @field storage_path string
 --- @field project_path string
@@ -67,11 +69,6 @@
 
 --- @class ViewData table
 --- @field w_error string[]
-
---- @class ParseError table
---- @field l number
---- @field c number
---- @field msg string
 
 --- @class Highlight table
 --- @field parse_err ParseError

@@ -1,6 +1,7 @@
 require("model.interpreter.item")
 require("model.input.inputText")
 require("model.input.selection")
+require("model.lang.parse_error")
 require("view.editor.visibleContent")
 
 local class = require('util.class')
@@ -277,7 +278,6 @@ function InputModel:clear_input()
   self:text_change()
   self:clear_selection()
   self:_update_cursor(true)
-  self.tokens = nil
   self.custom_status = nil
 end
 
@@ -286,13 +286,6 @@ function InputModel:reset()
 end
 
 function InputModel:text_change()
-  local ev = self.evaluator
-  if ev.kind == 'lua' then
-    -- TODO enforce this kind-parser invariant in types
-    ---@diagnostic disable-next-line: undefined-field
-    local ts = ev.parser.tokenize(self:get_text())
-    self.tokens = ts
-  end
   self.wrapped_text:wrap(self.entered)
   self.visible:wrap(self.entered)
 end
@@ -305,20 +298,14 @@ function InputModel:highlight()
     --- @diagnostic disable-next-line: undefined-field
     local p = ev.parser
     local text = self:get_text()
-    local lex = p.stream_tokens(text)
-    -- iterating over the stream exhausts it
-    local tokens = p.realize_stream(lex)
     local ok, err = p.parse_prot(text)
     local parse_err
     if not ok then
-      local l, c, msg = p.get_error(err)
-      parse_err = { l = l, c = c, msg = msg }
+      parse_err = ParseError(p.get_error(err))
     end
+    local hl = p.highlighter(text)
 
-    return {
-      parse_err = parse_err,
-      hl = p.syntax_hl(tokens),
-    }
+    return { hl = hl, parse_err = parse_err }
   end
 end
 
