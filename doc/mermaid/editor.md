@@ -39,6 +39,7 @@ class VisibleBlock {
   wrapped: WrappedText
   highlight: SyntaxColoring
   pos: Range
+  app_pos: Range
 }
 ```
 
@@ -80,7 +81,7 @@ class VisibleStructuredContent {
   overscroll: integer
   overscroll_max: integer
 
-  set_range()content_tyoe
+  set_range()
 
   get_range()
   move_range()
@@ -93,47 +94,59 @@ WrappedText *-- VisibleStructuredContent
 %% BufferModel --o BufferView
 
 class BufferModel {
+  name: string
   content: Content
   content_type: ContentType
-
-  name: string
   selection: Selected
   readonly: bool
+  revmap: table
 
+  chunker(string[], boolean?): Block[]
+  highlighter(string[]): SyntaxColoring
+  printer(string[]): string[]
   move_selection()
   get_selection()
   get_selected_text()
   delete_selected_text()
   replace_selected_text()
+  render_content()
 }
 
 class BufferView {
+  cfg: ViewConfig
+
   content: VisibleContent|VisibleStructuredContent
   content_type: ContentType
   buffer: BufferModel
+
   LINES: integer
   SCROLL_BY: integer
   w: integer
-  more: More
   offset: integer
-  cfg: ViewConfig
+  more: More
 
   open()
   refresh()
   draw()
+  follow_selection()
+  get_wrapped_selection()
+
+  _scroll()
+  _calculate_end_range()
+  _update_visible()
 }
 
 class EditorController {
-model: EditorModel
-interpreter: InterpreterController
-view: EditorView | nil
+  model: EditorModel
+  interpreter: InterpreterController
+  view: EditorView | nil
 
-open()
-close()
-get_active_buffer()
-update_status()
-textinput()
-keypressed()
+  open()
+  close()
+  get_active_buffer()
+  update_status()
+  textinput()
+  keypressed()
 }
 
 ```

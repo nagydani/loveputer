@@ -11,15 +11,34 @@ EditorModel --* ConsoleModel
 class ConsoleModel {
    projects: ProjectService
 }
+class InputModel {
+  oneshot: boolean
+  entered: InputText
+  evaluator: EvalBase
+  type: InputType
+  cursor: Cursor
+  wrapped:_text WrappedText
+  selection: InputSelection
+  cfg: Config
+  custom_status: CustomStatus?
+
+}
+class InterpreterModel {
+  cfg: Config
+  input: InputModel
+  history: table
+  evaluator: table
+  luaEval: LuaEval
+  textInput: InputEval
+  luaInput: InputEval
+  wrapped_error: string[]?
+
+  get_entered_text()
+}
 InputModel --* InterpreterModel
 CanvasModel --* ConsoleModel
 InterpreterModel --* ConsoleModel
 %% InterpreterModel --|> InterpreterBase
-class EvalBase
-TextEval --|> EvalBase
-LuaEval --|> EvalBase
-InputEval --|> EvalBase
-EditorEval --|> EvalBase
 %% EvalBase --> InterpreterModel
 
 
@@ -49,6 +68,23 @@ InputView --* EditorView
 
 ```mermaid
 classDiagram
+
+class InterpreterController {
+  model: InterpreterModel
+  input: InputController
+
+  set_eval()
+  get_eval()
+  get_viewdata()
+  set_text()
+  add_text()
+  textinput()
+  keypressed()
+  clear()
+  get_input()
+  get_text()
+  set_custom_status()
+}
 
 class EditorController {
   model: EditorModel
