@@ -95,9 +95,7 @@ return function(lib)
 
   --- Finds error location and message in parse result
   --- @param result string
-  --- @return number line
-  --- @return number char
-  --- @return string err_msg
+  --- @return ParseError
   local get_error = function(result)
     local err_lines = string.lines(result)
     local err_first_line = err_lines[1]
@@ -108,7 +106,7 @@ return function(lib)
     local line = tonumber(match2() or '') or -1
     local char = tonumber(match2() or '') or -1
     local errmsg = string.trim(colons[4])
-    return line, char, errmsg
+    return ParseError(line, char, errmsg)
   end
 
   --- @param code string[]

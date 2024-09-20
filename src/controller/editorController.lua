@@ -179,9 +179,12 @@ function EditorController:keypressed(k)
         if ok then
           go(chunks)
         else
-          local _, _, eval_err = inter:get_eval_error(res)
-          inter:set_error(eval_err)
-          inter:history_back()
+          local eval_err = inter:get_eval_error(res)
+          if eval_err then
+            local msg = eval_err.msg
+            inter:set_error(msg)
+            inter:history_back()
+          end
         end
       else
         go(self.interpreter:get_text())

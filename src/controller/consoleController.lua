@@ -390,10 +390,13 @@ function ConsoleController:evaluate_input()
         inter:set_error(load_err, true)
       end
     else
-      local _, _, eval_err = inter:get_eval_error(res)
-      if string.is_non_empty_string(eval_err) then
-        orig_print(eval_err)
-        inter:set_error(eval_err, false)
+      local eval_err = inter:get_eval_error(res)
+      if eval_err then
+        local msg = eval_err.msg
+        if string.is_non_empty_string(msg) then
+          orig_print(msg)
+          inter:set_error(msg, false)
+        end
       end
     end
   end

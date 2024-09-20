@@ -85,9 +85,11 @@ function InterpreterModel:handle(eval)
       if ok then
         self.input:clear_input()
       else
-        local l, c, err = self:get_eval_error(result)
-        self.input:move_cursor(l, c + 1)
-        self.error = err
+        local perr = self:get_eval_error(result)
+        if perr then
+          self.input:move_cursor(perr.l, perr.c + 1)
+          self.error = perr.msg
+        end
       end
     else
       self.input:clear_input()
@@ -119,7 +121,9 @@ end
 function InterpreterModel:set_error(error, is_call_error)
   if string.is_non_empty_string(error) then
     self.error = error or ''
-    self.wrapped_error = string.wrap_at(self.error, self.input.wrapped_text.wrap_w)
+    self.wrapped_error = string.wrap_at(
+      self.error,
+      self.input.wrapped_text.wrap_w)
     if not is_call_error then
       self:history_back()
     end
@@ -127,9 +131,7 @@ function InterpreterModel:set_error(error, is_call_error)
 end
 
 --- @param errors string
---- @return number? line
---- @return number? char
---- @return string? err_msg
+--- @return ParseError? err
 function InterpreterModel:get_eval_error(errors)
   local ev = self.evaluator
   local t = self:get_entered_text()

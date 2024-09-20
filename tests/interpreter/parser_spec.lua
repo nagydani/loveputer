@@ -24,12 +24,12 @@ describe('parse #parser', function()
       local ok, r = parser.parse_prot(input.code)
       local l, c, err
       if not ok then
-        l, c, err = parser.get_error(string.unlines(r))
+        local p_err = parser.get_error(string.unlines(r))
         if input.error then
           local el = input.error.l
           local ec = input.error.c
-          assert.are_equal(el, l)
-          assert.are_equal(ec, c)
+          assert.are_equal(el, p_err.l)
+          assert.are_equal(ec, p_err.c)
         end
       end
       if parser_debug then
@@ -66,8 +66,8 @@ describe('parse #parser', function()
         else
           print(tag, string.join(input.code, '⏎ '))
           local pp = parser.pprint(input.code)
-          if string.is_non_empty_string(pp) then
-            term.print_c(Color.green, pp or '')
+          if string.is_non_empty_string_array(pp) then
+            term.print_c(Color.green, string.unlines(pp or ''))
           end
         end
       end
