@@ -1,6 +1,6 @@
 require("util.string")
 
-local function parse_error(err)
+local function get_call_error(err)
   if string.is_non_empty_string(err) then
     local colons = string.split(err, ':')
     table.remove(colons, 1)
@@ -11,5 +11,5 @@ end
 
 
 return {
-  parse_error = parse_error
+  get_call_error = get_call_error
 }
