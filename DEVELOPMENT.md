@@ -19,6 +19,8 @@ webpages.
 
 ## Development
 
+### [OOP](doc/development/OOP.md)
+
 ### `util/lua.lua` (luautils)
 
 The contents of this module will be put into the global
