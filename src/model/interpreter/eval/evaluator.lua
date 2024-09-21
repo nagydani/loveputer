@@ -21,7 +21,7 @@ function Evaluator.new(label, parser, filters)
   }, Evaluator)
 
   self.apply = function(s)
-    return true, { s }
+    return true, s
   end
 
   return self
