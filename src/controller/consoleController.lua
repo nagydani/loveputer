@@ -369,7 +369,7 @@ function ConsoleController:evaluate_input()
 
   local eval_ok, res = inter:evaluate()
 
-  if eval.is_lua then
+  if eval.parser then
     if eval_ok then
       local code = string.unlines(text)
       local run_env = (function()

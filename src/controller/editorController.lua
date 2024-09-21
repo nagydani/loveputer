@@ -41,7 +41,7 @@ function EditorController:open(name, content)
   end
   local ch, hl, pp = (function()
     if is_lua then
-      local luaEval = LuaEval.new()
+      local luaEval = LuaEval
       local parser = luaEval.parser
       --- @param t string[]
       --- @param single boolean

@@ -1,8 +1,7 @@
-require("model.interpreter.eval.textEval")
-require("model.interpreter.eval.luaEval")
+require("model.interpreter.eval.evaluator")
 
 describe('TextEval #eval', function()
-  local eval = TextEval:new()
+  local eval = TextEval
 
   local function head(obj)
     if obj then

@@ -12,7 +12,7 @@ require("util.debug")
 --- @class InputModel
 --- @field oneshot boolean
 --- @field entered InputText
---- @field evaluator EvalBase
+--- @field evaluator Evaluator
 --- @field type InputType
 --- @field cursor Cursor
 --- @field wrapped_text WrappedText
@@ -33,7 +33,7 @@ InputModel = class.create()
 
 
 --- @param cfg Config
---- @param eval EvalBase
+--- @param eval Evaluator
 --- @param oneshot boolean?
 function InputModel.new(cfg, eval, oneshot)
   local w = cfg.view.drawableChars
@@ -292,10 +292,8 @@ end
 --- @return Highlight?
 function InputModel:highlight()
   local ev = self.evaluator
-  if ev.highlight then
-    --- TODO enforce this highlight-parser invariant in types
-    --- @diagnostic disable-next-line: undefined-field
-    local p = ev.parser
+  local p = ev.parser
+  if p and p.highlighter then
     local text = self:get_text()
     local ok, err = p.parse(text)
     local parse_err

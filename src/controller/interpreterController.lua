@@ -4,8 +4,8 @@ local class = require('util.class')
 --- @field model InterpreterModel
 --- @field input InputController
 ---
---- @field set_eval fun(self, EvalBase)
---- @field get_eval fun(self): EvalBase
+--- @field set_eval fun(self, Evaluator)
+--- @field get_eval fun(self): Evaluator
 --- @field get_viewdata fun(self): ViewData
 --- @field set_text fun(self, t: str)
 --- @field add_text fun(self, t: str)
@@ -28,12 +28,10 @@ function InterpreterController.new(model, input)
   return self
 end
 
---- @param eval EvalBase
 function InterpreterController:set_eval(eval)
   self.input:set_eval(eval)
 end
 
---- @return EvalBase
 function InterpreterController:get_eval()
   return self.input.model.evaluator
 end

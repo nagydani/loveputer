@@ -1,6 +1,4 @@
-require("model.interpreter.eval.textEval")
-require("model.interpreter.eval.luaEval")
-require("model.interpreter.eval.inputEval")
+require("model.interpreter.eval.evaluator")
 require("model.input.inputModel")
 
 local class = require('util.class')
@@ -13,9 +11,9 @@ require("util.debug")
 --- @field input InputModel
 --- @field history table
 --- @field evaluator table
---- @field luaEval LuaEval
---- @field textInput InputEval
---- @field luaInput InputEval
+--- @field luaEval Evaluator
+--- @field textInput Evaluator
+--- @field luaInput Evaluator
 --- @field wrapped_error string[]?
 -- methods
 --- @field reset fun(self, h: boolean?)
@@ -24,19 +22,16 @@ InterpreterModel = class.create(
 --- @param cfg Config
 --- @return InterpreterModel
   function(cfg)
-    local luaEval   = LuaEval.new()
-    local textInput = InputEval:new(false)
-    local luaInput  = InputEval:new(true)
     return {
       cfg = cfg,
-      input = InputModel(cfg, luaEval),
+      input = InputModel(cfg, LuaEval),
       history = Dequeue(),
       -- starter
-      evaluator = luaEval,
+      evaluator = LuaEval,
       -- available options
-      luaEval = luaEval,
-      textInput = textInput,
-      luaInput = luaInput,
+      luaEval = LuaEval,
+      textInput = InputEvalText,
+      luaInput = InputEvalLua,
 
       wrapped_error = nil
     }

@@ -33,7 +33,7 @@ end
 ----------------
 -- evaluation --
 ----------------
---- @param eval EvalBase
+--- @param eval Evaluator
 function InputController:set_eval(eval)
   self.model:set_eval(eval)
 end

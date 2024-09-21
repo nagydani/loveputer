@@ -1,6 +1,6 @@
 --- @diagnostic disable: invisible
 require("model.input.inputModel")
-require("model.interpreter.eval.luaEval")
+require("model.interpreter.eval.evaluator")
 
 if not orig_print then
   --- @diagnostic disable: duplicate-set-field
