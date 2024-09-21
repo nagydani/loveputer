@@ -1,5 +1,5 @@
 local parser = require("model.lang.parser")('metalua')
-local tokenHL = require("model.lang.tokenHighlighter")
+local tokenHL = require("model.lang.syntaxHighlighter")
 local term = require("util.termcolor")
 require("util.color")
 require("util.debug")

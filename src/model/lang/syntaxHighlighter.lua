@@ -15,7 +15,7 @@ local tokenHL = {
   colorize = function(t)
     local type = types[t]
     if not type then
-      return c.fg
+      return c.console.fg
     else
       return colors[t]
     end
