@@ -74,8 +74,9 @@ function Statusline:draw(status, nLines, time)
     }
 
     G.setColor(colors.fg)
-    if status.input_type then
-      G.print(status.input_type, start_text.x, start_text.y)
+    local label = status.label
+    if label then
+      G.print(label, start_text.x, start_text.y)
     end
     if love.DEBUG then
       G.setColor(cf.colors.debug)

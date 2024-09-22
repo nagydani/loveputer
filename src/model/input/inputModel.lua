@@ -13,7 +13,7 @@ require("util.debug")
 --- @field oneshot boolean
 --- @field entered InputText
 --- @field evaluator Evaluator
---- @field type InputType
+--- @field label string
 --- @field cursor Cursor
 --- @field wrapped_text WrappedText
 --- @field visible VisibleContent
@@ -41,7 +41,7 @@ function InputModel.new(cfg, eval, oneshot)
     oneshot = oneshot,
     entered = InputText(),
     evaluator = eval,
-    type = eval.kind,
+    label = eval.label,
     cursor = Cursor(),
     wrapped_text = WrappedText.new(w),
     selection = InputSelection(),
@@ -579,7 +579,7 @@ end
 --- @return Status
 function InputModel:get_status()
   return {
-    input_type = self.type,
+    label = self.label,
     cursor = self.cursor,
     n_lines = self:get_n_text_lines(),
     custom = self.custom_status,
@@ -635,10 +635,10 @@ function InputModel:cancel()
   self:clear_input()
 end
 
---- @param eval EvalBase
+--- @param eval Evaluator
 function InputModel:set_eval(eval)
   self.evaluator = eval
-  self.type = eval.kind
+  self.label = eval.label or ''
 end
 
 ----------------

@@ -54,7 +54,7 @@
 --- @alias More {up: boolean, down: boolean}
 
 --- @class Status table
---- @field input_type string
+--- @field label string
 --- @field cursor Cursor?
 --- @field n_lines integer
 --- @field input_more More
