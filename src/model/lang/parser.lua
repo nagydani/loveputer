@@ -26,13 +26,10 @@ require("util.dequeue")
 --- @field get_error fun(string): ParseError
 --- @field chunker function
 --- @field highlighter fun(str): SyntaxColoring
---- @field pprint fun(c: string[]): string[]?
+--- @field pprint fun(c: string[], w: integer): string[]?
 ---
 --- @field tokenize fun(str): table
 --- @field syntax_hl fun(table): SyntaxColoring
-
---- AST scope, i.e. where a validation applies
---- @class Scope
 
 return function(lib)
   local l = lib or 'metalua'
@@ -92,18 +89,22 @@ return function(lib)
 
   --- @param ast token
   --- @param ... any
-  --- @return string
-  local ast_to_src = function(ast, ...)
-    local a2s = mlc:a2s(...)
-    return a2s:run(ast)
-  end
-
-  --- @param ast token
-  --- @param ... any
   --- @return Comment[]
   local ast_extract_comments = function(ast, ...)
     local a2s = mlc:a2s(...)
     return a2s:extract_comments(ast)
+  end
+
+  --------------------
+  ---    Public    ---
+  --------------------
+
+  --- @param ast token
+  --- @param ... any
+  --- @return string
+  local ast_to_src = function(ast, ...)
+    local a2s = mlc:a2s(...)
+    return a2s:run(ast)
   end
 
   --- Parses code to AST
