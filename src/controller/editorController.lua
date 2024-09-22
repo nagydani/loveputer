@@ -124,6 +124,31 @@ function EditorController:get_input()
   return self.interpreter:get_input()
 end
 
+--- @param go fun(string)
+function EditorController:_handle_submit(go)
+  local inter = self.interpreter
+  local ct = self:get_active_buffer().content_type
+  if ct == 'lua' then
+    local buf = self:get_active_buffer()
+    local raw = self.interpreter:get_text()
+    local pretty = buf.printer(raw) or { '' }
+    local ok, res = inter:evaluate()
+    local _, chunks = buf.chunker(pretty, true)
+    if ok then
+      go(chunks)
+    else
+      local eval_err = inter:get_eval_error(res)
+      if eval_err then
+        local msg = eval_err.msg
+        inter:set_error(msg)
+        inter:history_back()
+      end
+    end
+  else
+    go(self.interpreter:get_text())
+  end
+end
+
 --- @param k string
 function EditorController:keypressed(k)
   local inter = self.interpreter
@@ -170,26 +195,7 @@ function EditorController:keypressed(k)
         self:update_status()
       end
 
-      local ct = self:get_active_buffer().content_type
-      if ct == 'lua' then
-        local buf = self:get_active_buffer()
-        local raw = self.interpreter:get_text()
-        local pretty = buf.printer(raw) or { '' }
-        local ok, res = inter:evaluate()
-        local _, chunks = buf.chunker(pretty, true)
-        if ok then
-          go(chunks)
-        else
-          local eval_err = inter:get_eval_error(res)
-          if eval_err then
-            local msg = eval_err.msg
-            inter:set_error(msg)
-            inter:history_back()
-          end
-        end
-      else
-        go(self.interpreter:get_text())
-      end
+      self:_handle_submit(go)
     end
   end
   local function load()
