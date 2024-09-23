@@ -16,7 +16,7 @@ ConsoleModel = class.create(function(cfg)
     interpreter = InterpreterModel(cfg),
     editor      = EditorModel(cfg),
     output      = CanvasModel(cfg),
-    projects    = ProjectService:new(),
+    projects    = ProjectService(),
     cfg         = cfg
   }
 end)

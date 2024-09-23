@@ -102,34 +102,30 @@ function Project:writefile(name, data)
   return FS.write(fp, data)
 end
 
+local newps = function()
+  ProjectService.path = love.paths.project_path
+  ProjectService.messages = messages
+  return {
+    --- @type Project?
+    current = nil
+  }
+end
+
 --- @class ProjectService
 --- @field path string
 --- @field messages table
---- @field validate_filename function
 --- @field current Project
+--- methods
+--- @field validate_filename function
 --- @field create function
 --- @field list function
 --- @field open function
 --- @field close function
 --- @field deploy_examples function
 --- @field run function
-ProjectService = {}
+ProjectService = class.create(newps)
 ProjectService.MAIN = 'main.lua'
 
-
---- @return ProjectService
-function ProjectService:new(M)
-  ProjectService.path = love.paths.project_path
-  ProjectService.messages = messages
-  local pc = {
-    --- @type Project?
-    current = nil
-  }
-  setmetatable(pc, self)
-  self.__index = self
-
-  return pc
-end
 
 --- @param name string
 --- @return string? path
