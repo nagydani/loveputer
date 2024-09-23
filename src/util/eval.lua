@@ -9,7 +9,15 @@ local function get_call_error(err)
   end
 end
 
+local function eval(s)
+  local expr = loadstring('return ' .. s)
+  if not expr then return end
+  local ok, res = pcall(expr)
+  if ok then return res end
+end
+
 
 return {
-  get_call_error = get_call_error
+  get_call_error = get_call_error,
+  eval = eval,
 }
