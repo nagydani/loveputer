@@ -27,10 +27,8 @@ function love.conf(t)
   -- Android: use SD card for storage
   t.externalstorage = true
 
-  --- the language server is not aware of the additions
-  --- @diagnostic disable-next-line undefined-global
   local hostconf = prequire('host')
   if hostconf then
-    hostconf.spec(t)
+    hostconf.conf_love(t)
   end
 end

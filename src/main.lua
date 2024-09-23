@@ -1,10 +1,12 @@
-require("model.consoleModel")
 local redirect_to = require("model.io.redirect")
+require("model.consoleModel")
 require("controller.controller")
 require("controller.consoleController")
 require("view.view")
 require("view.consoleView")
+
 local colors = require("conf.colors")
+local hostconf = prequire('host')
 
 require("util.key")
 require("util.debug")
@@ -217,6 +219,11 @@ function love.load(args)
     drawtest = drawtest,
     sizedebug = sizedebug,
   }
+
+  if hostconf then
+    hostconf.conf_app(viewconf)
+  end
+
   --- MVC wiring
   local CM = ConsoleModel(baseconf)
   redirect_to(CM)
