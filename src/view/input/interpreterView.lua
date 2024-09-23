@@ -62,4 +62,4 @@ function InterpreterView:draw(input, time)
   else
     self.input:draw(input, time)
   end
-end;
+end
