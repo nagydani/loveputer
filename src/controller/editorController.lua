@@ -124,7 +124,7 @@ function EditorController:get_input()
   return self.interpreter:get_input()
 end
 
---- @param go fun(string)
+--- @param go fun(nt: string[]|Block[])
 function EditorController:_handle_submit(go)
   local inter = self.interpreter
   local ct = self:get_active_buffer().content_type

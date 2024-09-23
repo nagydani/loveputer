@@ -184,7 +184,7 @@ Controller = {
 
 
   ---------------
-  --  draw  --
+  --    draw   --
   ---------------
   --- @param C ConsoleController
   --- @param CV ConsoleView
