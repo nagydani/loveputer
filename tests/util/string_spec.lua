@@ -363,4 +363,25 @@ describe("StringUtils #string", function()
       assert.same(exp, res)
     end)
   end)
+
+
+  describe('validates', function()
+    it('upper', function()
+      assert.is_true(string.is_upper(''))
+      assert.is_true(string.is_upper('ASD'))
+      assert.is_false(string.is_upper('asd'))
+
+      local _, i = string.is_upper('ASDsD')
+      assert.equal(4, i)
+    end)
+
+    it('lower', function()
+      assert.is_true(string.is_lower(''))
+      assert.is_true(string.is_lower('agda'))
+      assert.is_false(string.is_lower('AGDA'))
+
+      local _, i = string.is_lower('afD')
+      assert.equal(3, i)
+    end)
+  end)
 end)
