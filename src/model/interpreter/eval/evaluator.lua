@@ -3,6 +3,7 @@ local class = require('util.class')
 --- @class Evaluator
 --- @field label string
 --- @field parser Parser?
+--- @field apply function
 --- @field validators ValidatorFilter[]
 --- @field astValidators AstValidatorFilter[]
 --- @field transformers TransformerFilter[]
@@ -21,7 +22,24 @@ function Evaluator.new(label, parser, filters)
   }, Evaluator)
 
   self.apply = function(s)
-    return true, s
+    local errors = {}
+    local valid = true
+    local str = s
+    if type(s) == "table" then
+      str = string.unlines(s)
+    end
+    for _, fv in ipairs(self.validators) do
+      local ok, verr = fv(str)
+      if not ok then
+        valid = false
+        table.insert(errors, verr)
+      end
+    end
+    if valid then
+      return true, s
+    else
+      return false, errors
+    end
   end
 
   return self
@@ -48,3 +66,24 @@ LuaEval = Evaluator.structured('lua', luaParser)
 
 InputEvalText = Evaluator.plain('text input')
 InputEvalLua = Evaluator.structured('lua input', luaParser)
+
+ValidatedTextEval = function(filter)
+  local fs = (function()
+    if type(filter) == 'function' then
+      return { filter }
+    end
+    if type(filter) == 'table' then
+      local ret = {}
+      for _, v in ipairs(filter) do
+        if type(v) == 'function' then
+          table.insert(ret, v)
+        end
+      end
+      return ret
+    end
+  end)()
+  local ft = {
+    validators = fs
+  }
+  return Evaluator.plain('plain', ft)
+end

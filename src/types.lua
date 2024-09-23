@@ -64,6 +64,7 @@
 --- @field text InputText
 --- @field wrapped_text WrappedText
 --- @field highlight Highlight
+--- @field wrapped_error string[]
 --- @field selection InputSelection
 --- @field visible VisibleContent
 
@@ -89,9 +90,9 @@
 --- @alias SyntaxColoring LexType[][]
 
 --- @class UserInput table
---- @field M InputModel
---- @field V InputView
---- @field C InputController
+--- @field M UserInputModel
+--- @field V UserInputView
+--- @field C UserInputController
 
 ---@alias AppState
 ---| 'starting'

@@ -283,6 +283,9 @@ end
 --- @param cc ConsoleController
 function ConsoleController.prepare_project_env(cc)
   local interpreter         = cc.model.interpreter
+  require("controller.userInputController")
+  require("model.input.userInputModel")
+  require("view.input.userInputView")
   ---@type table
   local project_env         = cc:get_pre_env_c()
   project_env.G             = love.graphics
@@ -323,9 +326,9 @@ function ConsoleController.prepare_project_env(cc)
       return
     end
     local cb = function(v) table.insert(result, 1, v) end
-    local input = InputModel(cfg, eval, true)
-    local controller = InputController(input, cb)
-    local view = InputView.new(cfg.view, controller)
+    local input = UserInputModel(cfg, eval, true)
+    local controller = UserInputController(input, cb)
+    local view = UserInputView(cfg.view, controller)
     love.state.user_input = {
       M = input, C = controller, V = view
     }
@@ -336,6 +339,21 @@ function ConsoleController.prepare_project_env(cc)
   end
   project_env.input_text    = function(result)
     return input('text', result)
+  end
+
+  project_env.validated_input = function(result, filters)
+    if love.state.user_input then
+      return -- there can be only one
+    end
+    local cfg = interpreter.cfg
+    local cb = function(v) table.insert(result, 1, v) end
+    local eval = ValidatedTextEval(filters)
+    local model = UserInputModel(cfg, eval, true)
+    local controller = UserInputController(model, cb)
+    local view = UserInputView(cfg.view, controller)
+    love.state.user_input = {
+      M = model, C = controller, V = view
+    }
   end
 
   --- @param name string
