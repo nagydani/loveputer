@@ -82,19 +82,13 @@ function InterpreterController:set_error(error, is_call_error)
   self.model:set_error(error, is_call_error)
 end
 
---- @param errors string
---- @return EvalError?
-function InterpreterController:get_eval_error(errors)
-  return self.model:get_eval_error(errors)
-end
-
 --- @return string[]?
 function InterpreterController:get_wrapped_error()
   return self.model:get_wrapped_error()
 end
 
 --- @return boolean
---- @return string
+--- @return string|EvalError
 function InterpreterController:evaluate()
   return self.model:handle(true)
 end

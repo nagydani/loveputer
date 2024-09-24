@@ -301,7 +301,7 @@ function UserInputModel:highlight()
     local ok, err = p.parse(text)
     local parse_err
     if not ok then
-      parse_err = p.get_error(err)
+      parse_err = err
     end
     local hl = p.highlighter(text)
 
@@ -639,7 +639,7 @@ end
 
 --- @param eval boolean
 --- @return boolean
---- @return string[]
+--- @return string[]|EvalError[]
 function UserInputModel:handle(eval)
   local ent = self:get_text()
   self.historic_index = nil
@@ -656,11 +656,7 @@ function UserInputModel:handle(eval)
         end
         self:clear_input()
       else
-        local perr = self:get_eval_error(result)
-        if perr then
-          self:move_cursor(perr.l, perr.c + 1)
-          self.error = { perr.msg }
-        end
+        return false, result
       end
     else
       self:clear_input()
@@ -688,38 +684,18 @@ function UserInputModel:has_error()
   return string.is_non_empty_string_array(self.wrapped_error)
 end
 
---- @param error string[]?
---- @param is_call_error boolean?
-function UserInputModel:set_error(error, is_call_error)
-  if string.is_non_empty_string_array(error) then
-    --- @type string[]
-    self.error = error or {}
-    self.wrapped_error = string.wrap_array(
-      self.error,
-      self.wrapped_text.wrap_w)
-    table.insert(self.wrapped_error, 1, 'Errors:')
-
-    if not is_call_error then
-      -- self:history_back()
+--- @param errors EvalError[]?
+function UserInputModel:set_error(errors)
+  self.error = {}
+  if type(errors) == "table" then
+    for _, e in ipairs(errors) do
+      table.insert(self.error, tostring(e))
     end
   end
-end
-
---- @param errors string
---- @return EvalError? err
-function UserInputModel:get_eval_error(errors)
-  local ev = self.evaluator
-  local t = self:get_text()
-  if string.is_non_empty_string_array(t) then
-    if ev.parser then
-      return ev.parser.get_error(errors)
-    else
-      local ll = self:get_n_text_lines()
-      local last_line = t[ll]
-      local lc = #last_line
-      return EvalError(errors, lc, ll)
-    end
-  end
+  self.wrapped_error = string.wrap_array(
+    self.error,
+    self.wrapped_text.wrap_w)
+  table.insert(self.wrapped_error, 1, 'Errors:')
 end
 
 --- @param eval Evaluator

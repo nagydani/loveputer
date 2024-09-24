@@ -408,7 +408,7 @@ function ConsoleController:evaluate_input()
         inter:set_error(load_err, true)
       end
     else
-      local eval_err = inter:get_eval_error(res)
+      local eval_err = res
       if eval_err then
         local msg = eval_err.msg
         if string.is_non_empty_string(msg) then

@@ -24,7 +24,7 @@ describe('parse #parser', function()
       local ok, r = parser.parse(input.code)
       local l, c, err
       if not ok then
-        local p_err = parser.get_error(string.unlines(r))
+        local p_err = r
         if input.error then
           local el = input.error.l
           local ec = input.error.c

@@ -87,12 +87,6 @@ function UserInputController:set_error(error, is_call_error)
   self.model:set_error(error, is_call_error)
 end
 
---- @param errors string
---- @return EvalError?
-function UserInputController:get_eval_error(errors)
-  return self.model:get_eval_error(errors)
-end
-
 --- @return string[]?
 function UserInputController:get_wrapped_error()
   return self.model:get_wrapped_error()

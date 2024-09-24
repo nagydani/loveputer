@@ -32,7 +32,8 @@ function Evaluator.new(label, parser, filters)
       local ok, verr = fv(str)
       if not ok then
         valid = false
-        table.insert(errors, verr)
+        local e = EvalError.wrap(verr)
+        table.insert(errors, e)
       end
     end
     if valid then

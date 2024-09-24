@@ -137,7 +137,7 @@ function EditorController:_handle_submit(go)
     if ok then
       go(chunks)
     else
-      local eval_err = inter:get_eval_error(res)
+      local eval_err = res[1]
       if eval_err then
         local msg = eval_err.msg
         inter:set_error(msg)

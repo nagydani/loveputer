@@ -298,7 +298,7 @@ function InputModel:highlight()
     local ok, err = p.parse(text)
     local parse_err
     if not ok then
-      parse_err = p.get_error(err)
+      parse_err = err
     end
     local hl = p.highlighter(text)
 

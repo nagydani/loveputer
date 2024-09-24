@@ -55,7 +55,7 @@ end
 ----------------
 
 --- @return boolean
---- @return string
+--- @return string|EvalError
 function InterpreterModel:evaluate()
   return self:handle(true)
 end
@@ -66,7 +66,7 @@ end
 
 --- @param eval boolean
 --- @return boolean
---- @return string
+--- @return string|EvalError
 function InterpreterModel:handle(eval)
   local ent = self:get_entered_text()
   self.historic_index = nil
@@ -79,7 +79,7 @@ function InterpreterModel:handle(eval)
       if ok then
         self.input:clear_input()
       else
-        local perr = self:get_eval_error(result)
+        local perr = result[1]
         if perr then
           self.input:move_cursor(perr.l, perr.c + 1)
           self.error = perr.msg
@@ -121,16 +121,6 @@ function InterpreterModel:set_error(error, is_call_error)
     if not is_call_error then
       self:history_back()
     end
-  end
-end
-
---- @param errors string
---- @return EvalError? err
-function InterpreterModel:get_eval_error(errors)
-  local ev = self.evaluator
-  local t = self:get_entered_text()
-  if string.is_non_empty_string_array(t) then
-    return ev.parser.get_error(errors)
   end
 end
 

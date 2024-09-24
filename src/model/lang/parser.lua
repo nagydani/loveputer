@@ -19,11 +19,10 @@ require("util.dequeue")
 --- type representing metalua AST
 --- @alias AST token[]
 
---- @alias ParseResult AST|string
+--- @alias ParseResult AST|EvalError
 
 --- @class Parser
---- @field parse fun(code: string[]): AST|string
---- @field get_error fun(string): EvalError
+--- @field parse fun(code: string[]): ParseResult
 --- @field chunker function
 --- @field highlighter fun(str): SyntaxColoring
 --- @field pprint fun(c: string[], w: integer): string[]?
@@ -95,28 +94,6 @@ return function(lib)
     return a2s:extract_comments(ast)
   end
 
-  --------------------
-  ---    Public    ---
-  --------------------
-
-  --- @param ast token[]
-  --- @param ... any
-  --- @return string
-  local ast_to_src = function(ast, ...)
-    local a2s = mlc:a2s(...)
-    return a2s:run(ast)
-  end
-
-  --- Parses code to AST
-  --- @param code str
-  --- @return boolean success
-  --- @return ParseResult
-  local parse = function(code)
-    local stream = stream_tokens(code)
-    -- return parse_stream_prot(stream)
-    return pcall(parse_stream, stream)
-  end
-
   --- Finds error location and message in parse result
   --- @param result string
   --- @return EvalError
@@ -131,17 +108,6 @@ return function(lib)
     local char = tonumber(match2() or '') or -1
     local errmsg = string.trim(colons[4])
     return EvalError(errmsg, char, line)
-  end
-
-  --- @param code string[]
-  --- @return string[]?
-  local pprint = function(code, wrap)
-    local w = wrap or 80
-    local ok, r = parse(code)
-    if ok then
-      local src = ast_to_src(r, {}, w)
-      return string.lines(src)
-    end
   end
 
   --- Read lexstream and determine highlighting
@@ -306,6 +272,44 @@ return function(lib)
     return colored_tokens
   end
 
+  --------------------
+  ---    Public    ---
+  --------------------
+
+  --- @param ast token[]
+  --- @param ... any
+  --- @return string
+  local ast_to_src = function(ast, ...)
+    local a2s = mlc:a2s(...)
+    return a2s:run(ast)
+  end
+
+  --- Parses code to AST
+  --- @param code str
+  --- @return boolean success
+  --- @return ParseResult
+  local parse = function(code)
+    local stream = stream_tokens(code)
+    local ok, res = pcall(parse_stream, stream)
+    local ret = res
+    if not ok then
+      ---@diagnostic disable-next-line: param-type-mismatch
+      ret = get_error(res)
+    end
+    return ok, ret
+  end
+
+  --- @param code string[]
+  --- @return string[]?
+  local pprint = function(code, wrap)
+    local w = wrap or 80
+    local ok, r = parse(code)
+    if ok then
+      local src = ast_to_src(r, {}, w)
+      return string.lines(src)
+    end
+  end
+
   --- Highlight string array
   --- @param code str
   --- @return SyntaxColoring
@@ -433,7 +437,6 @@ return function(lib)
   return {
     parse       = parse,
     pprint      = pprint,
-    get_error   = get_error,
     highlighter = highlighter,
     ast_to_src  = ast_to_src,
     chunker     = chunker,
