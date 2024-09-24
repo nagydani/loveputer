@@ -1,6 +1,6 @@
 require("model.input.inputText")
 require("model.input.selection")
-require("model.lang.parse_error")
+require("model.lang.error")
 require("view.editor.visibleContent")
 
 local class = require('util.class')
@@ -706,7 +706,7 @@ function UserInputModel:set_error(error, is_call_error)
 end
 
 --- @param errors string
---- @return ParseError? err
+--- @return EvalError? err
 function UserInputModel:get_eval_error(errors)
   local ev = self.evaluator
   local t = self:get_text()
@@ -717,7 +717,7 @@ function UserInputModel:get_eval_error(errors)
       local ll = self:get_n_text_lines()
       local last_line = t[ll]
       local lc = #last_line
-      return ParseError(ll, lc, errors)
+      return EvalError(errors, lc, ll)
     end
   end
 end

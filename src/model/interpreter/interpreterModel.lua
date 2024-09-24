@@ -125,7 +125,7 @@ function InterpreterModel:set_error(error, is_call_error)
 end
 
 --- @param errors string
---- @return ParseError? err
+--- @return EvalError? err
 function InterpreterModel:get_eval_error(errors)
   local ev = self.evaluator
   local t = self:get_entered_text()

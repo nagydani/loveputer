@@ -1,6 +1,6 @@
 require("model.input.inputText")
 require("model.input.selection")
-require("model.lang.parse_error")
+require("model.lang.error")
 require("view.editor.visibleContent")
 
 local class = require('util.class')

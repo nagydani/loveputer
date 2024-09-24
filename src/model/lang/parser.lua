@@ -1,4 +1,4 @@
-require("model.lang.parse_error")
+require("model.lang.error")
 
 require("util.debug")
 require("util.string")
@@ -23,7 +23,7 @@ require("util.dequeue")
 
 --- @class Parser
 --- @field parse fun(code: string[]): AST|string
---- @field get_error fun(string): ParseError
+--- @field get_error fun(string): EvalError
 --- @field chunker function
 --- @field highlighter fun(str): SyntaxColoring
 --- @field pprint fun(c: string[], w: integer): string[]?
@@ -99,7 +99,7 @@ return function(lib)
   ---    Public    ---
   --------------------
 
-  --- @param ast token
+  --- @param ast token[]
   --- @param ... any
   --- @return string
   local ast_to_src = function(ast, ...)
@@ -119,7 +119,7 @@ return function(lib)
 
   --- Finds error location and message in parse result
   --- @param result string
-  --- @return ParseError
+  --- @return EvalError
   local get_error = function(result)
     local err_lines = string.lines(result)
     local err_first_line = err_lines[1]
@@ -130,7 +130,7 @@ return function(lib)
     local line = tonumber(match2() or '') or -1
     local char = tonumber(match2() or '') or -1
     local errmsg = string.trim(colons[4])
-    return ParseError(line, char, errmsg)
+    return EvalError(errmsg, char, line)
   end
 
   --- @param code string[]

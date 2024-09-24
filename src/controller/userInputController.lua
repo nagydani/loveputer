@@ -88,7 +88,7 @@ function UserInputController:set_error(error, is_call_error)
 end
 
 --- @param errors string
---- @return ParseError?
+--- @return EvalError?
 function UserInputController:get_eval_error(errors)
   return self.model:get_eval_error(errors)
 end

@@ -83,7 +83,7 @@ function InterpreterController:set_error(error, is_call_error)
 end
 
 --- @param errors string
---- @return ParseError?
+--- @return EvalError?
 function InterpreterController:get_eval_error(errors)
   return self.model:get_eval_error(errors)
 end
