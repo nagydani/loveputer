@@ -142,7 +142,6 @@ end
 function VisibleContent:get_more()
   local vrange = self:get_range()
   local vlen = self:get_content_length()
-  -- Log.info(vrange)
   local more = {
     up = vrange.start > 1,
     down = vrange.fin < vlen

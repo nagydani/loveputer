@@ -10,7 +10,7 @@ require('util.dequeue')
 --- @alias Content Dequeue<string>|Dequeue<Block>
 
 --- @alias Chunker fun(s: string[], s: boolean?): Dequeue<Block>
---- @alias Highlighter fun(c: string[]): SyntaxColoring
+--- @alias Highlighter fun(c: str): SyntaxColoring
 --- @alias Printer fun(c: string[]): string[]?
 
 --- @class BufferModel

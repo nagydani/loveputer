@@ -23,7 +23,7 @@ require("util.dequeue")
 
 --- @class Parser
 --- @field parse fun(code: string[]): ParseResult
---- @field chunker function
+--- @field chunker fun(s: string[], integer, boolean?): Dequeue<Block>
 --- @field highlighter fun(str): SyntaxColoring
 --- @field pprint fun(c: string[], w: integer): string[]?
 ---
