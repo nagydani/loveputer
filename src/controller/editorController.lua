@@ -263,4 +263,11 @@ function EditorController:keypressed(k)
   load()
   delete()
   navigate()
+
+  if love.debug then
+    if k == 'f5' then
+      local bufview = self.view.buffer
+      bufview:refresh()
+    end
+  end
 end
