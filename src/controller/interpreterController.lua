@@ -55,6 +55,7 @@ end
 
 function InterpreterController:clear()
   self.input:clear()
+  self:clear_error()
 end
 
 --- @return InputDTO

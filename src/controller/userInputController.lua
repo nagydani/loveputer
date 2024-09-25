@@ -47,6 +47,7 @@ end
 
 function UserInputController:clear()
   self.model:clear_input()
+  self:clear_error()
 end
 
 --- @param cs CustomStatus
