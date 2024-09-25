@@ -17,7 +17,6 @@ require("util.debug")
 --- @field cursor Cursor
 --- @field wrapped_text WrappedText
 --- @field error string[]?
---- @field wrapped_error string[]?
 --- @field visible VisibleContent
 --- @field selection InputSelection
 --- @field cfg Config
@@ -31,6 +30,7 @@ require("util.debug")
 --- @field get_text_line fun(self, integer): string
 --- @field get_n_text_lines fun(self): integer
 --- @field get_wrapped_text fun(self): WrappedText
+--- @field get_wrapped_error fun(self): string[]?
 UserInputModel = class.create()
 
 
@@ -46,7 +46,6 @@ function UserInputModel.new(cfg, eval, oneshot)
     label = eval.label,
     cursor = Cursor(),
     wrapped_text = WrappedText(w),
-    wrapped_error = nil,
     selection = InputSelection(),
     custom_status = nil,
 
@@ -671,17 +670,18 @@ end
 --   error    --
 ----------------
 function UserInputModel:clear_error()
-  self.wrapped_error = nil
+  self.error = nil
 end
 
 --- @return string[]?
 function UserInputModel:get_wrapped_error()
-  return self.wrapped_error
-end
-
---- @return boolean
-function UserInputModel:has_error()
-  return string.is_non_empty_string_array(self.wrapped_error)
+  if self.error then
+    local we = string.wrap_array(
+      self.error,
+      self.wrapped_text.wrap_w)
+    table.insert(we, 1, 'Errors:')
+    return we
+  end
 end
 
 --- @param errors EvalError[]?
@@ -692,10 +692,11 @@ function UserInputModel:set_error(errors)
       table.insert(self.error, tostring(e))
     end
   end
-  self.wrapped_error = string.wrap_array(
-    self.error,
-    self.wrapped_text.wrap_w)
-  table.insert(self.wrapped_error, 1, 'Errors:')
+end
+
+--- @return boolean
+function UserInputModel:has_error()
+  return string.is_non_empty_string_array(self.error)
 end
 
 --- @param eval Evaluator
