@@ -136,6 +136,7 @@ function BufferView:open(buffer)
     error 'unknown filetype'
   end
 
+  -- TODO clean this up
   local clen = self.content:get_text_length()
   self.offset = math.max(clen - L, 0)
   local off = self.offset
@@ -145,7 +146,7 @@ function BufferView:open(buffer)
 
   local ir = self:_get_end_range()
   self:_update_visible(ir)
-  self:scroll('down', 1)
+  if off > 0 then self:scroll('down', 1) end
 end
 
 function BufferView:refresh()
