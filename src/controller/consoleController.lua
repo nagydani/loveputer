@@ -309,23 +309,15 @@ function ConsoleController.prepare_project_env(cc)
     close_project(cc)
   end
 
-  --- @param type InputType
-  --- @param result any
-  local input                 = function(type, result)
+  --- @param eval Evaluator
+  --- @param result table
+  local input                 = function(eval, result)
     if love.state.user_input then
       return -- there can be only one
     end
     local cfg = interpreter.cfg
-    local eval
-    if type == 'lua' then
-      eval = interpreter.luaInput
-    elseif type == 'text' then
-      eval = interpreter.textInput
-    else
-      Log('Invalid input type!')
-      return
-    end
     local cb = function(v) table.insert(result, 1, v) end
+
     local input = UserInputModel(cfg, eval, true)
     local controller = UserInputController(input, cb)
     local view = UserInputView(cfg.view, controller)
@@ -335,34 +327,29 @@ function ConsoleController.prepare_project_env(cc)
   end
 
   project_env.input_code      = function(result)
-    return input('lua', result)
+    return input(InputEvalLua, result)
   end
   project_env.input_text      = function(result)
-    return input('text', result)
+    return input(InputEvalText, result)
   end
 
   project_env.validated_input = function(result, filters)
-    if love.state.user_input then
-      return -- there can be only one
+    return input(ValidatedTextEval(filters), result)
+  end
+
+  if love.debug then
+    project_env.astv_input = function(result)
+      return input(LuaEditorEval, result)
     end
-    local cfg = interpreter.cfg
-    local cb = function(v) table.insert(result, 1, v) end
-    local eval = ValidatedTextEval(filters)
-    local model = UserInputModel(cfg, eval, true)
-    local controller = UserInputController(model, cb)
-    local view = UserInputView(cfg.view, controller)
-    love.state.user_input = {
-      M = model, C = controller, V = view
-    }
   end
 
   --- @param name string
-  project_env.edit            = function(name)
+  project_env.edit = function(name)
     return cc:edit(name)
   end
 
-  local base                  = table.clone(project_env)
-  local project               = table.clone(project_env)
+  local base       = table.clone(project_env)
+  local project    = table.clone(project_env)
   cc:_set_base_env(base)
   cc:_set_project_env(project)
 end
