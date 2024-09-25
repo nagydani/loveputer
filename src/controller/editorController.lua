@@ -131,7 +131,9 @@ function EditorController:_handle_submit(go)
   if ct == 'lua' then
     local buf = self:get_active_buffer()
     local raw = self.interpreter:get_text()
-    local pretty = buf.printer(raw) or { '' }
+    --- send it through the pretty printer, fallback to original
+    --- in case of unparse-able input
+    local pretty = buf.printer(raw) or raw
     local ok, res = self.model.interpreter.input.evaluator.apply(pretty)
     local _, chunks = buf.chunker(pretty, true)
     if ok then
