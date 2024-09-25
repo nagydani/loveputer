@@ -1,3 +1,4 @@
+require("model.interpreter.eval.evaluator")
 require("controller.inputController")
 require("controller.interpreterController")
 require("view.input.customStatus")
@@ -32,12 +33,11 @@ end
 --- @param name string
 --- @param content string[]?
 function EditorController:open(name, content)
-  local interM = self.model.interpreter
   local is_lua = string.match(name, '.lua$')
   if is_lua then
-    self.interpreter:set_eval(interM.luaInput)
+    self.interpreter:set_eval(LuaEditorEval)
   else
-    self.interpreter:set_eval(interM.textInput)
+    self.interpreter:set_eval(TextEval)
   end
   local ch, hl, pp = (function()
     if is_lua then
@@ -132,7 +132,7 @@ function EditorController:_handle_submit(go)
     local buf = self:get_active_buffer()
     local raw = self.interpreter:get_text()
     local pretty = buf.printer(raw) or { '' }
-    local ok, res = inter:evaluate()
+    local ok, res = self.model.interpreter.input.evaluator.apply(pretty)
     local _, chunks = buf.chunker(pretty, true)
     if ok then
       go(chunks)
