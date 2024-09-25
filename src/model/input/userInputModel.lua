@@ -655,7 +655,7 @@ function UserInputModel:handle(eval)
       if ok then
         if self.oneshot then
           --- @diagnostic disable-next-line: param-type-mismatch
-          love.event.push('userinput', ent)
+          love.event.push('userinput')
         end
       else
         return false, result

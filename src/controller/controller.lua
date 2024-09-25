@@ -325,7 +325,7 @@ Controller = {
       end
     end
 
-    handlers.userinput = function(input)
+    handlers.userinput = function()
       local user_input = get_user_input()
       if user_input then
         clear_user_input()

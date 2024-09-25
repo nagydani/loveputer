@@ -627,7 +627,7 @@ end
 function InputModel:finish()
   local ent = self:get_text()
   --- @diagnostic disable-next-line: param-type-mismatch
-  if self.oneshot then love.event.push('userinput', ent) end
+  if self.oneshot then love.event.push('userinput') end
   return ent
 end
 
