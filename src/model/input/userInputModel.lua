@@ -43,7 +43,6 @@ function UserInputModel.new(cfg, eval, oneshot)
     oneshot = oneshot,
     entered = InputText(),
     evaluator = eval,
-    label = eval.label,
     cursor = Cursor(),
     wrapped_text = WrappedText(w),
     selection = InputSelection(),
@@ -55,6 +54,11 @@ function UserInputModel.new(cfg, eval, oneshot)
   UserInputModel.init_visible(self, { '' })
 
   return self
+end
+
+function UserInputModel:get_label()
+  local eval = self.evaluator
+  if eval and eval.label then return eval.label end
 end
 
 --- @param text string[]
