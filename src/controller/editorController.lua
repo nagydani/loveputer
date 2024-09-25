@@ -127,10 +127,13 @@ end
 --- @param go fun(nt: string[]|Block[])
 function EditorController:_handle_submit(go)
   local inter = self.interpreter
+  local raw = inter:get_text()
+
+  if not string.is_non_empty_string_array(raw) then return end
+
   local ct = self:get_active_buffer().content_type
   if ct == 'lua' then
     local buf = self:get_active_buffer()
-    local raw = self.interpreter:get_text()
     --- send it through the pretty printer, fallback to original
     --- in case of unparse-able input
     local pretty = buf.printer(raw) or raw
