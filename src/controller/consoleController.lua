@@ -334,6 +334,9 @@ function ConsoleController.prepare_project_env(cc)
   end
 
   project_env.validated_input = function(result, filters)
+    if love.state.user_input then
+      return -- there can be only one
+    end
     return input(ValidatedTextEval(filters), result)
   end
 
