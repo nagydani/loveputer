@@ -13,7 +13,9 @@ Evaluator = class.create()
 
 --- @param label string
 --- @param parser Parser?
-function Evaluator.new(label, parser, filters)
+--- @param filters Filters?
+--- @param custom_apply function?
+function Evaluator.new(label, parser, filters, custom_apply)
   local f = filters or {}
   local self = setmetatable({
     label         = label,
@@ -23,13 +25,16 @@ function Evaluator.new(label, parser, filters)
     transformers  = f.transformers or {},
   }, Evaluator)
 
-  self.apply = function(s)
+  local default_apply = function(s)
     local errors = {}
     local valid = true
+    --- TODO: string[] handling
     local str = s
     if type(s) == "table" then
       str = string.unlines(s)
     end
+
+    --- run validations
     for _, fv in ipairs(self.validators) do
       local ok, verr = fv(str)
       if not ok then
@@ -44,6 +49,7 @@ function Evaluator.new(label, parser, filters)
       return false, errors
     end
   end
+  self.apply = custom_apply or default_apply
 
   return self
 end
