@@ -158,3 +158,15 @@ function table.is_instance(self, t)
   local tt  = string.lower(t)
   return tt == typ or tt == tag
 end
+
+--- @param self table
+--- @param e any
+--- @return boolean
+function table.is_member(self, e)
+  if not self or not e then return false end
+  local ret = false
+  for _, v in pairs(self) do
+    if v == e then return true end
+  end
+  return ret
+end
