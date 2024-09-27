@@ -7,13 +7,13 @@
 --- @alias TransformerFilter fun(string): string
 
 --- @class Filters
---- @field validators ValidatorFilter[]
+--- @field line_validators ValidatorFilter[]
 --- @field astValidators AstValidatorFilter[]
 --- @field transformers TransformerFilter[]
 
 Filters = class.create(function(v, av, tf)
   return {
-    validators = v,
+    line_validators = v,
     astValidators = av,
     transformers = tf,
   }

@@ -18,29 +18,36 @@ Evaluator = class.create()
 function Evaluator.new(label, parser, filters, custom_apply)
   local f = filters or {}
   local self = setmetatable({
-    label         = label,
-    parser        = parser,
-    validators    = f.validators or {},
-    astValidators = f.astValidators or {},
-    transformers  = f.transformers or {},
+    label           = label,
+    parser          = parser,
+    line_validators = f.line_validators or {},
+    astValidators   = f.astValidators or {},
+    transformers    = f.transformers or {},
   }, Evaluator)
 
   local default_apply = function(s)
     local errors = {}
     local valid = true
-    --- TODO: string[] handling
-    local str = s
-    if type(s) == "table" then
-      str = string.unlines(s)
-    end
 
     --- run validations
-    for _, fv in ipairs(self.validators) do
-      local ok, verr = fv(str)
-      if not ok then
-        valid = false
-        local e = EvalError.wrap(verr)
-        table.insert(errors, e)
+    for _, fv in ipairs(self.line_validators) do
+      if #s == 1 then
+        local ok, verr = fv(s[1])
+        if not ok and verr then
+          valid = false
+          local e = EvalError.wrap(verr)
+          table.insert(errors, e)
+        end
+      else
+        for i, l in ipairs(s) do
+          local ok, verr = fv(l)
+          if not ok and verr then
+            valid = false
+            local e = EvalError.wrap(verr)
+            if e and not e.l then e.l = i end
+            table.insert(errors, e)
+          end
+        end
       end
     end
     if valid then

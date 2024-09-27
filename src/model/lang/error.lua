@@ -21,6 +21,7 @@ end
 --- @type EvalError
 EvalError = class.create(newe)
 
+--- @return EvalError
 function EvalError.wrap(e)
   if type(e) == "string" then
     return EvalError(e)
@@ -33,8 +34,11 @@ end
 
 function EvalError:__tostring()
   local li = ''
-  if self.l and self.c then
-    li = string.format('L%d:%d:', self.l, self.c)
+  if self.l then
+    li = li .. 'L' .. self.l .. ':'
+    if self.c then
+      li = li .. self.c .. ':'
+    end
   end
   return li .. self.msg
 end
