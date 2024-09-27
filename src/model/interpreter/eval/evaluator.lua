@@ -1,3 +1,5 @@
+require('model.interpreter.eval.filter')
+
 local class = require('util.class')
 
 --- @class Evaluator
@@ -69,20 +71,9 @@ InputEvalText = Evaluator.plain('text input')
 InputEvalLua = Evaluator.structured('lua input', luaParser)
 
 ValidatedTextEval = function(filter)
-  local fs = (function()
-    if type(filter) == 'function' then
-      return { filter }
-    end
-    if type(filter) == 'table' then
-      local ret = {}
-      for _, v in ipairs(filter) do
-        if type(v) == 'function' then
-          table.insert(ret, v)
-        end
-      end
-      return ret
-    end
-  end)()
+  local ft = Filters.validators_only(filter)
+  return Evaluator.plain('plain', ft)
+end
   local ft = {
     validators = fs
   }
