@@ -1,9 +1,8 @@
 --- AST scope, i.e. where a validation applies
 --- @class Scope
 
---- @alias error {msg: string, pos: Cursor}
---- @alias ValidatorFilter fun(string): boolean, error
---- @alias AstValidatorFilter fun(AST, Scope): boolean, error
+--- @alias ValidatorFilter fun(string): boolean, string|EvalError?
+--- @alias AstValidatorFilter fun(AST): boolean, string|EvalError?
 
 --- @alias TransformerFilter fun(string): string
 
