@@ -44,6 +44,16 @@ function Evaluator.new(label, parser, filters, custom_apply)
       end
     end
     if valid then
+      if parser then
+        local ok, result = parser.parse(s)
+        if not ok then
+          table.insert(errors, result)
+          return false, errors
+        else
+          local ast = result
+          return true, ast
+        end
+      end
       return true, s
     else
       return false, errors
