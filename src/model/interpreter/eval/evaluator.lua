@@ -56,32 +56,31 @@ end
 
 --- @param label string
 --- @param filters Filters?
-function Evaluator.plain(label, filters)
-  return Evaluator.new(label, nil, filters)
-end
-
---- @param label string
---- @param parser Parser
---- @param filters Filters?
-function Evaluator.structured(label, parser, filters)
-  return Evaluator.new(
-    label, parser, filters)
+--- @param custom_apply function?
+function Evaluator.plain(label, filters, custom_apply)
+  return Evaluator.new(label, nil, filters, custom_apply)
 end
 
 TextEval = Evaluator.plain('text')
 
 local luaParser = require("model.lang.parser")()
-LuaEval = Evaluator.structured('lua', luaParser)
+
+--- @param label string?
+--- @param filters Filters?
+--- @param custom_apply function?
+LuaEval = function(label, filters, custom_apply)
+  local l = label or 'lua'
+  return Evaluator(l, luaParser, filters, custom_apply)
+end
 
 InputEvalText = Evaluator.plain('text input')
-InputEvalLua = Evaluator.structured('lua input', luaParser)
+InputEvalLua = Evaluator('lua input', luaParser)
 
 ValidatedTextEval = function(filter)
   local ft = Filters.validators_only(filter)
   return Evaluator.plain('plain', ft)
 end
-  local ft = {
-    validators = fs
-  }
-  return Evaluator.plain('plain', ft)
-end
+
+LuaEditorEval = (function()
+  return LuaEval(nil)
+end)()

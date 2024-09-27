@@ -15,7 +15,7 @@ describe("input model spec #input", function()
       input_max = 14
     },
   }
-  local luaEval  = LuaEval.new()
+  local luaEval  = LuaEval()
 
   -----------------
   --   ASCII     --

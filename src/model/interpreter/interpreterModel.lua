@@ -22,14 +22,15 @@ InterpreterModel = class.create(
 --- @param cfg Config
 --- @return InterpreterModel
   function(cfg)
+    local luaEval = LuaEval()
     return {
       cfg = cfg,
-      input = InputModel(cfg, LuaEval),
+      input = InputModel(cfg, luaEval),
       history = Dequeue(),
       -- starter
-      evaluator = LuaEval,
+      evaluator = luaEval,
       -- available options
-      luaEval = LuaEval,
+      luaEval = luaEval,
       textInput = InputEvalText,
       luaInput = InputEvalLua,
 
