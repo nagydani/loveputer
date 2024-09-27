@@ -92,5 +92,27 @@ ValidatedTextEval = function(filter)
 end
 
 LuaEditorEval = (function()
-  return LuaEval(nil)
+  --- AST validations
+  local test = function(ast)
+    -- Log.info('AST', Debug.terse_ast(ast, true, 'lua'))
+    -- return false, EvalError('test', 1, 1)
+    return true
+  end
+
+  --- text validations
+  local max_length = function(n)
+    return function(s)
+      if string.len(s) < n then
+        return true
+      end
+      return false, 'line too long!'
+    end
+  end
+  local line_length = max_length(64)
+
+  local ft = {
+    validators = { line_length },
+    astValidators = { test },
+  }
+  return LuaEval(nil, ft)
 end)()
