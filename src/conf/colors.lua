@@ -64,8 +64,8 @@ return {
       fg = Color[Color.black + Color.bright],
     },
     user = {
-      bg = Color[Color.black + Color.bright],
-      fg = Color[Color.white],
+      bg = Color[Color.white],
+      fg = Color[Color.black + Color.bright],
     },
     inspect = {
       bg = Color[Color.white],
