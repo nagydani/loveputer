@@ -20,6 +20,7 @@ require("util.table")
 --- @field interpreter InterpreterController
 --- @field editor EditorController
 --- @field view ConsoleView?
+--- @field cfg Config
 --- methods
 --- @field edit function
 --- @field finish_edit function
@@ -622,7 +623,9 @@ end
 
 function ConsoleController:mousepressed(x, y, button)
   if love.state.app_state == 'editor' then
-    self.editor.input:mousepressed(x, y, button)
+    if self.cfg.editor.mouse_enabled then
+      self.editor.input:mousepressed(x, y, button)
+    end
   else
     self.interpreter:mousepressed(x, y, button)
   end
@@ -630,7 +633,9 @@ end
 
 function ConsoleController:mousereleased(x, y, button)
   if love.state.app_state == 'editor' then
-    self.editor.input:mousereleased(x, y, button)
+    if self.cfg.editor.mouse_enabled then
+      self.editor.input:mousereleased(x, y, button)
+    end
   else
     self.interpreter:mousereleased(x, y, button)
   end
@@ -638,7 +643,9 @@ end
 
 function ConsoleController:mousemoved(x, y, dx, dy)
   if love.state.app_state == 'editor' then
-    self.editor.input:mousemoved(x, y)
+    if self.cfg.editor.mouse_enabled then
+      self.editor.input:mousemoved(x, y)
+    end
   else
     self.interpreter:mousemoved(x, y)
   end

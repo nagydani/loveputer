@@ -212,9 +212,15 @@ function love.load(args)
     }
   end
 
+  local editorconf = {
+    --- TODO
+    mouse_enabled = false,
+  }
+
   --- @class Config
   local baseconf = {
     view = viewconf,
+    editor = editorconf,
     autotest = autotest,
     drawtest = drawtest,
     sizedebug = sizedebug,
