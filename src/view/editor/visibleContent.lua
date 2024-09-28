@@ -60,11 +60,15 @@ function VisibleContent:check_range()
   local l = self:get_text_length()
   local r = self.range
   if r then
+    local rl = r:len()
     if r.fin > l then
       r.fin = l
     end
+    if rl < self.size_max then
+      self:set_default_range()
+    end
   else
-    self.range = self:get_default_range()
+    self:set_default_range()
   end
 end
 
@@ -109,7 +113,8 @@ function VisibleContent:set_range(r)
 end
 
 function VisibleContent:set_default_range()
-  self.range = Range(1, self:get_content_length())
+  self.range = self:get_default_range()
+  self.offset = 0
 end
 
 --- @param by integer

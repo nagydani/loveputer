@@ -279,7 +279,6 @@ end
 
 function UserInputModel:clear_input()
   self.entered = InputText:new()
-  self.visible.set_range(Range(1, 1))
   self:text_change()
   self:clear_selection()
   self:_update_cursor(true)
@@ -293,6 +292,8 @@ end
 function UserInputModel:text_change()
   self.wrapped_text:wrap(self.entered)
   self.visible:wrap(self.entered)
+  self.visible:check_range()
+  self:_follow_cursor()
 end
 
 --- @return Highlight?
