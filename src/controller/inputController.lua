@@ -197,7 +197,7 @@ end
 function InputController:keyreleased(k)
   local input = self.model
   local function selection()
-    if Key.shift() then
+    if Key.is_shift(k) then
       input:release_selection()
     end
   end

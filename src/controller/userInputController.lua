@@ -33,6 +33,7 @@ end
 function UserInputController:set_text(t)
   self.model:set_text(t)
 end
+
 ----------------
 -- evaluation --
 ----------------
@@ -287,7 +288,7 @@ function UserInputController:keyreleased(k)
   end
 
   local function selection()
-    if Key.shift() then
+    if Key.is_shift(k) then
       input:release_selection()
     end
   end
