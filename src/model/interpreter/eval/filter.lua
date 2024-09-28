@@ -1,3 +1,5 @@
+local class = require('util.class')
+
 --- AST scope, i.e. where a validation applies
 --- @class Scope
 
