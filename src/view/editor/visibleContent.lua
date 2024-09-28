@@ -44,8 +44,10 @@ function VisibleContent.new(w, fulltext, overscroll, size_max)
   return self
 end
 
+--- @return Range
 function VisibleContent:get_default_range()
-  return Range(1, self.size_max)
+  local L = math.min(self.size_max, self:get_content_length())
+  return Range(1, L)
 end
 
 --- Set the visible range so that last of the content is visible
