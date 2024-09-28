@@ -416,7 +416,6 @@ end
 function UserInputModel:get_input()
   return {
     text          = self:get_text(),
-    wrapped_text  = self:get_wrapped_text(),
     highlight     = self:highlight(),
     selection     = self:get_ordered_selection(),
     visible       = self.visible,

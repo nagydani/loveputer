@@ -54,15 +54,16 @@ function UserInputView:draw_input(input, time)
 
   local text = input.text
   local vc = input.visible
-  local inLines = math.min(vc:get_content_length(), cfg.input_max)
+  local inLines = math.min(
+    vc:get_content_length(),
+    cfg.input_max)
   local apparentLines = inLines
   local inHeight = inLines * fh
   local apparentHeight = inHeight
   local y = h - (#text * fh)
 
-  local wt = input.wrapped_text
-  local wrap_forward = wt.wrap_forward
-  local wrap_reverse = wt.wrap_reverse
+  local wrap_forward = vc.wrap_forward
+  local wrap_reverse = vc.wrap_reverse
 
   local start_y = h - apparentLines * fh
 
@@ -163,7 +164,8 @@ function UserInputView:draw_input(input, time)
         local diffset = #text - vc.range.fin
         local dy = y - (-ln - diffset + 1) * fh
         local dx = (c - 1) * fw
-        ViewUtils.write_token(dy, dx, char, color, colors.bg, selected)
+        ViewUtils.write_token(dy, dx,
+          char, color, colors.bg, selected)
       end
     end
   else
