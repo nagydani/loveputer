@@ -782,7 +782,8 @@ end
 function InputModel:mouse_drag(l, c)
   local li, ci = self:translate_grid_to_cursor(l, c)
   local sel = self:get_selection()
-  if sel.start and sel.held then
+  local held = sel.held and love.mouse.isDown(1)
+  if sel.start and held then
     self:end_selection(li, ci)
     self:move_cursor(li, ci, 'move')
   end
