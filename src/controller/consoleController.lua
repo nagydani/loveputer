@@ -277,6 +277,9 @@ function ConsoleController.prepare_env(cc)
 
   prepared.run              = prepared.run_project
 
+  prepared.eval             = LANG.eval
+  prepared.print_eval       = LANG.print_eval
+
   prepared.quit             = function()
     love.event.quit()
   end
@@ -350,12 +353,15 @@ function ConsoleController.prepare_project_env(cc)
   end
 
   --- @param name string
-  project_env.edit = function(name)
+  project_env.edit       = function(name)
     return cc:edit(name)
   end
 
-  local base       = table.clone(project_env)
-  local project    = table.clone(project_env)
+  project_env.eval       = LANG.eval
+  project_env.print_eval = LANG.print_eval
+
+  local base             = table.clone(project_env)
+  local project          = table.clone(project_env)
   cc:_set_base_env(base)
   cc:_set_project_env(project)
 end

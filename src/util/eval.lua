@@ -16,8 +16,17 @@ local function eval(s)
   if ok then return res end
 end
 
+local function print_eval(s)
+  local r = eval(s)
+  if r then
+    print(r)
+  end
+  return r
+end
+
 
 return {
   get_call_error = get_call_error,
   eval = eval,
+  print_eval = print_eval,
 }
