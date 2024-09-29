@@ -275,6 +275,8 @@ function ConsoleController.prepare_env(cc)
     end
   end
 
+  prepared.run              = prepared.run_project
+
   prepared.quit             = function()
     love.event.quit()
   end
