@@ -1,8 +1,8 @@
 require('util.lua')
 
 function love.conf(t)
-  t.identity = 'loveputer'
-  t.window.title = 'LÖVEputer'
+  t.identity = 'compy'
+  t.window.title = 'Compy'
   t.window.resizable = false
   local hidpi = os.getenv("HIDPI")
   if os.getenv("DEBUG") then
