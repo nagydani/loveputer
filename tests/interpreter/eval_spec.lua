@@ -25,7 +25,6 @@ local tests = {
   test_case('false', false),
 
   --- arith
-
   test_case('1 + 1', 2),
   test_case('3 + 2', 5),
 
@@ -53,6 +52,15 @@ local tests = {
   invalid('10 / '),
   invalid(' / '),
   invalid('_'),
+
+  ------------------------
+  -- fun with functions --
+  ------------------------
+  test_case("(function() return 1 end)()", 1),
+  test_case("(function() return 1 < 3 end)()", true),
+  test_case("(function() return 1 + 1 end)()", 2),
+  -- side effecting
+  test_case("(function() print(2); return 1 end)()", 1),
 }
 
 describe('expression eval', function()
