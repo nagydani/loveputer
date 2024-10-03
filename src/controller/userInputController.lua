@@ -221,7 +221,7 @@ function UserInputController:keypressed(k)
     end
   end
   local function submit()
-    if not Key.shift() and Key.is_enter(k) then
+    if not Key.shift() and Key.is_enter(k) and input.oneshot then
       local ok, evret = input:evaluate()
       if ok then
         local text = evret
