@@ -1,6 +1,24 @@
 --- @diagnostic disable: duplicate-set-field
 utf8 = require('util.utf')
 
+--- @param s string
+--- @param p string
+--- @param regex boolean?
+--- @return boolean
+string.matches = function(s, p, regex)
+  local r = not (regex or false)
+  local f = string.find(s, p, nil, r)
+  if f then return true end
+  return false
+end
+
+--- @param s string
+--- @param p string
+--- @return boolean
+string.matches_r = function(s, p)
+  return string.matches(s, p, true)
+end
+
 --- @param t string?
 --- @return string?
 string.debug_text = function(t)
