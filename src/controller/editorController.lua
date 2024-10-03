@@ -126,27 +126,32 @@ function EditorController:_handle_submit(go)
   local inter = self.input
   local raw = inter:get_text()
 
-  if not string.is_non_empty_string_array(raw) then return end
-
   local buf = self:get_active_buffer()
   local ct = buf.content_type
   if ct == 'lua' then
-    local pretty = buf.printer(raw)
-    if pretty then
-      inter:set_text(pretty)
+    if not string.is_non_empty_string_array(raw) then
+      local sel = buf:get_selection()
+      local block = buf:get_content():get(sel)
+      if not block then return end
+      local ln = block.pos.start
+      if ln then go({ Empty(ln) }) end
     else
-      --- fallback to original in case of unparse-able input
-      pretty = raw
-    end
-    local ok, res = inter:evaluate()
-    local _, chunks = buf.chunker(pretty, true)
-    if ok then
-      go(chunks)
-    else
-      local eval_err = res
-      if eval_err then
-        inter:set_error(eval_err)
-        -- inter:history_back()
+      local pretty = buf.printer(raw)
+      if pretty then
+        inter:set_text(pretty)
+      else
+        --- fallback to original in case of unparse-able input
+        pretty = raw
+      end
+      local ok, res = inter:evaluate()
+      local _, chunks = buf.chunker(pretty, true)
+      if ok then
+        go(chunks)
+      else
+        local eval_err = res
+        if eval_err then
+          inter:set_error(eval_err)
+        end
       end
     end
   else
@@ -191,8 +196,8 @@ function EditorController:keypressed(k)
   local function submit()
     if not Key.ctrl() and not Key.shift() and Key.is_enter(k) then
       local function go(newtext)
-        local _, n = self:get_active_buffer()
-            :replace_selected_text(newtext)
+        local buf = self:get_active_buffer()
+        local _, n = buf:replace_selected_text(newtext)
         inter:clear()
         self.view:refresh()
         move_sel('down', n)

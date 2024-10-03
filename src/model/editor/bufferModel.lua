@@ -197,32 +197,39 @@ function BufferModel:replace_selected_text(t)
     local cs, ol = (function()
       local current = self.content[sel]
       if current then
-        return current.pos.start,
-            self.content[sel].pos:len()
+        return current.pos.start, self.content[sel].pos:len()
       end
       local last = self.content:last()
       if last then
-        return
-            self.content:last().pos.fin + 1, 0
+        return self.content:last().pos.fin + 1, 0
       else --- empty file
         return 1, 0
       end
     end)()
 
-    --- remove old chunk
-    self.content:remove(sel)
-    --- insert new version of the chunk(s)
-    for i = #chunks, 1, -1 do
-      local c = chunks[i]
+    if n == 1 then
+      local c = chunks[1]
       local nr = c.pos:translate(cs - 1)
       c.pos = nr
-      self.content:insert(c, sel)
+      self.content[sel] = chunks[1]
+    else
+      --- remove old chunk
+      self.content:remove(sel)
+      --- insert new version of the chunk(s)
+      for i = #chunks, 1, -1 do
+        local c = chunks[i]
+        local nr = c.pos:translate(cs - 1)
+        c.pos = nr
+        self.content:insert(c, sel)
+      end
     end
     --- move subsequent chunks down
     local diff = chunks[n].pos:len() - ol
-    for i = sel + 1, self:get_content_length() do
-      local b = self.content[i]
-      b.pos = b.pos:translate(diff)
+    if diff ~= 0 then
+      for i = sel + 1, self:get_content_length() do
+        local b = self.content[i]
+        b.pos = b.pos:translate(diff)
+      end
     end
 
     return true, n
