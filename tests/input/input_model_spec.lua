@@ -616,7 +616,7 @@ describe("input model spec #input", function()
         input_max = 14
       }
     }
-    local model = InputModel.new(cfg, luaEval)
+    local model = InputModel(cfg, luaEval)
     local n_char = w * 2 + 4
     local char1 = 'щ'
     describe('cursor', function()

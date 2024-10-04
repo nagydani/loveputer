@@ -28,7 +28,7 @@ describe("interpreter model spec #interpreter", function()
   --   local cfg = {
   --     drawableChars = 80,
   --   }
-  --   local model = InterpreterModel:new(cfg)
+  --   local model = InterpreterModel(cfg)
   --   local w = cfg.drawableChars
   --   local n_char = w * 2 + 4
   --   local char1 = 'щ'

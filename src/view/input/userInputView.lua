@@ -11,7 +11,7 @@ local new = function(cfg, ctrl)
   return {
     cfg = cfg,
     controller = ctrl,
-    statusline = Statusline:new(cfg),
+    statusline = Statusline(cfg),
     oneshot = ctrl.model.oneshot,
   }
 end

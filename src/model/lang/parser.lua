@@ -411,7 +411,7 @@ return function(lib)
             idx = idx + 1
           end
           local tex = table.slice(text or {}, fl, ll)
-          local chunk = Chunk.new(tex, Range(fl, ll))
+          local chunk = Chunk(tex, Range(fl, ll))
           ret:insert(chunk, idx)
           idx = idx + 1
           last = ll

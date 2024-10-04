@@ -1,21 +1,10 @@
+local class = require("util.class")
+
 --- @class BGView
 --- @field cfg Config
-BGView = {}
-BGView.__index = BGView
-
-setmetatable(BGView, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
-
-function BGView.new(cfg)
-  local self = setmetatable({
-    cfg = cfg
-  }, BGView)
-
-  return self
-end
+BGView = class.create(function(cfg)
+  return { cfg = cfg }
+end)
 
 function BGView:draw(drawable_height)
   --- @type ViewConfig

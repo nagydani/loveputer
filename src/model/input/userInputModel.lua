@@ -173,7 +173,7 @@ end
 
 --- @return InputText
 function UserInputModel:get_text()
-  return self.entered or InputText:new()
+  return self.entered or InputText()
 end
 
 --- @param l integer
@@ -278,7 +278,7 @@ function UserInputModel:delete()
 end
 
 function UserInputModel:clear_input()
-  self.entered = InputText:new()
+  self.entered = InputText()
   self:text_change()
   self:clear_selection()
   self:_update_cursor(true)

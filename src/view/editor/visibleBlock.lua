@@ -1,25 +1,12 @@
 require("util.range")
 require("util.string")
-
---- @class VisibleBlock
---- @field wrapped WrappedText
---- @field highlight SyntaxColoring
---- @field pos Range
---- @field app_pos Range
-VisibleBlock = {}
-VisibleBlock.__index = VisibleBlock
-
-setmetatable(VisibleBlock, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
+local class = require('util.class')
 
 --- @param w integer
 --- @param lines str
 --- @param pos Range
 --- @return VisibleBlock
-function VisibleBlock.new(w, lines, hl, pos, apos)
+local function new(w, lines, hl, pos, apos)
   local ls = (function()
     if type(lines) == 'string' then return { lines } end
     return lines
@@ -50,6 +37,13 @@ function VisibleBlock.new(w, lines, hl, pos, apos)
 
   return self
 end
+
+--- @class VisibleBlock
+--- @field wrapped WrappedText
+--- @field highlight SyntaxColoring
+--- @field pos Range
+--- @field app_pos Range
+VisibleBlock = class.create(new)
 
 function VisibleBlock:__tostring()
   local r = string.format("%s\t%s",

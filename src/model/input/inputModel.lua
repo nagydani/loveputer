@@ -43,7 +43,7 @@ function InputModel.new(cfg, eval, oneshot)
     evaluator = eval,
     label = eval.label,
     cursor = Cursor(),
-    wrapped_text = WrappedText.new(w),
+    wrapped_text = WrappedText(w),
     selection = InputSelection(),
     custom_status = nil,
 
@@ -167,7 +167,7 @@ end
 
 --- @return InputText
 function InputModel:get_text()
-  return self.entered or InputText:new()
+  return self.entered or InputText()
 end
 
 --- @param l integer
@@ -272,7 +272,7 @@ function InputModel:delete()
 end
 
 function InputModel:clear_input()
-  self.entered = InputText:new()
+  self.entered = InputText()
   self:text_change()
   self:clear_selection()
   self:_update_cursor(true)

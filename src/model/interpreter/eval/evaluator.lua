@@ -75,7 +75,7 @@ end
 --- @param filters Filters?
 --- @param custom_apply function?
 function Evaluator.plain(label, filters, custom_apply)
-  return Evaluator.new(label, nil, filters, custom_apply)
+  return Evaluator(label, nil, filters, custom_apply)
 end
 
 TextEval = Evaluator.plain('text')

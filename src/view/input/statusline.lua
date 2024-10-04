@@ -1,18 +1,11 @@
+local class = require("util.class")
+
 --- @class Statusline
 --- @field cfg ViewConfig
-Statusline = {}
+Statusline = class.create(function(cfg)
+  return { cfg = cfg }
+end)
 
---- @param cfg ViewConfig
---- @return Statusline
-function Statusline:new(cfg)
-  local s = {
-    cfg = cfg,
-  }
-  setmetatable(s, self)
-  self.__index = self
-
-  return s
-end
 
 --- @param status Status
 --- @param nLines integer

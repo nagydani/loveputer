@@ -3,33 +3,28 @@ require("view.input.userInputView")
 require("view.editor.bufferView")
 
 require("util.string")
+local class = require('util.class')
+
+--- @param cfg ViewConfig
+--- @param ctrl EditorController
+local function new(cfg, ctrl)
+  local ev = {
+    cfg = cfg,
+    controller = ctrl,
+    input = UserInputView(cfg, ctrl.input),
+    buffer = BufferView(cfg),
+  }
+  --- hook the view in the controller
+  ctrl.view = ev
+  return ev
+end
 
 --- @class EditorView
 --- @field cfg ViewConfig
 --- @field controller EditorController
 --- @field input UserInputView
 --- @field buffer BufferView
-EditorView = {}
-EditorView.__index = EditorView
-
-setmetatable(EditorView, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
-
---- @param cfg ViewConfig
---- @param ctrl EditorController
-function EditorView.new(cfg, ctrl)
-  local self = setmetatable({
-    cfg = cfg,
-    controller = ctrl,
-    input = UserInputView(cfg, ctrl.input),
-    buffer = BufferView(cfg),
-  }, EditorView)
-  ctrl.view = self
-  return self
-end
+EditorView = class.create(new)
 
 function EditorView:draw()
   local ctrl = self.controller

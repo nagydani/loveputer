@@ -5,6 +5,15 @@ require("view.input.customStatus")
 
 local class = require('util.class')
 
+--- @param M EditorModel
+local function new(M)
+  return {
+    input = UserInputController(M.input),
+    model = M,
+    view = nil,
+  }
+end
+
 --- @class EditorController
 --- @field model EditorModel
 --- @field input UserInputController
@@ -16,45 +25,32 @@ local class = require('util.class')
 --- @field update_status function
 --- @field textinput fun(self, string)
 --- @field keypressed fun(self, string)
-EditorController = class.create()
+EditorController = class.create(new)
 
---- @param M EditorModel
-function EditorController.new(M)
-  local self = setmetatable({
-    input = UserInputController(M.input),
-    model = M,
-    view = nil,
-  }, EditorController)
-
-  return self
-end
 
 --- @param name string
 --- @param content string[]?
 function EditorController:open(name, content)
   local w = self.model.cfg.view.drawableChars
   local is_lua = string.match(name, '.lua$')
+  local ch, hl, pp
   if is_lua then
     self.input:set_eval(LuaEditorEval)
+    local luaEval = LuaEval()
+    local parser = luaEval.parser
+    if not parser then return end
+    hl = parser.highlighter
+    --- @param t string[]
+    --- @param single boolean
+    ch = function(t, single)
+      return parser.chunker(t, w, single)
+    end
+    pp = function(t)
+      return parser.pprint(t, w)
+    end
   else
     self.input:set_eval(TextEval)
   end
-  local ch, hl, pp = (function()
-    if is_lua then
-      local luaEval = LuaEval()
-      local parser = luaEval.parser
-      if not parser then return end
-      --- @param t string[]
-      --- @param single boolean
-      local ch = function(t, single)
-        return parser.chunker(t, w, single)
-      end
-      local pp = function(t)
-        return parser.pprint(t, w)
-      end
-      return ch, parser.highlighter, pp
-    end
-  end)()
 
   local b = BufferModel(name, content, ch, hl, pp)
   self.model.buffer = b

@@ -1,8 +1,26 @@
 require("view.editor.visibleContent")
 require("view.editor.visibleStructuredContent")
 
-require("util.table")
+local class = require("util.class")
 require("util.scrollable")
+require("util.table")
+
+local function new(cfg)
+  local l = cfg.lines
+
+  return {
+    cfg = cfg,
+    LINES = l,
+    SCROLL_BY = math.floor(l / 2),
+    w = cfg.drawableChars,
+
+    content = nil,
+    content_type = nil,
+    more = { up = false, down = false },
+    offset = 0,
+    buffer = nil
+  }
+end
 
 --- @class BufferView
 --- @field cfg ViewConfig
@@ -20,33 +38,7 @@ require("util.scrollable")
 --- @field open function
 --- @field refresh function
 --- @field draw function
-BufferView = {}
-BufferView.__index = BufferView
-
-setmetatable(BufferView, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
-
---- @param cfg ViewConfig
-function BufferView.new(cfg)
-  local l = cfg.lines
-
-  local self = setmetatable({
-    cfg = cfg,
-    LINES = l,
-    SCROLL_BY = math.floor(l / 2),
-    w = cfg.drawableChars,
-
-    content = nil,
-    content_type = nil,
-    more = { up = false, down = false },
-    offset = 0,
-    buffer = nil
-  }, BufferView)
-  return self
-end
+BufferView = class.create(new)
 
 --- @private
 --- @param r Range

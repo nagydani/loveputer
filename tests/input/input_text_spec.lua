@@ -16,7 +16,7 @@ describe('InputText', function()
   local text = InputText(t)
 
   it('inherits Dequeue', function()
-    local empty = InputText:new()
+    local empty = InputText()
     assert.same({ 1 }, table.keys(empty))
     assert.same({ l1, l2, l3 }, text)
   end)
@@ -56,7 +56,7 @@ describe('InputText', function()
     assert.same(exp2, trav_2)
     assert.same(rem2, text2)
 
-    -- from   = Cursor:new(1, 12)
+    -- from   = Cursor(1, 12)
     to            = Cursor(2, string.ulen(l2) + 1)
     local text2b  = InputText(t)
     local exp2b   = {

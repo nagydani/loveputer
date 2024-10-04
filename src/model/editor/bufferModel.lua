@@ -13,24 +13,6 @@ require('util.dequeue')
 --- @alias Highlighter fun(c: str): SyntaxColoring
 --- @alias Printer fun(c: string[]): string[]?
 
---- @class BufferModel
---- @field name string
---- @field content Dequeue -- Content
---- @field content_type ContentType
---- @field selection integer
---- @field readonly boolean
---- @field revmap table
----
---- @field chunker Chunker
---- @field highlighter Highlighter
---- @field printer Printer
---- @field move_selection function
---- @field get_selection function
---- @field get_selected_text function
---- @field delete_selected_text function
---- @field replace_selected_text function
---- @field get_text_content fun(self): string[]
-BufferModel = class.create()
 
 --- @param name string
 --- @param content string[]
@@ -38,8 +20,7 @@ BufferModel = class.create()
 --- @param highlighter Highlighter
 --- @param printer function
 --- @return BufferModel?
-function BufferModel.new(name, content,
-                         chunker, highlighter, printer)
+local function new(name, content, chunker, highlighter, printer)
   local _content, sel, ct
   local readonly = false
 
@@ -60,7 +41,7 @@ function BufferModel.new(name, content,
     sel = #_content + 1
   end
 
-  local self = setmetatable({
+  return {
     name = name or 'untitled',
     content = _content,
     content_type = ct,
@@ -69,10 +50,27 @@ function BufferModel.new(name, content,
     printer = printer,
     selection = sel,
     readonly = readonly
-  }, BufferModel)
-
-  return self
+  }
 end
+
+--- @class BufferModel
+--- @field name string
+--- @field content Dequeue -- Content
+--- @field content_type ContentType
+--- @field selection integer
+--- @field readonly boolean
+--- @field revmap table
+---
+--- @field chunker Chunker
+--- @field highlighter Highlighter
+--- @field printer Printer
+--- @field move_selection function
+--- @field get_selection function
+--- @field get_selected_text function
+--- @field delete_selected_text function
+--- @field replace_selected_text function
+--- @field render_content fun(self): string[]
+BufferModel = class.create(new)
 
 --- @return Dequeue
 function BufferModel:get_content()

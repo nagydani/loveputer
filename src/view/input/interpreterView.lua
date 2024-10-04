@@ -1,29 +1,22 @@
 require("view.input.inputView")
 
+local class = require("util.class")
+
+--- @param cfg ViewConfig
+--- @param ctrl InterpreterController
+local new = function(cfg, ctrl)
+  return {
+    cfg = cfg,
+    controller = ctrl,
+    input = InputView(cfg, ctrl.input),
+  }
+end
+
 --- @class InterpreterView
 --- @field cfg ViewConfig
 --- @field controller InterpreterController
 --- @field input InputView
-InterpreterView = {}
-InterpreterView.__index = InterpreterView
-
-setmetatable(InterpreterView, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
-
---- @param cfg ViewConfig
---- @param ctrl InterpreterController
-function InterpreterView.new(cfg, ctrl)
-  local self = setmetatable({
-    cfg = cfg,
-    controller = ctrl,
-    input = InputView.new(cfg, ctrl.input),
-  }, InterpreterView)
-
-  return self
-end
+InterpreterView = class.create(new)
 
 --- @param input InputDTO
 function InterpreterView:draw(input, time)
