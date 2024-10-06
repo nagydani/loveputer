@@ -182,12 +182,15 @@ Debug = {
 
   --- @param t string[]?
   --- @param no_ln boolean?
+  --- @param skip integer?
   --- @param trunc boolean?
   --- @return string
-  text_table = function(t, no_ln, trunc)
+  text_table = function(t, no_ln, skip, trunc)
     local res = '\n'
     if type(t) == 'table' then
-      for i, l in ipairs(t) do
+      local start = math.max(1, skip or 0)
+      for i = start, #t do
+        local l = t[i]
         local line = (function()
           if not no_ln then
             return string.format("#%02d: %s\n", i, text(l))
