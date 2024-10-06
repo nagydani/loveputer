@@ -24,7 +24,7 @@ function UserInputController:add_text(t)
   self.model:add_text(string.unlines(t))
 end
 
---- @return string[]
+--- @return InputText
 function UserInputController:get_text()
   return self.model:get_text()
 end
