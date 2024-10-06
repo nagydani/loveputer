@@ -258,7 +258,6 @@ print(sierpinski(4))]])
         replbuf:move_selection('down', nil, true)
         replbuf:move_selection('up', 1)
 
-        local ln = replbuf:get_selection_start_line()
         local orig = { 'function love.update(dt)',
           '  t = t + dt',
           '  if ty > midy then',

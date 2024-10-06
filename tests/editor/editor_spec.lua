@@ -33,15 +33,20 @@ describe('Editor #editor', function()
 
   --- @param cfg Config
   --- @return EditorController
+  --- @return function press
   local function wire(cfg)
     local model = EditorModel(cfg)
     local controller = EditorController(model)
     -- this hooks itself back into the controller
     EditorView(cfg.view, controller)
+    local function press(...)
+      controller:keypressed(...)
+    end
 
-    return controller
+    return controller, press
   end
 
+  local print_result = "print(sierpinski(4))"
   local sierpinski = {
     "function sierpinski(depth)",
     "  lines = { '*' }",
@@ -54,10 +59,10 @@ describe('Editor #editor', function()
     "    end",
     "    lines = tmp",
     "  end",
-    "  return table.concat(lines, '\n')",
+    [[  return table.concat(lines, '\n')]],
     "end",
     "",
-    "print(sierpinski(4))",
+    print_result,
   }
 
   describe('opens', function()
@@ -91,15 +96,11 @@ describe('Editor #editor', function()
       local w = 16
       local mockConf = getMockConf(w)
 
-      local controller = wire(mockConf)
+      local controller, press = wire(mockConf)
       local model = controller.model
 
       love.state.app_state = 'editor'
       controller:open('turtle', turtle_doc)
-
-      local function press(...)
-        controller:keypressed(...)
-      end
 
       local buffer = controller:get_active_buffer()
       local start_sel = #turtle_doc + 1
@@ -429,21 +430,33 @@ describe('Editor #editor', function()
   end)
   --- end plaintext
 
-  -- describe('structured (lua) works', function()
-  --   local l = 16
-  --   local mockConf = {
-  --     view = {
-  --       lines = l,
-  --       drawableChars = 64,
-  --       input_max = 14,
-  --     },
-  --   }
+  describe('structured (lua) works', function()
+    local l = 16
+    local mockConf = getMockConf(64, l)
 
-  --   local model = EditorModel(mockConf)
-  --   local controller = EditorController(model)
-  --   local view = EditorView(mockConf.view, controller)
+    local controller, press = wire(mockConf)
 
-  --   controller:open('sierpinski.lua', sierpinski)
-  --   view.buffer:open(model.buffer)
-  -- end)
+    controller:open('sierpinski.lua', sierpinski)
+
+    local input = controller.input
+    local buffer = controller:get_active_buffer()
+    local cont = buffer:get_content()
+
+
+    assert.same('lua', buffer.content_type)
+    it('length is correct', function()
+      assert.same('block', cont:type())
+      assert.same(3, buffer:get_content_length())
+    end)
+    it('changing single line', function()
+      local new_print = 'print(sierpinski(3))'
+      mock.keystroke('up', press)
+      assert.same(3, buffer:get_selection())
+      assert.same({ print_result }, buffer:get_selected_text())
+      input:clear()
+      input:add_text(new_print)
+      mock.keystroke('return', press)
+      assert.same(4, buffer:get_selection())
+    end)
+  end)
 end)
