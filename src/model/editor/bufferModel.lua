@@ -147,6 +147,32 @@ function BufferModel:get_selection()
   return self.selection
 end
 
+--- @private
+--- @return Block?
+function BufferModel:_get_selected_block()
+  if self.content_type == 'plain' then return end
+
+  local sel = self.selection
+  if sel == self:get_content_length() + 1 then
+    local ln = self.content:last().pos.fin + 1
+    return Empty(ln)
+  end
+  return self.content[sel]
+end
+
+--- @return integer?
+function BufferModel:get_selection_start_line()
+  if self.content_type == 'lua' then
+    local b = self:_get_selected_block()
+    if b then
+      local ln = b.pos.start
+      return ln
+    end
+  else
+    return self.selection
+  end
+end
+
 --- @return string[]
 function BufferModel:get_selected_text()
   local sel = self.selection
@@ -168,6 +194,7 @@ function BufferModel:delete_selected_text()
   if self.content_type == 'lua' then
     local sb = self.content[sel]
     if not sb then return end
+
     local l = sb.pos:len()
     self.content:remove(sel)
     for i = sel, self:get_content_length() do
@@ -221,6 +248,7 @@ function BufferModel:replace_selected_text(t)
         self.content:insert(c, sel)
       end
     end
+    -- Log.debug(Debug.terse_array(self.content, sel))
     --- move subsequent chunks down
     local diff = chunks[n].pos:len() - ol
     if diff ~= 0 then
