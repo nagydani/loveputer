@@ -19,6 +19,28 @@ describe('Editor #editor', function()
     'Turtle graphics game inspired the LOGO family of languages.',
     '',
   }
+  --- @param w integer
+  --- @param l integer?
+  local function getMockConf(w, l)
+    return {
+      view = {
+        drawableChars = w,
+        lines = l or 16,
+        input_max = 14
+      },
+    }
+  end
+
+  --- @param cfg Config
+  --- @return EditorController
+  local function wire(cfg)
+    local model = EditorModel(cfg)
+    local controller = EditorController(model)
+    -- this hooks itself back into the controller
+    EditorView(cfg.view, controller)
+
+    return controller
+  end
 
   local sierpinski = {
     "function sierpinski(depth)",
@@ -41,13 +63,7 @@ describe('Editor #editor', function()
   describe('opens', function()
     it('no wrap needed', function()
       local w = 80
-      local mockConf = {
-        view = {
-          drawableChars = w,
-          lines = 16,
-          input_max = 14
-        },
-      }
+      local mockConf = getMockConf(w)
 
       local model = EditorModel(mockConf)
       local controller = EditorController(model)
@@ -73,21 +89,13 @@ describe('Editor #editor', function()
   describe('plaintext works', function()
     describe('with wrap', function()
       local w = 16
-      local mockConf = {
-        view = {
-          drawableChars = w,
-          lines = 16,
-          input_max = 14
-        },
-      }
+      local mockConf = getMockConf(w)
 
-      local model = EditorModel(mockConf)
-      local controller = EditorController(model)
-      local view = EditorView(mockConf.view, controller)
+      local controller = wire(mockConf)
+      local model = controller.model
 
       love.state.app_state = 'editor'
       controller:open('turtle', turtle_doc)
-      view.buffer:open(model.buffer)
 
       local function press(...)
         controller:keypressed(...)
@@ -110,7 +118,6 @@ describe('Editor #editor', function()
         assert.same({}, sel_t)
       end)
 
-      --- additional tests
       it('interacts', function()
         --- select middle line
         mock.keystroke('up', press)
@@ -420,6 +427,7 @@ describe('Editor #editor', function()
       end)
     end)
   end)
+  --- end plaintext
 
   -- describe('structured (lua) works', function()
   --   local l = 16
