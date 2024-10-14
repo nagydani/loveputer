@@ -1,15 +1,16 @@
 require("model.editor.bufferModel")
 require("model.interpreter.interpreterModel")
+require("model.input.userInputModel")
 
 local class = require('util.class')
 
 --- @class EditorModel
---- @field interpreter InterpreterModel
+--- @field input UserInputModel
 --- @field buffer BufferModel?
 --- @field cfg Config
 EditorModel = class.create(function(cfg)
   return {
-    interpreter = InterpreterModel(cfg),
+    input = UserInputModel(cfg),
     buffer = nil,
     cfg = cfg,
   }

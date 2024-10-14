@@ -657,12 +657,10 @@ function UserInputModel:handle(eval)
           --- @diagnostic disable-next-line: param-type-mismatch
           love.event.push('userinput', ent)
         end
-        self:clear_input()
       else
         return false, result
       end
     else
-      self:clear_input()
       ok = true
     end
   end

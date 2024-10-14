@@ -120,7 +120,7 @@ describe('Editor #editor', function()
         assert.same(turtle_doc[2], model.buffer:get_selected_text())
         --- load it
         local input = function()
-          return controller.interpreter:get_text():items()
+          return controller.input:get_text():items()
         end
         mock.keystroke('escape', press)
         assert.same({ turtle_doc[2] }, input())
@@ -396,7 +396,7 @@ describe('Editor #editor', function()
       end)
       describe('input', function()
         --- @type InterpreterController
-        local inter = controller.interpreter
+        local inter = controller.input
         it('loads', function()
           inter:add_text('asd')
           local selected = buffer:get_selected_text()

@@ -32,8 +32,8 @@ function ConsoleController.new(M)
   local config = M.cfg
   pre_env.font = config.view.font
   local IpC = InputController(M.interpreter.input)
-  local InC = InterpreterController.new(M.interpreter, IpC)
-  local EC = EditorController.new(M.editor)
+  local InC = InterpreterController(M.interpreter, IpC)
+  local EC = EditorController(M.editor)
   local self = setmetatable({
     time        = 0,
     model       = M,
@@ -632,7 +632,7 @@ end
 
 function ConsoleController:mousepressed(x, y, button)
   if love.state.app_state == 'editor' then
-    self.editor.interpreter:mousepressed(x, y, button)
+    self.editor.input:mousepressed(x, y, button)
   else
     self.interpreter:mousepressed(x, y, button)
   end
@@ -640,7 +640,7 @@ end
 
 function ConsoleController:mousereleased(x, y, button)
   if love.state.app_state == 'editor' then
-    self.editor.interpreter:mousereleased(x, y, button)
+    self.editor.input:mousereleased(x, y, button)
   else
     self.interpreter:mousereleased(x, y, button)
   end
@@ -648,7 +648,7 @@ end
 
 function ConsoleController:mousemoved(x, y, dx, dy)
   if love.state.app_state == 'editor' then
-    self.editor.interpreter:mousemoved(x, y)
+    self.editor.input:mousemoved(x, y)
   else
     self.interpreter:mousemoved(x, y)
   end

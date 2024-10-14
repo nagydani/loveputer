@@ -15,22 +15,24 @@ end
 --- @field result function
 UserInputController = class.create(new)
 
---- @param t string
-function UserInputController:textinput(t)
-  if self.model:has_error() then
-    return
-  end
-  if not self.result and love.state.app_state == 'running' then
-    return
-  end
-  self.model:add_text(t)
-end
+---------------
+--  entered  --
+---------------
 
 --- @param t str
 function UserInputController:add_text(t)
   self.model:add_text(string.unlines(t))
 end
 
+--- @return string[]
+function UserInputController:get_text()
+  return self.model:get_text()
+end
+
+--- @param t str
+function UserInputController:set_text(t)
+  self.model:set_text(t)
+end
 ----------------
 -- evaluation --
 ----------------
@@ -38,11 +40,6 @@ end
 --- @param eval Evaluator
 function UserInputController:set_eval(eval)
   self.model:set_eval(eval)
-end
-
---- @param t str
-function UserInputController:set_text(t)
-  self.model:set_text(t)
 end
 
 function UserInputController:clear()
@@ -83,9 +80,8 @@ function UserInputController:clear_error()
 end
 
 --- @param error string[]?
---- @param is_call_error boolean?
-function UserInputController:set_error(error, is_call_error)
-  self.model:set_error(error, is_call_error)
+function UserInputController:set_error(error)
+  self.model:set_error(error)
 end
 
 --- @return string[]?
@@ -94,7 +90,7 @@ function UserInputController:get_wrapped_error()
 end
 
 --- @return boolean
---- @return string[]
+--- @return EvalError[]
 function UserInputController:evaluate()
   return self.model:handle(true)
 end
@@ -266,6 +262,17 @@ function UserInputController:keypressed(k)
 
 
   return ret
+end
+
+--- @param t string
+function UserInputController:textinput(t)
+  if self.model:has_error() then
+    return
+  end
+  if not self.result and love.state.app_state == 'running' then
+    return
+  end
+  self.model:add_text(t)
 end
 
 --- @param k string

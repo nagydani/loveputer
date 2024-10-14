@@ -1,13 +1,13 @@
 require("model.interpreter.eval.evaluator")
 require("controller.inputController")
-require("controller.interpreterController")
+require("controller.userInputController")
 require("view.input.customStatus")
 
 local class = require('util.class')
 
 --- @class EditorController
 --- @field model EditorModel
---- @field interpreter InterpreterController
+--- @field input UserInputController
 --- @field view EditorView?
 ---
 --- @field open fun(self, name: string, content: string[]?)
@@ -20,9 +20,8 @@ EditorController = class.create()
 
 --- @param M EditorModel
 function EditorController.new(M)
-  local IC = InputController(M.interpreter.input)
   local self = setmetatable({
-    interpreter = InterpreterController(M.interpreter, IC),
+    input = UserInputController(M.input),
     model = M,
     view = nil,
   }, EditorController)
@@ -33,11 +32,12 @@ end
 --- @param name string
 --- @param content string[]?
 function EditorController:open(name, content)
+  local w = self.model.cfg.view.drawableChars
   local is_lua = string.match(name, '.lua$')
   if is_lua then
-    self.interpreter:set_eval(LuaEditorEval)
+    self.input:set_eval(LuaEditorEval)
   else
-    self.interpreter:set_eval(TextEval)
+    self.input:set_eval(TextEval)
   end
   local ch, hl, pp = (function()
     if is_lua then
@@ -47,13 +47,10 @@ function EditorController:open(name, content)
       --- @param t string[]
       --- @param single boolean
       local ch = function(t, single)
-        return parser.chunker(t,
-          self.model.cfg.view.drawableChars,
-          single)
+        return parser.chunker(t, w, single)
       end
       local pp = function(t)
-        return parser.pprint(t,
-          self.model.cfg.view.drawableChars)
+        return parser.pprint(t, w)
       end
       return ch, parser.highlighter, pp
     end
@@ -69,7 +66,7 @@ end
 --- @return Dequeue content
 function EditorController:close()
   local buf = self:get_active_buffer()
-  self.interpreter:clear()
+  self.input:clear()
   local content = buf:get_text_content()
   return buf.name, content
 end
@@ -104,59 +101,62 @@ end
 function EditorController:update_status()
   local sel = self:get_active_buffer():get_selection()
   local cs = self:_generate_status(sel)
-  self.interpreter:set_custom_status(cs)
+  self.input:set_custom_status(cs)
 end
 
 --- @param t string
 function EditorController:textinput(t)
-  local interpreter = self.model.interpreter
-  if interpreter:has_error() then
-    interpreter:clear_error()
+  local input = self.model.input
+  if input:has_error() then
+    input:clear_error()
   else
     if Key.ctrl() and Key.shift() then
       return
     end
-    self.interpreter:textinput(t)
+    self.input:textinput(t)
   end
 end
 
 function EditorController:get_input()
-  return self.interpreter:get_input()
+  return self.input:get_input()
 end
 
 --- @param go fun(nt: string[]|Block[])
 function EditorController:_handle_submit(go)
-  local inter = self.interpreter
+  local inter = self.input
   local raw = inter:get_text()
 
   if not string.is_non_empty_string_array(raw) then return end
 
-  local ct = self:get_active_buffer().content_type
+  local buf = self:get_active_buffer()
+  local ct = buf.content_type
   if ct == 'lua' then
-    local buf = self:get_active_buffer()
-    --- send it through the pretty printer, fallback to original
-    --- in case of unparse-able input
-    local pretty = buf.printer(raw) or raw
-    local ok, res = self.model.interpreter.input.evaluator.apply(pretty)
+    local pretty = buf.printer(raw)
+    if pretty then
+      inter:set_text(pretty)
+    else
+      --- fallback to original in case of unparse-able input
+      pretty = raw
+    end
+    local ok, res = inter:evaluate()
     local _, chunks = buf.chunker(pretty, true)
     if ok then
       go(chunks)
     else
-      local eval_err = res[1]
+      local eval_err = res
       if eval_err then
-        local msg = eval_err.msg
-        inter:set_error(msg)
-        inter:history_back()
+        inter:set_error(eval_err)
+        -- inter:history_back()
       end
     end
   else
-    go(self.interpreter:get_text())
+    go(raw)
   end
 end
 
 --- @param k string
 function EditorController:keypressed(k)
-  local inter = self.interpreter
+  local inter = self.input
 
   local vmove = inter:keypressed(k)
 
