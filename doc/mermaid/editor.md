@@ -109,7 +109,6 @@ class BufferModel {
   get_selected_text()
   delete_selected_text()
   replace_selected_text()
-  render_content()
 }
 
 class BufferView {
@@ -125,7 +124,7 @@ class BufferView {
   offset: integer
   more: More
 
-  open()
+  open(b: BufferModel)
   refresh()
   draw()
   follow_selection()
@@ -141,12 +140,62 @@ class EditorController {
   interpreter: InterpreterController
   view: EditorView | nil
 
-  open()
+  open(name: string, content: string[])
   close()
   get_active_buffer()
   update_status()
   textinput()
   keypressed()
 }
+
+```
+
+### Flow
+
+#### open
+
+```mermaid
+sequenceDiagram
+
+participant Controller
+Controller->>EditorController: open()
+activate EditorController
+participant EditorController
+
+create participant BufferView
+
+create participant BufferModel
+EditorController->>BufferModel: new()
+
+EditorController->>BufferView: open()
+
+deactivate EditorController
+EditorController->>EditorController: update_status()
+```
+
+#### submit
+
+```mermaid
+sequenceDiagram
+
+participant Controller
+participant EditorController
+participant InputModel
+participant BufferModel
+
+Controller->>EditorController: keypressed(k)
+activate EditorController
+EditorController->>InputModel: keypressed(k)
+EditorController->>EditorController: handle_submit()
+EditorController->>InputModel: get_text()
+InputModel->>EditorController: text
+
+EditorController->>BufferModel: replace_selected_text(text)
+EditorController->>InputModel: clear()
+EditorController->>BufferView: refresh()
+
+
+deactivate EditorController
+EditorController->>EditorController: update_status()
 
 ```
