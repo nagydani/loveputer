@@ -206,7 +206,7 @@ function ProjectService:open(name)
   end
   if path then
     self.current = Project(name)
-    nativefs.setWorkingDirectory(path)
+    FS.cd(path)
     return true
   end
   return false, p_err

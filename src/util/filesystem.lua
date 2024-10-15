@@ -44,7 +44,7 @@ if love then
         return LFS.createDirectory(...)
       end,
       getDirectoryItemsInfo = getDirectoryItemsInfo,
-      setWorkingDirectory = function()
+      setWorkingDirectory = function(path)
         return true
       end
     }
@@ -64,6 +64,11 @@ if love then
   function FS.mkdir(path)
     return _fs.createDirectory(path)
   end
+
+  --- @param path string
+  --- @return boolean success
+  function FS.cd(path)
+    return _fs.setWorkingDirectory(path)
   end
 
   --- @param path string
