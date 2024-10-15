@@ -12,19 +12,58 @@ FS = {
 }
 
 if love then
-  local nativefs = require("lib/nativefs")
+  local _fs
+  if love.system.getOS() == "Web" then
+    LFS = love.filesystem
+    _G.lfs = LFS
+    local getDirectoryItemsInfo = function(dir, filtertype)
+      local files = LFS.getDirectoryItems(dir)
+      local ret = {}
+      for _, f in ipairs(files) do
+        local info = LFS.getInfo(f, filtertype)
+        if info then
+          table.insert(ret, info)
+        end
+      end
+      return ret
+    end
+    _fs = {
+      read = function(...)
+        return LFS.read(...)
+      end,
+      write = function(...)
+        return LFS.write(...)
+      end,
+      lines = function(...)
+        return LFS.lines(...)
+      end,
+      getInfo = function(...)
+        return LFS.getInfo(...)
+      end,
+      createDirectory = function(...)
+        return LFS.createDirectory(...)
+      end,
+      getDirectoryItemsInfo = getDirectoryItemsInfo,
+      setWorkingDirectory = function()
+        return true
+      end
+    }
+  else
+    _fs = require("lib/nativefs")
+  end
 
   --- @param path string
   --- @return boolean
   function FS.exists(path)
-    if nativefs.getInfo(path) then return true end
+    if _fs.getInfo(path) then return true end
     return false
   end
 
   --- @param path string
   --- @return boolean success
   function FS.mkdir(path)
-    return nativefs.createDirectory(path)
+    return _fs.createDirectory(path)
+  end
   end
 
   --- @param path string
@@ -46,7 +85,7 @@ if love then
         end
         return items
       end
-      return nativefs.getDirectoryItemsInfo(path, filtertype)
+      return _fs.getDirectoryItemsInfo(path, filtertype)
     end)()
 
     return items
@@ -57,7 +96,7 @@ if love then
   function FS.lines(path)
     local ret = {}
     if FS.exists(path) then
-      for l in nativefs.lines(path) do
+      for l in _fs.lines(path) do
         table.insert(ret, l)
       end
     end
@@ -69,7 +108,7 @@ if love then
   --- @return boolean success
   --- @return string? error
   function FS.write(path, data)
-    return nativefs.write(path, data)
+    return _fs.write(path, data)
   end
 
   --- @param source string
@@ -82,14 +121,14 @@ if love then
       if vfs then
         return love.filesystem.getInfo
       end
-      return nativefs.getInfo
+      return _fs.getInfo
     end)()
     local srcinfo = getInfo(source)
     if not srcinfo or srcinfo.type ~= 'file' then
       return false, FS.messages.enoent('source')
     end
 
-    local tgtinfo = nativefs.getInfo(target)
+    local tgtinfo = _fs.getInfo(target)
     local to
     if not tgtinfo or tgtinfo.type == 'file' then
       to = target
@@ -105,7 +144,7 @@ if love then
 
     local content, s_err = (function()
       if vfs then return love.filesystem.read(source) end
-      return nativefs.read(source)
+      return _fs.read(source)
     end)()
     if not content then
       return false, tostring(s_err)
@@ -130,19 +169,19 @@ if love then
       if vfs then
         return love.filesystem.getInfo
       end
-      return nativefs.getInfo
+      return _fs.getInfo
     end)()
     local cp_ok = true
     local cp_err
     local srcinfo = getInfo(source)
-    local tgtinfo = nativefs.getInfo(target)
+    local tgtinfo = _fs.getInfo(target)
     if not srcinfo or srcinfo.type ~= 'directory' then
       return false, FS.messages.enoent('source', 'dir')
     end
     if not tgtinfo then
       FS.mkdir(target)
     end
-    tgtinfo = nativefs.getInfo(target)
+    tgtinfo = _fs.getInfo(target)
     if not tgtinfo or tgtinfo.type ~= 'directory' then
       return false, FS.messages.enoent('target', 'dir')
     end
