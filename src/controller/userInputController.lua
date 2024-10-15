@@ -111,6 +111,9 @@ end
 --- @param k string
 --- @return boolean? limit
 function UserInputController:keypressed(k)
+  if _G.web and k == 'space' then
+    self:textinput(' ')
+  end
   local input = self.model
   local ret
 
