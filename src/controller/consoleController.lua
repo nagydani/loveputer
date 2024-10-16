@@ -218,7 +218,7 @@ function ConsoleController.prepare_env(cc)
   prepared.writefile        = function(name, content)
     return check_open_pr(function()
       local p = P.current
-      local fpath = string.join_path(p.path, name)
+      local fpath = p:get_path(name)
       local ex = FS.exists(fpath)
       if ex then
         -- TODO: confirm overwrite
@@ -506,7 +506,7 @@ function ConsoleController:edit(name)
   local PS       = self.model.projects
   local p        = PS.current
   local filename = name or ProjectService.MAIN
-  local fpath    = string.join_path(p.path, filename)
+  local fpath    = p:get_path(filename)
   local ex       = FS.exists(fpath)
   local text
   if ex then

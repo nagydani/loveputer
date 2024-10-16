@@ -103,6 +103,12 @@ function Project:writefile(name, data)
   return FS.write(fp, data)
 end
 
+--- @param name string
+--- @return string? path
+function Project:get_path(name)
+  return FS.join_path(self.path, name)
+end
+
 local newps = function()
   ProjectService.path = love.paths.project_path
   ProjectService.messages = messages
