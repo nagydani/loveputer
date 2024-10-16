@@ -250,16 +250,16 @@ function ProjectService:deploy_examples()
     return false, 'No examples'
   end
   for _, i in ipairs(examples) do
-    -- TODO: remove linter magic (@diagnostic disable-next-line:)
     if i and i.type == 'directory' then
       local s_path = FS.join_path(ex_base, i.name)
       local t_path = FS.join_path(ProjectService.path, i.name)
-      Log.info('copying example ' .. i.name .. ' to ' .. t_path)
       local ok, err = FS.cp_r(s_path, t_path, true)
       if not ok then
         Log.error(err)
         cp_ok = false
         cp_err = err
+      else
+        Log.info('copied example ' .. i.name .. ' to ' .. t_path)
       end
     end
   end
