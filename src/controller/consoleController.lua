@@ -395,7 +395,17 @@ function ConsoleController:evaluate_input()
         end
         return self:get_console_env()
       end)()
-      local f, load_err = load(code, '', 't', run_env)
+      local codeload = function()
+        if _G.web then
+          local f = loadstring(code)
+          if f then
+            setfenv(f, run_env)
+            return f
+          end
+        end
+        return load(code, '', 't', run_env)
+      end
+      local f, load_err = codeload()
       if f then
         local _, err = run_user_code(f, self)
         if err then

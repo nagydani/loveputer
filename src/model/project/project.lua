@@ -286,7 +286,20 @@ function ProjectService:run(name, env)
   if p_path then
     local main = FS.join_path(p_path, ProjectService.MAIN)
     self:open(name or self.current.name)
-    return loadfile(main, 't', env), nil, p_path
+
+    local codeload = function()
+      if _G.web then
+        local code = FS.read(main)
+        if not code then return end
+        local f = loadstring(code)
+        if not f then return end
+        setfenv(f, env)
+        return f
+      end
+      return loadfile(main, 't', env)
+    end
+    local content = codeload()
+    return content, nil, p_path
   end
   return nil, err
 end
