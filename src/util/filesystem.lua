@@ -2,7 +2,7 @@ require("util.string")
 
 FS = {
   path_sep = (function()
-    if love.system.getOS() == "Windows" then
+    if love and love.system.getOS() == "Windows" then
       return '\\'
     end
     return '/'
@@ -17,12 +17,25 @@ FS = {
   }
 }
 
+--- @param path string
+--- @return string
+FS.remove_dup_separators = function(path)
+  local function undup(str, sep)
+    return str:gsub(sep .. sep .. "+", sep)
+  end
+
+  local result = undup(path, "/")
+  result = undup(result, "\\")
+
+  return result
+end
+
 --- @return string
 FS.join_path = function(...)
   local sep = FS.path_sep
   local args = { ... }
-  -- TODO remove duplicates
-  return string.join(args, sep)
+  local raw = string.join(args, sep)
+  return FS.remove_dup_separators(raw)
 end
 
 if love then
