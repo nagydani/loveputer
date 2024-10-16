@@ -4,7 +4,8 @@
 /.luarocks
 .history
 dist/*
-doc/*.md
+.debug/*
+doc/scratch/
 doc/parse
 *.lua_
 *.odg#

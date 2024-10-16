@@ -2,11 +2,27 @@ require("view.titleView")
 require("view.editor.editorView")
 require("view.canvas.canvasView")
 require("view.input.interpreterView")
+
+local class = require("util.class")
 require("util.color")
 require("util.view")
 require("util.debug")
 
 local G = love.graphics
+
+--- @param cfg Config
+--- @param ctrl ConsoleController
+local function new(cfg, ctrl)
+  return {
+    title = TitleView,
+    canvas = CanvasView(cfg),
+    interpreter = InterpreterView(cfg.view, ctrl.interpreter),
+    editor = EditorView(cfg.view, ctrl.editor),
+    controller = ctrl,
+    cfg = cfg,
+    drawable_height = ViewUtils.get_drawable_height(cfg.view),
+  }
+end
 
 --- @class ConsoleView
 --- @field title table
@@ -16,30 +32,7 @@ local G = love.graphics
 --- @field controller ConsoleController
 --- @field cfg Config
 --- @field drawable_height number
-ConsoleView = {}
-ConsoleView.__index = ConsoleView
-
-setmetatable(ConsoleView, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
-
---- @param cfg Config
---- @param ctrl ConsoleController
-function ConsoleView.new(cfg, ctrl)
-  local self = setmetatable({
-    title = TitleView,
-    canvas = CanvasView:new(cfg),
-    interpreter = InterpreterView:new(cfg.view, ctrl),
-    editor = EditorView(cfg.view, ctrl.editor),
-    controller = ctrl,
-    cfg = cfg,
-    drawable_height = ViewUtils.get_drawable_height(cfg.view),
-  }, ConsoleView)
-
-  return self
-end
+ConsoleView = class.create(new)
 
 --- @param terminal table
 --- @param canvas love.Canvas
@@ -56,7 +49,8 @@ function ConsoleView:draw(terminal, canvas, input, snapshot)
     self.canvas:draw(terminal, canvas, tc, self.drawable_height, snapshot)
 
     if ViewUtils.conditional_draw('show_input') then
-      self.interpreter:draw(input)
+      local time = self.controller:get_timestamp()
+      self.interpreter:draw(input, time)
     end
   end
 

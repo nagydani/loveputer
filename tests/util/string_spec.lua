@@ -28,6 +28,10 @@ describe("StringUtils #string", function()
       local test1 = 'first\nsecond'
       local test1_l1 = 'first'
       local test1_l2 = 'second'
+      it('empty', function()
+        local res = string.lines('')
+        assert.same({ '' }, res)
+      end)
       it('one', function()
         local res = string.lines(test1)
         assert.same({ test1_l1, test1_l2 }, res)
@@ -53,13 +57,53 @@ describe("StringUtils #string", function()
     end)
 
     describe('multiple', function()
-      local test1 = { 'first\nsecond', 'third' }
-      local test1_l1 = 'first'
-      local test1_l2 = 'second'
-      local test1_2 = 'third'
-      it('', function()
+      it('1', function()
+        local test1 = { 'first\nsecond', 'third' }
+        local test1_l1 = 'first'
+        local test1_l2 = 'second'
+        local test1_2 = 'third'
         local res = string.lines(test1)
         assert.same({ test1_l1, test1_l2, test1_2 }, res)
+      end)
+      it('2', function()
+        local test1 = { 'first\nsecond', '', 'last' }
+        local test1_l1 = 'first'
+        local test1_l2 = 'second'
+        local test1_l3 = ''
+        local test1_2 = 'last'
+        local res = string.lines(test1)
+        assert.same({ test1_l1, test1_l2, test1_l3, test1_2 }, res)
+      end)
+      it('2b', function()
+        local test1 = { 'first\nsecond', '', 'last' }
+        local test1_l1 = 'first'
+        local test1_l2 = 'second'
+        local test1_l3 = ''
+        local test1_2 = 'last'
+        local res = string.split_array(test1, '\n')
+        assert.same({ test1_l1, test1_l2, test1_l3, test1_2 }, res)
+      end)
+      it('invariance', function()
+        local sierpinski = {
+          'sierpinski = function(depth)',
+          '  lines = { "*" }',
+          '  for i = 2, depth + 1 do',
+          '    sp = string.rep(" ", 2 ^ (i - 2))',
+          '    tmp = { }',
+          '    -- comment',
+          '    for idx, line in ipairs(lines) do',
+          '      tmp.idx = sp .. (line .. sp)',
+          '      tmp.add = line .. (" " .. line)',
+          '    end',
+          '    lines = tmp',
+          '  end',
+          '  return table.concat(lines, "\\n")',
+          'end',
+          '',
+          'print(sierpinski(4))',
+        }
+        local res = string.lines(sierpinski)
+        assert.same(sierpinski, res)
       end)
     end)
   end)
@@ -166,6 +210,8 @@ describe("StringUtils #string", function()
     it('empty single', function()
       local res = string.is_non_empty_string('')
       assert.is_false(res)
+      local res2 = string.is_non_empty_string_array('')
+      assert.is_false(res2)
     end)
     it('empty array', function()
       local res = string.is_non_empty_string_array({ '' })
@@ -242,6 +288,34 @@ describe("StringUtils #string", function()
     end)
   end)
 
+  describe('wraps string arrays', function()
+    it('empty', function()
+      local e = {}
+      local res = string.wrap_array(e, 80)
+      assert.same(e, res)
+    end)
+    it('short', function()
+      local e = { 'a', 'b' }
+      local res = string.wrap_array(e, 8)
+      assert.same(e, res)
+    end)
+    it('', function()
+      local test1 = { '123456', 'asdfjkl;' }
+      local res = string.wrap_array(test1, 3)
+      assert.same({
+        '123', '456', 'asd', 'fjk', 'l;'
+      }, res)
+    end)
+    it('nowrap', function()
+      local t = {
+        ' comment1',
+        ' comment2',
+      }
+      local res = string.wrap_array(t, 80)
+      assert.same(t, res)
+    end)
+  end)
+
   describe('determines length', function()
     it('empty', function()
       assert.same(0, string.ulen(''))
@@ -289,6 +363,41 @@ describe("StringUtils #string", function()
       res = toTable(string.splice(t, 304, 305))
       local exp = { pre = t, mid = '', post = '' }
       assert.same(exp, res)
+    end)
+  end)
+
+  describe('validates', function()
+    it('upper', function()
+      assert.is_true(string.is_upper(''))
+      assert.is_true(string.is_upper('ASD'))
+      assert.is_false(string.is_upper('asd'))
+
+      local _, i = string.is_upper('ASDsD')
+      assert.equal(4, i)
+    end)
+
+    it('lower', function()
+      assert.is_true(string.is_lower(''))
+      assert.is_true(string.is_lower('agda'))
+      assert.is_false(string.is_lower('AGDA'))
+
+      local _, i = string.is_lower('afD')
+      assert.equal(3, i)
+    end)
+  end)
+
+  describe('matches', function()
+    it('simple', function()
+      assert.is_true(string.matches('abc', ''))
+      assert.is_true(string.matches('ASD', 'S'))
+      assert.is_true(string.matches('A123', '3'))
+      assert.is_true(string.matches_r('abc', '.'))
+      assert.is_true(string.matches_r('abc', '[cd]'))
+      assert.is_true(string.matches_r('abc', '%S'))
+
+      assert.is_false(string.matches('abc', 'd'))
+      assert.is_false(string.matches('abc', '1'))
+      assert.is_false(string.matches_r('abc', '%W'))
     end)
   end)
 end)

@@ -1,13 +1,40 @@
+--- @diagnostic disable: duplicate-set-field
 utf8 = require('util.utf')
 
+--- @param s string
+--- @param p string
+--- @param regex boolean?
+--- @return boolean
+string.matches = function(s, p, regex)
+  local r = not (regex or false)
+  local f = string.find(s, p, nil, r)
+  if f then return true end
+  return false
+end
+
+--- @param s string
+--- @param p string
+--- @return boolean
+string.matches_r = function(s, p)
+  return string.matches(s, p, true)
+end
+
+--- @param t string?
+--- @return string?
 string.debug_text = function(t)
   if not t or type(t) ~= 'string' then return end
   return string.format("'%s'", t)
 end
 
+--- @param s string
+--- @return string
 string.normalize = function(s)
-  return string.gsub(s, "%s+", "")
+  local r, _ = string.gsub(s, "%s+", "")
+  return r
 end
+
+--- @param s string
+--- @return string
 string.trim = function(s)
   if not s then return '' end
   local pre = string.gsub(s, "^%s+", "")
@@ -15,8 +42,11 @@ string.trim = function(s)
   return post
 end
 
+--- @param s string?
+--- @param no_trim boolean?
+--- @return boolean
 string.is_non_empty_string = function(s, no_trim)
-  if s and type(s) == 'string' and s ~= '' then
+  if type(s) == 'string' and s ~= '' then
     local str = (function()
       if no_trim then
         return s
@@ -31,6 +61,8 @@ string.is_non_empty_string = function(s, no_trim)
   return false
 end
 
+--- @param sa string[]?
+--- @return boolean
 string.is_non_empty_string_array = function(sa)
   if type(sa) ~= 'table' then
     return false
@@ -44,6 +76,8 @@ string.is_non_empty_string_array = function(sa)
   end
 end
 
+--- @param s string
+--- @return integer
 string.ulen = function(s)
   if s then
     return utf8.len(s)
@@ -53,6 +87,10 @@ string.ulen = function(s)
 end
 
 -- original from http://lua-users.org/lists/lua-l/2014-04/msg00590.html
+--- @param s string
+--- @param i integer
+--- @param j integer?
+--- @return string
 string.usub = function(s, i, j)
   i = i or 1
   j = j or -1
@@ -83,6 +121,17 @@ string.usub = function(s, i, j)
   end
 end
 
+--- @param s string
+--- @param i integer
+--- @return string
+string.char_at = function(s, i)
+  return string.usub(s, i, i)
+end
+
+--- @param s string
+--- @param i integer
+--- @return string
+--- @return string
 string.split_at = function(s, i)
   local str = s or ''
   local pre, post = '', ''
@@ -97,6 +146,9 @@ string.split_at = function(s, i)
   return pre, post
 end
 
+--- @param s string
+--- @param i integer
+--- @return string[]
 string.wrap_at = function(s, i)
   if
       not s or type(s) ~= 'string' or s == '' or
@@ -120,37 +172,68 @@ string.wrap_at = function(s, i)
   return res
 end
 
+--- @param t string[]
+--- @param i integer
+--- @return string[]
+string.wrap_array = function(t, i)
+  local res = {}
+  for _, s in ipairs(t) do
+    local ws = string.wrap_at(s, i)
+    for _, l in ipairs(ws) do
+      table.insert(res, l)
+    end
+  end
+
+  return res
+end
+
 -- https://stackoverflow.com/a/51893646
+--- @param str string
+--- @param delimiter string
+--- @return string[]
 string.split = function(str, delimiter)
   local del = delimiter or ' '
-  if str and type(str) == 'string' and string.is_non_empty_string(str, true) then
-    local result               = {}
-    local from                 = 1
-    local delim_from, delim_to = string.find(str, del, from)
-    while delim_from do
-      table.insert(result, string.sub(str, from, delim_from - 1))
-      from                 = delim_to + 1
-      delim_from, delim_to = string.find(str, del, from)
+  if str and type(str) == 'string' then
+    if string.is_non_empty_string(str, true) then
+      local result               = {}
+      local from                 = 1
+      local delim_from, delim_to = string.find(str, del, from)
+      while delim_from do
+        table.insert(result, string.sub(str, from, delim_from - 1))
+        from                 = delim_to + 1
+        delim_from, delim_to = string.find(str, del, from)
+      end
+      table.insert(result, string.sub(str, from))
+      return result
+    else
+      return { '' }
     end
-    table.insert(result, string.sub(str, from))
-    return result
   else
     return {}
   end
 end
 
+--- @param str_arr string[]
+--- @param char string
+--- @return string[]
 string.split_array = function(str_arr, char)
   if not type(str_arr) == 'table' then return {} end
   local words = {}
   for _, line in ipairs(str_arr) do
-    local ws = string.split(line, char)
-    for _, word in ipairs(ws) do
-      table.insert(words, word)
+    if line == '' then
+      table.insert(words, line)
+    else
+      local ws = string.split(line, char)
+      for _, word in ipairs(ws) do
+        table.insert(words, word)
+      end
     end
   end
   return words
 end
 
+--- @param s str
+--- @return string[]
 string.lines = function(s)
   if type(s) == 'string' then
     return string.split(s, '\n')
@@ -158,9 +241,10 @@ string.lines = function(s)
   if type(s) == 'table' then
     return string.split_array(s, '\n')
   end
+  return {}
 end
 
---- @param strs string|table
+--- @param strs str
 --- @param char string?
 --- @return string
 string.join = function(strs, char)
@@ -183,7 +267,7 @@ string.join = function(strs, char)
   return res
 end
 
---- @param strs string|table
+--- @param strs str
 --- @return string
 string.unlines = function(strs)
   return string.join(strs, '\n')
@@ -224,4 +308,44 @@ string.times = function(s, n)
     res = res .. str
   end
   return res
+end
+
+----------------------------
+--- validation utilities ---
+----------------------------
+local char = {
+  is_upper = function(c)
+    return c == string.upper(c)
+  end,
+  is_lower = function(c)
+    return c == string.lower(c)
+  end,
+}
+
+--- @param s string
+--- @param f fun(string): boolean
+--- @return boolean
+--- @return integer?
+local forall = function(s, f)
+  for i = 1, string.ulen(s) do
+    local v = string.char_at(s, i)
+    if not f(v) then
+      return false, i
+    end
+  end
+  return true
+end
+
+--- CAUTION: this doesn't work with non-ASCII characters
+--- @param s string
+--- @return boolean
+string.is_upper = function(s)
+  return forall(s, char.is_upper)
+end
+
+--- CAUTION: this doesn't work with non-ASCII characters
+--- @param s string
+--- @return boolean
+string.is_lower = function(s)
+  return forall(s, char.is_lower)
 end

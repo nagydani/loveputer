@@ -1,8 +1,6 @@
 require("util.string")
 
-LANG = {}
-
-local function parse_error(err)
+local function get_call_error(err)
   if string.is_non_empty_string(err) then
     local colons = string.split(err, ':')
     table.remove(colons, 1)
@@ -11,6 +9,24 @@ local function parse_error(err)
   end
 end
 
-LANG.parse_error = parse_error
+local function eval(s)
+  local expr = loadstring('return ' .. s)
+  if not expr then return end
+  local ok, res = pcall(expr)
+  if ok then return res end
+end
 
-return LANG
+local function print_eval(s)
+  local r = eval(s)
+  if r then
+    print(r)
+  end
+  return r
+end
+
+
+return {
+  get_call_error = get_call_error,
+  eval = eval,
+  print_eval = print_eval,
+}

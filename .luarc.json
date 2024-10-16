@@ -10,9 +10,12 @@
     // project env
     "input_text",
     "input_code",
+    "validated_input",
     "stop",
     "continue",
-    "font1",
+    // luautils
+    "prequire",
+    // end of array
     ""
   ],
   "workspace.library": [

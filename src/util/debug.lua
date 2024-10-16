@@ -1,26 +1,146 @@
+--- @diagnostic disable: redefined-local
+
 require("util.string")
+require("util.table")
 local tc = require("util.termcolor")
+local OS = require("util.os")
 
-local INDENT = '  '
+local tab = '  '
 
-local seen = {}
 
 --- @param level integer
 --- @param starter string?
 local get_indent = function(level, starter)
   local indent = starter or ''
   for _ = 0, level do
-    indent = indent .. INDENT
+    indent = indent .. tab
   end
   return indent
 end
 
 local text = string.debug_text
 
+local debugdebug = function(...)
+  if love and not TESTING
+  then
+  else
+    local args = { ... }
+    io.write(tc.to_control(6))
+    for _, v in ipairs(args) do
+      local s = v
+      if type(v) == 'string' then s = text(v) end
+      io.write(s .. '\t')
+    end
+    print(tc.reset)
+  end
+end
+
+local debugappend = function(res, str)
+  if love and not TESTING
+  then
+  else
+    io.write(tc.to_control(5))
+    io.write(str .. '\t')
+    print(tc.reset)
+    return res .. str
+  end
+end
+
+--- @param t table?
+--- @param level integer?
+--- @param prev_seen table?
+--- @param jsonify boolean?
+--- @return string
+local function terse_hash(t, level, prev_seen, jsonify)
+  if not t then return '' end
+
+  local seen = prev_seen or {}
+  local indent = level or 0
+  local res = ''
+  local flat = true
+  if type(t) == 'table' then
+    res = res .. string.times(tab, indent) .. '{'
+    if seen[t] then return '' end
+    seen[t] = true
+
+    for k, v in pairs(t) do
+      local dent = ''
+      if type(v) == 'table' then
+        flat = false
+        dent = '\n' .. string.times(tab, indent + 1)
+      end
+
+      if type(k) == 'table' then
+        res = res .. dent .. Debug.terse_hash(k, nil, nil, jsonify) .. ': '
+      else
+        res = res .. dent .. k .. ': ' -- .. '// [' .. type(v) .. ']  '
+      end
+      if type(v) == 'table' then
+        local table_text = Debug.terse_hash(v, indent + 1, seen, jsonify)
+        if string.is_non_empty_string(table_text, true) then
+          res = res .. '\n' .. tab .. table_text
+        else
+          res = res .. '{},' .. '\n' .. string.times(tab, indent + 1)
+        end
+      elseif type(v) == nil and jsonify then
+        res = res .. 'null, '
+      elseif type(v) == 'boolean' and v == false then
+        res = res .. 'false, '
+      else
+        res = res .. Debug.terse_hash(v, indent + 1, seen, jsonify)
+      end
+    end
+    local br = (function()
+      if flat then return '' else return '\n' end
+    end)()
+    local dent = br .. string.times(tab, indent)
+    res = res .. dent .. '}, '
+  elseif type(t) == 'string' then
+    local t_ = (function()
+      if jsonify then
+        local l = string.lines(t)
+        return string.join(l, '\\n')
+      end
+      return t
+    end)()
+    res = res .. text(t_) .. ', '     --.. '// [' .. type(t) .. ']  '
+  elseif type(t) == 'function' then
+    res = res .. Debug.mem(t) .. ', ' --.. '// [' .. type(t) .. ']  '
+  else
+    res = res .. tostring(t) .. ', '  --.. '// [' .. type(t) .. ']  '
+  end
+
+  return res
+end
+
+--- @param a table?
+--- @param skip integer?
+local function terse_array(a, skip)
+  if type(a) == 'table' then
+    local res = '['
+    if skip then
+      for i = skip, #a do
+        res = res .. i .. ': ' .. terse_hash(a[i], nil, nil, true) .. ', '
+      end
+      res = res .. ']'
+    else
+      for i, v in ipairs(a) do
+        res = res .. string.format('\n/* %d */\n%s', i, terse_hash(v, 1, {}))
+        -- res = res .. string.format('\n/* %d */\n%s', i, '{ ... }')
+      end
+      res = res .. '\n]'
+    end
+
+    return res
+  else
+    return ''
+  end
+end
+
 Debug = {
   --- @param t table
   --- @param tag string?
-  --- @param level integer
+  --- @param level integer?
   --- @param prev_seen table?
   --- @return string
   print_t = function(t, tag, level, prev_seen)
@@ -62,12 +182,15 @@ Debug = {
 
   --- @param t string[]?
   --- @param no_ln boolean?
+  --- @param skip integer?
   --- @param trunc boolean?
   --- @return string
-  text_table = function(t, no_ln, trunc)
+  text_table = function(t, no_ln, skip, trunc)
     local res = '\n'
     if type(t) == 'table' then
-      for i, l in ipairs(t) do
+      local start = math.max(1, skip or 0)
+      for i = start, #t do
+        local l = t[i]
         local line = (function()
           if not no_ln then
             return string.format("#%02d: %s\n", i, text(l))
@@ -91,48 +214,117 @@ Debug = {
     return res
   end,
 
-  --- @param t table?
-  --- @param level integer?
-  --- @param prev_seen table?
-  ---@return string
-  terse_t = function(t, level, prev_seen)
-    if not t then return '' end
-
-    local seen = prev_seen or {}
-    local indent = level or 0
-    local res = ''
-    local flat = true
-    if type(t) == 'table' then
-      res = res .. '{'
-      if seen[t] then return '' end
-      seen[t] = true
-      for k, v in pairs(t) do
-        local dent = ''
-        if type(v) == 'table' then
-          flat = false
-          dent = '\n' .. string.times('  ', indent + 1)
-        end
-        if type(k) == table then
-          res = res .. dent .. Debug.terse_t(k) .. ': '
-        else
-          res = res .. dent .. k .. ': '
-        end
-        res = res .. Debug.terse_t(v, indent + 1, seen)
+  terse_hash = terse_hash,
+  terse_array = terse_array,
+  terse_t = function(t, ...)
+    if t and type(t) == "table" then
+      if table.is_array(t) then
+        return terse_array(t)
+      else
+        return terse_hash(t, ...)
       end
-      local br = (function()
-        if flat then return '' else return '\n' end
+    end
+  end,
+
+  --- @alias dumpstyle
+  --- | 'lua'
+  --- | 'json5'
+  --- @param ast token[]
+  --- @param skip_lineinfo boolean?
+  --- @param style dumpstyle?
+  terse_ast = function(ast, skip_lineinfo, style)
+    local style = style or 'json5'
+
+    --- @param t table?
+    --- @param omit any[]?
+    --- @param style dumpstyle?
+    --- @param level integer?
+    --- @param prev_seen table?
+    --- @return string
+    local function terse(t, omit, style, level, prev_seen)
+      if not t then return '' end
+
+      local seen = prev_seen or {}
+      local omit = omit or {}
+      local indent = level or 0
+      local res = ''
+      local flat = true
+      --- TODO: finish type display
+      local assign, cmt = (function()
+        if style == 'lua' then
+          return ' = ', { o = '--[[ ', c = ' ]] ' }
+        end
+        return ': ', { o = '/* ', c = ' */ ' }
       end)()
-      local dent = br .. string.times('  ', indent)
-      res = res .. dent .. '}, '
-    elseif type(t) == 'string' then
-      res = res .. text(t) .. ', '
-    elseif type(t) == 'function' then
-      res = res .. Debug.mem(t) .. ', '
-    else
-      res = res .. tostring(t) .. ', '
+      if type(t) == 'table' then
+        res = res .. string.times(tab, indent) .. '{'
+        if seen[t] then return '' end
+        seen[t] = true
+
+        for k, v in pairs(t) do
+          if not omit[k] then
+            local dent = ''
+            if type(v) == 'table' then
+              flat = false
+              dent = '\n' .. string.times(tab, indent + 1)
+            end
+
+            if type(k) == 'table' then
+              res = res .. dent .. terse(k, omit, style) .. assign
+            elseif type(k) == 'number' and style == 'lua' then
+              -- skip index
+            else
+              res = res .. dent
+                  -- .. cmt.o .. type(v) .. cmt.c
+                  .. k .. assign
+            end
+            if type(v) == 'table' then
+              local table_text =
+                  terse(v, omit, style, indent + 1, seen)
+              if string.is_non_empty_string(table_text, true) then
+                res = res .. '\n' .. tab .. table_text
+              else
+                res = res .. '{},' .. '\n' .. string.times(tab, indent + 1)
+              end
+            elseif type(v) == nil then
+              res = res .. 'null, '
+            elseif type(v) == 'boolean' and v == false then
+              res = res .. 'false, '
+            else
+              res = res .. Debug.terse_hash(v, indent + 1, seen)
+            end
+          end
+        end
+        local br = (function()
+          if flat then return '' else return '\n' end
+        end)()
+        local dent = br .. string.times(tab, indent)
+        res = res .. dent .. '}'
+        res = res .. ', '
+      elseif type(t) == 'string' then
+        local t_ = (function()
+          local l = string.lines(t)
+          return string.join(l, '\\n')
+        end)()
+        res = res .. string.format('%q', t_)
+            -- .. cmt.o .. '[' .. type(t) .. ']' .. cmt.o
+            .. ', '
+      else
+        res = res .. tostring(t)
+            -- .. cmt .. '[' .. type(t) .. ']' .. cmt.o
+            .. ', '
+      end
+
+      return res
     end
 
-    return res
+    local om = {}
+    -- local om = { 'source' }
+    if skip_lineinfo then
+      om.lineinfo = true
+    end
+    local res = terse(ast, om, style, nil, nil)
+    return string.gsub(res, ', ?$', '')
   end,
 
   --- @param o any
@@ -185,6 +377,29 @@ Debug = {
       return string.unlines(lines)
     end
   end,
+
+  --- @param content str
+  --- @param ext string?
+  --- @param fixname string?
+  write_tempfile = function(content, ext, fixname)
+    local function create_temp()
+      local cmd = 'mktemp -u -p .'
+      if string.is_non_empty_string(ext) then
+        cmd = string.format('%s --suffix .%s', cmd, ext)
+      end
+      local _, result = OS.runcmd(cmd)
+      return result
+    end
+    local name =
+        string.is_non_empty_string(fixname)
+        and fixname .. (ext and '.' .. ext or '')
+        or create_temp()
+    local path = string.join_path('./.debug', name)
+
+    local data = string.unlines(content)
+    local FS = require('util.filesystem')
+    FS.write(path, data)
+  end,
 }
 
 local printer = (function()
@@ -202,7 +417,7 @@ local annot = function(tag, color, args)
   local ret = tc.to_control(color)
   ret = ret .. tag .. ': '
   for _, s in ipairs(args) do
-    ret = ret .. tostring(s) .. '\t'
+    ret = ret .. tostring(s or '') .. '\t'
   end
   ret = ret .. tc.reset
   return ret
@@ -247,10 +462,13 @@ local function hash(s)
   return h
 end
 
+local once_seen = {}
+local once_color = Color.white + Color.bright
+
 local function once(kh, args)
-  if not seen[kh] then
-    seen[kh] = true
-    local s = annot('ONCE  ', Color.white, args)
+  if not once_seen[kh] then
+    once_seen[kh] = true
+    local s = annot('ONCE  ', once_color, args)
     printer(s)
   end
 end
@@ -274,10 +492,23 @@ Log = {
   end,
 
   once = function(...)
+    if not love.DEBUG then return end
     local args = { ... }
-    local key = string.join(args, '')
+    local key = love.debug.once .. string.join(args, '')
     local kh = hash(key)
     once(kh, args)
+  end,
+
+  fire_once = function()
+    if not love.DEBUG then return end
+    love.debug.once = love.debug.once + 1
+  end,
+  --- @param color integer
+  set_once_color = function(color)
+    if color >= 0 and
+        color <= 15 then
+      once_color = color
+    end
   end,
 }
 

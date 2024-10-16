@@ -1,3 +1,5 @@
+local class = require('util.class')
+
 --- @class Range
 --- @field start integer
 --- @field fin integer
@@ -5,36 +7,77 @@
 --- @field inc fun(self, integer): boolean
 --- @field translate fun(self, integer): Range
 --- @field __tostring fun(self): string
-Range = {}
-Range.__index = Range
-
-setmetatable(Range, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
-
+Range = class.create(
 --- @param s integer
 --- @param e integer
-function Range.new(s, e)
-  -- TODO: validate
-  local self = setmetatable({
-    start = s, fin = e
-  }, Range)
-  return self
+  function(s, e)
+    --- TODO: validate
+    return {
+      start = s, fin = e
+    }
+  end)
+
+function Range.singleton(n)
+  return Range(n, n)
+end
+
+function Range:len()
+  local s = self.start
+  local e = self.fin
+  return e - s + 1
 end
 
 function Range:__tostring()
   local s = self.start
   local e = self.fin
-  return string.format('{%d-%d}[%d]', s, e, e - s + 1)
+  return string.format('{%d-%d}[%d]', s, e, self:len())
 end
 
+function Range:ln_label()
+  local s = self.start
+  local e = self.fin
+  if s == e then
+    return string.format('L%d', s, 1)
+  else
+    return string.format('L%d-%d(%d)', s, e, self:len())
+  end
+end
+
+--- Determine whether `n` is in the range
 --- @param n integer
+--- @return boolean
 function Range:inc(n)
+  if type(n) ~= 'number' then return false end
   if self.start > n then return false end
   if self.fin < n then return false end
   return true
+end
+
+--- Determine the how much `n` is in outside the range
+--- (signed result)
+--- @param n integer
+--- @return integer?
+function Range:outside(n)
+  if type(n) ~= 'number' then return nil end
+  if self:inc(n) then
+    return 0
+  else
+    if n < self.start then
+      return n - self.start
+    end
+    if n > self.fin then
+      return n - self.fin
+    end
+  end
+end
+
+--- @return integer[]
+function Range:enumerate()
+  local ret = {}
+  for i = self.start, self.fin do
+    table.insert(ret, i)
+  end
+  return ret
 end
 
 --- Translate functions do not modify the original

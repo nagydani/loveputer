@@ -1,3 +1,5 @@
+--- @alias str string|string[]
+
 --- @class PathInfo table
 --- @field storage_path string
 --- @field project_path string
@@ -13,6 +15,10 @@
 ---| '"lua"'
 ---| '"text"'
 
+---@alias ContentType
+---| 'plain'
+---| 'lua'
+
 ---@alias Fac # scaling
 ---| 1
 ---| 2
@@ -24,8 +30,9 @@
 --- @field fw integer -- font width
 --- @field lh integer -- line height
 --- @field lines integer
+--- @field input_max integer
 --- @field show_append_hl boolean
---- @field labelfont table
+--- @field labelfont love.Font
 --- @field lfh integer -- font height
 --- @field lfw integer -- font width
 --- @field border integer
@@ -47,28 +54,45 @@
 --- @alias More {up: boolean, down: boolean}
 
 --- @class Status table
---- @field input_type string
+--- @field label string
 --- @field cursor Cursor?
 --- @field n_lines integer
+--- @field input_more More
 --- @field custom CustomStatus?
 
 --- @class InputDTO table
---- @field text table
+--- @field text InputText
 --- @field wrapped_text WrappedText
 --- @field highlight Highlight
---- @field selection table
+--- @field wrapped_error string[]
+--- @field selection InputSelection
+--- @field visible VisibleContent
 
 --- @class ViewData table
 --- @field w_error string[]
 
 --- @class Highlight table
---- @field parse_err table
---- @field hl table
+--- @field parse_err EvalError
+--- @field hl SyntaxColoring
+
+--- @alias TokenType
+--- | 'kw_single'
+--- | 'kw_multi'
+--- | 'number'
+--- | 'string'
+--- | 'identifier'
+
+--- @alias LexType
+--- | TokenType
+--- | 'comment'
+--- | 'error'
+
+--- @alias SyntaxColoring LexType[][]
 
 --- @class UserInput table
---- @field M InputModel
---- @field V InputView
---- @field C InputController
+--- @field M UserInputModel
+--- @field V UserInputView
+--- @field C UserInputController
 
 ---@alias AppState
 ---| 'starting'
@@ -91,5 +115,6 @@
 --- @field show_terminal boolean
 --- @field show_canvas boolean
 --- @field show_input boolean
+--- @field once integer
 
 --- @class LuaEnv : table

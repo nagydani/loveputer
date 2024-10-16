@@ -1,5 +1,5 @@
 local parser = require("model.lang.parser")('metalua')
-local tokenHL = require("model.lang.tokenHighlighter")
+local tokenHL = require("model.lang.syntaxHighlighter")
 local term = require("util.termcolor")
 require("util.color")
 require("util.debug")
@@ -15,24 +15,21 @@ if not _G.unpack then
   _G.unpack = table.unpack
 end
 
-
 local parser_debug = os.getenv("PARSER_DEBUG")
 describe('parse #parser', function()
   -- print(Debug.print_t(parser))
   for i, input in ipairs(inputs) do
     local tag = 'input #' .. i
     it('parses ' .. tag, function()
-      local ok, r = parser.parse_prot(input.code)
-      -- print(Debug.text_table(input.code, true))
-      -- print(Debug.terse_t(r))
+      local ok, r = parser.parse(input.code)
       local l, c, err
       if not ok then
-        l, c, err = parser.get_error(string.unlines(r))
+        local p_err = r
         if input.error then
           local el = input.error.l
           local ec = input.error.c
-          assert.are_equal(l, el)
-          assert.are_equal(c, ec)
+          assert.are_equal(el, p_err.l)
+          assert.are_equal(ec, p_err.c)
         end
       end
       if parser_debug then
@@ -69,12 +66,12 @@ describe('parse #parser', function()
         else
           print(tag, string.join(input.code, '⏎ '))
           local pp = parser.pprint(input.code)
-          if string.is_non_empty_string(pp) then
-            term.print_c(Color.green, pp)
+          if string.is_non_empty_string_array(pp) then
+            term.print_c(Color.green, string.unlines(pp or ''))
           end
         end
       end
-      assert.are_equal(ok, input.compiles)
+      assert.are_equal(input.compiles, ok)
     end)
   end
 end)
@@ -84,8 +81,7 @@ describe('highlight #parser', function()
   for i, input in ipairs(inputs) do
     local tag = 'input #' .. i
     it('parses ' .. tag, function()
-      local tokens = parser.tokenize(input.code)
-      local hl = parser.syntax_hl(tokens)
+      local hl = parser.highlighter(input.code)
       -- print(Debug.text_table(input.code, true))
       if highlighter_debug then
         for l, line in ipairs(input.code) do

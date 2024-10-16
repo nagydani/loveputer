@@ -1,4 +1,6 @@
---- @class Dequeue<T> : table
+local class = require('util.class')
+
+--- @class Dequeue<T>: { [integer]: T }
 --- @field new function
 --- @field push_front function
 --- @field prepend function
@@ -13,25 +15,69 @@
 --- @field items function
 --- @field length function
 --- @field is_empty function
-Dequeue = {}
-Dequeue.__index = Dequeue
+Dequeue = class.create()
 
-setmetatable(Dequeue, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
+local tags = {}
 
 --- Create a new double-ended queue
 --- @param values table?
-function Dequeue.new(values)
-  local self = setmetatable({}, Dequeue)
+--- @param tag string? -- define type if created empty
+--- @return Dequeue
+function Dequeue.new(values, tag)
+  local ttag
+  if tag then
+    ttag = tag or ''
+  elseif values
+      and type(values) == 'table'
+  then
+    if
+        type(values[1]) == 'table'
+    then
+      local fv = values[1]
+      ttag = fv.tag or type(fv) or ''
+    else
+      ttag = type(values[1])
+    end
+  end
+
+  local mt = Dequeue
+  local self = setmetatable({}, mt)
   if values and type(values) == 'table' then
     for _, v in ipairs(values) do
       self:push_back(v)
     end
   end
+  local addr = tostring(self)
+  tags[addr] = ttag
   return self
+end
+
+--- @param tag string
+--- @param values table?
+--- @return Dequeue
+function Dequeue.typed(tag, values)
+  return Dequeue.new(values, tag)
+end
+
+--- Return a string representation
+--- @return string
+function Dequeue:repr()
+  local res = '['
+  for i, v in ipairs(self) do
+    res = res .. i .. ': ' .. tostring(v) .. ',\n'
+  end
+  res = res .. ']'
+  return res
+end
+
+--- Return item type
+--- @return string?
+function Dequeue:type()
+  return tags[tostring(self)]
+end
+
+function Dequeue:get_type()
+  return self:type()
 end
 
 --- Insert element at the start, reorganizing the array
@@ -64,6 +110,14 @@ end
 --- @param v any
 function Dequeue:append(v)
   self:push_back(v)
+end
+
+--- Insert element at the end
+--- @param d Dequeue -- <T>
+function Dequeue:append_all(d)
+  for _, v in ipairs(d) do
+    self:push_back(v)
+  end
 end
 
 --- Insert element at the end

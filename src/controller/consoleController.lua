@@ -1,9 +1,12 @@
 require("controller.inputController")
+require("controller.interpreterController")
 require("controller.editorController")
 
+local class = require('util.class')
+require("util.lua")
 require("util.testTerminal")
 require("util.key")
-require("util.eval")
+local LANG = require("util.eval")
 require("util.table")
 
 --- @class ConsoleController
@@ -14,19 +17,14 @@ require("util.table")
 --- @field base_env LuaEnv
 --- @field project_env LuaEnv
 --- @field input InputController
+--- @field interpreter InterpreterController
 --- @field editor EditorController
 --- @field view ConsoleView?
--- methods
+--- @field cfg Config
+--- methods
 --- @field edit function
 --- @field finish_edit function
-ConsoleController = {}
-ConsoleController.__index = ConsoleController
-
-setmetatable(ConsoleController, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
+ConsoleController = class.create()
 
 --- @param M Model
 function ConsoleController.new(M)
@@ -34,12 +32,13 @@ function ConsoleController.new(M)
   local pre_env = table.clone(env)
   local config = M.cfg
   pre_env.font = config.view.font
-  local IC = InputController.new(M.interpreter.input)
-  local EC = EditorController.new(M.editor)
+  local IpC = InputController(M.interpreter.input)
+  local InC = InterpreterController(M.interpreter, IpC)
+  local EC = EditorController(M.editor)
   local self = setmetatable({
     time        = 0,
     model       = M,
-    input       = IC,
+    interpreter = InC,
     editor      = EC,
     -- console runner env
     main_env    = env,
@@ -95,7 +94,7 @@ local function run_user_code(f, cc, project_path)
   G.pop()
   G.setCanvas()
   if not ok then
-    local e = LANG.parse_error(call_err)
+    local e = LANG.get_call_error(call_err)
     return false, e
   end
   return true
@@ -255,7 +254,7 @@ function ConsoleController.prepare_env(cc)
     if love.state.app_state == 'inspect' or
         love.state.app_state == 'running'
     then
-      cc.model.interpreter:set_error("There's already a project running!", true)
+      cc.interpreter:set_error("There's already a project running!", true)
       return
     end
     local runner_env = cc:get_project_env()
@@ -275,22 +274,34 @@ function ConsoleController.prepare_env(cc)
       print(err)
     end
   end
+
+  prepared.run              = prepared.run_project
+
+  prepared.eval             = LANG.eval
+  prepared.print_eval       = LANG.print_eval
+
+  prepared.quit             = function()
+    love.event.quit()
+  end
 end
 
 --- API functions for the user
 --- @param cc ConsoleController
 function ConsoleController.prepare_project_env(cc)
-  local interpreter         = cc.model.interpreter
+  require("controller.userInputController")
+  require("model.input.userInputModel")
+  require("view.input.userInputView")
+  local interpreter           = cc.model.interpreter
   ---@type table
-  local project_env         = cc:get_pre_env_c()
-  project_env.G             = love.graphics
+  local project_env           = cc:get_pre_env_c()
+  project_env.G               = love.graphics
 
   --- @param msg string?
-  project_env.stop          = function(msg)
+  project_env.stop            = function(msg)
     cc:suspend_run(msg)
   end
 
-  project_env.continue      = function()
+  project_env.continue        = function()
     if love.state.app_state == 'inspect' then
       -- resume
       love.state.app_state = 'running'
@@ -300,49 +311,57 @@ function ConsoleController.prepare_project_env(cc)
     end
   end
 
-  project_env.close_project = function()
+  project_env.close_project   = function()
     close_project(cc)
   end
 
-  --- @param type InputType
-  --- @param result any
-  local input               = function(type, result)
+  --- @param eval Evaluator
+  --- @param result table
+  local input                 = function(eval, result)
     if love.state.user_input then
       return -- there can be only one
     end
     local cfg = interpreter.cfg
-    local eval
-    if type == 'lua' then
-      eval = interpreter.luaInput
-    elseif type == 'text' then
-      eval = interpreter.textInput
-    else
-      Log('Invalid input type!')
-      return
-    end
     local cb = function(v) table.insert(result, 1, v) end
-    local input = InputModel:new(cfg, eval, true)
-    local controller = InputController.new(input, cb)
-    local view = InputView.new(cfg.view, controller)
+
+    local input = UserInputModel(cfg, eval, true)
+    local controller = UserInputController(input, cb)
+    local view = UserInputView(cfg.view, controller)
     love.state.user_input = {
       M = input, C = controller, V = view
     }
   end
 
-  project_env.input_code    = function(result)
-    return input('lua', result)
+  project_env.input_code      = function(result)
+    return input(InputEvalLua, result)
   end
-  project_env.input_text    = function(result)
-    return input('text', result)
+  project_env.input_text      = function(result)
+    return input(InputEvalText, result)
+  end
+
+  project_env.validated_input = function(result, filters)
+    if love.state.user_input then
+      return -- there can be only one
+    end
+    return input(ValidatedTextEval(filters), result)
+  end
+
+  if love.debug then
+    project_env.astv_input = function(result)
+      return input(LuaEditorEval, result)
+    end
   end
 
   --- @param name string
-  project_env.edit          = function(name)
+  project_env.edit       = function(name)
     return cc:edit(name)
   end
 
-  local base                = table.clone(project_env)
-  local project             = table.clone(project_env)
+  project_env.eval       = LANG.eval
+  project_env.print_eval = LANG.print_eval
+
+  local base             = table.clone(project_env)
+  local project          = table.clone(project_env)
   cc:_set_base_env(base)
   cc:_set_project_env(project)
 end
@@ -359,18 +378,15 @@ function ConsoleController:get_timestamp()
 end
 
 function ConsoleController:evaluate_input()
-  -- @type Model
-  -- local M = self.model
-  --- @type InterpreterModel
-  local interpreter = self.model.interpreter
-  local input = interpreter.input
+  --- @type InterpreterController
+  local inter = self.interpreter
 
-  local text = input:get_text()
-  local eval = input.evaluator
+  local text = inter:get_text()
+  local eval = inter:get_eval()
 
-  local eval_ok, res = interpreter:evaluate()
+  local eval_ok, res = inter:evaluate()
 
-  if eval.is_lua then
+  if eval.parser then
     if eval_ok then
       local code = string.unlines(text)
       local run_env = (function()
@@ -383,18 +399,21 @@ function ConsoleController:evaluate_input()
       if f then
         local _, err = run_user_code(f, self)
         if err then
-          interpreter:set_error(err, true)
+          inter:set_error(err, true)
         end
       else
         -- this means that metalua failed to catch some invalid code
-        Log.error('Load error:', LANG.parse_error(load_err))
-        interpreter:set_error(load_err, true)
+        Log.error('Load error:', LANG.get_call_error(load_err))
+        inter:set_error(load_err, true)
       end
     else
-      local _, _, eval_err = interpreter:get_eval_error(res)
-      if string.is_non_empty_string(eval_err) then
-        orig_print(eval_err)
-        interpreter:set_error(eval_err, false)
+      local eval_err = res
+      if eval_err then
+        local msg = eval_err.msg
+        if string.is_non_empty_string(msg) then
+          orig_print(msg)
+          inter:set_error(msg, false)
+        end
       end
     end
   end
@@ -406,7 +425,7 @@ end
 
 function ConsoleController:reset()
   self:quit_project()
-  self.model.interpreter:reset(true) -- clear history
+  self.interpreter:reset(true) -- clear history
 end
 
 ---@return LuaEnv
@@ -450,7 +469,7 @@ function ConsoleController:suspend_run(msg)
   Log.info('Suspending project run')
   love.state.app_state = 'inspect'
   if msg then
-    self.model.interpreter:set_error(tostring(msg), true)
+    self.interpreter:set_error(tostring(msg), true)
   end
 
   self.model.output:invalidate_terminal()
@@ -470,7 +489,7 @@ end
 
 function ConsoleController:quit_project()
   self.model.output:reset()
-  self.model.interpreter:reset()
+  self.interpreter:reset()
   nativefs.setWorkingDirectory(love.filesystem.getSourceBaseDirectory())
   Controller.set_default_handlers(self, self.view)
   Controller.set_love_update(self)
@@ -516,30 +535,30 @@ function ConsoleController:textinput(t)
   if love.state.app_state == 'editor' then
     self.editor:textinput(t)
   else
-    local interpreter = self.model.interpreter
-    if interpreter:has_error() then
-      interpreter:clear_error()
+    local inter = self.interpreter
+    if inter:has_error() then
+      inter:clear_error()
     else
       if Key.ctrl() and Key.shift() then
         return
       end
-      self.input:textinput(t)
+      inter:textinput(t)
     end
   end
 end
 
 --- @param k string
 function ConsoleController:keypressed(k)
-  local out = self.model.output
-  local interpreter = self.model.interpreter
+  local inter = self.interpreter
 
   local function terminal_test()
+    local out = self.model.output
     if not love.state.testing then
       love.state.testing = 'running'
-      interpreter:cancel()
-      TerminalTest:test(out.terminal)
+      inter:cancel()
+      TerminalTest.test(out.terminal)
     elseif love.state.testing == 'waiting' then
-      TerminalTest:reset(out.terminal)
+      TerminalTest.reset(out.terminal)
       love.state.testing = false
     end
   end
@@ -555,31 +574,31 @@ function ConsoleController:keypressed(k)
       return
     end
 
-    if self.model.interpreter:has_error() then
+    if inter:has_error() then
       if k == 'space' or Key.is_enter(k)
           or k == "up" or k == "down" then
-        interpreter:clear_error()
+        inter:clear_error()
       end
       return
     end
 
     if k == "pageup" then
-      interpreter:history_back()
+      inter:history_back()
     end
     if k == "pagedown" then
-      interpreter:history_fwd()
+      inter:history_fwd()
     end
-    local limit = self.input:keypressed(k)
+    local limit = inter:keypressed(k)
     if limit then
       if k == "up" then
-        interpreter:history_back()
+        inter:history_back()
       end
       if k == "down" then
-        interpreter:history_fwd()
+        inter:history_fwd()
       end
     end
     if not Key.shift() and Key.is_enter(k) then
-      if not interpreter:has_error() then
+      if not inter:has_error() then
         self:evaluate_input()
       end
     end
@@ -607,7 +626,37 @@ end
 
 --- @param k string
 function ConsoleController:keyreleased(k)
-  self.input:keyreleased(k)
+  self.interpreter:keyreleased(k)
+end
+
+function ConsoleController:mousepressed(x, y, button)
+  if love.state.app_state == 'editor' then
+    if self.cfg.editor.mouse_enabled then
+      self.editor.input:mousepressed(x, y, button)
+    end
+  else
+    self.interpreter:mousepressed(x, y, button)
+  end
+end
+
+function ConsoleController:mousereleased(x, y, button)
+  if love.state.app_state == 'editor' then
+    if self.cfg.editor.mouse_enabled then
+      self.editor.input:mousereleased(x, y, button)
+    end
+  else
+    self.interpreter:mousereleased(x, y, button)
+  end
+end
+
+function ConsoleController:mousemoved(x, y, dx, dy)
+  if love.state.app_state == 'editor' then
+    if self.cfg.editor.mouse_enabled then
+      self.editor.input:mousemoved(x, y)
+    end
+  else
+    self.interpreter:mousemoved(x, y)
+  end
 end
 
 --- @return Terminal
@@ -623,13 +672,14 @@ end
 --- @return ViewData
 function ConsoleController:get_viewdata()
   return {
-    w_error = self.model.interpreter:get_wrapped_error(),
+    w_error = self.interpreter:get_wrapped_error(),
   }
 end
 
 function ConsoleController:autotest()
-  local input = self.model.interpreter.input
-  input:add_text('list_projects()')
-  self:evaluate_input()
-  input:add_text('run_project("turtle")')
+  --- @diagnostic disable-next-line undefined-global
+  local autotest = prequire('tests/autotest')
+  if autotest then
+    autotest(self)
+  end
 end

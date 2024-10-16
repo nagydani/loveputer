@@ -1,23 +1,20 @@
+local class = require('util.class')
+
 --- @class Cursor
 --- @field l number
 --- @field c number
-Cursor = {
-  l = 0,
-  c = 0
-}
-
-function Cursor:new(l, c)
+Cursor = class.create(function(l, c)
   local ll = l or 1
   local cc = c or 1
-  local cur = { l = ll, c = cc }
-  setmetatable(cur, self)
-  self.__index = self
+  return { l = ll, c = cc }
+end)
 
-  return cur
+function Cursor:__tostring()
+  return string.format('{l%d, %d}', self.l, self.c)
 end
 
-function Cursor:inline(c)
-  return Cursor:new(1, c)
+function Cursor.inline(c)
+  return Cursor(1, c)
 end
 
 function Cursor:compare(other)

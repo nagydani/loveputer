@@ -1,29 +1,26 @@
 require("view.input.inputView")
 
---- @class InterpreterView
---- @field cfg ViewConfig
---- @field controller ConsoleController
---- @field input InputView
-InterpreterView = {}
+local class = require("util.class")
 
 --- @param cfg ViewConfig
---- @param ctrl ConsoleController
-function InterpreterView:new(cfg, ctrl)
-  local iv = {
+--- @param ctrl InterpreterController
+local new = function(cfg, ctrl)
+  return {
     cfg = cfg,
     controller = ctrl,
-    input = InputView.new(cfg, ctrl.input),
+    input = InputView(cfg, ctrl.input),
   }
-  setmetatable(iv, self)
-  self.__index = self
-
-  return iv
 end
 
+--- @class InterpreterView
+--- @field cfg ViewConfig
+--- @field controller InterpreterController
+--- @field input InputView
+InterpreterView = class.create(new)
+
 --- @param input InputDTO
-function InterpreterView:draw(input)
+function InterpreterView:draw(input, time)
   local vd = self.controller:get_viewdata()
-  local time = self.controller:get_timestamp()
 
   local isError = string.is_non_empty_string_array(vd.w_error)
   local err_text = vd.w_error or {}
@@ -52,10 +49,10 @@ function InterpreterView:draw(input)
     drawBackground()
     G.setColor(colors.input.error)
     for l, str in ipairs(err_text) do
-      local breaks = #err_text - 1
+      local breaks = 0 -- starting height is already calculated
       ViewUtils.write_line(l, str, start_y, breaks, self.cfg)
     end
   else
     self.input:draw(input, time)
   end
-end;
+end

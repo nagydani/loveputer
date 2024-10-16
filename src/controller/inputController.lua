@@ -1,16 +1,10 @@
+local class = require('util.class')
 require("util.key")
 
 --- @class InputController
 --- @field model InputModel
 --- @field result function
-InputController = {}
-InputController.__index = InputController
-
-setmetatable(InputController, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
+InputController = class.create()
 
 --- @param M InputModel
 --- @param result function?
@@ -31,7 +25,7 @@ function InputController:textinput(t)
   self.model:add_text(t)
 end
 
---- @param t string|string[]
+--- @param t str
 function InputController:add_text(t)
   self.model:add_text(string.unlines(t))
 end
@@ -39,12 +33,12 @@ end
 ----------------
 -- evaluation --
 ----------------
---- @param eval EvalBase
+--- @param eval Evaluator
 function InputController:set_eval(eval)
   self.model:set_eval(eval)
 end
 
---- @param t string|string[]
+--- @param t str
 function InputController:set_text(t)
   self.model:set_text(t)
 end
@@ -105,11 +99,21 @@ function InputController:keypressed(k)
       input:cursor_right()
     end
 
-    if k == "home" then
+    if not Key.alt()
+        and k == "home" then
       input:jump_home()
     end
-    if k == "end" then
+    if not Key.alt()
+        and k == "end" then
       input:jump_end()
+    end
+    if Key.alt()
+        and k == "home" then
+      input:jump_line_start()
+    end
+    if Key.alt()
+        and k == "end" then
+      input:jump_line_end()
     end
   end
   local function newline()
@@ -193,7 +197,7 @@ end
 function InputController:keyreleased(k)
   local input = self.model
   local function selection()
-    if Key.shift() then
+    if Key.is_shift(k) then
       input:release_selection()
     end
   end
@@ -203,13 +207,7 @@ end
 
 --- @return InputDTO
 function InputController:get_input()
-  local im = self.model
-  return {
-    text = im:get_text(),
-    wrapped_text = im:get_wrapped_text(),
-    highlight = im:highlight(),
-    selection = im:get_ordered_selection(),
-  }
+  return self.model:get_input()
 end
 
 --- @return Status

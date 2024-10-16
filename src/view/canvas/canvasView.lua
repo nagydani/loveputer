@@ -1,6 +1,7 @@
 require("view.canvas.bgView")
 require("view.canvas.terminalView")
 
+local class = require("util.class")
 require("util.view")
 
 local G = love.graphics
@@ -9,18 +10,12 @@ local G = love.graphics
 --- @field cfg Config
 --- @field bg BGView
 --- @field draw function
-CanvasView = {}
-
-function CanvasView:new(cfg)
-  local cv = {
+CanvasView = class.create(function(cfg)
+  return {
     cfg = cfg,
-    bg = BGView.new(cfg)
+    bg = BGView(cfg)
   }
-  setmetatable(cv, self)
-  self.__index = self
-
-  return cv
-end
+end)
 
 --- @param terminal table
 --- @param canvas love.Canvas
@@ -28,7 +23,7 @@ end
 --- @param drawable_height number
 --- @param snapshot love.Image?
 function CanvasView:draw(
-  terminal, canvas, term_canvas, drawable_height, snapshot
+    terminal, canvas, term_canvas, drawable_height, snapshot
 )
   local cfg = self.cfg
   local test = cfg.drawtest

@@ -20,4 +20,5 @@
       "color": "#555",
     }
   ],
+  "reflowMarkdown.preferredLineLength" : 64,
 }

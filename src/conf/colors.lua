@@ -36,6 +36,7 @@ local syntax_i = {
 --- @class StatuslineColors
 --- @field bg RGB
 --- @field fg RGB
+--- @field fg2 RGB?
 --- @field indicator RGB
 
 --- @class Colors
@@ -63,8 +64,8 @@ return {
       fg = Color[Color.black + Color.bright],
     },
     user = {
-      bg = Color[Color.black + Color.bright],
-      fg = Color[Color.white],
+      bg = Color[Color.white],
+      fg = Color[Color.black + Color.bright],
     },
     inspect = {
       bg = Color[Color.white],
@@ -100,6 +101,7 @@ return {
     },
     editor = {
       fg = Color[Color.white + Color.bright],
+      fg2 = Color[Color.yellow + Color.bright],
       bg = Color[Color.blue],
       indicator = Color[Color.cyan + Color.bright],
     },

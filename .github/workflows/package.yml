@@ -28,7 +28,7 @@ jobs:
       - uses: jkl1337/gh-actions-lua@v11
         with:
           # luaVersion: "5.3"
-          luaVersion: "luajit-2.1.0-beta3"
+          luaVersion: "luajit-git"
       - uses: jkl1337/gh-actions-luarocks@v5
         with:
           luarocksVersion: "3.9.2"
@@ -143,7 +143,7 @@ jobs:
           VER: ${{ github.ref_name }}
         run: echo VER_CODE="$(echo $VERSION | sed -e 's/^v//' -e 's/\.//g')" >> $GITHUB_ENV
       - name: Package for android
-        uses: aldum/love-actions-android@v0.2.1
+        uses: compy-toys/love-actions-android@v0.2.1
         with:
           love-ref: "loveputer"
           no-soft-keyboard: "enabled"

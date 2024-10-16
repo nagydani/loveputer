@@ -1,32 +1,33 @@
-require("model.consoleModel")
 local redirect_to = require("model.io.redirect")
+require("model.consoleModel")
 require("controller.controller")
 require("controller.consoleController")
 require("view.view")
 require("view.consoleView")
+
 local colors = require("conf.colors")
+local hostconf = prequire('host')
 
 require("util.key")
 require("util.debug")
+
+require("lib/error_explorer")
 
 G = love.graphics
 
 --- Find removable and user-writable storage
 --- Assumptions are made, which might be specific to the target platform/device
----@return boolean success
----@return string? path
+--- @return boolean success
+--- @return string? path
 local android_storage_find = function()
+  local OS = require("util.os")
   -- Yes, I know. We are working with the limitations of Android here.
   local quadhex = string.times('[0-9A-F]', 4)
   local uuid_regex = quadhex .. '-' .. quadhex
   local regex = '/dev/fuse /storage/' .. uuid_regex
-  local handle = io.popen(string.format("grep /proc/mounts -e '%s'", regex))
-  if not handle then
-    return false
-  end
-  local result = handle:read("*a")
-  handle:close()
-  local lines = string.lines(result)
+  local grep = string.format("grep /proc/mounts -e '%s'", regex)
+  local _, result = OS.runcmd(grep)
+  local lines = string.lines(result or '')
   if not string.is_non_empty_string_array(lines) then
     return false
   end
@@ -82,6 +83,7 @@ local config_view = function(sizedebug)
   -- this should lead to 16 lines visible by default on the
   -- console and the editor
   local lines = 16
+  local input_max = 14
 
   local font_labels = G.newFont(
     font_dir .. "PressStart2P-Regular.ttf", 12)
@@ -100,6 +102,9 @@ local config_view = function(sizedebug)
     drawableWidth = drawableWidth * 2
   end
 
+  local drawableChars = math.floor(drawableWidth / fw)
+  if love.DEBUG then drawableChars = drawableChars - 3 end
+
   return {
     font = font_main,
     iconfont = font_icon,
@@ -107,6 +112,7 @@ local config_view = function(sizedebug)
     fw = fw,
     lh = lh,
     lines = lines,
+    input_max = input_max,
     show_append_hl = false,
 
     labelfont = font_labels,
@@ -122,7 +128,7 @@ local config_view = function(sizedebug)
     debugheight = debugheight,
     debugwidth = debugwidth,
     drawableWidth = drawableWidth,
-    drawableChars = math.floor(drawableWidth / fw),
+    drawableChars = drawableChars,
   }
 end
 
@@ -202,16 +208,28 @@ function love.load(args)
       show_terminal = true,
       show_canvas = true,
       show_input = true,
+      once = 0
     }
   end
+
+  local editorconf = {
+    --- TODO
+    mouse_enabled = false,
+  }
 
   --- @class Config
   local baseconf = {
     view = viewconf,
+    editor = editorconf,
     autotest = autotest,
     drawtest = drawtest,
     sizedebug = sizedebug,
   }
+
+  if hostconf then
+    hostconf.conf_app(viewconf)
+  end
+
   --- MVC wiring
   local CM = ConsoleModel(baseconf)
   redirect_to(CM)

@@ -1,7 +1,9 @@
-require("model.interpreter.item")
 require("model.input.inputText")
 require("model.input.selection")
+require("model.lang.error")
+require("view.editor.visibleContent")
 
+local class = require('util.class')
 require("util.wrapped_text")
 require("util.dequeue")
 require("util.string")
@@ -10,10 +12,11 @@ require("util.debug")
 --- @class InputModel
 --- @field oneshot boolean
 --- @field entered InputText
---- @field evaluator EvalBase
---- @field type InputType
+--- @field evaluator Evaluator
+--- @field label string
 --- @field cursor Cursor
 --- @field wrapped_text WrappedText
+--- @field visible VisibleContent
 --- @field selection InputSelection
 --- @field cfg Config
 --- @field custom_status CustomStatus?
@@ -26,28 +29,38 @@ require("util.debug")
 --- @field get_text_line fun(self, integer): string
 --- @field get_n_text_lines fun(self): integer
 --- @field get_wrapped_text fun(self): WrappedText
-InputModel = {}
+InputModel = class.create()
+
 
 --- @param cfg Config
---- @param eval EvalBase
+--- @param eval Evaluator
 --- @param oneshot boolean?
-function InputModel:new(cfg, eval, oneshot)
-  local im = {
+function InputModel.new(cfg, eval, oneshot)
+  local w = cfg.view.drawableChars
+  local self = setmetatable({
     oneshot = oneshot,
-    entered = InputText:new(),
+    entered = InputText(),
     evaluator = eval,
-    type = eval.kind,
-    cursor = Cursor:new(),
-    wrapped_text = WrappedText.new(cfg.view.drawableChars),
-    selection = InputSelection:new(),
+    label = eval.label,
+    cursor = Cursor(),
+    wrapped_text = WrappedText(w),
+    selection = InputSelection(),
     custom_status = nil,
 
     cfg = cfg,
-  }
-  setmetatable(im, self)
-  self.__index = self
+  }, InputModel)
 
-  return im
+  InputModel.init_visible(self, { '' })
+
+  return self
+end
+
+--- @param text string[]
+function InputModel:init_visible(text)
+  local w = self.cfg.view.drawableChars
+  local s = self.cfg.view.input_max
+  self.visible = VisibleContent(w, text, 1, s)
+  self.visible:set_default_range()
 end
 
 ----------------
@@ -86,7 +99,7 @@ function InputModel:add_text(text)
   end
 end
 
---- @param text string|string[]
+--- @param text str
 --- @param keep_cursor boolean
 function InputModel:set_text(text, keep_cursor)
   self.entered = nil
@@ -94,20 +107,23 @@ function InputModel:set_text(text, keep_cursor)
     local lines = string.lines(text)
     local n_added = #lines
     if n_added == 1 then
-      self.entered = InputText:new({ text })
+      self.entered = InputText({ text })
     end
     if not keep_cursor then
       self:_update_cursor(true)
     end
   elseif type(text) == 'table' then
-    self.entered = InputText:new(text)
+    self.entered = InputText(text)
+  end
+  self:text_change()
+  if not keep_cursor then
+    self:init_visible(self.entered)
   end
   self:jump_end()
-  self:text_change()
 end
 
 --- @private
---- @param text string|string[]
+--- @param text str
 --- @param ln integer
 --- @param keep_cursor boolean
 function InputModel:_set_text_line(text, ln, keep_cursor)
@@ -119,7 +135,7 @@ function InputModel:_set_text_line(text, ln, keep_cursor)
         self:_update_cursor(true)
       end
     elseif type(text) == 'table' and ln == 1 then
-      self.entered = InputText:new(text)
+      self.entered = InputText(text)
     end
   end
 end
@@ -151,7 +167,7 @@ end
 
 --- @return InputText
 function InputModel:get_text()
-  return self.entered or InputText:new()
+  return self.entered or InputText()
 end
 
 --- @param l integer
@@ -256,11 +272,10 @@ function InputModel:delete()
 end
 
 function InputModel:clear_input()
-  self.entered = InputText:new()
+  self.entered = InputText()
   self:text_change()
   self:clear_selection()
   self:_update_cursor(true)
-  self.tokens = nil
   self.custom_status = nil
 end
 
@@ -269,44 +284,45 @@ function InputModel:reset()
 end
 
 function InputModel:text_change()
-  local ev = self.evaluator
-  if ev.kind == 'lua' then
-    -- TODO enforce this kind-parser invariant in types
-    ---@diagnostic disable-next-line: undefined-field
-    local ts = ev.parser.tokenize(self:get_text())
-    self.tokens = ts
-  end
   self.wrapped_text:wrap(self.entered)
+  self.visible:wrap(self.entered)
+  self.visible:check_range()
+  self:_follow_cursor()
 end
 
 --- @return Highlight?
 function InputModel:highlight()
   local ev = self.evaluator
-  if ev.highlight then
-    -- TODO enforce this highligh-parser invariant in types
-    ---@diagnostic disable-next-line: undefined-field
-    local p = ev.parser
+  local p = ev.parser
+  if p and p.highlighter then
     local text = self:get_text()
-    local lex = p.stream_tokens(text)
-    -- iterating over the stream exhausts it
-    local tokens = p.realize_stream(lex)
-    local ok, err = p.parse_prot(text)
+    local ok, err = p.parse(text)
     local parse_err
     if not ok then
-      local l, c, msg = p.get_error(err)
-      parse_err = { l = l, c = c, msg = msg }
+      parse_err = err
     end
+    local hl = p.highlighter(text)
 
-    return {
-      parse_err = parse_err,
-      hl = p.syntax_hl(tokens),
-    }
+    return { hl = hl, parse_err = parse_err }
   end
 end
 
 ----------------
 --   cursor   --
 ----------------
+
+--- Follow cursor movement with visible range
+--- @private
+function InputModel:_follow_cursor()
+  local cl, cc = self:_get_cursor_pos()
+  local w = self.cfg.view.drawableChars
+  local acl = cl + (math.floor(cc / w) or 0)
+  local vrange = self.visible:get_range()
+  local diff = vrange:outside(acl)
+  if diff ~= 0 then
+    self.visible:move_range(diff)
+  end
+end
 
 --- @private
 --- @param replace_line boolean
@@ -322,8 +338,8 @@ function InputModel:_update_cursor(replace_line)
 end
 
 --- @private
---- @param x integer
---- @param y integer
+--- @param x integer?
+--- @param y integer?
 function InputModel:_advance_cursor(x, y)
   local cur_l, cur_c = self:_get_cursor_pos()
   local move_x = x or 1
@@ -337,6 +353,9 @@ function InputModel:_advance_cursor(x, y)
   end
 end
 
+--- @param y integer?
+--- @param x integer?
+--- @param selection 'keep'|'move'?
 function InputModel:move_cursor(y, x, selection)
   local prev_l, prev_c = self:_get_cursor_pos()
   local c, l
@@ -363,6 +382,7 @@ function InputModel:move_cursor(y, x, selection)
   else
     self:clear_selection()
   end
+  self:_follow_cursor()
 end
 
 --- @private
@@ -385,6 +405,17 @@ end
 
 function InputModel:get_cursor_y()
   return self.cursor.l
+end
+
+--- @return InputDTO
+function InputModel:get_input()
+  return {
+    text         = self:get_text(),
+    wrapped_text = self:get_wrapped_text(),
+    highlight    = self:highlight(),
+    selection    = self:get_ordered_selection(),
+    visible      = self.visible,
+  }
 end
 
 --- @param dir VerticalDir
@@ -472,6 +503,7 @@ function InputModel:cursor_vertical_move(dir)
   else
     return
   end
+  if not limit then self:_follow_cursor() end
   return limit
 end
 
@@ -527,6 +559,7 @@ function InputModel:jump_home()
   local nl, nc = 1, 1
   self:end_selection(nl, nc)
   self:move_cursor(nl, nc, keep)
+  self:_follow_cursor()
 end
 
 function InputModel:jump_end()
@@ -540,16 +573,44 @@ function InputModel:jump_end()
   end)()
   self:end_selection(last_line, last_char)
   self:move_cursor(last_line, last_char, keep)
+  self.visible:to_end()
+  self.visible:check_range()
 end
 
 --- @return Status
 function InputModel:get_status()
   return {
-    input_type = self.type,
+    label = self.label,
     cursor = self.cursor,
     n_lines = self:get_n_text_lines(),
-    custom = self.custom_status
+    custom = self.custom_status,
+    input_more = self.visible:get_more(),
   }
+end
+
+function InputModel:jump_line_start()
+  local keep = (function()
+    if self.selection:is_held() then
+      return 'keep'
+    end
+  end)()
+  local l = self.cursor.l
+  local nc = 1
+  self:end_selection(l, nc)
+  self:move_cursor(l, nc, keep)
+end
+
+function InputModel:jump_line_end()
+  local ent = self:get_text()
+  local line = self.cursor.l
+  local char = string.ulen(ent[line]) + 1
+  local keep = (function()
+    if self.selection:is_held() then
+      return 'keep'
+    end
+  end)()
+  self:end_selection(line, char)
+  self:move_cursor(line, char, keep)
 end
 
 --- @param cs CustomStatus
@@ -567,7 +628,7 @@ end
 function InputModel:finish()
   local ent = self:get_text()
   --- @diagnostic disable-next-line: param-type-mismatch
-  if self.oneshot then love.event.push('userinput', ent) end
+  if self.oneshot then love.event.push('userinput') end
   return ent
 end
 
@@ -575,10 +636,10 @@ function InputModel:cancel()
   self:clear_input()
 end
 
---- @param eval EvalBase
+--- @param eval Evaluator
 function InputModel:set_eval(eval)
   self.evaluator = eval
-  self.type = eval.kind
+  self.label = eval.label or ''
 end
 
 ----------------
@@ -617,9 +678,9 @@ end
 function InputModel:start_selection(l, c)
   local start = (function()
     if l and c then
-      return Cursor:new(l, c)
+      return Cursor(l, c)
     else -- default to current cursor position
-      return Cursor:new(self:_get_cursor_pos())
+      return Cursor(self:_get_cursor_pos())
     end
   end)()
   self.selection.start = start
@@ -629,9 +690,9 @@ function InputModel:end_selection(l, c)
   local start         = self.selection.start
   local fin           = (function()
     if l and c then
-      return Cursor:new(l, c)
+      return Cursor(l, c)
     else -- default to current cursor position
-      return Cursor:new(self:_get_cursor_pos())
+      return Cursor(self:_get_cursor_pos())
     end
   end)()
   local from, to      = self:diff_cursors(start, fin)
@@ -673,7 +734,7 @@ end
 function InputModel:get_ordered_selection()
   local sel = self.selection
   local s, e = self:diff_cursors(sel.start, sel.fin)
-  local ret = InputSelection:new()
+  local ret = InputSelection()
   ret.start = s
   ret.fin = e
   ret.text = sel.text
@@ -700,7 +761,7 @@ function InputModel:pop_selected_text()
 end
 
 function InputModel:clear_selection()
-  self.selection = InputSelection:new()
+  self.selection = InputSelection()
   self:release_selection()
 end
 
@@ -721,7 +782,8 @@ end
 function InputModel:mouse_drag(l, c)
   local li, ci = self:translate_grid_to_cursor(l, c)
   local sel = self:get_selection()
-  if sel.start and sel.held then
+  local held = sel.held and love.mouse.isDown(1)
+  if sel.start and held then
     self:end_selection(li, ci)
     self:move_cursor(li, ci, 'move')
   end

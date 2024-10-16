@@ -1,6 +1,8 @@
+require('util.lua')
+
 function love.conf(t)
-  t.identity = 'loveputer'
-  t.window.title = 'LÖVEputer'
+  t.identity = 'compy'
+  t.window.title = 'Compy'
   t.window.resizable = false
   local hidpi = os.getenv("HIDPI")
   if os.getenv("DEBUG") then
@@ -25,7 +27,8 @@ function love.conf(t)
   -- Android: use SD card for storage
   t.externalstorage = true
 
-  pcall(function()
-    require('host').spec(t)
-  end)
+  local hostconf = prequire('host')
+  if hostconf then
+    hostconf.conf_love(t)
+  end
 end

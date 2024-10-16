@@ -1,25 +1,33 @@
 require("model.input.cursor")
+
+local class = require('util.class')
 require("util.dequeue")
 
 --- @class InputText: Dequeue
 --- @field new function
 --- @field traverse function
-InputText = {}
+InputText = class.create()
 
 --- @param values string[]?
-function InputText:new(values)
-  local text = Dequeue(values)
+--- @return InputText
+function InputText.new(values)
+  --- @type InputText
+  --- @diagnostic disable-next-line: assign-type-mismatch
+  local self = Dequeue.typed('string', values)
   if not values or values == '' or
       (type(values) == "table" and #values == 0)
   then
-    text:append('')
+    self:append('')
   end
 
-  setmetatable(self, Dequeue)
-  setmetatable(text, self)
-  self.__index = self
+  setmetatable(self, {
+    __index = function(t, k)
+      local value = InputText[k] or Dequeue[k]
+      return value
+    end
+  })
 
-  return text
+  return self
 end
 
 --- Traverses text between two cursor positions
@@ -36,7 +44,7 @@ function InputText:traverse(from, to, options)
   local ce = to.c - 1
   local lines = string.lines(self)
 
-  local ret = Dequeue()
+  local ret = Dequeue.typed('string')
   local defaults = {
     delete = false,
   }

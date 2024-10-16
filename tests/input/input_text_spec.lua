@@ -9,21 +9,21 @@ describe('InputText', function()
   local l1 = 'local a = 1 --[[ ml'
   local l2 = 'c --]] -- ac'
   local l3 = 'a = 2'
-  local t = Dequeue()
+  local t = Dequeue.typed('string')
   t:append(l1)
   t:append(l2)
   t:append(l3)
-  local text = InputText:new(t)
+  local text = InputText(t)
 
   it('inherits Dequeue', function()
-    local empty = InputText:new()
+    local empty = InputText()
     assert.same({ 1 }, table.keys(empty))
     assert.same({ l1, l2, l3 }, text)
   end)
 
   it('traverses', function()
-    local from = Cursor:new(1, 12)
-    local to   = Cursor:new(2, 7 + 1)
+    local from = Cursor(1, 12)
+    local to   = Cursor(2, 7 + 1)
     local trav = text:traverse(from, to)
     local exp  = {
       ' --[[ ml',
@@ -39,9 +39,9 @@ describe('InputText', function()
     assert.same(exp, trav_d)
     assert.same(rem, text)
 
-    local text2  = InputText:new(t)
-    -- from   = Cursor:new(1, 12)
-    to           = Cursor:new(3, 1)
+    local text2  = InputText(t)
+    -- from   = Cursor(1, 12)
+    to           = Cursor(3, 1)
     local exp2   = {
       ' --[[ ml',
       'c --]] -- ac',
@@ -56,9 +56,9 @@ describe('InputText', function()
     assert.same(exp2, trav_2)
     assert.same(rem2, text2)
 
-    -- from   = Cursor:new(1, 12)
-    to            = Cursor:new(2, string.ulen(l2) + 1)
-    local text2b  = InputText:new(t)
+    -- from   = Cursor(1, 12)
+    to            = Cursor(2, string.ulen(l2) + 1)
+    local text2b  = InputText(t)
     local exp2b   = {
       ' --[[ ml',
       'c --]] -- ac',
@@ -71,9 +71,9 @@ describe('InputText', function()
     assert.same(exp2b, trav_2b)
     assert.same(rem2b, text2b)
 
-    local text3  = InputText:new(t)
-    from         = Cursor:new(2, 7)
-    to           = Cursor:new(2, 12 + 1)
+    local text3  = InputText(t)
+    from         = Cursor(2, 7)
+    to           = Cursor(2, 12 + 1)
     local trav_3 = text3:traverse(from, to)
     local exp3   = {
       ' -- ac',

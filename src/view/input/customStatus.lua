@@ -1,19 +1,25 @@
+local class = require('util.class')
+
 --- @class CustomStatus table
---- @field line integer
+--- @field content_type ContentType
 --- @field buflen integer
---- @field more More
-CustomStatus = {}
-CustomStatus.__index = CustomStatus
+--- @field buffer_more More
+--- @field selection integer
+--- @field range Range?
+CustomStatus = class.create(function(ct, len, more, sel, range)
+  return {
+    content_type = ct,
+    buflen = len,
+    buffer_more = more,
+    selection = sel,
+    range = range,
+  }
+end)
 
-setmetatable(CustomStatus, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
-
-function CustomStatus.new()
-  local self = setmetatable({
-  }, CustomStatus)
-
-  return self
+function CustomStatus:__tostring()
+  if self.range then
+    return 'B' .. self.range
+  else
+    return 'L' .. self.selection
+  end
 end

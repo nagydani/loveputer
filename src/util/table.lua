@@ -118,7 +118,7 @@ function table.toggle(self, k)
   end
 end
 
--- https://stackoverflow.com/a/24823383
+--- https://stackoverflow.com/a/24823383
 --- @param self table
 --- @param first integer?
 --- @param last integer?
@@ -131,4 +131,42 @@ function table.slice(self, first, last, step)
   end
 
   return sliced
+end
+
+--- @param self table
+--- @return boolean is_array
+function table.is_array(self)
+  if not self or not type(self) == "table" then
+    return false
+  end
+  local is_array = true
+  for k, _ in pairs(self) do
+    if type(k) ~= 'number' then
+      return false
+    end
+  end
+  return is_array
+end
+
+--- @param self table
+--- @param t string
+--- @return boolean
+function table.is_instance(self, t)
+  if not self or not t then return false end
+  local typ = string.lower(type(self))
+  local tag = string.lower(self.tag)
+  local tt  = string.lower(t)
+  return tt == typ or tt == tag
+end
+
+--- @param self table
+--- @param e any
+--- @return boolean
+function table.is_member(self, e)
+  if not self or not e then return false end
+  local ret = false
+  for _, v in pairs(self) do
+    if v == e then return true end
+  end
+  return ret
 end

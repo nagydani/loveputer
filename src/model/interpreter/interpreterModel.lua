@@ -1,9 +1,7 @@
-require("model.interpreter.eval.textEval")
-require("model.interpreter.eval.luaEval")
-require("model.interpreter.eval.inputEval")
-require("model.interpreter.item")
+require("model.interpreter.eval.evaluator")
 require("model.input.inputModel")
 
+local class = require('util.class')
 require("util.dequeue")
 require("util.string")
 require("util.debug")
@@ -13,45 +11,32 @@ require("util.debug")
 --- @field input InputModel
 --- @field history table
 --- @field evaluator table
---- @field luaEval LuaEval
---- @field textInput InputEval
---- @field luaInput InputEval
+--- @field luaEval Evaluator
+--- @field textInput Evaluator
+--- @field luaInput Evaluator
 --- @field wrapped_error string[]?
 -- methods
---- @field new function
---- @field get_entered_text function
---- @todo
-InterpreterModel = {}
-InterpreterModel.__index = InterpreterModel
-
-setmetatable(InterpreterModel, {
-  __call = function(cls, ...)
-    return cls.new(...)
-  end,
-})
-
---- @return InterpreterModel
+--- @field reset fun(self, h: boolean?)
+--- @field get_entered_text fun(self): InputText
+InterpreterModel = class.create(
 --- @param cfg Config
-function InterpreterModel.new(cfg)
-  local luaEval   = LuaEval:new('metalua')
-  local textInput = InputEval:new(false)
-  local luaInput  = InputEval:new(true)
-  local self      = setmetatable({
-    cfg = cfg,
-    input = InputModel:new(cfg, luaEval),
-    history = Dequeue(),
-    -- starter
-    evaluator = luaEval,
-    -- available options
-    luaEval = luaEval,
-    textInput = textInput,
-    luaInput = luaInput,
+--- @return InterpreterModel
+  function(cfg)
+    local luaEval = LuaEval()
+    return {
+      cfg = cfg,
+      input = InputModel(cfg, luaEval),
+      history = Dequeue(),
+      -- starter
+      evaluator = luaEval,
+      -- available options
+      luaEval = luaEval,
+      textInput = InputEvalText,
+      luaInput = InputEvalLua,
 
-    wrapped_error = nil
-  }, InterpreterModel)
-
-  return self
-end
+      wrapped_error = nil
+    }
+  end)
 
 --- @param history boolean?
 function InterpreterModel:reset(history)
@@ -70,17 +55,20 @@ end
 -- evaluation --
 ----------------
 
+--- @return boolean
+--- @return string|EvalError
 function InterpreterModel:evaluate()
-  return self:_handle(true)
+  return self:handle(true)
 end
 
 function InterpreterModel:cancel()
-  self:_handle(false)
+  self:handle(false)
 end
 
---- @private
 --- @param eval boolean
-function InterpreterModel:_handle(eval)
+--- @return boolean
+--- @return string|EvalError
+function InterpreterModel:handle(eval)
   local ent = self:get_entered_text()
   self.historic_index = nil
   local ok, result
@@ -92,9 +80,11 @@ function InterpreterModel:_handle(eval)
       if ok then
         self.input:clear_input()
       else
-        local l, c, err = self:get_eval_error(result)
-        self.input:move_cursor(l, c + 1)
-        self.error = err
+        local perr = result[1]
+        if perr then
+          self.input:move_cursor(perr.l, perr.c + 1)
+          self.error = perr.msg
+        end
       end
     else
       self.input:clear_input()
@@ -111,31 +101,27 @@ function InterpreterModel:clear_error()
   self.wrapped_error = nil
 end
 
+--- @return string[]?
 function InterpreterModel:get_wrapped_error()
   return self.wrapped_error
 end
 
+--- @return boolean
 function InterpreterModel:has_error()
   return string.is_non_empty_string_array(self.wrapped_error)
 end
 
 --- @param error string?
---- @param is_call_error boolean
+--- @param is_call_error boolean?
 function InterpreterModel:set_error(error, is_call_error)
   if string.is_non_empty_string(error) then
-    self.error = error
-    self.wrapped_error = string.wrap_at(error, self.input.wrapped_text.wrap_w)
+    self.error = error or ''
+    self.wrapped_error = string.wrap_at(
+      self.error,
+      self.input.wrapped_text.wrap_w)
     if not is_call_error then
       self:history_back()
     end
-  end
-end
-
-function InterpreterModel:get_eval_error(errors)
-  local ev = self.evaluator
-  local t = self:get_entered_text()
-  if string.is_non_empty_string_array(t) then
-    return ev.parser.get_error(errors)
   end
 end
 
@@ -206,6 +192,7 @@ function InterpreterModel:_get_history_entry(i)
   return self.history[i]
 end
 
+--- @return string[]
 function InterpreterModel:_get_history_entries()
   return self.history:items()
 end

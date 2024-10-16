@@ -1,18 +1,50 @@
+require("model.lang.error")
+
+require("util.debug")
 require("util.string")
 require("util.dequeue")
 
+--- @alias CPos 'first'|'last'
+
+--- @class Comment
+--- @field text string
+--- @field position CPos
+--- @field idf integer
+--- @field idl integer
+--- @field first Cursor
+--- @field last Cursor
+--- @field multiline boolean
+--- @field prepend_newline boolean
+
+--- type representing metalua AST
+--- @alias AST token[]
+
+--- @alias ParseResult AST|EvalError
+
+--- @class Parser
+--- @field parse fun(code: string[]): ParseResult
+--- @field chunker fun(s: string[], integer, boolean?): Dequeue<Block>
+--- @field highlighter fun(str): SyntaxColoring
+--- @field pprint fun(c: string[], w: integer): string[]?
+---
+--- @field tokenize fun(str): table
+--- @field syntax_hl fun(table): SyntaxColoring
+
 return function(lib)
+  local l = lib or 'metalua'
   local add_paths = {
     '',
-    'lib/' .. lib .. '/?.lua',
-    'lib/?.lua'
+    'lib/' .. l .. '/?.lua',
+    'lib/?.lua',
+    -- 'lib/lua/5.1/?'
   }
   if love and not TESTING then
     local love_paths = string.join(add_paths, ';')
-    love.filesystem.setRequirePath(love.filesystem.getRequirePath() .. love_paths)
+    love.filesystem.setRequirePath(
+      love.filesystem.getRequirePath() .. love_paths)
   else
     local lib_paths = string.join(add_paths, ';src/')
-    package.path = package.path .. lib_paths
+    package.path = lib_paths .. ';' .. package.path
   end
 
   local mlc = require('metalua.metalua.compiler').new()
@@ -21,7 +53,7 @@ return function(lib)
   --- @param stream table
   --- @return table tokens
   local realize_stream = function(stream)
-    local tokens = Dequeue()
+    local tokens = Dequeue.typed('string')
     local n
     repeat
       n = stream:next()
@@ -31,7 +63,7 @@ return function(lib)
   end
 
   --- Parses text table to lexstream
-  --- @param code table
+  --- @param code str
   --- @return table lexstream
   local stream_tokens = function(code)
     local c = string.unlines(code)
@@ -40,7 +72,7 @@ return function(lib)
   end
 
   --- Parses text table to tokens
-  --- @param code table
+  --- @param code str
   --- @return table
   local tokenize = function(code)
     local stream = stream_tokens(code)
@@ -49,36 +81,22 @@ return function(lib)
 
   --- Parses lexstream to AST
   --- @param stream table
-  --- @return table|string ast|errmsg
+  --- @return ParseResult
   local parse_stream = function(stream)
     return mlc:lexstream_to_ast(stream)
   end
 
-
-  --- Parses code to AST
-  --- @param code table
-  --- @return boolean success
-  --- @return any result
-  --- @return any ...
-  local parse_prot = function(code)
-    local stream = stream_tokens(code)
-    -- return parse_stream_prot(stream)
-    return pcall(parse_stream, stream)
-  end
-
-  --- Parses code to AST
-  --- @param code table
-  --- @return table|string ast|errmsg
-  local parse = function(code)
-    local stream = stream_tokens(code)
-    return parse_stream(stream)
+  --- @param ast token
+  --- @param ... any
+  --- @return Comment[]
+  local ast_extract_comments = function(ast, ...)
+    local a2s = mlc:a2s(...)
+    return a2s:extract_comments(ast)
   end
 
   --- Finds error location and message in parse result
   --- @param result string
-  --- @return number line
-  --- @return number char
-  --- @return string err_msg
+  --- @return EvalError
   local get_error = function(result)
     local err_lines = string.lines(result)
     local err_first_line = err_lines[1]
@@ -89,29 +107,28 @@ return function(lib)
     local line = tonumber(match2() or '') or -1
     local char = tonumber(match2() or '') or -1
     local errmsg = string.trim(colons[4])
-    return line, char, errmsg
-  end
-
-  local pprint = function(code)
-    local pprinter = require('metalua.metalua.pprint')
-    local c = string.unlines(code)
-    return pprinter.tostring(c)
+    return EvalError(errmsg, char, line)
   end
 
   --- Read lexstream and determine highlighting
   --- @param tokens table
-  --- @return table
+  --- @return SyntaxColoring
   local syntax_hl = function(tokens)
     if not tokens then return {} end
 
+    --- @type SyntaxColoring
     local colored_tokens = {}
     setmetatable(colored_tokens, {
       __index = function(table, key)
+        --- default value is an empty array
         table[key] = {}
         return table[key]
       end
     })
 
+    --- @param tag string
+    --- @param single boolean
+    --- @return TokenType?
     local function getType(tag, single)
       if tag == 'Keyword' then
         if single then
@@ -130,12 +147,18 @@ return function(lib)
       end
     end
 
-    local function multiline(first, last, text, ttype, tl)
+    --- @param first Cursor
+    --- @param last Cursor
+    --- @param text string
+    --- @param lex_t LexType
+    --- @param tl integer
+    local function multiline(first, last, text, lex_t, tl)
       local ls = first.l
       local le = last.l
       local cs = first.c
       local ce = last.c
       local lines = string.lines(text)
+
       local n_lines = #lines
       local till = le + 1 - ls
       -- if the first line has no text after the block starter,
@@ -146,21 +169,23 @@ return function(lib)
 
       -- first line
       for i = cs, cs + string.ulen(lines[1]) + tl do
-        colored_tokens[ls][i] = ttype
+        colored_tokens[ls][i] = lex_t
       end
       for i = 2, till - 1 do
         local e = string.ulen(lines[i])
-        for j = 1, e do
-          colored_tokens[ls + i - 1][j] = ttype
+        for j = 1, e + 2 do
+          colored_tokens[ls + i - 1][j] = lex_t
         end
       end
       -- last line
       for i = 1, ce do
-        colored_tokens[le][i] = ttype
+        colored_tokens[le][i] = lex_t
       end
     end
 
-    local colorize = function(t)
+    --- @param t token
+    --- @return SyntaxColoring?
+    local function colorize(t)
       local text     = t[1]
       local tag      = t.tag
       local lfi      = t.lineinfo.first
@@ -213,7 +238,7 @@ return function(lib)
           colored_tokens[l][i] = getType(tag, single)
         end
       else
-        local tl = 2 -- a string block starts with '[['
+        local tl = 2 --- a string block starts with '[['
         multiline(first, last, text, 'string', tl)
       end
 
@@ -228,7 +253,7 @@ return function(lib)
             colored_tokens[ls][i] = 'comment'
           end
         else
-          local tl = 4 -- a block comment starts with '--[['
+          local tl = 4 --- a block comment starts with '--[['
           multiline(co.first, co.last, co.text, 'comment', tl)
         end
       end
@@ -247,15 +272,173 @@ return function(lib)
     return colored_tokens
   end
 
+  --------------------
+  ---    Public    ---
+  --------------------
+
+  --- @param ast token[]
+  --- @param ... any
+  --- @return string
+  local ast_to_src = function(ast, ...)
+    local a2s = mlc:a2s(...)
+    return a2s:run(ast)
+  end
+
+  --- Parses code to AST
+  --- @param code str
+  --- @return boolean success
+  --- @return ParseResult
+  local parse = function(code)
+    local stream = stream_tokens(code)
+    local ok, res = pcall(parse_stream, stream)
+    local ret = res
+    if not ok then
+      ---@diagnostic disable-next-line: param-type-mismatch
+      ret = get_error(res)
+    end
+    return ok, ret
+  end
+
+  --- @param code string[]
+  --- @return string[]?
+  local pprint = function(code, wrap)
+    local w = wrap or 80
+    local ok, r = parse(code)
+    if ok then
+      local src = ast_to_src(r, {}, w)
+      return string.lines(src)
+    end
+  end
+
+  --- Highlight string array
+  --- @param code str
+  --- @return SyntaxColoring
+  local highlighter = function(code)
+    return syntax_hl(tokenize(code))
+  end
+
+  --- @param text string[]
+  --- @param w integer
+  --- @param single boolean
+  --- @return boolean ok
+  --- @return Block[]
+  local chunker = function(text, w, single)
+    require("model.editor.content")
+    if string.is_non_empty_string_array(text) then
+      local wrap = w
+      local ret = Dequeue.typed('block')
+      local ok, r = parse(text)
+      local has_lines = false
+      if ok then
+        local idx = 1  -- block number
+        local last = 0 -- last line number
+        local comment_ids = {}
+        local add_comment_block = function(ctext, c, range)
+          ret:insert(
+            Chunk.new(ctext, range),
+            idx)
+          comment_ids[c.idf] = true
+          comment_ids[c.idl] = true
+        end
+        --- @param comments Comment[]
+        --- @param pos CPos
+        local get_comments = function(comments, pos)
+          for _, c in ipairs(comments) do
+            -- Log.warn('c', c.position)
+            -- Log.warn(Debug.terse_t(c, nil, nil, true))
+            if c.position == pos
+                and not (comment_ids[c.idl] or comment_ids[c.idf])
+            then
+              local cfl, cll = c.first.l, c.last.l
+              -- account for empty lines
+              if cfl > last + 1 then
+                ret:insert(Empty(last + 1), idx)
+                idx = idx + 1
+                comment_ids[c.idf] = true
+                comment_ids[c.idl] = true
+              end
+              if cfl == cll then
+                local ctext = '--' .. c.text
+                add_comment_block(ctext, c, Range.singleton(cfl))
+                idx = idx + 1
+                last = cll
+              else
+                local lines = string.lines(c.text)
+                if c.multiline then
+                  if c.prepend_newline then
+                    table.insert(lines, 1, '')
+                  end
+                  local l1 = lines[1] or ''
+                  if #lines == 1 then
+                    lines[1] = '--[[' .. l1 .. ']]'
+                  else
+                    local llast = lines[#lines] or ''
+                    lines[1] = '--[[' .. l1
+                    lines[#lines] = llast .. ']]'
+                  end
+                  local wrapped = string.wrap_array(lines, wrap)
+                  local w_t = string.unlines(wrapped)
+
+                  add_comment_block(wrapped, c, Range(cfl, cll))
+                  idx = idx + 1
+                  last = cll
+                else
+                  for i, l in ipairs(lines) do
+                    local ln = cfl + i - 1
+                    local ctext = '--' .. l
+                    add_comment_block(ctext, c, Range.singleton(ln))
+                    idx = idx + 1
+                    last = cll
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        for _, v in ipairs(r) do
+          has_lines = true
+          local li = v.lineinfo
+          local fl, ll = li.first.line, li.last.line
+
+          local comments = ast_extract_comments(v, {}, wrap)
+
+          get_comments(comments, 'first')
+
+          -- account for empty lines, including the zeroth
+          if fl > last + 1 then
+            ret:insert(Empty(last + 1), idx)
+            idx = idx + 1
+          end
+          local tex = table.slice(text or {}, fl, ll)
+          local chunk = Chunk(tex, Range(fl, ll))
+          ret:insert(chunk, idx)
+          idx = idx + 1
+          last = ll
+
+          get_comments(comments, 'last')
+        end
+
+        if single or not has_lines then
+          local single_comment = ast_extract_comments(r, {}, wrap)
+          get_comments(single_comment, 'first')
+        end
+
+        return true, ret
+      else
+        --- content is not valid lua
+        return false, Dequeue(text, 'string')
+      end
+    else
+      return true, Dequeue(Empty(1), 'block')
+    end
+  end
+
   return {
-    stream_tokens  = stream_tokens,
-    realize_stream = realize_stream,
-    tokenize       = tokenize,
-    parse          = parse,
-    parse_prot     = parse_prot,
-    parse_stream   = parse_stream,
-    pprint         = pprint,
-    get_error      = get_error,
-    syntax_hl      = syntax_hl,
+    parse       = parse,
+    pprint      = pprint,
+    highlighter = highlighter,
+    ast_to_src  = ast_to_src,
+    chunker     = chunker,
   }
 end
