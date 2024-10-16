@@ -2,7 +2,7 @@
 
 require("util.string")
 require("util.table")
-local FS = require("util.filesystem")
+require("util.filesystem")
 local tc = require("util.termcolor")
 local OS = require("util.os")
 
@@ -398,7 +398,6 @@ Debug = {
     local path = FS.join_path('./.debug', name)
 
     local data = string.unlines(content)
-    local FS = require('util.filesystem')
     FS.write(path, data)
   end,
 }

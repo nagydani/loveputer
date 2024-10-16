@@ -13,7 +13,10 @@ FS = {
         return name .. ' is not a directory'
       end
       return name .. ' does not exist'
-    end
+    end,
+    mkdir_err = function(name, err)
+      return "Unable to create directory " .. name .. ': ' .. err
+    end,
   }
 }
 
@@ -137,7 +140,7 @@ if love then
 
   --- @param source string
   --- @param target string
-  --- @param vfs boolean?
+  --- @param vfs boolean? -- use VFS for source
   --- @return boolean success
   --- @return string? error
   function FS.cp(source, target, vfs)
@@ -166,26 +169,26 @@ if love then
       return false, FS.messages.enoent('target')
     end
 
+    --- @type string
+    --- @diagnostic disable-next-line: assign-type-mismatch
     local content, s_err = (function()
-      if vfs then return LFS.read(source) end
-      return _fs.read(source)
+      if vfs then return LFS.read('string', source) end
+      return _fs.read('string', source)
     end)()
     if not content then
       return false, tostring(s_err)
     end
 
-    local out, t_err = io.open(target, "w")
+    local out, t_err = FS.write(target, content)
     if not out then
       return false, t_err
     end
-    out:write(content)
-    out:close()
     return true
   end
 
   --- @param source string
   --- @param target string
-  --- @param vfs boolean?
+  --- @param vfs boolean? -- use VFS for source
   --- @return boolean success
   --- @return string? error
   function FS.cp_r(source, target, vfs)
@@ -203,7 +206,10 @@ if love then
       return false, FS.messages.enoent('source', 'dir')
     end
     if not tgtinfo then
-      FS.mkdir(target)
+      local ok, err = FS.mkdir(target)
+      if not ok then
+        Log.error(FS.messages.mkdir_err(target, err))
+      end
     end
     tgtinfo = _fs.getInfo(target)
     if not tgtinfo or tgtinfo.type ~= 'directory' then
@@ -215,6 +221,7 @@ if love then
     for _, i in pairs(items) do
       local s = FS.join_path(source, i.name)
       local t = FS.join_path(target, i.name)
+
       local ok, err = FS.cp(s, t, vfs)
       if not ok then
         cp_ok = false
