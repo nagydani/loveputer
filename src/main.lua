@@ -10,10 +10,15 @@ local hostconf = prequire('host')
 
 require("util.key")
 require("util.debug")
+require("util.filesystem")
 
 require("lib/error_explorer")
 
 G = love.graphics
+
+local messages = {
+  dataloss_warning = 'DEMO: Project data is not guaranteed to persist!'
+}
 
 --- Find removable and user-writable storage
 --- Assumptions are made, which might be specific to the target platform/device
@@ -164,6 +169,7 @@ local setup_storage = function()
     print('INFO: Project path: ' .. storage_path)
   elseif OS_name == 'Web' then
     _G.web = true
+    storage_path = ''
   else
     -- TODO: linux assumed, check other platforms, especially love.js
     local home = os.getenv('HOME')
@@ -177,7 +183,7 @@ local setup_storage = function()
   if not _G.web then
     _G.nativefs = require("lib/nativefs")
   end
-  project_path = storage_path .. '/projects'
+  project_path = FS.join_path(storage_path, 'projects')
   local paths = {
     storage_path = storage_path,
     project_path = project_path
@@ -245,6 +251,11 @@ function love.load(args)
 
   Controller.setup_callback_handlers(CC)
   Controller.set_default_handlers(CC, CV)
+
+  if _G.web then
+    print(messages.dataloss_warning)
+    CM.projects:deploy_examples()
+  end
 
   --- run autotest on startup if invoked
   if autotest then CC:autotest() end
