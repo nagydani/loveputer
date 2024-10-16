@@ -40,19 +40,25 @@ end
 
 if love then
   local _fs
-  if love.system.getOS() == "Web" then
-    LFS = love.filesystem
-    local getDirectoryItemsInfo = function(dir, filtertype)
-      local files = LFS.getDirectoryItems(dir)
-      local ret = {}
-      for _, f in ipairs(files) do
-        local info = LFS.getInfo(f, filtertype)
-        if info then
-          table.insert(ret, info)
-        end
+
+  LFS = love.filesystem
+
+  local getDirectoryItemsInfo = function(path, filtertype)
+    local items = {}
+    local ls = LFS.getDirectoryItems(path)
+    for _, n in ipairs(ls) do
+      local fi = LFS.getInfo(FS.join_path(path, n), filtertype)
+      if fi then
+        --- @diagnostic disable-next-line: inject-field
+        fi.name = n
+        table.insert(items, fi)
       end
-      return ret
     end
+    return items
+  end
+
+
+  if love.system.getOS() == "Web" then
     _fs = {
       read = function(...)
         return LFS.read(...)
@@ -104,17 +110,7 @@ if love then
   function FS.dir(path, filtertype, vfs)
     local items = (function()
       if vfs then
-        local items = {}
-        local ls = love.filesystem.getDirectoryItems(path)
-        for _, n in ipairs(ls) do
-          local fi = love.filesystem.getInfo(FS.join_path(path, n), filtertype)
-          if fi then
-            --- @diagnostic disable-next-line: inject-field
-            fi.name = n
-            table.insert(items, fi)
-          end
-        end
-        return items
+        return getDirectoryItemsInfo(path, filtertype)
       end
       return _fs.getDirectoryItemsInfo(path, filtertype)
     end)()
@@ -150,7 +146,7 @@ if love then
   function FS.cp(source, target, vfs)
     local getInfo = (function()
       if vfs then
-        return love.filesystem.getInfo
+        return LFS.getInfo
       end
       return _fs.getInfo
     end)()
@@ -174,7 +170,7 @@ if love then
     end
 
     local content, s_err = (function()
-      if vfs then return love.filesystem.read(source) end
+      if vfs then return LFS.read(source) end
       return _fs.read(source)
     end)()
     if not content then
@@ -198,7 +194,7 @@ if love then
   function FS.cp_r(source, target, vfs)
     local getInfo = (function()
       if vfs then
-        return love.filesystem.getInfo
+        return LFS.getInfo
       end
       return _fs.getInfo
     end)()
