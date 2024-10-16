@@ -1,6 +1,12 @@
 require("util.string")
 
 FS = {
+  path_sep = (function()
+    if love.system.getOS() == "Windows" then
+      return '\\'
+    end
+    return '/'
+  end)(),
   messages = {
     enoent = function(name, type)
       if type == 'directory' or type == 'dir' then
@@ -11,11 +17,18 @@ FS = {
   }
 }
 
+--- @return string
+FS.join_path = function(...)
+  local sep = FS.path_sep
+  local args = { ... }
+  -- TODO remove duplicates
+  return string.join(args, sep)
+end
+
 if love then
   local _fs
   if love.system.getOS() == "Web" then
     LFS = love.filesystem
-    _G.lfs = LFS
     local getDirectoryItemsInfo = function(dir, filtertype)
       local files = LFS.getDirectoryItems(dir)
       local ret = {}
@@ -81,7 +94,7 @@ if love then
         local items = {}
         local ls = love.filesystem.getDirectoryItems(path)
         for _, n in ipairs(ls) do
-          local fi = love.filesystem.getInfo(string.join_path(path, n), filtertype)
+          local fi = love.filesystem.getInfo(FS.join_path(path, n), filtertype)
           if fi then
             --- @diagnostic disable-next-line: inject-field
             fi.name = n
@@ -141,7 +154,7 @@ if love then
     if tgtinfo and tgtinfo.type == 'directory' then
       local parts = string.split(source, '/')
       local fn = parts[#parts]
-      to = string.join_path(target, fn)
+      to = FS.join_path(target, fn)
     end
     if not to then
       return false, FS.messages.enoent('target')
@@ -194,8 +207,8 @@ if love then
     FS.mkdir(target)
     local items = FS.dir(source, nil, vfs)
     for _, i in pairs(items) do
-      local s = string.join_path(source, i.name)
-      local t = string.join_path(target, i.name)
+      local s = FS.join_path(source, i.name)
+      local t = FS.join_path(target, i.name)
       local ok, err = FS.cp(s, t, vfs)
       if not ok then
         cp_ok = false
@@ -222,5 +235,6 @@ else
     return false
   end
 end
+
 
 return FS
