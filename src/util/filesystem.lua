@@ -131,6 +131,15 @@ if love then
   end
 
   --- @param path string
+  --- @return string?
+  function FS.read(path)
+    local lines = FS.lines(path)
+    if string.is_non_empty_string_array(lines) then
+      return string.unlines(lines)
+    end
+  end
+
+  --- @param path string
   --- @param data string
   --- @return boolean success
   --- @return string? error
