@@ -490,7 +490,6 @@ end
 function ConsoleController:quit_project()
   self.model.output:reset()
   self.interpreter:reset()
-  nativefs.setWorkingDirectory(love.filesystem.getSourceBaseDirectory())
   Controller.set_default_handlers(self, self.view)
   Controller.set_love_update(self)
   love.state.user_input = nil
