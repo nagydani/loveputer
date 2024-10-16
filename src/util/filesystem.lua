@@ -34,7 +34,13 @@ end
 FS.join_path = function(...)
   local sep = FS.path_sep
   local args = { ... }
-  local raw = string.join(args, sep)
+  local filtered = {}
+  for _, v in pairs(args) do
+    if string.is_non_empty_string(v) then
+      table.insert(filtered, v)
+    end
+  end
+  local raw = string.join(filtered, sep)
   return FS.remove_dup_separators(raw)
 end
 
