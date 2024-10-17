@@ -4,6 +4,7 @@
 LOVE := "/usr/bin/love"
 MON := "nodemon"
 PRODUCT_NAME := "Compy"
+PRODUCT_NAME_SC := "compy"
 
 unit_test:
 	{{MON}} --exec 'echo -en "\n\n\n\n------------- BUSTED -------------\n"; busted tests' -e 'lua'
@@ -56,9 +57,18 @@ one-js-c: package-js-c
 package:
 	7z a dist/game.love ./src/* > /dev/null
 
+
+FAVI := "favicon.ico"
+DIST := "./web/dist"
+DIST-c := "./web/dist-c"
+
 package-js:
-	love.js ./src ./web/dist \
+	love.js ./src {{DIST}} \
 		--title "{{PRODUCT_NAME}}" --memory 67108864
+	test -f {{DIST}}/{{FAVI}} || \
+		cp -f res/"{{PRODUCT_NAME_SC}}".ico {{DIST}}/{{FAVI}}
 package-js-c: # compat mode
-	love.js -c ./src ./web/dist-c \
+	love.js ./src {{DIST-c}} \
 		--title "{{PRODUCT_NAME}}" --memory 67108864
+	test -f {{DIST-c}}/{{FAVI}} || \
+		cp -f res/"{{PRODUCT_NAME_SC}}".ico {{DIST-c}}/{{FAVI}}
