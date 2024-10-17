@@ -4,6 +4,10 @@
 /.luarocks
 .history
 dist/*
+web/*
+web/dist/*
+web/dist-c/*
+web/node_modules/*
 .debug/*
 doc/scratch/
 doc/parse

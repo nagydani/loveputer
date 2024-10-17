@@ -29,8 +29,15 @@ dev-allt:
 dev-size:
 	{{MON}} --exec '{{LOVE}} src --size' -e 'lua'
 
-dev-js: package-js-c
-	python -m http.server -d dist
+dev-js-c:
+	{{MON}} --exec 'just package-js-c' -e lua &
+	cd web/dist-c ; live-server --no-browser --watch="../src"
+dev-js:
+	{{MON}} --exec 'just package-js' -e lua &
+	cd web ; node server.js
+
+setup-web-dev:
+	cd web; npm install
 
 one:
 	{{LOVE}} src
@@ -42,14 +49,16 @@ one-allt:
 	{{LOVE}} src --drawtest --autotest
 one-size:
 	{{LOVE}} src --size
-
+one-js-c: package-js-c
+	cd web/dist-c; live-server --no-browser --watch='../../src'
 
 
 package:
 	7z a dist/game.love ./src/* > /dev/null
 
 package-js:
-	love.js ./src ./dist --title "{{PRODUCT_NAME}}" --memory 67108864
-# compat mode
-package-js-c:
-	love.js -c ./src ./dist --title "{{PRODUCT_NAME}}" --memory 67108864
+	love.js ./src ./web/dist \
+		--title "{{PRODUCT_NAME}}" --memory 67108864
+package-js-c: # compat mode
+	love.js -c ./src ./web/dist-c \
+		--title "{{PRODUCT_NAME}}" --memory 67108864
