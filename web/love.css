@@ -1,0 +1,150 @@
+* {
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+h1 {
+  /*  color: rgb(11, 86, 117); */
+  font-family: monospace;
+}
+
+.title {
+  font-size: 24pt;
+}
+
+body {
+  font-size: 14pt;
+  margin: 0;
+  padding: none;
+  background-color: rgb(28, 78, 104);
+  color: rgb(154, 205, 237);
+  min-height: 100%;
+  height: 100vh;
+}
+
+.noscroll {
+  overflow: hidden;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.flex-center {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: normal;
+  align-content: center;
+}
+
+.flex-center-item {
+  display: block;
+  flex-grow: 0;
+  flex-shrink: 1;
+  flex-basis: auto;
+  align-self: auto;
+  order: 0;
+  min-width: 100px;
+  max-width: 800px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center vertically */
+  /* align-items: center; Center horizontally */
+  flex-grow: 1; /* Allow this section to grow */
+}
+
+.center {
+  text-align: center;
+}
+
+footer {
+  font-size: 12pt;
+  padding-left: 10px;
+  padding-bottom: 5px;
+  bottom: 0;
+  text-align: center;
+  width: 100vw;
+  position: fixed;
+  z-index: 1;
+}
+
+code {
+  background-color: rgb(56, 56, 78);
+  font-family: monospace;
+}
+li code {
+  background-color: rgb(36, 36, 36);
+  color: rgb(205, 205, 235);
+  padding: 4px 2px;
+}
+
+.ph {
+  height: auto;
+}
+
+kbd {
+  display: inline-block;
+  padding: 4px 8px;
+  font-size: 16pt;
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
+    Liberation Mono, monospace;
+  line-height: 18pt;
+  color: rgb(240, 246, 252);
+  vertical-align: middle;
+  background-color: rgb(21, 27, 35);
+  border: solid 1px;
+  border-bottom-color: rgba(61, 68, 77, 0.7);
+  border-radius: 6px;
+  box-shadow: inset 0 -1px 0 rgba(61, 68, 77, 0.7);
+}
+
+thead {
+  padding-bottom: 5px;
+}
+th {
+  border-bottom: 2px dotted gray;
+}
+tr {
+  border-bottom: 2px dotted gray;
+}
+td {
+  padding: 5px 0px;
+  border-bottom: 1px dotted gray;
+}
+
+/* Links */
+a {
+  text-decoration: none;
+}
+
+a:link {
+  color: rgb(236, 242, 255);
+}
+
+a:visited {
+  color: rgb(143, 226, 255);
+}
+
+a:hover {
+  color: rgb(252, 207, 230);
+}
+
+div {
+  padding-bottom: 5px;
+}
+
+/* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+#canvas {
+  padding-right: 0;
+  display: block;
+  border: 0px none;
+  visibility: hidden;
+  position: relative;
+  z-index: 2;
+}

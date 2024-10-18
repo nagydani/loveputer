@@ -38,7 +38,7 @@ dev-js:
 	cd web ; node server.js
 
 setup-web-dev:
-	cd web; npm install
+	cd web ; npm install
 
 one:
 	{{LOVE}} src
@@ -50,23 +50,39 @@ one-allt:
 	{{LOVE}} src --drawtest --autotest
 one-size:
 	{{LOVE}} src --size
+
+DIST := "./dist/web"
+DIST-c := "./dist/web-c"
+
 one-js-c: package-js-c
-	cd web/dist-c; live-server --no-browser --watch='../../src'
+	cd {{DIST-c}}; live-server --no-browser --watch='../../src'
 
 
 package:
 	7z a dist/game.love ./src/* > /dev/null
 
-
 FAVI := "favicon.ico"
-DIST := "./web/dist"
-DIST-c := "./web/dist-c"
+
+package-web: package-js
+	rm -f dist/{{PRODUCT_NAME}}-web.zip
+	7z a dist/{{PRODUCT_NAME}}-web.zip {{DIST}}/* > /dev/null
 
 package-js:
+	#!/usr/bin/env sh
 	love.js ./src {{DIST}} \
 		--title "{{PRODUCT_NAME}}" --memory 67108864
 	test -f {{DIST}}/{{FAVI}} || \
 		cp -f res/"{{PRODUCT_NAME_SC}}".ico {{DIST}}/{{FAVI}}
+	mkdir -p {{DIST}}/doc
+	cp -r doc/interface {{DIST}}/doc/
+	cd web
+	node render_md.js
+	rm ../{{DIST}}/theme/bg.png
+	cp index.html ../{{DIST}}
+	cat head.html \
+			../dist/_readme.html \
+			tail.html > ../{{DIST}}/readme.html
+	cp love.css ../{{DIST}}/theme/
 package-js-c: # compat mode
 	love.js ./src {{DIST-c}} \
 		--title "{{PRODUCT_NAME}}" --memory 67108864

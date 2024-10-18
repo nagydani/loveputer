@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "live-server": "^1.2.2"
+    "live-server": "^1.2.0",
+    "love.js": "^11.4.1",
+    "showdown": "^2.1.0"
   }
 }
