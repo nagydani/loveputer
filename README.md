@@ -1,4 +1,4 @@
-# loveputer
+# Compy
 
 A console-based Lua-programmable computer for children based on
 [LÖVE2D][löve2d] framework.
@@ -44,18 +44,18 @@ a project must be selected first.
 | Jump to end                                                       | <kbd>End</kbd>                                |
 | Jump to line start                                                | <kbd>Alt</kbd>+<kbd>Home</kbd>                |
 | Jump to line end                                                  | <kbd>Alt</kbd>+<kbd>End</kbd>                 |
-| Insert newline                                                    | <kbd>Shift</kbd>+<kbd>Enter</kbd>             |
-| Evaluate input                                                    | <kbd>Enter</kbd>                              |
+| Insert newline                                                    | <kbd>Shift</kbd>+<kbd>Enter ⏎</kbd>           |
+| Evaluate input                                                    | <kbd>Enter ⏎</kbd>                            |
 | **Editor**                                                        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _same as Input, except for:_ |
 | Scroll up                                                         | <kbd>PageUp</kbd>                             |
 | Scroll down                                                       | <kbd>PageDown</kbd>                           |
 | Move selection (if in first/last line)                            | <kbd>⇧</kbd><kbd>⇩</kbd>                      |
-| Replace selection with input                                      | <kbd>Enter</kbd>                              |
+| Replace selection with input                                      | <kbd>Enter ⏎</kbd>                            |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _additionally_               |
 | Delete selected (line)                                            | <kbd>Ctrl</kbd>+<kbd>Delete</kbd>             |
 |                                                                   | <kbd>Ctrl</kbd>+<kbd>Y</kbd>                  |
-| Replace input with selected content                               | <kbd>Esc</kbd>                                |
+| Load selected content to input (discards previous content)        | <kbd>Esc</kbd>                                |
 | Insert selected content into input                                | <kbd>Shift</kbd>+<kbd>Esc</kbd>               |
 | Scroll to start                                                   | <kbd>Ctrl</kbd>+<kbd>PageUp</kbd>             |
 | Scroll to end                                                     | <kbd>Ctrl</kbd>+<kbd>PageDown</kbd>           |
@@ -86,7 +86,7 @@ returns to the console
 
   Print the currently open project's name (if any).
 
-- `run_project(proj?)`
+- `run_project(proj?)` / `run(proj?)`
 
   Run either _proj_ or the currently open project if no
   arguments are passed.
@@ -128,5 +128,26 @@ contents.
 
 ### Editor mode
 
+If a project is open, the files inside can be edited or new ones
+created. Run the `edit()` command to do so.
+
+![edit](./doc/interface/open_edit.apng)
+
+When a file is opened, the editor is scrolled to the end by
+default, and entered input will be appended to the end.
+
+![hello](./doc/interface/hello.apng)
+
+To modify an existing line, navigate there with
+<kbd>⇧</kbd>/<kbd>⇩</kbd>. Then load the text by pressing
+<kbd>Esc</kbd>, make the desired changes, then send it back with
+<kbd>Enter ⏎</kbd>
+
+![capitalized](./doc/interface/hello_cap.apng)
+
+Happy with the modifications now, we can quit by pressing
+<kbd>Ctrl-Shift-Q</kbd>
+
+![quit](./doc/interface/quit_editor.apng)
 
 [löve2d]: https://love2d.org
