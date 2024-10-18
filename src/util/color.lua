@@ -39,7 +39,21 @@ Color = {
       local red, blue, green = color[1], color[2], color[3]
       return { red, green, blue, alpha }
     end
-  end
+  end,
+
+  --- @return string
+  to_hex = function(r, g, b, a)
+    local r, g, b, a = r, g, b, a
+    if type(r) == 'table' then
+      r, g, b, a = unpack(r)
+    end
+    local ah = ''
+    if type(a) == "number" then
+      ah = string.format("%02X", a * 255)
+    end
+    return string.format('#%02X%02X%02X%s',
+      r * 255, g * 255, b * 255, ah)
+  end,
 }
 
 

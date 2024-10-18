@@ -46,7 +46,9 @@ function ConsoleView:draw(terminal, canvas, input, snapshot)
 
   local function drawConsole()
     local tc = self.controller.model.output.term_canvas
-    self.canvas:draw(terminal, canvas, tc, self.drawable_height, snapshot)
+    self.canvas:draw(
+      terminal, canvas, tc,
+      self.drawable_height, snapshot)
 
     if ViewUtils.conditional_draw('show_input') then
       local time = self.controller:get_timestamp()
