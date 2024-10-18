@@ -11,7 +11,6 @@ local function terminal_draw(terminal, canvas, overlay)
 
   -- if terminal.dirty or overlay then
   G.push('all')
-  G.origin()
 
   G.setCanvas(canvas)
   G.setFont(terminal.font)

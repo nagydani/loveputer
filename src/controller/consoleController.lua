@@ -77,8 +77,6 @@ local function run_user_code(f, cc, project_path)
   local env = cc:get_base_env()
 
   G.setCanvas(cc:get_canvas())
-  G.push('all')
-  G.setColor(Color[Color.black])
   local old_path = package.path
   local ok, call_err
   if project_path then
@@ -91,7 +89,6 @@ local function run_user_code(f, cc, project_path)
   end
   package.path = old_path
   output:restore_main()
-  G.pop()
   G.setCanvas()
   if not ok then
     local e = LANG.get_call_error(call_err)
