@@ -40,12 +40,12 @@ function CanvasView:draw(
   end
 
   if not test then
-    if ViewUtils.conditional_draw('show_canvas') then
-      G.draw(canvas)
-    end
     if ViewUtils.conditional_draw('show_terminal') then
       -- G.setBlendMode('multiply', "premultiplied")
       TerminalView.draw(terminal, term_canvas, snapshot)
+    end
+    if ViewUtils.conditional_draw('show_canvas') then
+      G.draw(canvas)
     end
     G.setBlendMode('alpha', 'alphamultiply') -- default
   else
