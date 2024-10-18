@@ -1,6 +1,7 @@
 # loveputer
 
-A console-based Lua-programmable computer for children based on [LÖVE2D] framework.
+A console-based Lua-programmable computer for children based on
+[LÖVE2D][löve2d] framework.
 
 ## Principles
 
@@ -15,13 +16,14 @@ A console-based Lua-programmable computer for children based on [LÖVE2D] framew
 
 # Usage
 
-Rather than the default LÖVE storage locations (save directory, cache, etc), the
-application uses a folder under _Documents_ to store projects. Ideally, this is
-located on removable storage to enable sharing programs the user writes.
+Rather than the default LÖVE storage locations (save directory,
+cache, etc), the application uses a folder under _Documents_ to
+store projects. Ideally, this is located on removable storage to
+enable sharing programs the user writes.
 
-For simplicity and security reasons, the user is only allowed to access files
-inside a project. To interact with the filesystem, a project must be selected
-first.
+For simplicity and security reasons, the user is only allowed to
+access files inside a project. To interact with the filesystem,
+a project must be selected first.
 
 ## Keys
 
@@ -65,10 +67,10 @@ first.
 
 ### Projects
 
-A _project_ is a folder in the application's storage which contains at least a
-`main.lua` file.
-Projects can be loaded and ran. At any time, pressing <kbd>Ctrl-Shift-Q</kbd>
-quits and returns to the console
+A _project_ is a folder in the application's storage which
+contains at least a `main.lua` file. Projects can be loaded and
+ran. At any time, pressing <kbd>Ctrl-Shift-Q</kbd> quits and
+returns to the console
 
 - `list_projects()`
 
@@ -77,7 +79,8 @@ quits and returns to the console
 - `project(proj)`
 
   Open project _proj_ or create a new one if it doesn't exist.
-  New projects are supplied with example code to demonstrate the structure.
+  New projects are supplied with example code to demonstrate the
+  structure.
 
 - `current_project()`
 
@@ -85,7 +88,8 @@ quits and returns to the console
 
 - `run_project(proj?)`
 
-  Run either _proj_ or the currently open project if no arguments are passed.
+  Run either _proj_ or the currently open project if no
+  arguments are passed.
 
 - `example_projects()`
 
@@ -97,12 +101,13 @@ quits and returns to the console
 
 - `edit(file)`
 
-  Open file in editor. If it does not exist yet, a new file will be created.
-  See [Editor mode](#editor)
+  Open file in editor. If it does not exist yet, a new file will
+  be created. See [Editor mode](#editor-mode)
 
 ### Files
 
-Once a project is open, file operations are available on it's contents.
+Once a project is open, file operations are available on it's
+contents.
 
 - `list_contents()`
 
@@ -114,13 +119,14 @@ Once a project is open, file operations are available on it's contents.
 
 - `writefile(file, content)`
 
-  Write to _file_ the text supplied as the _content_ parameter. This can be
-  either a string, or an array of strings.
+  Write to _file_ the text supplied as the _content_ parameter.
+  This can be either a string, or an array of strings.
 
 - `runfile(file)`
 
   Run _file_ if it's a lua script.
 
-### Editor
+### Editor mode
 
-![editor_1](./doc/interface/editor_1.png)
+
+[löve2d]: https://love2d.org
