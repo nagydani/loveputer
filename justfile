@@ -1,90 +1,100 @@
 #!/usr/bin/env just --justfile
 # vim: set noet:
 
+default:
+  @just --list
+
 LOVE := "/usr/bin/love"
 MON := "nodemon"
 PRODUCT_NAME := "Compy"
 PRODUCT_NAME_SC := "compy"
+FAVI := "favicon.ico"
+
+DIST := "dist"
+WEBDIST := "./dist/web"
+WEBDIST-c := "./dist/web-c"
 
 unit_test:
-	{{MON}} --exec 'echo -en "\n\n\n\n------------- BUSTED -------------\n"; busted tests' -e 'lua'
+	@{{MON}} --exec 'echo -en "\n\n\n\n------------- BUSTED -------------\n"; busted tests' -e 'lua'
 unit_test_tag TAG:
-	{{MON}} -e lua --exec 'echo -en "\n\n\n\n------------- BUSTED -------------\n" ; busted tests --tags {{TAG}}'
+	@{{MON}} -e lua --exec 'echo -en "\n\n\n\n------------- BUSTED -------------\n" ; busted tests --tags {{TAG}}'
+# run unit tests of this tag once
 ut TAG:
-	busted tests --tags {{TAG}}
+	@busted tests --tags {{TAG}}
 
 
 dev:
-	{{MON}} --exec '{{LOVE}} src' -e 'lua'
+	@{{MON}} --exec '{{LOVE}} src' -e 'lua'
 dev-atest:
-	{{MON}} --exec 'clear; {{LOVE}} src --autotest' -e 'lua'
+	@{{MON}} --exec 'clear; {{LOVE}} src --autotest' -e 'lua'
 dev-autotest: dev-atest
 
 dev-dtest:
-	{{MON}} --exec 'clear; {{LOVE}} src --drawtest' -e 'lua'
+	@{{MON}} --exec 'clear; {{LOVE}} src --drawtest' -e 'lua'
 dev-drawtest: dev-dtest
 
 dev-allt:
-	{{MON}} --exec 'clear; {{LOVE}} src --drawtest --autotest' -e 'lua'
+	@{{MON}} --exec 'clear; {{LOVE}} src --drawtest --autotest' -e 'lua'
 
 dev-size:
-	{{MON}} --exec '{{LOVE}} src --size' -e 'lua'
+	@{{MON}} --exec '{{LOVE}} src --size' -e 'lua'
 
-dev-js-c:
-	{{MON}} --exec 'just package-js-c' -e lua &
-	cd web/dist-c ; live-server --no-browser --watch="../src"
+
 dev-js:
-	{{MON}} --exec 'just package-js' -e lua &
-	cd web ; node server.js
+	@{{MON}} --exec 'just package-js' -e lua &
+	@cd web ; node server.js
+dev-js-c:
+	@{{MON}} --exec 'just package-js-c' -e lua &
+	@cd {{WEBDIST-c}} ; \
+		live-server --no-browser --watch="../../src"
 
 setup-web-dev:
 	cd web ; npm install
 
 one:
-	{{LOVE}} src
+	@{{LOVE}} src
 one-atest:
-	{{LOVE}} src --autotest
+	@{{LOVE}} src --autotest
 one-dtest:
-	{{LOVE}} src --drawtest
+	@{{LOVE}} src --drawtest
 one-allt:
-	{{LOVE}} src --drawtest --autotest
+	@{{LOVE}} src --drawtest --autotest
 one-size:
-	{{LOVE}} src --size
-
-DIST := "./dist/web"
-DIST-c := "./dist/web-c"
-
-one-js-c: package-js-c
-	cd {{DIST-c}}; live-server --no-browser --watch='../../src'
+	@{{LOVE}} src --size
 
 
 package:
-	7z a dist/game.love ./src/* > /dev/null
-
-FAVI := "favicon.ico"
+	@7z a {{DIST}}/game.love ./src/* > /dev/null
+	@echo packaged:
+	@ls -lh {{DIST}}/game.love
 
 package-web: package-js
-	rm -f dist/{{PRODUCT_NAME}}-web.zip
-	7z a dist/{{PRODUCT_NAME}}-web.zip {{DIST}}/* > /dev/null
+	@rm -f {{DIST}}/{{PRODUCT_NAME}}-web.zip
+	@7z a {{DIST}}/{{PRODUCT_NAME}}-web.zip {{WEBDIST}}/* \
+		> /dev/null
+	@echo packaged:
+	@ls -lh {{DIST}}/{{PRODUCT_NAME}}-web.zip
 
-package-js:
-	#!/usr/bin/env sh
-	love.js ./src {{DIST}} \
+package-js-dir DT:
+	#!/usr/bin/env -S bash
+	WEB={{DT}}
+	unset C
+	[[ $WEB =~ "-c" ]] && C='-c'
+	love.js $C ./src $WEB \
 		--title "{{PRODUCT_NAME}}" --memory 67108864
-	test -f {{DIST}}/{{FAVI}} || \
-		cp -f res/"{{PRODUCT_NAME_SC}}".ico {{DIST}}/{{FAVI}}
-	mkdir -p {{DIST}}/doc
-	cp -r doc/interface {{DIST}}/doc/
+	test -f $WEB/{{FAVI}} || \
+		cp -f res/"{{PRODUCT_NAME_SC}}".ico $WEB/{{FAVI}}
+	mkdir -p $WEB/doc
+	cp -r doc/interface $WEB/doc/
 	cd web
 	node render_md.js
-	rm ../{{DIST}}/theme/bg.png
-	cp index.html ../{{DIST}}
+	rm ../$WEB/theme/bg.png
+	cp index.html ../$WEB
 	cat head.html \
-			../dist/_readme.html \
-			tail.html > ../{{DIST}}/readme.html
-	cp love.css ../{{DIST}}/theme/
-package-js-c: # compat mode
-	love.js ./src {{DIST-c}} \
-		--title "{{PRODUCT_NAME}}" --memory 67108864
-	test -f {{DIST-c}}/{{FAVI}} || \
-		cp -f res/"{{PRODUCT_NAME_SC}}".ico {{DIST-c}}/{{FAVI}}
+			../{{DIST}}/_readme.html \
+			tail.html > ../$WEB/readme.html
+	cp love.css ../$WEB/theme/
+
+package-js: (package-js-dir WEBDIST)
+# compat mode
+package-js-c: (package-js-dir WEBDIST-c)
