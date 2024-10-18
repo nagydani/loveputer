@@ -102,7 +102,7 @@ returns to the console
 - `edit(file)`
 
   Open file in editor. If it does not exist yet, a new file will
-  be created. See [Editor mode](#editor-mode)
+  be created. See [Editor mode](#editor)
 
 ### Files
 
@@ -126,7 +126,7 @@ contents.
 
   Run _file_ if it's a lua script.
 
-### Editor mode
+### Editor
 
 If a project is open, the files inside can be edited or new ones
 created. Run the `edit()` command to do so.
