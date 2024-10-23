@@ -168,7 +168,6 @@ function EditorController:keypressed(k)
     if inter:has_error() then return end
     local m = self:get_active_buffer():move_selection(dir, by, warp)
     if m then
-      inter:clear()
       self.view.buffer:follow_selection()
       self:update_status()
     end

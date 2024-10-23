@@ -135,6 +135,8 @@ describe('Editor #editor', function()
         --- moving selection clears input
         mock.keystroke('down', press)
         assert.same(start_sel - 1, buffer:get_selection())
+        -- load the empty
+        mock.keystroke('escape', press)
         assert.same({ '' }, input())
         --- add text
         controller:textinput('-')
@@ -412,8 +414,10 @@ describe('Editor #editor', function()
           --- TODO
           -- assert.same(inter:get_text(), selected[1])
         end)
-        it('clears', function()
+        it("doesn't clear on move", function()
           mock.keystroke('C-end', press)
+          -- load the empty
+          mock.keystroke('escape', press)
           assert.same({ '' }, inter:get_text())
         end)
         it('inserts', function()
