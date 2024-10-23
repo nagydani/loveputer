@@ -161,7 +161,7 @@ function BufferModel:_get_selected_block()
   return self.content[sel]
 end
 
---- @return integer?
+--- @return integer
 function BufferModel:get_selection_start_line()
   if self.content_type == 'lua' then
     local b = self:_get_selected_block()
@@ -169,9 +169,8 @@ function BufferModel:get_selection_start_line()
       local ln = b.pos.start
       return ln
     end
-  else
-    return self.selection
   end
+  return self.selection
 end
 
 --- @return string[]
