@@ -182,7 +182,9 @@ function EditorController:keypressed(k)
   end
 
   local function load_selection()
-    local t = self:get_active_buffer():get_selected_text()
+    local buf = self:get_active_buffer()
+    local t = buf:get_selected_text()
+    buf:set_loaded()
     inter:set_text(t)
   end
 
@@ -190,14 +192,25 @@ function EditorController:keypressed(k)
   --- handlers
   local function submit()
     if not Key.ctrl() and not Key.shift() and Key.is_enter(k) then
+      local buf = self:get_active_buffer()
+      local bufv = self.view.buffer
       local function go(newtext)
-        local buf = self:get_active_buffer()
-        local _, n = buf:replace_selected_text(newtext)
-        inter:clear()
-        self.view:refresh()
-        move_sel('down', n)
-        load_selection()
-        self:update_status()
+        if bufv:is_selection_visible() then
+          if buf:loaded_is_sel() then
+            local ins, n = buf:replace_selected_text(newtext)
+            if ins then buf:clear_loaded() end
+            inter:clear()
+            self.view:refresh()
+            move_sel('down', n)
+            load_selection()
+            self:update_status()
+          else
+            buf:select_loaded()
+            bufv:follow_selection()
+          end
+        else
+          bufv:follow_selection()
+        end
       end
 
       self:_handle_submit(go)
