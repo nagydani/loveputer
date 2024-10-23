@@ -58,6 +58,7 @@ end
 --- @field content Dequeue -- Content
 --- @field content_type ContentType
 --- @field selection integer
+--- @field loaded integer?
 --- @field readonly boolean
 --- @field revmap table
 ---
@@ -248,7 +249,6 @@ function BufferModel:replace_selected_text(t)
         self.content:insert(c, sel)
       end
     end
-    -- Log.debug(Debug.terse_array(self.content, sel))
     --- move subsequent chunks down
     local diff = chunks[n].pos:len() - ol
     if diff ~= 0 then
@@ -276,5 +276,30 @@ function BufferModel:replace_selected_text(t)
       return true, #t
     end
     return false
+  end
+end
+
+--- @param i integer?
+function BufferModel:set_loaded(i)
+  local n = i or self:get_selection()
+  self.loaded = n
+end
+
+function BufferModel:clear_loaded()
+  self.loaded = nil
+end
+
+function BufferModel:loaded_is_sel()
+  if not self.loaded then
+    --- only check if there is in fact something to compare to
+    return true
+  end
+  return self.loaded == self.selection
+end
+
+function BufferModel:select_loaded()
+  local l = self.loaded
+  if l then
+    self.selection = l
   end
 end
