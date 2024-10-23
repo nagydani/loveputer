@@ -34,6 +34,7 @@ describe('Editor #editor', function()
   --- @param cfg Config
   --- @return EditorController
   --- @return function press
+  --- @return EditorView view
   local function wire(cfg)
     local model = EditorModel(cfg)
     local controller = EditorController(model)
@@ -43,8 +44,10 @@ describe('Editor #editor', function()
       controller:keypressed(...)
     end
 
-    return controller, press
+    return controller, press, controller.view
   end
+
+  local save = function() end
 
   local print_result = "print(sierpinski(4))"
   local sierpinski = {
@@ -70,11 +73,9 @@ describe('Editor #editor', function()
       local w = 80
       local mockConf = getMockConf(w)
 
-      local model = EditorModel(mockConf)
-      local controller = EditorController(model)
-      EditorView(mockConf.view, controller)
+      local controller = wire(mockConf)
 
-      controller:open('turtle', turtle_doc)
+      controller:open('turtle', turtle_doc, save)
 
       local buffer = controller:get_active_buffer()
       local bc = buffer:get_content()
@@ -100,7 +101,7 @@ describe('Editor #editor', function()
       local model = controller.model
 
       love.state.app_state = 'editor'
-      controller:open('turtle', turtle_doc)
+      controller:open('turtle', turtle_doc, save)
 
       local buffer = controller:get_active_buffer()
       local start_sel = #turtle_doc + 1
@@ -179,12 +180,11 @@ describe('Editor #editor', function()
         },
       }
 
-      local model = EditorModel(mockConf)
-      local controller = EditorController(model)
-      local view = EditorView(mockConf.view, controller)
+      local controller, _, view = wire(mockConf)
+      local model = controller.model
 
       --- use it as plaintext for this test
-      controller:open('sierpinski.txt', sierpinski)
+      controller:open('sierpinski.txt', sierpinski, save)
       view.buffer:open(model.buffer)
 
       local visible = view.buffer.content
@@ -239,11 +239,10 @@ describe('Editor #editor', function()
         },
       }
 
-      local model = EditorModel(mockConf)
-      local controller = EditorController(model)
-      local view = EditorView(mockConf.view, controller)
+      local controller, _, view = wire(mockConf)
+      local model = controller.model
 
-      controller:open('sierpinski.txt', sierpinski)
+      controller:open('sierpinski.txt', sierpinski, save)
 
       local function press(...)
         controller:keypressed(...)
@@ -254,7 +253,6 @@ describe('Editor #editor', function()
       local bv = view.buffer
       bv:open(model.buffer)
 
-      --- @type VisibleContent
       local visible = view.buffer.content
       local scroll = view.buffer.SCROLL_BY
 
@@ -405,7 +403,6 @@ describe('Editor #editor', function()
         end)
       end)
       describe('input', function()
-        --- @type InterpreterController
         local inter = controller.input
         it('loads', function()
           inter:add_text('asd')
@@ -440,7 +437,7 @@ describe('Editor #editor', function()
 
     local controller, press = wire(mockConf)
 
-    controller:open('sierpinski.lua', sierpinski)
+    controller:open('sierpinski.lua', sierpinski, save)
 
     local input = controller.input
     local buffer = controller:get_active_buffer()

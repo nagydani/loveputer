@@ -520,7 +520,10 @@ function ConsoleController:edit(name)
   end
   love.state.prev_state = love.state.app_state
   love.state.app_state = 'editor'
-  self.editor:open(filename, text)
+  local save = function(newcontent)
+    return self:_writefile(filename, newcontent)
+  end
+  self.editor:open(filename, text, save)
 end
 
 function ConsoleController:finish_edit()

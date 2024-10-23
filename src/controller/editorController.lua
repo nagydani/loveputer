@@ -19,18 +19,19 @@ end
 --- @field input UserInputController
 --- @field view EditorView?
 ---
---- @field open fun(self, name: string, content: string[]?)
---- @field close fun(self): string, string[]
---- @field get_active_buffer fun(self): BufferModel
+--- @field open function
+--- @field close function
+--- @field get_active_buffer function
 --- @field update_status function
---- @field textinput fun(self, string)
---- @field keypressed fun(self, string)
+--- @field textinput function
+--- @field keypressed function
 EditorController = class.create(new)
 
 
 --- @param name string
 --- @param content string[]?
-function EditorController:open(name, content)
+--- @param save function
+function EditorController:open(name, content, save)
   local w = self.model.cfg.view.drawableChars
   local is_lua = string.match(name, '.lua$')
   local ch, hl, pp
@@ -52,7 +53,7 @@ function EditorController:open(name, content)
     self.input:set_eval(TextEval)
   end
 
-  local b = BufferModel(name, content, ch, hl, pp)
+  local b = BufferModel(name, content, save, ch, hl, pp)
   self.model.buffer = b
   self.view.buffer:open(b)
   self:update_status()
@@ -115,6 +116,11 @@ end
 
 function EditorController:get_input()
   return self.input:get_input()
+end
+
+function EditorController:save(buf)
+  local ok, err = buf:save()
+  if not ok then Log.error("can't save: " .. err) end
 end
 
 --- @param go fun(nt: string[]|Block[])
@@ -197,8 +203,9 @@ function EditorController:keypressed(k)
       local function go(newtext)
         if bufv:is_selection_visible() then
           if buf:loaded_is_sel() then
-            local ins, n = buf:replace_selected_text(newtext)
-            if ins then buf:clear_loaded() end
+            local _, n = buf:replace_selected_text(newtext)
+            buf:clear_loaded()
+            self:save(buf)
             inter:clear()
             self.view:refresh()
             move_sel('down', n)
@@ -232,7 +239,9 @@ function EditorController:keypressed(k)
   local function delete()
     if Key.ctrl() and
         (k == "delete" or k == "y") then
-      self:get_active_buffer():delete_selected_text()
+      local buf = self:get_active_buffer()
+      buf:delete_selected_text()
+      self:save(buf)
       self.view:refresh()
     end
   end

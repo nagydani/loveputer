@@ -16,11 +16,13 @@ require('util.dequeue')
 
 --- @param name string
 --- @param content string[]
---- @param chunker Chunker
---- @param highlighter Highlighter
---- @param printer function
+--- @param save function
+--- @param chunker Chunker?
+--- @param highlighter Highlighter?
+--- @param printer function?
 --- @return BufferModel?
-local function new(name, content, chunker, highlighter, printer)
+local function new(name, content, save,
+                   chunker, highlighter, printer)
   local _content, sel, ct
   local readonly = false
 
@@ -45,6 +47,7 @@ local function new(name, content, chunker, highlighter, printer)
     name = name or 'untitled',
     content = _content,
     content_type = ct,
+    save_file = save,
     chunker = chunker,
     highlighter = highlighter,
     printer = printer,
@@ -57,6 +60,7 @@ end
 --- @field name string
 --- @field content Dequeue -- Content
 --- @field content_type ContentType
+--- @field save_file function
 --- @field selection integer
 --- @field loaded integer?
 --- @field readonly boolean
@@ -72,6 +76,10 @@ end
 --- @field replace_selected_text function
 --- @field render_content fun(self): string[]
 BufferModel = class.create(new)
+
+function BufferModel:save()
+  return self.save_file(self:get_text_content())
+end
 
 --- @return Dequeue
 function BufferModel:get_content()
