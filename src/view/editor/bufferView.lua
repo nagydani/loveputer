@@ -145,6 +145,7 @@ function BufferView:refresh()
   if not self.content then
     error('no buffer is open')
   end
+  ---@diagnostic disable-next-line: param-type-mismatch
   self.content:wrap(self.buffer:get_text_content())
   local clen = self.content:get_content_length()
   local off = self.offset
@@ -156,9 +157,12 @@ function BufferView:refresh()
   end
 end
 
-function BufferView:follow_selection()
+--- @return boolean
+--- @return VerticalDir?
+--- @return number? diff
+function BufferView:is_selection_visible()
   local sel = self.buffer:get_selection()
-  local r = self.content:get_range()
+
   local s_w
   if self.content_type == 'lua'
   then
@@ -167,20 +171,31 @@ function BufferView:follow_selection()
   then
     s_w = self.content.wrap_forward[sel]
   end
+
   local sel_s = s_w[1]
   local sel_e = s_w[#s_w]
-  if r:inc(sel_s) and r:inc(sel_e) then return end
-  --- @type VerticalDir
+  local r = self.content:get_range()
+  if r:inc(sel_s) and r:inc(sel_e) then return true end
+
   local dir = (function()
     if r.start > sel_s then return 'up' end
     if r.fin < sel_e then return 'down' end
   end)()
-  if dir == 'up' then
-    local d = r.start - sel_s
-    self:scroll(dir, d)
-  elseif dir == 'down' then
-    local d = sel_e - r.fin
-    self:scroll(dir, d)
+  local d = (function()
+    if dir == 'up' then
+      return r.start - sel_s
+    elseif dir == 'down' then
+      return sel_e - r.fin
+    end
+  end)()
+
+  return false, dir, d
+end
+
+function BufferView:follow_selection()
+  local v, dir, d = self:is_selection_visible()
+  if not v then
+    if dir and d then self:scroll(dir, d) end
   end
 end
 
