@@ -18,6 +18,12 @@
 			"Log.debug(Debug.terse_t($0, nil, nil, true))",
 		]
 	},
+	"dump table hash": {
+		"prefix": "dumpth",
+		"body": [
+			"Log.debug(Debug.terse_hash($0, nil, nil, true))",
+		]
+	},
 	"dump table once": {
 		"prefix": "dumpto",
 		"body": [
