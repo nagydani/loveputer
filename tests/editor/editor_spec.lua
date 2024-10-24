@@ -71,9 +71,7 @@ describe('Editor #editor', function()
   describe('opens', function()
     it('no wrap needed', function()
       local w = 80
-      local mockConf = getMockConf(w)
-
-      local controller = wire(mockConf)
+      local controller = wire(getMockConf(w))
 
       controller:open('turtle', turtle_doc, save)
 
@@ -95,12 +93,11 @@ describe('Editor #editor', function()
   describe('plaintext works', function()
     describe('with wrap', function()
       local w = 16
-      local mockConf = getMockConf(w)
+      love.state.app_state = 'editor'
 
-      local controller, press = wire(mockConf)
+      local controller, press = wire(getMockConf(w))
       local model = controller.model
 
-      love.state.app_state = 'editor'
       controller:open('turtle', turtle_doc, save)
 
       local buffer = controller:get_active_buffer()
@@ -172,15 +169,8 @@ describe('Editor #editor', function()
 
     describe('with scroll', function()
       local l = 6
-      local mockConf = {
-        view = {
-          drawableChars = 80,
-          lines = l,
-          input_max = 14
-        },
-      }
 
-      local controller, _, view = wire(mockConf)
+      local controller, _, view = wire(getMockConf(80, l))
       local model = controller.model
 
       --- use it as plaintext for this test
@@ -231,15 +221,8 @@ describe('Editor #editor', function()
 
     describe('with scroll and wrap', function()
       local l = 6
-      local mockConf = {
-        view = {
-          lines = l,
-          drawableChars = 27,
-          input_max = 14,
-        },
-      }
 
-      local controller, _, view = wire(mockConf)
+      local controller, _, view = wire(getMockConf(27, l))
       local model = controller.model
 
       controller:open('sierpinski.txt', sierpinski, save)
@@ -433,9 +416,8 @@ describe('Editor #editor', function()
 
   describe('structured (lua) works', function()
     local l = 16
-    local mockConf = getMockConf(64, l)
 
-    local controller, press = wire(mockConf)
+    local controller, press = wire(getMockConf(64, l))
 
     controller:open('sierpinski.lua', sierpinski, save)
 
