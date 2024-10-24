@@ -187,11 +187,16 @@ function EditorController:keypressed(k)
     self:update_status()
   end
 
-  local function load_selection()
+  --- @param add boolean?
+  local function load_selection(add)
     local buf = self:get_active_buffer()
     local t = buf:get_selected_text()
     buf:set_loaded()
-    inter:set_text(t)
+    if add then
+      inter:add_text(t)
+    else
+      inter:set_text(t)
+    end
   end
 
 
@@ -232,8 +237,7 @@ function EditorController:keypressed(k)
     if not Key.ctrl() and
         Key.shift() and
         k == "escape" then
-      local t = self:get_active_buffer():get_selected_text()
-      inter:add_text(t)
+      load_selection(true)
     end
   end
   local function delete()
