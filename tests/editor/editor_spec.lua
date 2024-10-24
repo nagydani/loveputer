@@ -4,16 +4,22 @@ require("controller.editorController")
 require("view.editor.editorView")
 require("view.editor.visibleContent")
 
-local mock = require("tests.mock")
+local mock, TU
 
 describe('Editor #editor', function()
-  local love = {
-    state = {
-      --- @type AppState
-      app_state = 'ready',
-    },
-  }
-  mock.mock_love(love)
+  setup(function()
+    mock = require("tests.mock")
+    TU = require('tests.testutil')
+
+    local love = {
+      state = {
+        --- @type AppState
+        app_state = 'ready',
+      },
+    }
+    mock.mock_love(love)
+  end)
+
   local turtle_doc = {
     '',
     'Turtle graphics game inspired the LOGO family of languages.',
@@ -47,8 +53,6 @@ describe('Editor #editor', function()
     return controller, press, controller.view
   end
 
-  local save = function() end
-
   local print_result = "print(sierpinski(4))"
   local sierpinski = {
     "function sierpinski(depth)",
@@ -73,6 +77,7 @@ describe('Editor #editor', function()
       local w = 80
       local controller = wire(getMockConf(w))
 
+      local save = TU.get_save_function(turtle_doc)
       controller:open('turtle', turtle_doc, save)
 
       local buffer = controller:get_active_buffer()
@@ -97,6 +102,8 @@ describe('Editor #editor', function()
 
       local controller, press = wire(getMockConf(w))
       local model = controller.model
+
+      local save = TU.get_save_function(turtle_doc)
 
       controller:open('turtle', turtle_doc, save)
 
@@ -173,6 +180,7 @@ describe('Editor #editor', function()
       local controller, _, view = wire(getMockConf(80, l))
       local model = controller.model
 
+      local save = TU.get_save_function(sierpinski)
       --- use it as plaintext for this test
       controller:open('sierpinski.txt', sierpinski, save)
       view.buffer:open(model.buffer)
@@ -225,6 +233,7 @@ describe('Editor #editor', function()
       local controller, _, view = wire(getMockConf(27, l))
       local model = controller.model
 
+      local save = TU.get_save_function(sierpinski)
       controller:open('sierpinski.txt', sierpinski, save)
 
       local function press(...)
@@ -417,6 +426,7 @@ describe('Editor #editor', function()
     local l = 16
 
     local controller, press = wire(getMockConf(64, l))
+    local save, savefile = TU.get_save_function(sierpinski)
 
     controller:open('sierpinski.lua', sierpinski, save)
 
