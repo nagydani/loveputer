@@ -11,15 +11,15 @@ describe('Buffer #editor', function()
   -- local chunker = parser.chunker
   local hl = parser.highlighter
 
-  local save = function() end
+  local noop = function() end
 
-  it('render plaintext', function()
+  it('renders plaintext', function()
     local l1 = 'line 1'
     local l2 = 'line 2'
     local l3 = 'x = 1'
     local l4 = 'the end'
     local tst = { l1, l2, l3, l4 }
-    local cbuffer = BufferModel('untitled', tst, save)
+    local cbuffer = BufferModel('untitled', tst, noop)
     local bc = cbuffer:get_content()
     assert.same(cbuffer.content_type, 'plain')
     assert.same(4, #bc)
@@ -29,13 +29,13 @@ describe('Buffer #editor', function()
     assert.same(l4, bc[4])
   end)
 
-  it('render lua', function()
+  it('renders lua', function()
     local l1 = '--- comment 1'
     local l2 = '--- comment 2'
     local l3 = 'x = 1'
     local l4 = '--- comment end'
     local tst = { l1, l2, l3, l4 }
-    local cbuffer = BufferModel('untitled.lua', tst, save, chunker, hl)
+    local cbuffer = BufferModel('untitled.lua', tst, noop, chunker, hl)
     local bc = cbuffer:get_content()
     assert.same(cbuffer.content_type, 'lua')
     assert.same(4, #bc)
@@ -64,8 +64,7 @@ end]]
 
 
 print(sierpinski(4))]])
-
-    local buffer = BufferModel('test.lua', txt, save, chunker, hl)
+    local buffer = BufferModel('test.lua', txt, noop, chunker, hl)
     it('sets name', function()
       assert.same('test.lua', buffer.name)
     end)
@@ -158,7 +157,8 @@ print(sierpinski(4))]])
       }
       local text = turtle
 
-      local buffer = BufferModel('main.lua', text, save, chunker, hl)
+      local buffer = BufferModel('main.lua', text,
+        noop, chunker, hl)
       local bc = buffer:get_content()
       local n_blocks = 24
       it('invariants', function()
