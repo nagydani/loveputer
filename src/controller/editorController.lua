@@ -120,7 +120,7 @@ end
 
 function EditorController:save(buf)
   local ok, err = buf:save()
-  if not ok then Log.error("can't save: " .. err) end
+  if not ok then Log.error("can't save: ", err) end
 end
 
 --- @param go fun(nt: string[]|Block[])
