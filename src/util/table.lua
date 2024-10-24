@@ -1,3 +1,21 @@
+---@alias reftable table
+---@return reftable
+table.new_reftable = function()
+  return setmetatable({}, {
+    __call = function(self, ...)
+      local argv = { ... }
+      local argc = #argv
+
+      if argc == 0 then
+        return self.value
+      else
+        self.value = argv[1]
+      end
+    end
+  })
+end
+
+
 --- Create a sequence from the table keys
 --- @param t table
 --- @return table keys
