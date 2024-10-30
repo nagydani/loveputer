@@ -98,3 +98,5 @@ package-js-dir DT:
 package-js: (package-js-dir WEBDIST)
 # compat mode
 package-js-c: (package-js-dir WEBDIST-c)
+
+import? 'local.just'
