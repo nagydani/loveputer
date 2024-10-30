@@ -2,7 +2,8 @@ require("util.string")
 
 FS = {
   path_sep = (function()
-    if love and love.system.getOS() == "Windows" then
+    if love and love.system
+        and love.system.getOS() == "Windows" then
       return '\\'
     end
     return '/'
