@@ -359,6 +359,10 @@ function UserInputModel:_advance_cursor(x, y)
   end
 end
 
+function UserInputModel:set_cursor(c)
+  self.cursor = c
+end
+
 --- @param y integer?
 --- @param x integer?
 --- @param selection 'keep'|'move'?
