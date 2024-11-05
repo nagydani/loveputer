@@ -193,9 +193,12 @@ function EditorController:keypressed(k)
     local t = buf:get_selected_text()
     buf:set_loaded()
     if add then
+      local c = inter:get_cursor_info().cursor
       inter:add_text(t)
+      inter:set_cursor(c)
     else
       inter:set_text(t)
+      inter:jump_home()
     end
   end
 

@@ -68,6 +68,11 @@ function UserInputController:get_cursor_info()
   return self.model:get_cursor_info()
 end
 
+--- @param cursor Cursor
+function UserInputController:set_cursor(cursor)
+  return self.model:set_cursor(cursor)
+end
+
 -----------
 -- error --
 -----------
@@ -98,6 +103,10 @@ end
 
 function UserInputController:cancel()
   self.model:handle(false)
+end
+
+function UserInputController:jump_home()
+  self.model:jump_home()
 end
 
 ----------------------

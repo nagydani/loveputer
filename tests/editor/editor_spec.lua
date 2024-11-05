@@ -137,7 +137,7 @@ describe('Editor #editor', function()
         end
         mock.keystroke('escape', press)
         assert.same({ turtle_doc[2] }, input())
-        --- moving selection clears input
+        mock.keystroke('end', press)
         mock.keystroke('down', press)
         assert.same(start_sel - 1, buffer:get_selection())
         -- load the empty
