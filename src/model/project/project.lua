@@ -63,10 +63,11 @@ end
 --- @field contents function
 --- @field readfile function
 --- @field writefile function
+--- @field get_path function
 Project = class.create(function(pname)
   return {
     name = pname,
-    path = string.join_path(love.paths.project_path, pname)
+    path = FS.join_path(love.paths.project_path, pname)
   }
 end)
 
@@ -79,7 +80,7 @@ end
 --- @return boolean success
 --- @return table|string result|errmsg
 function Project:readfile(name)
-  local fp = string.join_path(self.path, name)
+  local fp = FS.join_path(self.path, name)
 
   local ex = FS.exists(fp)
   if not ex then
@@ -98,8 +99,14 @@ function Project:writefile(name, data)
   if not valid then
     return false, err
   end
-  local fp = string.join_path(self.path, name)
+  local fp = FS.join_path(self.path, name)
   return FS.write(fp, data)
+end
+
+--- @param name string
+--- @return string? path
+function Project:get_path(name)
+  return FS.join_path(self.path, name)
 end
 
 local newps = function()
@@ -131,11 +138,11 @@ ProjectService.MAIN = 'main.lua'
 --- @return string? path
 --- @return string? error
 local function is_project(path, name)
-  local p_path = string.join_path(path, name)
+  local p_path = FS.join_path(path, name)
   if not FS.exists(p_path) then
     return nil, messages.pr_does_not_exist(name)
   end
-  local main = string.join_path(p_path, ProjectService.MAIN)
+  local main = FS.join_path(p_path, ProjectService.MAIN)
   if not FS.exists(main) then
     return nil, messages.pr_does_not_exist(name)
   end
@@ -150,7 +157,7 @@ local function can_be_project(path, name)
   if not ok then
     return nil, n_err
   end
-  local p_path = string.join_path(path, name)
+  local p_path = FS.join_path(path, name)
   if FS.exists(p_path) then
     return nil, messages.already_exists(name)
   end
@@ -170,7 +177,7 @@ function ProjectService:create(name)
   if not dir_ok then
     return false, messages.write_error()
   end
-  local main = string.join_path(p_path, ProjectService.MAIN)
+  local main = FS.join_path(p_path, ProjectService.MAIN)
   local example = [[
 print('Hello world!')
 ]]
@@ -206,7 +213,6 @@ function ProjectService:open(name)
   end
   if path then
     self.current = Project(name)
-    nativefs.setWorkingDirectory(path)
     return true
   end
   return false, p_err
@@ -244,16 +250,16 @@ function ProjectService:deploy_examples()
     return false, 'No examples'
   end
   for _, i in ipairs(examples) do
-    -- TODO: remove linter magic (@diagnostic disable-next-line:)
     if i and i.type == 'directory' then
-      local s_path = string.join_path(ex_base, i.name)
-      local t_path = string.join_path(ProjectService.path, i.name)
-      Log.info('copying example ' .. i.name .. ' to ' .. t_path)
+      local s_path = FS.join_path(ex_base, i.name)
+      local t_path = FS.join_path(ProjectService.path, i.name)
       local ok, err = FS.cp_r(s_path, t_path, true)
       if not ok then
         Log.error(err)
         cp_ok = false
         cp_err = err
+      else
+        Log.info('copied example ' .. i.name .. ' to ' .. t_path)
       end
     end
   end
@@ -278,9 +284,22 @@ function ProjectService:run(name, env)
     p_path, err = is_project(ProjectService.path, name)
   end
   if p_path then
-    local main = string.join_path(p_path, ProjectService.MAIN)
+    local main = FS.join_path(p_path, ProjectService.MAIN)
     self:open(name or self.current.name)
-    return loadfile(main, 't', env), nil, p_path
+
+    local codeload = function()
+      if _G.web then
+        local code = FS.read(main)
+        if not code then return end
+        local f = loadstring(code)
+        if not f then return end
+        setfenv(f, env)
+        return f
+      end
+      return loadfile(main, 't', env)
+    end
+    local content = codeload()
+    return content, nil, p_path
   end
   return nil, err
 end

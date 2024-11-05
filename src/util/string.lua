@@ -273,14 +273,6 @@ string.unlines = function(strs)
   return string.join(strs, '\n')
 end
 
---- @return string
-string.join_path = function(...)
-  local sep = '/' -- TODO? win support
-  local args = { ... }
-  -- TODO remove duplicates
-  return string.join(args, sep)
-end
-
 string.interleave = function(prefix, text, postfix)
   return string.join({ prefix, postfix }, text)
 end

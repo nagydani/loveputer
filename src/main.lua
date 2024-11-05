@@ -10,10 +10,15 @@ local hostconf = prequire('host')
 
 require("util.key")
 require("util.debug")
+require("util.filesystem")
 
 require("lib/error_explorer")
 
 G = love.graphics
+
+local messages = {
+  dataloss_warning = 'DEMO: Project data is not guaranteed to persist!'
+}
 
 --- Find removable and user-writable storage
 --- Assumptions are made, which might be specific to the target platform/device
@@ -149,17 +154,10 @@ end
 --- @return boolean
 local setup_storage = function()
   local id = love.filesystem.getIdentity()
+  local OS_name = love.system.getOS()
   local storage_path = ''
   local project_path, has_removable
-  if love.system.getOS() ~= 'Android' then
-    -- TODO: linux assumed, check other platforms, especially love.js
-    local home = os.getenv('HOME')
-    if home and string.is_non_empty_string(home) then
-      storage_path = string.format("%s/Documents/%s", home, id)
-    else
-      storage_path = love.filesystem.getSaveDirectory()
-    end
-  else
+  if OS_name == 'Android' then
     local ok, sd_path = android_storage_find()
     if not ok then
       print('WARN: SD card not found')
@@ -169,8 +167,23 @@ local setup_storage = function()
     has_removable = true
     storage_path = string.format("%s/Documents/%s", sd_path, id)
     print('INFO: Project path: ' .. storage_path)
+  elseif OS_name == 'Web' then
+    _G.web = true
+    storage_path = ''
+  else
+    -- TODO: linux assumed, check other platforms, especially love.js
+    local home = os.getenv('HOME')
+    if home and string.is_non_empty_string(home) then
+      storage_path = string.format("%s/Documents/%s", home, id)
+    else
+      storage_path = love.filesystem.getSaveDirectory()
+    end
   end
-  project_path = storage_path .. '/projects'
+
+  if not _G.web then
+    _G.nativefs = require("lib/nativefs")
+  end
+  project_path = FS.join_path(storage_path, 'projects')
   local paths = {
     storage_path = storage_path,
     project_path = project_path
@@ -194,7 +207,6 @@ function love.load(args)
   local has_removable
   love.paths, has_removable = setup_storage()
 
-  _G.nativefs = require("lib/nativefs")
   --- @type LoveState
   love.state = {
     testing = false,
@@ -239,6 +251,11 @@ function love.load(args)
 
   Controller.setup_callback_handlers(CC)
   Controller.set_default_handlers(CC, CV)
+
+  if _G.web then
+    print(messages.dataloss_warning)
+    CM.projects:deploy_examples()
+  end
 
   --- run autotest on startup if invoked
   if autotest then CC:autotest() end

@@ -2,6 +2,7 @@
 
 require("util.string")
 require("util.table")
+require("util.filesystem")
 local tc = require("util.termcolor")
 local OS = require("util.os")
 
@@ -394,10 +395,9 @@ Debug = {
         string.is_non_empty_string(fixname)
         and fixname .. (ext and '.' .. ext or '')
         or create_temp()
-    local path = string.join_path('./.debug', name)
+    local path = FS.join_path('./.debug', name)
 
     local data = string.unlines(content)
-    local FS = require('util.filesystem')
     FS.write(path, data)
   end,
 }

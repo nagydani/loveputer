@@ -77,8 +77,6 @@ local function run_user_code(f, cc, project_path)
   local env = cc:get_base_env()
 
   G.setCanvas(cc:get_canvas())
-  G.push('all')
-  G.setColor(Color[Color.black])
   local old_path = package.path
   local ok, call_err
   if project_path then
@@ -91,7 +89,6 @@ local function run_user_code(f, cc, project_path)
   end
   package.path = old_path
   output:restore_main()
-  G.pop()
   G.setCanvas()
   if not ok then
     local e = LANG.get_call_error(call_err)
@@ -218,7 +215,7 @@ function ConsoleController.prepare_env(cc)
   prepared.writefile        = function(name, content)
     return check_open_pr(function()
       local p = P.current
-      local fpath = string.join_path(p.path, name)
+      local fpath = p:get_path(name)
       local ex = FS.exists(fpath)
       if ex then
         -- TODO: confirm overwrite
@@ -395,7 +392,17 @@ function ConsoleController:evaluate_input()
         end
         return self:get_console_env()
       end)()
-      local f, load_err = load(code, '', 't', run_env)
+      local codeload = function()
+        if _G.web then
+          local f = loadstring(code)
+          if f then
+            setfenv(f, run_env)
+            return f
+          end
+        end
+        return load(code, '', 't', run_env)
+      end
+      local f, load_err = codeload()
       if f then
         local _, err = run_user_code(f, self)
         if err then
@@ -490,7 +497,6 @@ end
 function ConsoleController:quit_project()
   self.model.output:reset()
   self.interpreter:reset()
-  nativefs.setWorkingDirectory(love.filesystem.getSourceBaseDirectory())
   Controller.set_default_handlers(self, self.view)
   Controller.set_love_update(self)
   love.state.user_input = nil
@@ -506,7 +512,7 @@ function ConsoleController:edit(name)
   local PS       = self.model.projects
   local p        = PS.current
   local filename = name or ProjectService.MAIN
-  local fpath    = string.join_path(p.path, filename)
+  local fpath    = p:get_path(filename)
   local ex       = FS.exists(fpath)
   local text
   if ex then
@@ -514,7 +520,10 @@ function ConsoleController:edit(name)
   end
   love.state.prev_state = love.state.app_state
   love.state.app_state = 'editor'
-  self.editor:open(filename, text)
+  local save = function(newcontent)
+    return self:_writefile(filename, newcontent)
+  end
+  self.editor:open(filename, text, save)
 end
 
 function ConsoleController:finish_edit()

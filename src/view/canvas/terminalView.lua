@@ -11,7 +11,6 @@ local function terminal_draw(terminal, canvas, overlay)
 
   -- if terminal.dirty or overlay then
   G.push('all')
-  G.origin()
 
   G.setCanvas(canvas)
   G.setFont(terminal.font)
@@ -66,9 +65,9 @@ local function terminal_draw(terminal, canvas, overlay)
 
 
   if terminal.show_cursor then
-    love.graphics.setFont(terminal.font)
+    G.setFont(terminal.font)
     if love.timer.getTime() % 1 > 0.5 then
-      love.graphics.print("_",
+      G.print("_",
         (terminal.cursor_x - 1) * char_width,
         (terminal.cursor_y - 1) * char_height)
     end

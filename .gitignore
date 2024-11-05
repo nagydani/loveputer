@@ -4,6 +4,9 @@
 /.luarocks
 .history
 dist/*
+web/dist/*
+web/dist-c/*
+web/node_modules/*
 .debug/*
 doc/scratch/
 doc/parse
@@ -12,3 +15,4 @@ doc/parse
 src/assets/*.xcf
 src/assets/shot*.png
 host.lua
+local.just

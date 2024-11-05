@@ -19,18 +19,19 @@ end
 --- @field input UserInputController
 --- @field view EditorView?
 ---
---- @field open fun(self, name: string, content: string[]?)
---- @field close fun(self): string, string[]
---- @field get_active_buffer fun(self): BufferModel
+--- @field open function
+--- @field close function
+--- @field get_active_buffer function
 --- @field update_status function
---- @field textinput fun(self, string)
---- @field keypressed fun(self, string)
+--- @field textinput function
+--- @field keypressed function
 EditorController = class.create(new)
 
 
 --- @param name string
 --- @param content string[]?
-function EditorController:open(name, content)
+--- @param save function
+function EditorController:open(name, content, save)
   local w = self.model.cfg.view.drawableChars
   local is_lua = string.match(name, '.lua$')
   local ch, hl, pp
@@ -52,7 +53,7 @@ function EditorController:open(name, content)
     self.input:set_eval(TextEval)
   end
 
-  local b = BufferModel(name, content, ch, hl, pp)
+  local b = BufferModel(name, content, save, ch, hl, pp)
   self.model.buffer = b
   self.view.buffer:open(b)
   self:update_status()
@@ -117,6 +118,11 @@ function EditorController:get_input()
   return self.input:get_input()
 end
 
+function EditorController:save(buf)
+  local ok, err = buf:save()
+  if not ok then Log.error("can't save: ", err) end
+end
+
 --- @param go fun(nt: string[]|Block[])
 function EditorController:_handle_submit(go)
   local inter = self.input
@@ -168,7 +174,6 @@ function EditorController:keypressed(k)
     if inter:has_error() then return end
     local m = self:get_active_buffer():move_selection(dir, by, warp)
     if m then
-      inter:clear()
       self.view.buffer:follow_selection()
       self:update_status()
     end
@@ -182,23 +187,42 @@ function EditorController:keypressed(k)
     self:update_status()
   end
 
-  local function load_selection()
-    local t = self:get_active_buffer():get_selected_text()
-    inter:set_text(t)
+  --- @param add boolean?
+  local function load_selection(add)
+    local buf = self:get_active_buffer()
+    local t = buf:get_selected_text()
+    buf:set_loaded()
+    if add then
+      inter:add_text(t)
+    else
+      inter:set_text(t)
+    end
   end
 
 
   --- handlers
   local function submit()
     if not Key.ctrl() and not Key.shift() and Key.is_enter(k) then
+      local buf = self:get_active_buffer()
+      local bufv = self.view.buffer
       local function go(newtext)
-        local buf = self:get_active_buffer()
-        local _, n = buf:replace_selected_text(newtext)
-        inter:clear()
-        self.view:refresh()
-        move_sel('down', n)
-        load_selection()
-        self:update_status()
+        if bufv:is_selection_visible() then
+          if buf:loaded_is_sel() then
+            local _, n = buf:replace_selected_text(newtext)
+            buf:clear_loaded()
+            self:save(buf)
+            inter:clear()
+            self.view:refresh()
+            move_sel('down', n)
+            load_selection()
+            self:update_status()
+          else
+            buf:select_loaded()
+            bufv:follow_selection()
+          end
+        else
+          bufv:follow_selection()
+        end
       end
 
       self:_handle_submit(go)
@@ -213,14 +237,15 @@ function EditorController:keypressed(k)
     if not Key.ctrl() and
         Key.shift() and
         k == "escape" then
-      local t = self:get_active_buffer():get_selected_text()
-      inter:add_text(t)
+      load_selection(true)
     end
   end
   local function delete()
     if Key.ctrl() and
         (k == "delete" or k == "y") then
-      self:get_active_buffer():delete_selected_text()
+      local buf = self:get_active_buffer()
+      buf:delete_selected_text()
+      self:save(buf)
       self.view:refresh()
     end
   end

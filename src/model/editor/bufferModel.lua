@@ -16,11 +16,13 @@ require('util.dequeue')
 
 --- @param name string
 --- @param content string[]
---- @param chunker Chunker
---- @param highlighter Highlighter
---- @param printer function
+--- @param save function
+--- @param chunker Chunker?
+--- @param highlighter Highlighter?
+--- @param printer function?
 --- @return BufferModel?
-local function new(name, content, chunker, highlighter, printer)
+local function new(name, content, save,
+                   chunker, highlighter, printer)
   local _content, sel, ct
   local readonly = false
 
@@ -45,6 +47,7 @@ local function new(name, content, chunker, highlighter, printer)
     name = name or 'untitled',
     content = _content,
     content_type = ct,
+    save_file = save,
     chunker = chunker,
     highlighter = highlighter,
     printer = printer,
@@ -57,7 +60,9 @@ end
 --- @field name string
 --- @field content Dequeue -- Content
 --- @field content_type ContentType
+--- @field save_file function
 --- @field selection integer
+--- @field loaded integer?
 --- @field readonly boolean
 --- @field revmap table
 ---
@@ -71,6 +76,10 @@ end
 --- @field replace_selected_text function
 --- @field render_content fun(self): string[]
 BufferModel = class.create(new)
+
+function BufferModel:save()
+  return self.save_file(self:get_text_content())
+end
 
 --- @return Dequeue
 function BufferModel:get_content()
@@ -160,7 +169,7 @@ function BufferModel:_get_selected_block()
   return self.content[sel]
 end
 
---- @return integer?
+--- @return integer
 function BufferModel:get_selection_start_line()
   if self.content_type == 'lua' then
     local b = self:_get_selected_block()
@@ -168,9 +177,8 @@ function BufferModel:get_selection_start_line()
       local ln = b.pos.start
       return ln
     end
-  else
-    return self.selection
   end
+  return self.selection
 end
 
 --- @return string[]
@@ -248,7 +256,6 @@ function BufferModel:replace_selected_text(t)
         self.content:insert(c, sel)
       end
     end
-    -- Log.debug(Debug.terse_array(self.content, sel))
     --- move subsequent chunks down
     local diff = chunks[n].pos:len() - ol
     if diff ~= 0 then
@@ -276,5 +283,30 @@ function BufferModel:replace_selected_text(t)
       return true, #t
     end
     return false
+  end
+end
+
+--- @param i integer?
+function BufferModel:set_loaded(i)
+  local n = i or self:get_selection()
+  self.loaded = n
+end
+
+function BufferModel:clear_loaded()
+  self.loaded = nil
+end
+
+function BufferModel:loaded_is_sel()
+  if not self.loaded then
+    --- only check if there is in fact something to compare to
+    return true
+  end
+  return self.loaded == self.selection
+end
+
+function BufferModel:select_loaded()
+  local l = self.loaded
+  if l then
+    self.selection = l
   end
 end

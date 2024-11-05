@@ -7,7 +7,6 @@ View = {
   --- @param C ConsoleController
   --- @param CV ConsoleView
   draw = function(C, CV)
-    G.reset()
     G.push('all')
     local terminal = C:get_terminal()
     local canvas = C:get_canvas()

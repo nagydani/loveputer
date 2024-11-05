@@ -39,14 +39,15 @@ ConsoleView = class.create(new)
 --- @param input InputDTO
 --- @param snapshot love.Image?
 function ConsoleView:draw(terminal, canvas, input, snapshot)
-  G.reset()
   if love.DEBUG then
     self:draw_placeholder()
   end
 
   local function drawConsole()
     local tc = self.controller.model.output.term_canvas
-    self.canvas:draw(terminal, canvas, tc, self.drawable_height, snapshot)
+    self.canvas:draw(
+      terminal, canvas, tc,
+      self.drawable_height, snapshot)
 
     if ViewUtils.conditional_draw('show_input') then
       local time = self.controller:get_timestamp()

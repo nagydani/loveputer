@@ -1,7 +1,7 @@
 ## Installing
 
 To run the code, [LÖVE2D] is required. It's been tested and
-developed on version 11.4 (Mysterious Mysteries).
+developed on version 11.5 (Mysterious Mysteries).
 
 For unit tests, we are using the [busted] framework. Also, we
 need to supply a [utf-8][luautf8] library, one of which comes
@@ -16,6 +16,21 @@ luarocks --local --lua-version 5.1 install luautf8
 
 For information about installing [LÖVE2D] and [LuaRocks], visit
 their respective webpages.
+
+### Web version
+
+Hacking on this requires [Node.js][node] and [NPM][npm] (or your
+[node runtime][deno] and [package manager][yarn] of choice), to
+run [love.js].
+
+### Just
+
+For automating tasks, we use [just][just]. For example, to set
+up the [web version](#web-version) for development, you can run
+
+```sh
+just setup-web-dev
+```
 
 ## Development
 
@@ -107,3 +122,9 @@ HIDPI=true love src
 [busted]: https://lunarmodules.github.io/busted/
 [luautf8]: https://github.com/starwing/luautf8
 [luarocks]: https://luarocks.org/
+[love.js]: https://github.com/Davidobot/love.js
+[node]: https://nodejs.org/
+[npm]: https://nodejs.org/en/learn/getting-started/an-introduction-to-the-npm-package-manager
+[deno]: https://deno.land/
+[yarn]: https://yarnpkg.com/
+[just]: https://github.com/casey/just
