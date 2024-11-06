@@ -79,6 +79,9 @@ local function color_cycle(k)
 end
 function love.keyreleased(k)
   color_cycle(k)
+  if k == "r" and shift() then
+    setTime()
+  end
   if k == "s" then
     stop("STOP THE CLOCKS!")
   end
