@@ -2,6 +2,10 @@ width, height = G.getDimensions()
 midx = width / 2
 midy = height / 2
 
+local m = 60
+local h = m * m
+midnight = 24 * m * h
+
 function getTime()
   H = os.date("%H")
   M = os.date("%M")
@@ -9,11 +13,14 @@ function getTime()
   return H, M, S
 end
 
-H, M, S = getTime()
-local m = 60
-local h = m * m
-t = S + m * M + h * H
-midnight = 24 * m * h
+local H, M, S, t
+function setTime()
+  H, M, S = getTime()
+  t = S + m * M + h * H
+end
+
+setTime()
+
 s = 0
 
 math.randomseed(os.time())

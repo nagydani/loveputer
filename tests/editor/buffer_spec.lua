@@ -172,6 +172,7 @@ print(sierpinski(4))]])
         '    debugColor = Color.red',
         '  end',
         'end',
+        '',
       }
       local text = turtle
 

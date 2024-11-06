@@ -108,6 +108,7 @@ function BufferModel:_render_blocks(blocks)
       ret:append_all(v.lines)
     end
   end
+  ret:append('')
   return ret
 end
 

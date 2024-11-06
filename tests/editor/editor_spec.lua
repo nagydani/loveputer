@@ -459,6 +459,7 @@ describe('Editor #editor', function()
       assert.same(4, buffer:get_selection())
       local after = savefile()
       modified[#modified] = new_print
+      modified[#modified + 1] = ''
       assert.same(string.unlines(modified), after)
     end)
   end)
