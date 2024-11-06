@@ -188,3 +188,14 @@ function table.is_member(self, e)
   end
   return ret
 end
+
+--- @param self table
+--- @param n integer
+--- @return table
+function table.take(self, n)
+  local ret = {}
+  for i = 1, n do
+    ret[i] = self[i]
+  end
+  return ret
+end
