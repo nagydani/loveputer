@@ -22,6 +22,7 @@ local syntax_i = {
 
 --- @class EditorColors : BaseColors
 --- @field highlight RGB
+--- @field highlight_loaded RGB
 
 --- @class InputColors
 --- @field console BaseColors
@@ -57,6 +58,7 @@ return {
     fg = Color[Color.black],
     bg = Color[Color.white],
     highlight = Color[Color.white + Color.bright],
+    highlight_loaded = Color[Color.yellow + Color.bright],
   },
   input = {
     console = {

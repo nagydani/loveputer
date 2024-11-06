@@ -296,10 +296,12 @@ function BufferModel:clear_loaded()
   self.loaded = nil
 end
 
-function BufferModel:loaded_is_sel()
+--- @param default boolean
+--- @return boolean
+function BufferModel:loaded_is_sel(default)
+  --- only check if there is in fact something to compare to
   if not self.loaded then
-    --- only check if there is in fact something to compare to
-    return true
+    return default
   end
   return self.loaded == self.selection
 end

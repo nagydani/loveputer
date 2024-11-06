@@ -220,7 +220,7 @@ function EditorController:keypressed(k)
       local bufv = self.view.buffer
       local function go(newtext)
         if bufv:is_selection_visible() then
-          if buf:loaded_is_sel() then
+          if buf:loaded_is_sel(true) then
             local _, n = buf:replace_selected_text(newtext)
             buf:clear_loaded()
             self:save(buf)

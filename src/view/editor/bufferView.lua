@@ -82,6 +82,7 @@ end
 
 --- @private
 --- @return integer[][]
+--- @return boolean loaded_is_sel
 function BufferView:_get_wrapped_selection()
   local sel = self.buffer:get_selection()
   local cont = self.content
@@ -99,7 +100,9 @@ function BufferView:_get_wrapped_selection()
   then
     ret[1] = self.content.wrap_forward[sel]
   end
-  return ret
+
+  local ls = self.buffer:loaded_is_sel(false)
+  return ret, ls
 end
 
 --- @param buffer BufferModel
@@ -224,15 +227,20 @@ function BufferView:draw()
   end
 
   local draw_highlight = function()
+    local ws, ls = self:_get_wrapped_selection()
+
     local highlight_line = function(ln)
       if not ln then return end
-      G.setColor(colors.highlight)
+      if ls then
+        G.setColor(colors.highlight_loaded)
+      else
+        G.setColor(colors.highlight)
+      end
       local l_y = (ln - 1) * fh
       G.rectangle('fill', 0, l_y, width, fh)
     end
 
     local off = self.offset
-    local ws = self:_get_wrapped_selection()
     for _, w in ipairs(ws) do
       for _, v in ipairs(w) do
         if self.content.range:inc(v) then
