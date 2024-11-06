@@ -65,15 +65,21 @@ function cycle(c)
   return c + 1
 end
 
-function love.keyreleased(k)
-  if k == 'space' then
-    if love.keyboard.isDown("lshift", "rshift") then
+local function shift()
+  return love.keyboard.isDown("lshift", "rshift")
+end
+local function color_cycle(k)
+  if k == "space" then
+    if shift() then
       bg_color = cycle(bg_color)
     else
       color = cycle(color)
     end
   end
-  if k == 's' then
-    stop('STOP THE CLOCKS!')
+end
+function love.keyreleased(k)
+  color_cycle(k)
+  if k == "s" then
+    stop("STOP THE CLOCKS!")
   end
 end
