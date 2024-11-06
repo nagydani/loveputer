@@ -2,9 +2,14 @@ width, height = G.getDimensions()
 midx = width / 2
 midy = height / 2
 
-H = os.date('%H')
-M = os.date('%M')
-S = os.date('%S')
+function getTime()
+  H = os.date("%H")
+  M = os.date("%M")
+  S = os.date("%S")
+  return H, M, S
+end
+
+H, M, S = getTime()
 local m = 60
 local h = m * m
 t = S + m * M + h * H
