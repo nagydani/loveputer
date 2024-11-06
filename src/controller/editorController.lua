@@ -301,11 +301,19 @@ function EditorController:keypressed(k)
       scroll('down', false, 1)
     end
   end
+  local function clear()
+    if Key.ctrl() and k == "c" then
+      local buf = self:get_active_buffer()
+      buf:clear_loaded()
+      inter:clear()
+    end
+  end
 
   submit()
   load()
   delete()
   navigate()
+  clear()
 
   if love.debug then
     if k == 'f5' then
