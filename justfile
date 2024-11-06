@@ -40,6 +40,40 @@ dev-size:
 	@{{MON}} --exec '{{LOVE}} src --size' -e 'lua'
 
 
+deploy-examples:
+	#!/usr/bin/env -S bash
+	PROJ_PATH="$HOME/Documents/{{PRODUCT_NAME_SC}}/projects"
+	EX_PATH="src/examples"
+
+	for i in "$EX_PATH"/*/main.lua
+	do
+		P="$(basename $(dirname $i))"
+	  # du -sh "$PROJ_PATH/$P"
+	  cp -r "$EX_PATH/$P" "$PROJ_PATH/"
+	done
+snap-examples:
+	#!/usr/bin/env -S bash
+	PROJ_PATH="$HOME/Documents/{{PRODUCT_NAME_SC}}/projects"
+	EX_PATH="src/examples"
+
+	TS="$(date +"%F_%T")"
+	TS=${TS//:/-}
+	DIR="dist/examples/$TS"
+	mkdir -p "$DIR"
+
+	for i in "$EX_PATH"/*/main.lua
+	do
+		P="$(basename $(dirname $i))"
+	  # du -sh "$PROJ_PATH/$P"
+	  cp -r "$PROJ_PATH/$P" "$EX_PATH"
+	  cp -r "$PROJ_PATH/$P" "$DIR"/
+	done
+
+dev-dogfood-examples:
+	@{{MON}} \
+		--exec 'clear; {{LOVE}} src --autotest; just snap-examples' \
+		-e 'lua'
+
 dev-js:
 	@{{MON}} --exec 'just package-js' -e lua &
 	@cd web ; node server.js
