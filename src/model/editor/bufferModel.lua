@@ -102,10 +102,10 @@ end
 function BufferModel:_render_blocks(blocks)
   local ret = Dequeue.typed('string')
   for _, v in ipairs(blocks) do
-    if v.tag == 'chunk' then
-      ret:append_all(v.lines)
-    elseif v.tag == 'empty' then
+    if v:is_empty() then
       ret:append('')
+    else
+      ret:append_all(v.lines)
     end
   end
   return ret
@@ -321,8 +321,8 @@ function BufferModel:insert_newline(i)
     if not sb then return end
     local prev_b = self.content[bln - 1]
     -- disallow consecutive empties
-    local prev_empty = prev_b and prev_b.tag == 'empty'
-    local sel_empty = sb.tag == 'empty'
+    local prev_empty = prev_b and prev_b:is_empty()
+    local sel_empty = sb:is_empty()
     local cons = prev_empty or sel_empty
     if cons then return end
 

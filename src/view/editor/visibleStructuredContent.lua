@@ -68,18 +68,18 @@ function VisibleStructuredContent:load_blocks(blocks)
   local visible_blocks = Dequeue()
   local off = 0
   for bi, v in ipairs(blocks) do
-    if v.tag == 'chunk' then
+    if v:is_empty() then
+      fulltext:append('')
+      local npos = v.pos:translate(off)
+      visible_blocks:append(
+        VisibleBlock(self.w, { '' }, {}, v.pos, npos))
+    else
       fulltext:append_all(v.lines)
       local hl = self.highlighter(v.lines)
       local vblock = VisibleBlock(self.w, v.lines, hl,
         v.pos, v.pos:translate(off))
       off = off + vblock.wrapped.n_breaks
       visible_blocks:append(vblock)
-    elseif v.tag == 'empty' then
-      fulltext:append('')
-      local npos = v.pos:translate(off)
-      visible_blocks:append(
-        VisibleBlock(self.w, { '' }, {}, v.pos, npos))
     end
     if (v.pos) then
       for _, l in ipairs(v.pos:enumerate()) do
