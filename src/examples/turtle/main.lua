@@ -1,7 +1,7 @@
 width, height = G.getDimensions()
 midx = width / 2
 midy = height / 2
-incr = 5
+incr = 10
 
 tx, ty = midx, midy
 debug = false
@@ -13,27 +13,17 @@ local r = {}
 
 function drawBackground(color)
   local c = bg_color
-  if Color.valid(color)
-      and color ~= Color.green
+  local not_green = color ~= Color.green
       and color ~= Color.green + Color.bright
-  then
-    c = color
-  end
+  local color_valid = Color.valid(color) and not_green
+  if color_valid then c = color end
+
   G.setColor(Color[c])
   G.rectangle('fill', 0, 0, width, height)
 end
 
-function drawTurtle(x, y)
-  local head_r = 8
-  local leg_r = 5
-  local x_r = 15
-  local y_r = 20
+local function drawFrontLegs(x_r, y_r, leg_r)
   G.setColor(Color[Color.green + Color.bright])
-  G.push('all')
-
-  G.translate(x, y)
-
-  -- front legs
   G.push('all')
   G.translate(-x_r, -y_r / 2 - leg_r)
   G.rotate(-math.pi / 4)
@@ -44,7 +34,9 @@ function drawTurtle(x, y)
   G.rotate(math.pi / 4)
   G.ellipse("fill", 0, 0, leg_r, 10, 100)
   G.pop()
-  -- hind legs
+end
+local function drawHindLegs(x_r, y_r, leg_r)
+  G.setColor(Color[Color.green + Color.bright])
   G.push('all')
   G.translate(-x_r, y_r / 2 + leg_r)
   G.rotate(math.pi / 4)
@@ -55,11 +47,25 @@ function drawTurtle(x, y)
   G.rotate(-math.pi / 4)
   G.ellipse("fill", 0, 0, leg_r, 10, 100)
   G.pop()
+end
+local function drawBody(x_r, y_r, head_r)
   -- body
   G.setColor(Color[Color.green])
   G.ellipse("fill", 0, 0, x_r, y_r, 100)
   -- head
   G.circle("fill", 0, 0 - y_r - head_r + 5, head_r, 100)
+end
+function drawTurtle(x, y)
+  local head_r = 8
+  local leg_r = 5
+  local x_r = 15
+  local y_r = 20
+  G.push('all')
+
+  G.translate(x, y)
+  drawFrontLegs(x_r, y_r, leg_r)
+  drawHindLegs(x_r, y_r, leg_r)
+  drawBody(x_r, y_r, head_r)
   G.pop()
 end
 
@@ -71,8 +77,8 @@ end
 
 local function drawDebuginfo()
   G.setColor(Color[debugColor])
-  local label = string.format("Turtle position: (%d, %d)", tx, ty)
-  G.print(label, width - 200, 20)
+  local dt = string.format("Turtle position: (%d, %d)", tx, ty)
+  G.print(dt, width - 200, 20)
 end
 
 function move_forward(d)
@@ -91,24 +97,26 @@ function move_right(d)
   tx = tx + (d or (2 * incr))
 end
 
-local function eval()
-  local input = r[1]
-  if input == 'forward' or input == 'f' then
-    move_forward()
-  end
-  if input == 'back' or input == 'b' then
-    move_back()
-  end
-  if input == 'left' or input == 'l' then
-    move_left()
-  end
-  if input == 'right' or input == 'r' then
-    move_right()
-  end
+function pause() stop('user stop') end
 
-  if input == 'stop' or input == 'pause' then
-    stop('user stop')
-  end
+actions = {
+  forward = move_forward,
+  fd      = move_forward,
+  back    = move_back,
+  b       = move_back,
+  left    = move_left,
+  l       = move_left,
+  right   = move_right,
+  r       = move_right,
+  stop    = pause,
+  pause   = pause,
+}
+
+function eval()
+  local input = r[1]
+  local f = actions[input]
+
+  if f then f() end
 end
 
 function love.draw()
