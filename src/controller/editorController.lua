@@ -8,7 +8,7 @@ local class = require('util.class')
 --- @param M EditorModel
 local function new(M)
   return {
-    input = UserInputController(M.input),
+    input = UserInputController(M.input, nil, true),
     model = M,
     view = nil,
   }

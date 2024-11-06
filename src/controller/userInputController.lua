@@ -4,16 +4,18 @@ require("util.string")
 
 --- @param model InputModel
 --- @param result function?
-local new = function(model, result)
+local new = function(model, result, disable_selection)
   return {
     model = model,
     result = result,
+    disable_selection = disable_selection,
   }
 end
 
 --- @class UserInputController
 --- @field model UserInputModel
 --- @field result function
+--- @field disable_selection boolean
 UserInputController = class.create(new)
 
 ---------------
@@ -229,7 +231,8 @@ function UserInputController:keypressed(k)
     end
   end
   local function selection()
-    if Key.shift() then
+    local en = not self.disable_selection
+    if en and Key.shift() then
       input:hold_selection()
     end
   end
