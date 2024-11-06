@@ -165,8 +165,6 @@ end
 function EditorController:keypressed(k)
   local inter = self.input
 
-  local vmove = inter:keypressed(k)
-
   --- @param dir VerticalDir
   --- @param by integer?
   --- @param warp boolean?
@@ -178,6 +176,18 @@ function EditorController:keypressed(k)
       self:update_status()
     end
   end
+
+  if not Key.ctrl() and Key.shift() and Key.is_enter(k) then
+    if inter:is_empty() then
+      local buf = self:get_active_buffer()
+      buf:insert_newline()
+      self.view:refresh()
+      -- move_sel('down')
+      return
+    end
+  end
+
+  local vmove = inter:keypressed(k)
 
   --- @param dir VerticalDir
   --- @param warp boolean?

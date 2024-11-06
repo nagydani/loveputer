@@ -1,5 +1,6 @@
 local class = require('util.class')
 require("util.key")
+require("util.string")
 
 --- @param model InputModel
 --- @param result function?
@@ -32,6 +33,12 @@ end
 --- @param t str
 function UserInputController:set_text(t)
   self.model:set_text(t)
+end
+
+function UserInputController:is_empty()
+  local ent = self:get_text()
+  local is_empty = not string.is_non_empty_string_array(ent)
+  return is_empty
 end
 
 ----------------

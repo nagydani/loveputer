@@ -310,3 +310,30 @@ function BufferModel:select_loaded()
     self.selection = l
   end
 end
+
+--- Insert a new line or empty block _before_ the selection
+--- @param i integer
+function BufferModel:insert_newline(i)
+  --- block or line number
+  local bln = i or self:get_selection()
+  if self.content_type == 'lua' then
+    local sb = self.content[bln]
+    if not sb then return end
+    local prev_b = self.content[bln - 1]
+    -- disallow consecutive empties
+    local prev_empty = prev_b and prev_b.tag == 'empty'
+    local sel_empty = sb.tag == 'empty'
+    local cons = prev_empty or sel_empty
+    if cons then return end
+
+    local ln = self:get_selection_start_line()
+    self.content:insert(Empty(ln), bln)
+    for j = bln + 1, self:get_content_length() do
+      local b = self.content[j]
+      local r = b.pos
+      b.pos = r:translate(1)
+    end
+  else
+    self.content:insert('', bln)
+  end
+end
