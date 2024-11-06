@@ -201,7 +201,11 @@ function EditorController:keypressed(k)
   local function load_selection(add)
     local buf = self:get_active_buffer()
     local t = buf:get_selected_text()
-    buf:set_loaded()
+    if string.is_non_empty(t) then
+      buf:set_loaded()
+    else
+      buf:clear_loaded()
+    end
     if add then
       local c = inter:get_cursor_info().cursor
       inter:add_text(t)

@@ -154,12 +154,19 @@ describe('Editor #editor', function()
         assert.same({ '-- test' }, input())
         --- replace line with input content
         mock.keystroke('return', press)
+        local new = {
+          '',
+          'Turtle graphics game inspired the LOGO family of languages.',
+          '-- test',
+        }
+        assert.same(new, buffer:get_text_content())
         --- input clears
         assert.same({ '' }, input())
         --- highlight moves down
         assert.same(start_sel, buffer:get_selection())
 
         mock.keystroke('up', press)
+        assert.same(start_sel - 1, buffer:get_selection())
         --- replace
         controller:textinput('i')
         controller:textinput('n')
