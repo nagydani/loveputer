@@ -6,21 +6,14 @@ local m = 60
 local h = m * m
 midnight = 24 * m * h
 
-function getTime()
+local H, M, S, t
+function setTime()
   H = os.date("%H")
   M = os.date("%M")
   S = os.date("%S")
-  return H, M, S
-end
-
-local H, M, S, t
-function setTime()
-  H, M, S = getTime()
   t = S + m * M + h * H
 end
-
 setTime()
-
 s = 0
 
 math.randomseed(os.time())
