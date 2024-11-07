@@ -536,12 +536,14 @@ function ConsoleController:edit(name)
   self.editor:open(filename, text, save)
 end
 
+--- @return string? filename
 function ConsoleController:finish_edit()
   local name, newcontent = self.editor:close()
   local ok, err = self:_writefile(name, newcontent)
   if ok then
     love.state.app_state = love.state.prev_state
     love.state.prev_state = nil
+    return name
   else
     print(err)
   end

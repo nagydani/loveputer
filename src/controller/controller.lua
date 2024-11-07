@@ -269,6 +269,17 @@ Controller = {
           end
         end
       end
+      if k == 'f9' then
+        if love.state.app_state == 'running' then
+          C:stop_project_run()
+          local fn = love.state.edited_file
+          C:edit(fn)
+        elseif love.state.app_state == 'editor' then
+          local filename = C:finish_edit()
+          love.state.edited_file = filename
+          C:run_project()
+        end
+      end
 
       local user_input = get_user_input()
       if user_input then
