@@ -97,7 +97,7 @@ function UserInputModel:add_text(text)
           self:_set_text_line(nval, last_line_i, true)
           self:move_cursor(last_line_i, string.ulen(line) + 1)
         else
-          self:_insert_text_line(line, sl + k - 1)
+          self:insert_text_line(line, sl + k - 1)
         end
       end
     end
@@ -152,13 +152,13 @@ function UserInputModel:_drop_text_line(ln)
   self:get_text():remove(ln)
 end
 
---- @private
 --- @param text string
---- @param li integer
-function UserInputModel:_insert_text_line(text, li)
+--- @param li integer?
+function UserInputModel:insert_text_line(text, li)
   local l = li or self:get_cursor_y()
   self.cursor.l = l + 1
   self:get_text():insert(text, l)
+  self:text_change()
 end
 
 function UserInputModel:line_feed()
@@ -166,7 +166,7 @@ function UserInputModel:line_feed()
   local cur_line = self:get_text_line(cl)
   local pre, post = string.split_at(cur_line, cc)
   self:_set_text_line(pre, cl, true)
-  self:_insert_text_line(post, cl + 1)
+  self:insert_text_line(post, cl + 1)
   self:move_cursor(cl + 1, 1)
   self:text_change()
 end
@@ -200,9 +200,8 @@ function UserInputModel:get_wrapped_text_line(l)
   return self.wrapped_text:get_line(l)
 end
 
---- @private
 --- @return string
-function UserInputModel:_get_current_line()
+function UserInputModel:get_current_line()
   local cl = self:get_cursor_y() or 1
   return self:get_text():get(cl)
 end
@@ -222,7 +221,7 @@ end
 
 function UserInputModel:backspace()
   self:pop_selected_text()
-  local line = self:_get_current_line()
+  local line = self:get_current_line()
   local cl, cc = self:_get_cursor_pos()
   local newcl = cl - 1
   local pre, post
@@ -252,7 +251,7 @@ end
 
 function UserInputModel:delete()
   self:pop_selected_text()
-  local line = self:_get_current_line()
+  local line = self:get_current_line()
   local cl, cc = self:_get_cursor_pos()
   local pre, post
 
