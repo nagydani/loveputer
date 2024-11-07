@@ -489,19 +489,24 @@ function ConsoleController:close_project()
   local P = self.model.projects
   P:close()
   self:_reset_executor_env()
-  Controller.clear_user_handlers()
   self.model.output:clear_canvas()
+  love.state.app_state = 'ready'
+end
+
+function ConsoleController:stop_project_run()
+  Controller.set_default_handlers(self, self.view)
+  Controller.set_love_update(self)
+  love.state.user_input = nil
+  View.clear_snapshot()
+  Controller.set_love_draw(self, self.view)
+  Controller.clear_user_handlers()
   love.state.app_state = 'ready'
 end
 
 function ConsoleController:quit_project()
   self.model.output:reset()
   self.interpreter:reset()
-  Controller.set_default_handlers(self, self.view)
-  Controller.set_love_update(self)
-  love.state.user_input = nil
-  Controller.set_love_draw(self, self.view)
-  -- TODO clean snap and everything
+  self:stop_project_run()
   self:close_project()
 end
 
