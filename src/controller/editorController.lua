@@ -179,10 +179,10 @@ function EditorController:keypressed(k)
 
   if not Key.ctrl() and Key.shift() and Key.is_enter(k) then
     if inter:is_empty() then
+      --- @type BufferModel
       local buf = self:get_active_buffer()
       buf:insert_newline()
       self.view:refresh()
-      -- move_sel('down')
       return
     end
   end
