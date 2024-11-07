@@ -30,7 +30,8 @@ a project must be selected first.
 | Command                                                           | Keymap                                        |
 | :---------------------------------------------------------------- | :-------------------------------------------- |
 | Clear terminal                                                    | <kbd>Ctrl</kbd>+<kbd>L</kbd>                  |
-| Quit project                                                      | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Q</kbd> |
+| Stop project                                                      | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> |
+| Quit project (stop and close)                                     | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Q</kbd> |
 | Reset application to initial state                                | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> |
 | Exit application                                                  | <kbd>Ctrl</kbd>+<kbd>Esc</kbd>                |
 | Pause application                                                 | <kbd>Ctrl</kbd>+<kbd>Pause</kbd>              |
@@ -65,7 +66,7 @@ a project must be selected first.
 | Move selecion to end                                              | <kbd>Ctrl</kbd>+<kbd>End</kbd>                |
 | Clear input                                                       | <kbd>Ctrl</kbd>+<kbd>C</kbd>                  |
 | Duplicate current line                                            | <kbd>Ctrl</kbd>+<kbd>D</kbd>                  |
-| Quit editor (save work)                                           | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Q</kbd> |
+| Stop editor                                                       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> |
 
 ### Projects
 

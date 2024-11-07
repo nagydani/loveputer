@@ -500,7 +500,7 @@ function ConsoleController:stop_project_run()
   View.clear_snapshot()
   Controller.set_love_draw(self, self.view)
   Controller.clear_user_handlers()
-  love.state.app_state = 'ready'
+  love.state.app_state = 'project_open'
 end
 
 function ConsoleController:quit_project()
