@@ -21,6 +21,8 @@ unit_test_tag TAG:
 # run unit tests of this tag once
 ut TAG:
 	@busted tests --tags {{TAG}}
+ut_all:
+	@busted tests
 
 
 dev:
@@ -134,3 +136,12 @@ package-js: (package-js-dir WEBDIST)
 package-js-c: (package-js-dir WEBDIST-c)
 
 import? 'local.just'
+
+setup-hooks:
+	#!/usr/bin/env -S bash
+	HDIR=.git/hooks
+	cat > $HDIR/pre-commit << EOF
+	#!/bin/sh
+	just ut_all
+	EOF
+	chmod +x $HDIR/pre-commit
