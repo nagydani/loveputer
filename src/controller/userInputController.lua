@@ -209,6 +209,14 @@ function UserInputController:keypressed(k)
       end
     end
   end
+  local function modify()
+    if Key.ctrl() then
+      if k == 'd' then
+        local line = input:get_current_line()
+        input:insert_text_line(line)
+      end
+    end
+  end
   local function copypaste()
     if Key.ctrl() then
       if k == "v" then
@@ -264,6 +272,7 @@ function UserInputController:keypressed(k)
     horizontal()
     vertical() -- sets return
     newline()
+    modify()
 
     copypaste()
     selection()
