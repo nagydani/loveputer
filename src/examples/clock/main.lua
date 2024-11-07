@@ -22,7 +22,7 @@ bg_color = math.random(7)
 font = G.newFont(72)
 
 local function pad(i)
-  return string.format('%02d', i)
+  return string.format("%02d", i)
 end
 
 function getTimestamp()
