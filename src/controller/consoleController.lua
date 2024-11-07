@@ -132,6 +132,32 @@ function ConsoleController:_writefile(name, content)
   return p:writefile(name, text)
 end
 
+function ConsoleController:run_project(name)
+  if love.state.app_state == 'inspect' or
+      love.state.app_state == 'running'
+  then
+    self.interpreter:set_error("There's already a project running!", true)
+    return
+  end
+  local P            = self.model.projects
+  local runner_env   = self:get_project_env()
+  local f, err, path = P:run(name, runner_env)
+  if f then
+    local n = name or P.current.name or 'project'
+    Log.info('Running \'' .. n .. '\'')
+    local ok, run_err = run_user_code(f, self, path)
+    if ok then
+      if Controller.has_user_update() then
+        love.state.app_state = 'running'
+      end
+    else
+      print('Error: ', run_err)
+    end
+  else
+    print(err)
+  end
+end
+
 function ConsoleController.prepare_env(cc)
   local prepared            = cc.main_env
   prepared.G                = love.graphics
@@ -248,28 +274,7 @@ function ConsoleController.prepare_env(cc)
   end
 
   prepared.run_project      = function(name)
-    if love.state.app_state == 'inspect' or
-        love.state.app_state == 'running'
-    then
-      cc.interpreter:set_error("There's already a project running!", true)
-      return
-    end
-    local runner_env = cc:get_project_env()
-    local f, err, path = P:run(name, runner_env)
-    if f then
-      local n = name or P.current.name or 'project'
-      Log.info('Running \'' .. n .. '\'')
-      local ok, run_err = run_user_code(f, cc, path)
-      if ok then
-        if Controller.has_user_update() then
-          love.state.app_state = 'running'
-        end
-      else
-        print('Error: ', run_err)
-      end
-    else
-      print(err)
-    end
+    cc:run_project(name)
   end
 
   prepared.run              = prepared.run_project
