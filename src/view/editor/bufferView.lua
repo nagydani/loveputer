@@ -47,40 +47,6 @@ function BufferView:_update_visible(r)
 end
 
 --- @private
---- @return Range
-function BufferView:_get_end_range()
-  local clen = self.content:get_text_length()
-  return Scrollable.calculate_end_range(self.LINES, clen)
-end
-
---- @param dir VerticalDir
---- @param by integer?
---- @param warp boolean?
-function BufferView:scroll(dir, by, warp)
-  local by = by or self.SCROLL_BY
-  local l = self.content:get_content_length()
-  local n = (function()
-    if dir == 'up' then
-      if warp then
-        return -l
-      else
-        return -by
-      end
-    else
-      if warp then
-        local ir = self:_get_end_range()
-        local c = self.content:get_range()
-        return ir.start - c.start
-      else
-        return by
-      end
-    end
-  end)()
-  local o = self.content:move_range(n)
-  self.offset = self.offset + o
-end
-
---- @private
 --- @return integer[][]
 --- @return boolean loaded_is_sel
 function BufferView:_get_wrapped_selection()
@@ -160,6 +126,44 @@ function BufferView:refresh()
   end
 end
 
+-------------------
+---  scrolling  ---
+-------------------
+
+--- @private
+--- @return Range
+function BufferView:_get_end_range()
+  local clen = self.content:get_text_length()
+  return Scrollable.calculate_end_range(self.LINES, clen)
+end
+
+--- @param dir VerticalDir
+--- @param by integer?
+--- @param warp boolean?
+function BufferView:scroll(dir, by, warp)
+  local by = by or self.SCROLL_BY
+  local l = self.content:get_content_length()
+  local n = (function()
+    if dir == 'up' then
+      if warp then
+        return -l
+      else
+        return -by
+      end
+    else
+      local er = self:_get_end_range()
+      local c = self.content:get_range()
+      if warp then
+        return er.start - c.start - self.LINES
+      else
+        return by
+      end
+    end
+  end)()
+  local o = self.content:move_range(n)
+  self.offset = self.offset + o
+end
+
 --- @return boolean
 --- @return VerticalDir?
 --- @return number? diff
@@ -188,7 +192,13 @@ function BufferView:is_selection_visible()
     if dir == 'up' then
       return r.start - sel_s
     elseif dir == 'down' then
-      return sel_e - r.fin
+      --- TODO: smooothen around the end
+      local off = self.LINES - 1
+      -- local er = self:_get_end_range()
+      -- if er:inc(sel_e) then
+      --   off = 0 -- self.SCROLL_BY
+      -- end
+      return sel_s - r.fin + off
     end
   end)()
 
