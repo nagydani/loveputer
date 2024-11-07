@@ -67,14 +67,14 @@ snap-examples:
 	do
 		P="$(basename $(dirname $i))"
 	  # du -sh "$PROJ_PATH/$P"
-	  cp -r "$PROJ_PATH/$P" "$EX_PATH"
+	  rsync -r --checksum "$PROJ_PATH/$P/" "$EX_PATH/$P/"
 	  cp -r "$PROJ_PATH/$P" "$DIR"/
 	done
 
 dev-dogfood-examples:
-	@{{MON}} \
-		--exec 'clear; {{LOVE}} src --autotest; just snap-examples' \
-		-e 'lua'
+	@{{MON}} --verbose \
+		--exec '{{LOVE}} src --autotest; just snap-examples' \
+		-e 'lua' -w 'src'
 
 dev-js:
 	@{{MON}} --exec 'just package-js' -e lua &
