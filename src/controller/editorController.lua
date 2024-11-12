@@ -164,6 +164,8 @@ end
 --- @param k string
 function EditorController:keypressed(k)
   local inter = self.input
+  --- @type BufferModel
+  local buf = self:get_active_buffer()
 
   --- @param dir VerticalDir
   --- @param by integer?
@@ -179,8 +181,6 @@ function EditorController:keypressed(k)
 
   if not Key.ctrl() and Key.shift() and Key.is_enter(k) then
     if inter:is_empty() then
-      --- @type BufferModel
-      local buf = self:get_active_buffer()
       buf:insert_newline()
       self.view:refresh()
       return
@@ -220,7 +220,6 @@ function EditorController:keypressed(k)
   --- handlers
   local function submit()
     if not Key.ctrl() and not Key.shift() and Key.is_enter(k) then
-      local buf = self:get_active_buffer()
       local bufv = self.view.buffer
       local function go(newtext)
         if bufv:is_selection_visible() then
@@ -260,7 +259,6 @@ function EditorController:keypressed(k)
   local function delete()
     if Key.ctrl() and
         (k == "delete" or k == "y") then
-      local buf = self:get_active_buffer()
       buf:delete_selected_text()
       self:save(buf)
       self.view:refresh()
@@ -303,7 +301,6 @@ function EditorController:keypressed(k)
   end
   local function clear()
     if Key.ctrl() and k == "c" then
-      local buf = self:get_active_buffer()
       buf:clear_loaded()
       inter:clear()
     end
