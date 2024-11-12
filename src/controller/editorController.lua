@@ -300,7 +300,7 @@ function EditorController:keypressed(k)
     end
   end
   local function clear()
-    if Key.ctrl() and k == "c" then
+    if Key.ctrl() and k == "w" then
       buf:clear_loaded()
       inter:clear()
     end

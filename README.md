@@ -65,7 +65,7 @@ a project must be selected first.
 | Scroll down by one line                                           | <kbd>Ctrl</kbd>+<kbd>PageDown</kbd>           |
 | Move selection to start                                           | <kbd>Ctrl</kbd>+<kbd>Home</kbd>               |
 | Move selecion to end                                              | <kbd>Ctrl</kbd>+<kbd>End</kbd>                |
-| Clear input                                                       | <kbd>Ctrl</kbd>+<kbd>C</kbd>                  |
+| Wipe input                                                        | <kbd>Ctrl</kbd>+<kbd>W</kbd>                  |
 | Duplicate current line                                            | <kbd>Ctrl</kbd>+<kbd>D</kbd>                  |
 | Stop editor                                                       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> |
 
