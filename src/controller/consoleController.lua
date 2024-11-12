@@ -516,14 +516,20 @@ function ConsoleController:quit_project()
 end
 
 --- @param name string
-function ConsoleController:edit(name)
+--- @param state EditorState
+function ConsoleController:edit(name, state)
   if love.state.app_state == 'running' then return end
 
-  local PS       = self.model.projects
-  local p        = PS.current
-  local filename = name or ProjectService.MAIN
-  local fpath    = p:get_path(filename)
-  local ex       = FS.exists(fpath)
+  local PS = self.model.projects
+  local p  = PS.current
+  local filename
+  if state and state.buffer then
+    filename = state.buffer.filename
+  else
+    filename = name or ProjectService.MAIN
+  end
+  local fpath = p:get_path(filename)
+  local ex    = FS.exists(fpath)
   local text
   if ex then
     text = self:_readfile(filename)
@@ -534,16 +540,18 @@ function ConsoleController:edit(name)
     return self:_writefile(filename, newcontent)
   end
   self.editor:open(filename, text, save)
+  self.editor:restore_state(state)
 end
 
---- @return string? filename
+--- @return EditorState?
 function ConsoleController:finish_edit()
+  self.editor:save_state()
   local name, newcontent = self.editor:close()
   local ok, err = self:_writefile(name, newcontent)
   if ok then
     love.state.app_state = love.state.prev_state
     love.state.prev_state = nil
-    return name
+    return self.editor:get_state()
   else
     print(err)
   end

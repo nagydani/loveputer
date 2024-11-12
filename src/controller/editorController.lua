@@ -83,6 +83,25 @@ function EditorController:set_state(clipboard)
   if clipboard then self:set_clipboard(clipboard) end
 end
 
+function EditorController:save_state()
+  self:set_state(love.system.getClipboardText())
+end
+
+--- @param state EditorState?
+function EditorController:restore_state(state)
+  if state then
+    local buf = self:get_active_buffer()
+    local sel = state.buffer.selection
+    local off = state.buffer.offset
+    buf:set_selection(sel)
+    self.view.buffer:scroll_to(off)
+    local clip = state.clipboard
+    if string.is_non_empty_string(clip) then
+      love.system.setClipboardText(clip)
+    end
+  end
+end
+
 --- @return string name
 --- @return Dequeue content
 function EditorController:close()

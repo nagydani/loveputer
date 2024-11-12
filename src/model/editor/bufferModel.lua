@@ -155,6 +155,11 @@ function BufferModel:move_selection(dir, by, warp)
   return false
 end
 
+--- @param sel integer
+function BufferModel:set_selection(sel)
+  self.selection = sel
+end
+
 --- Get index of selected line/block
 --- @return integer
 function BufferModel:get_selection()

@@ -174,6 +174,12 @@ function BufferView:scroll(dir, by, warp)
   self.offset = self.offset + o
 end
 
+--- @param off integer
+function BufferView:scroll_to(off)
+  self:scroll('up', nil, true)
+  self:scroll('down', off)
+end
+
 --- @return boolean
 --- @return VerticalDir?
 --- @return number? diff

@@ -272,11 +272,15 @@ Controller = {
       if k == 'f9' then
         if love.state.app_state == 'running' then
           C:stop_project_run()
-          local fn = love.state.edited_file
-          C:edit(fn)
+          local st = love.state.editor
+          if st then
+            C:edit(st.buffer.filename, st)
+          else
+            C:edit()
+          end
         elseif love.state.app_state == 'editor' then
-          local filename = C:finish_edit()
-          love.state.edited_file = filename
+          local ed_state = C:finish_edit()
+          love.state.editor = ed_state
           C:run_project()
         end
       end

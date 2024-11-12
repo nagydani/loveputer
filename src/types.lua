@@ -117,7 +117,7 @@
 --- @field user_input UserInput?
 --- @field app_state AppState
 --- @field prev_state AppState?
---- @field edited_file EditorState?
+--- @field editor EditorState?
 
 --- @class LoveDebug table
 --- @field show_snapshot boolean
