@@ -207,8 +207,14 @@ end
 --- @param k string
 function EditorController:keypressed(k)
   local inter = self.input
+  local is_empty = inter:is_empty()
+  local passthrough = true
+  local block_input = function() passthrough = false end
   --- @type BufferModel
   local buf = self:get_active_buffer()
+
+  --- whether vertical move is intra-input or moves the hl
+  local vmove
 
   --- @param dir VerticalDir
   --- @param by integer?
@@ -222,15 +228,23 @@ function EditorController:keypressed(k)
     end
   end
 
-  if not Key.ctrl() and Key.shift() and Key.is_enter(k) then
-    if inter:is_empty() then
+  local function newline()
+    if not Key.ctrl() and Key.shift() and Key.is_enter(k) then
       buf:insert_newline()
       self.view:refresh()
-      return
+      block_input()
     end
   end
 
-  local vmove = inter:keypressed(k)
+  if is_empty then
+    vmove = true
+
+    newline()
+  end
+
+  if passthrough then
+    vmove = inter:keypressed(k)
+  end
 
   --- @param dir VerticalDir
   --- @param warp boolean?
