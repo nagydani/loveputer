@@ -103,13 +103,21 @@
 ---| 'running'
 ---| 'inspect'
 
+--- @class BufferState table
+--- @field filename string
+--- @field selection integer
+--- @field offset integer
+--- @class EditorState table
+--- @field buffer BufferState
+--- @field clipboard string
+
 --- @class LoveState table
 --- @field testing boolean
 --- @field has_removable boolean
 --- @field user_input UserInput?
 --- @field app_state AppState
 --- @field prev_state AppState?
---- @field edited_file string?
+--- @field edited_file EditorState?
 
 --- @class LoveDebug table
 --- @field show_snapshot boolean

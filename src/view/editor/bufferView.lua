@@ -110,6 +110,16 @@ function BufferView:open(buffer)
   if off > 0 then self:scroll('down', 1) end
 end
 
+--- @return BufferState
+function BufferView:get_state()
+  local buf = self.buffer
+  return {
+    filename = buf.name,
+    selection = buf.selection,
+    offset = self.offset,
+  }
+end
+
 function BufferView:refresh()
   if not self.content then
     error('no buffer is open')

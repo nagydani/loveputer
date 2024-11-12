@@ -57,6 +57,30 @@ function EditorController:open(name, content, save)
   self.model.buffer = b
   self.view.buffer:open(b)
   self:update_status()
+  self:set_state()
+end
+
+--- @return EditorState
+function EditorController:get_state()
+  return self.state
+end
+
+--- @param clipboard string
+function EditorController:set_clipboard(clipboard)
+  self.state.clipboard = clipboard
+end
+
+--- @return string
+function EditorController:get_clipboard()
+  return self.state.clipboard
+end
+
+--- @param clipboard string?
+function EditorController:set_state(clipboard)
+  self.state = {
+    buffer = self.view.buffer:get_state(),
+  }
+  if clipboard then self:set_clipboard(clipboard) end
 end
 
 --- @return string name
