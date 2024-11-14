@@ -150,8 +150,10 @@ function UserInputController:keypressed(k)
     input:clear_selection()
   end
   local function copy()
-    local t = input:get_selected_text()
-    love.system.setClipboardText(string.unlines(t))
+    local t = string.unlines(input:get_selected_text())
+    if string.is_non_empty_string(t) then
+      love.system.setClipboardText(string.unlines(t))
+    end
   end
   local function cut()
     local t = input:pop_selected_text()

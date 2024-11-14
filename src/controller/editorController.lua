@@ -236,11 +236,62 @@ function EditorController:keypressed(k)
     end
   end
 
+  local function delete_block()
+    buf:delete_selected_text()
+    self:save(buf)
+    self.view:refresh()
+  end
+
+  local function paste()
+    local t = love.system.getClipboardText()
+    inter:add_text(t)
+  end
+  local function copy()
+    local t = string.unlines(buf:get_selected_text())
+    love.system.setClipboardText(t)
+    self:set_clipboard(t)
+    block_input()
+  end
+  local function cut()
+    copy()
+    delete_block()
+  end
+
+  local function copycut()
+    if Key.ctrl() then
+      if k == "c" or k == "insert" then
+        copy()
+        block_input()
+      end
+      if k == "x" then
+        cut()
+        block_input()
+      end
+    end
+    if Key.shift() then
+      if k == "delete" then
+        cut()
+        block_input()
+      end
+    end
+  end
+  local function paste_k()
+    if (Key.ctrl() and k == "v")
+        or (Key.shift() and k == "insert")
+    then
+      paste()
+      block_input()
+    end
+  end
+
   if is_empty then
     vmove = true
 
     newline()
+    copycut()
   end
+
+  paste_k()
 
   if passthrough then
     vmove = inter:keypressed(k)
@@ -316,9 +367,7 @@ function EditorController:keypressed(k)
   local function delete()
     if Key.ctrl() and
         (k == "delete" or k == "y") then
-      buf:delete_selected_text()
-      self:save(buf)
-      self.view:refresh()
+      delete_block()
     end
   end
   local function navigate()
