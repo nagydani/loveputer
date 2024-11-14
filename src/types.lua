@@ -94,14 +94,14 @@
 --- @field V UserInputView
 --- @field C UserInputController
 
----@alias AppState
----| 'starting'
----| 'title'
----| 'ready'
----| 'project_open'
----| 'editor'
----| 'running'
----| 'inspect'
+--- @alias AppState
+--- | 'starting'
+--- | 'title'
+--- | 'ready'
+--- | 'project_open'
+--- | 'editor'
+--- | 'running'
+--- | 'inspect'
 
 --- @class BufferState table
 --- @field filename string
