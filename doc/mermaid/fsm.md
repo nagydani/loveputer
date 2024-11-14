@@ -21,12 +21,15 @@ stateDiagram-v2
   }
   ready --> project_open     : project()
   ready --> running          : run_project()
-  running --> project_open   : quit()
-  running --> inspect        : stop()
+  running --> editor         : switch()
   inspect --> running        : continue()
-  running --> ready
+  editor --> inspect         : finish_edit()
+  running --> inspect        : pause()
+  running --> project_open   : stop()
+  running --> ready          : quit()
   project_open --> ready     : close_project()
   project_open --> editor    : edit()
+  project_open --> running   : run()
   inspect --> editor         : edit()
-  editor --> inspect         : finish_edit()
+  editor  --> running        : switch()
 ```
