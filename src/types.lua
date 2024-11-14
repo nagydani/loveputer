@@ -108,6 +108,7 @@
 --- @field filename string
 --- @field selection integer
 --- @field offset integer
+
 --- @class EditorState table
 --- @field buffer BufferState
 --- @field clipboard string?

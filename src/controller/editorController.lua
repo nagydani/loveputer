@@ -18,6 +18,7 @@ end
 --- @alias EditorMode
 --- | 'edit' --- default
 --- | 'reorder'
+--- | 'search'
 
 --- @class EditorController
 --- @field model EditorModel

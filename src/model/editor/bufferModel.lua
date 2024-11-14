@@ -63,7 +63,7 @@ end
 --- @field selection integer
 --- @field loaded integer?
 --- @field readonly boolean
---- @field revmap table
+--- @field semantic SemanticDB?
 ---
 --- @field chunker Chunker
 --- @field highlighter Highlighter
