@@ -206,21 +206,20 @@ end
 
 --- @param k string
 function EditorController:keypressed(k)
-  local inter = self.input
-  local is_empty = inter:is_empty()
-  local passthrough = true
-  local block_input = function() passthrough = false end
+  local input          = self.input
+  local is_empty       = input:is_empty()
+  local at_limit_start = input:is_at_limit('up')
+  local at_limit_end   = input:is_at_limit('down')
+  local passthrough    = true
+  local block_input    = function() passthrough = false end
   --- @type BufferModel
-  local buf = self:get_active_buffer()
-
-  --- whether vertical move is intra-input or moves the hl
-  local vmove
+  local buf            = self:get_active_buffer()
 
   --- @param dir VerticalDir
   --- @param by integer?
   --- @param warp boolean?
   local function move_sel(dir, by, warp)
-    if inter:has_error() then return end
+    if input:has_error() then return end
     local m = self:get_active_buffer():move_selection(dir, by, warp)
     if m then
       self.view.buffer:follow_selection()
@@ -244,7 +243,7 @@ function EditorController:keypressed(k)
 
   local function paste()
     local t = love.system.getClipboardText()
-    inter:add_text(t)
+    input:add_text(t)
   end
   local function copy()
     local t = string.unlines(buf:get_selected_text())
@@ -285,17 +284,11 @@ function EditorController:keypressed(k)
   end
 
   if is_empty then
-    vmove = true
-
     newline()
     copycut()
   end
 
   paste_k()
-
-  if passthrough then
-    vmove = inter:keypressed(k)
-  end
 
   --- @param dir VerticalDir
   --- @param warp boolean?
@@ -315,12 +308,12 @@ function EditorController:keypressed(k)
       buf:clear_loaded()
     end
     if add then
-      local c = inter:get_cursor_info().cursor
-      inter:add_text(t)
-      inter:set_cursor(c)
+      local c = input:get_cursor_info().cursor
+      input:add_text(t)
+      input:set_cursor(c)
     else
-      inter:set_text(t)
-      inter:jump_home()
+      input:set_text(t)
+      input:jump_home()
     end
   end
 
@@ -335,7 +328,7 @@ function EditorController:keypressed(k)
             local _, n = buf:replace_selected_text(newtext)
             buf:clear_loaded()
             self:save(buf)
-            inter:clear()
+            input:clear()
             self.view:refresh()
             move_sel('down', n)
             load_selection()
@@ -372,7 +365,6 @@ function EditorController:keypressed(k)
   end
   local function navigate()
     -- move selection
-    if k == "up" and vmove then
     if Key.ctrl() then
       if k == "up" then
         move_sel('up')
@@ -382,19 +374,21 @@ function EditorController:keypressed(k)
         move_sel('down')
         block_input()
       end
-    end
-      move_sel('up')
-    end
-    if k == "down" and vmove then
-      move_sel('down')
-    end
-    if Key.ctrl() and
-        k == "home" then
-      move_sel('up', nil, true)
-    end
-    if Key.ctrl() and
-        k == "end" then
-      move_sel('down', nil, true)
+      if k == "home" then
+        move_sel('up', nil, true)
+      end
+      if k == "end" then
+        move_sel('down', nil, true)
+      end
+    else
+      if k == "up" and at_limit_start then
+        move_sel('up')
+        block_input()
+      end
+      if k == "down" and at_limit_end then
+        move_sel('down')
+        block_input()
+      end
     end
 
     -- scroll
@@ -418,7 +412,7 @@ function EditorController:keypressed(k)
   local function clear()
     if Key.ctrl() and k == "w" then
       buf:clear_loaded()
-      inter:clear()
+      input:clear()
     end
   end
 
@@ -427,6 +421,10 @@ function EditorController:keypressed(k)
   delete()
   navigate()
   clear()
+
+  if passthrough then
+    input:keypressed(k)
+  end
 
   if love.debug then
     if k == 'f5' then
