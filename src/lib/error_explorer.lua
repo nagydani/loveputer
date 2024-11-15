@@ -2,7 +2,7 @@
 --
 -- by kira
 --
--- version 0.0.7
+-- version 0.0.9
 --
 -- an interactive error screen for the love2d game engine.
 --
@@ -52,6 +52,14 @@
 -- ```
 --
 -- ## version history
+--
+-- version 0.0.9:
+--
+-- - don't error when message is too long to fit on-screen
+--
+-- version 0.0.8:
+--
+-- - control-c to copy the error and traceback
 --
 -- version 0.0.7:
 --
@@ -259,7 +267,8 @@ local function handle_error (msg)
 	msg = tostring (msg)
 
   -- print error
-	print (debug.traceback ("Error: " .. msg, 5))
+	local full_message = debug.traceback ("Error: " .. msg, 5)
+  print (full_message)
 
   local stack_info = get_stack_info ()
   if print_stack_variables_to_terminal then
@@ -406,6 +415,11 @@ local function handle_error (msg)
       stack_scroll = math.max (current_stack_index - (#stack_info - stack_max_scroll), stack_scroll)
       refresh_source ()
     end
+    if key == 'c' and love.keyboard.isDown ('lctrl', 'rctrl') then
+      if love.system then
+        love.system.setClipboardText (full_message)
+      end
+    end
   end
 
   local function mousepressed ()
@@ -475,7 +489,7 @@ local function handle_error (msg)
 
     local function section (new_sx, new_sy, new_sw, new_sh)
       sx, sy = new_sx, new_sy
-      sw, sh = new_sw, new_sh
+      sw, sh = math.max (0, new_sw), math.max (0, new_sh)
       x, y = sx, sy
       over_section =
         mx >= sx and mx < sx + sw and
