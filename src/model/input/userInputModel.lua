@@ -446,6 +446,22 @@ function UserInputModel:get_cursor_y()
   return self.cursor.l
 end
 
+--- @param dir VerticalDir?
+--- @return boolean
+function UserInputModel:is_at_limit(dir)
+  local n = self:get_n_text_lines()
+  local cl = self:get_cursor_y()
+  if dir == 'down' then
+    return cl == n
+  elseif dir == 'up' then
+    return cl == 1
+  else
+    if n < 3 then return true end
+    local limit = cl == 1 or cl == n
+    return limit
+  end
+end
+
 --- @return InputDTO
 function UserInputModel:get_input()
   return {

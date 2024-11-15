@@ -43,6 +43,12 @@ function UserInputController:is_empty()
   return is_empty
 end
 
+--- @param dir VerticalDir?
+--- @return boolean
+function UserInputController:is_at_limit(dir)
+  return self.model:is_at_limit(dir)
+end
+
 ----------------
 -- evaluation --
 ----------------
