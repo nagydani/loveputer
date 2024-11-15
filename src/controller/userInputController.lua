@@ -423,8 +423,8 @@ end
 
 --- @param x integer
 --- @param y integer
---- @param dx integer
---- @param dy integer
+--- @param dx integer?
+--- @param dy integer?
 function UserInputController:mousemoved(x, y, dx, dy)
   local im = self.model
   self:_handle_mouse(x, y, 1, function(l, c)
