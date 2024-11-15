@@ -159,6 +159,18 @@ function UserInputController:keypressed(k)
     local t = input:pop_selected_text()
     love.system.setClipboardText(string.unlines(t))
   end
+  --- @param dir VerticalDir
+  local function swap_line(dir)
+    local cl = input:get_cursor_y()
+    --- this looks reversed because the cursor is already moved
+    --- by the time we are here, so we are swapping the previous
+    --- line with the current, not the current with the next
+    local pl = (function()
+      if dir == 'up' then return cl + 1 end
+      if dir == 'down' then return cl - 1 end
+    end)()
+    if pl then input:swap_lines(cl, pl) end
+  end
 
   -- action categories
   local function removers()
@@ -177,6 +189,14 @@ function UserInputController:keypressed(k)
     if k == "down" then
       local l = input:cursor_vertical_move('down')
       ret = l
+    end
+    if Key.alt() then
+      if k == "up" then
+        swap_line('up')
+      end
+      if k == "down" then
+        swap_line('down')
+      end
     end
   end
   local function horizontal()
