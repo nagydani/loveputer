@@ -367,9 +367,12 @@ function EditorController:keypressed(k)
     end
   end
   local function delete()
-    if Key.ctrl() and
-        (k == "delete" or k == "y") then
-      delete_block()
+    if Key.ctrl() then
+      if k == "delete"
+          or (k == "y" and is_empty) then
+        delete_block()
+        block_input()
+      end
     end
   end
   local function navigate()
