@@ -373,6 +373,16 @@ function EditorController:keypressed(k)
   local function navigate()
     -- move selection
     if k == "up" and vmove then
+    if Key.ctrl() then
+      if k == "up" then
+        move_sel('up')
+        block_input()
+      end
+      if k == "down" then
+        move_sel('down')
+        block_input()
+      end
+    end
       move_sel('up')
     end
     if k == "down" and vmove then
