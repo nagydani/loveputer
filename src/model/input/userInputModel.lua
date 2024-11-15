@@ -161,6 +161,35 @@ function UserInputModel:insert_text_line(text, li)
   self:text_change()
 end
 
+--- Swap to lines of text, second param defaults to cursor line
+--- @param ln_that integer
+--- @param ln_this integer?
+--- @return boolean success
+function UserInputModel:swap_lines(ln_that, ln_this)
+  if not ln_that then return false end
+
+  if self:has_selection() then
+    return false
+  else
+    local ln_this = ln_this or self:get_cursor_y()
+    local this = self:get_text_line(ln_this)
+    local that = self:get_text_line(ln_that)
+
+    local n = self:get_n_text_lines()
+    if n < 2 then return true end
+    if ln_this > n or ln_that > n or
+        ln_this < 1 or ln_that < 1 then
+      return false
+    end
+
+    self:_set_text_line(that, ln_this, true)
+    self:_set_text_line(this, ln_that, true)
+    self:set_cursor({ l = ln_that, c = self:get_cursor_x() })
+    self:text_change()
+    return true
+  end
+end
+
 function UserInputModel:line_feed()
   local cl, cc = self:_get_cursor_pos()
   local cur_line = self:get_text_line(cl)
@@ -358,6 +387,7 @@ function UserInputModel:_advance_cursor(x, y)
   end
 end
 
+--- @param c Cursor
 function UserInputModel:set_cursor(c)
   self.cursor = c
 end
@@ -381,10 +411,10 @@ function UserInputModel:move_cursor(y, x, selection)
   else
     c = prev_c
   end
-  self.cursor = {
+  self:set_cursor({
     c = c,
     l = l
-  }
+  })
 
   if selection == 'keep' then
   elseif selection == 'move' then
@@ -831,6 +861,12 @@ end
 function UserInputModel:clear_selection()
   self.selection = InputSelection()
   self:release_selection()
+end
+
+function UserInputModel:has_selection()
+  local s = self.selection
+  local has = s.start and s.fin
+  return has
 end
 
 function UserInputModel:mouse_click(l, c)
