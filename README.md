@@ -37,26 +37,28 @@ a project must be selected first.
 | Pause project                                                     | <kbd>Ctrl</kbd>+<kbd>Pause</kbd>              |
 | Toggle edit/run                                                   | <kbd>F9</kbd>                                 |
 | **Input**                                                         |
-| Move cursor horizontally                                          | <kbd>⇦</kbd><kbd>⇨</kbd>                      |
-| Move cursor vertically                                            | <kbd>⇧</kbd><kbd>⇩</kbd>                      |
+| Move cursor horizontally                                          | <kbd>⇦</kbd>/<kbd>⇨</kbd>                     |
+| Move cursor vertically                                            | <kbd>⇧</kbd>/<kbd>⇩</kbd>                     |
 | Go back in command history                                        | <kbd>PageUp</kbd>                             |
 | Go forward in command history                                     | <kbd>PageDown</kbd>                           |
-| Move in history (if in first/last line)                           | <kbd>⇧</kbd><kbd>⇩</kbd>                      |
+| Move in history (if in first/last line)                           | <kbd>⇧</kbd>/<kbd>⇩</kbd>                     |
 | Jump to start                                                     | <kbd>Home</kbd>                               |
 | Jump to end                                                       | <kbd>End</kbd>                                |
 | Jump to line start                                                | <kbd>Alt</kbd>+<kbd>Home</kbd>                |
 | Jump to line end                                                  | <kbd>Alt</kbd>+<kbd>End</kbd>                 |
 | Insert newline                                                    | <kbd>Shift</kbd>+<kbd>Enter ⏎</kbd>           |
+| Delete current line                                               | <kbd>Ctrl</kbd>+<kbd>Y</kbd>                  |
 | Evaluate input                                                    | <kbd>Enter ⏎</kbd>                            |
 | **Editor**                                                        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _same as Input, except for:_ |
 | Scroll up                                                         | <kbd>PageUp</kbd>                             |
 | Scroll down                                                       | <kbd>PageDown</kbd>                           |
-| Move selection (if in first/last line)                            | <kbd>⇧</kbd><kbd>⇩</kbd>                      |
+| Move selection (if in first/last line)                            | <kbd>⇧</kbd>/<kbd>⇩</kbd>                     |
+| Move selection                                                    | <kbd>Ctrl</kbd>+<kbd>⇧</kbd>/<kbd>⇩</kbd>     |
 | Replace selection with input                                      | <kbd>Enter ⏎</kbd>                            |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _additionally_               |
-| Delete selected (line)                                            | <kbd>Ctrl</kbd>+<kbd>Delete</kbd>             |
-|                                                                   | <kbd>Ctrl</kbd>+<kbd>Y</kbd>                  |
+| Delete selected block                                             | <kbd>Ctrl</kbd>+<kbd>Delete</kbd>             |
+| Delete selected block (if input is empty)                         | <kbd>Ctrl</kbd>+<kbd>Y</kbd>                  |
 | Load selected content to input (discards previous content)        | <kbd>Esc</kbd>                                |
 | Insert selected content into input                                | <kbd>Shift</kbd>+<kbd>Esc</kbd>               |
 | Scroll to start                                                   | <kbd>Ctrl</kbd>+<kbd>PageUp</kbd>             |
