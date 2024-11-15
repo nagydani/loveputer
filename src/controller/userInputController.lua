@@ -159,12 +159,16 @@ function UserInputController:keypressed(k)
   local function copy()
     local t = string.unlines(input:get_selected_text())
     if string.is_non_empty_string(t) then
-      love.system.setClipboardText(string.unlines(t))
+      love.system.setClipboardText(t)
     end
   end
   local function cut()
-    local t = input:pop_selected_text()
-    love.system.setClipboardText(string.unlines(t))
+    local t = string.unlines(
+      input:pop_selected_text() or { '' }
+    )
+    if string.is_non_empty_string(t) then
+      love.system.setClipboardText(t)
+    end
   end
   --- @param dir VerticalDir
   local function swap_line(dir)
