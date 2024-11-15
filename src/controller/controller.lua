@@ -50,6 +50,13 @@ local set_handlers = function(userlove)
   end
 end
 
+--- @class Controller
+--- @field set_love_draw function
+--- @field setup_callback_handlers function
+--- @field set_default_handlers function
+--- @field save_user_handlers function
+--- @field clear_handlers function
+--- @field has_user_update function
 Controller = {
   --- @type table
   _defaults = {},
@@ -181,8 +188,6 @@ Controller = {
     love.update = update
   end,
 
-
-
   ---------------
   --    draw   --
   ---------------
@@ -197,11 +202,16 @@ Controller = {
     View.prev_draw = love.draw
     View.main_draw = love.draw
   end,
-  ---------------
-  --  setters  --
-  ---------------
 
+  snapshot = function()
+    if user_draw then
+      View.snap_canvas()
+    end
+  end,
 
+  ----------------
+  ---  public  ---
+  ----------------
   --- @param C ConsoleController
   --- @param CV ConsoleView
   set_default_handlers = function(C, CV)
@@ -385,11 +395,5 @@ Controller = {
   clear_user_handlers = function()
     Controller._userhandlers = {}
     View.clear_snapshot()
-  end,
-
-  snapshot = function()
-    if user_draw then
-      View.snap_canvas()
-    end
   end,
 }
