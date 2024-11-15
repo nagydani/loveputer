@@ -56,6 +56,7 @@ function UserInputModel.new(cfg, eval, oneshot)
   return self
 end
 
+--- @return string?
 function UserInputModel:get_label()
   local eval = self.evaluator
   if eval and eval.label then return eval.label end
@@ -235,6 +236,7 @@ function UserInputModel:get_current_line()
   return self:get_text():get(cl)
 end
 
+--- @param text string
 function UserInputModel:paste(text)
   local sel = self:get_selection()
   local start = sel.start
@@ -242,7 +244,9 @@ function UserInputModel:paste(text)
   if start and start.l and fin and fin.l and fin.c then
     local from, to = self:diff_cursors(start, fin)
     self:get_text():traverse(from, to, { delete = true })
-    self:move_cursor(from.l, from.c)
+    if from and to then
+      self:move_cursor(from.l, from.c)
+    end
   end
   self:add_text(text)
   self:clear_selection()
@@ -438,10 +442,12 @@ function UserInputModel:get_cursor_info()
   }
 end
 
+--- @return integer
 function UserInputModel:get_cursor_x()
   return self.cursor.c
 end
 
+--- @return integer
 function UserInputModel:get_cursor_y()
   return self.cursor.l
 end
@@ -759,6 +765,8 @@ end
 ----------------
 -- selection  --
 ----------------
+--- @param l integer
+--- @param c integer
 function UserInputModel:translate_grid_to_cursor(l, c)
   local wt       = self.wrapped_text.wrap_reverse
   local li       = wt[l] or wt[#wt]
@@ -770,6 +778,10 @@ function UserInputModel:translate_grid_to_cursor(l, c)
   return li, ci
 end
 
+--- @param c1 Cursor?
+--- @param c2 Cursor?
+--- @return Cursor?
+--- @return Cursor?
 function UserInputModel:diff_cursors(c1, c2)
   if c1 and c2 then
     local d = c1:compare(c2)
@@ -781,6 +793,8 @@ function UserInputModel:diff_cursors(c1, c2)
   end
 end
 
+--- @param from Cursor?
+--- @param to Cursor?
 function UserInputModel:text_between_cursors(from, to)
   if from and to then
     return self:get_text():traverse(from, to)
@@ -789,6 +803,8 @@ function UserInputModel:text_between_cursors(from, to)
   end
 end
 
+--- @param l integer?
+--- @param c integer?
 function UserInputModel:start_selection(l, c)
   local start = (function()
     if l and c then
@@ -800,6 +816,8 @@ function UserInputModel:start_selection(l, c)
   self.selection.start = start
 end
 
+--- @param l integer?
+--- @param c integer?
 function UserInputModel:end_selection(l, c)
   local start         = self.selection.start
   local fin           = (function()
@@ -815,6 +833,7 @@ function UserInputModel:end_selection(l, c)
   self.selection.text = sel
 end
 
+--- @param is_mouse boolean
 function UserInputModel:hold_selection(is_mouse)
   if not is_mouse then
     local cur_start = self:get_selection().start
@@ -837,14 +856,17 @@ function UserInputModel:release_selection()
   self.selection.held = false
 end
 
+--- @return InputSelection
 function UserInputModel:get_selection()
   return self.selection
 end
 
+--- @return boolean
 function UserInputModel:is_selection_held()
   return self.selection.held
 end
 
+--- @return InputSelection
 function UserInputModel:get_ordered_selection()
   local sel = self.selection
   local s, e = self:diff_cursors(sel.start, sel.fin)
@@ -856,21 +878,25 @@ function UserInputModel:get_ordered_selection()
   return ret
 end
 
+--- @return string[]
 function UserInputModel:get_selected_text()
   return self.selection.text
 end
 
+--- @return string[]?
 function UserInputModel:pop_selected_text()
   local t = self.selection.text
   local start = self.selection.start
   local fin = self.selection.fin
   if start and fin then
     local from, to = self:diff_cursors(start, fin)
-    self:get_text():traverse(from, to, { delete = true })
-    self:text_change()
-    self:move_cursor(from.l, from.c)
-    self:clear_selection()
-    return t
+    if from and to then
+      self:get_text():traverse(from, to, { delete = true })
+      self:text_change()
+      self:move_cursor(from.l, from.c)
+      self:clear_selection()
+      return t
+    end
   end
 end
 
@@ -879,12 +905,14 @@ function UserInputModel:clear_selection()
   self:release_selection()
 end
 
+--- @return boolean
 function UserInputModel:has_selection()
   local s = self.selection
-  local has = s.start and s.fin
-  return has
+  return s:is_defined()
 end
 
+--- @param l integer
+--- @param c integer
 function UserInputModel:mouse_click(l, c)
   local li, ci = self:translate_grid_to_cursor(l, c)
   self:clear_selection()
@@ -892,6 +920,8 @@ function UserInputModel:mouse_click(l, c)
   self:hold_selection(true)
 end
 
+--- @param l integer
+--- @param c integer
 function UserInputModel:mouse_release(l, c)
   local li, ci = self:translate_grid_to_cursor(l, c)
   self:release_selection()
@@ -899,6 +929,8 @@ function UserInputModel:mouse_release(l, c)
   self:move_cursor(li, ci, 'keep')
 end
 
+--- @param l integer
+--- @param c integer
 function UserInputModel:mouse_drag(l, c)
   local li, ci = self:translate_grid_to_cursor(l, c)
   local sel = self:get_selection()

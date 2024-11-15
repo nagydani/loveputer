@@ -17,10 +17,18 @@ InputSelection = class.create(function()
   }
 end)
 
+--- @return boolean
 function InputSelection:is_held()
   return self.held
 end
 
+--- @return boolean
+function InputSelection:is_defined()
+  local is = (self.start ~= nil) and (self.fin ~= nil)
+  return is
+end
+
+--- @return string
 function InputSelection:__tostring()
   local s = self.start
   local e = self.fin

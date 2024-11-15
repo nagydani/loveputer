@@ -37,6 +37,7 @@ function UserInputController:set_text(t)
   self.model:set_text(t)
 end
 
+--- @return boolean
 function UserInputController:is_empty()
   local ent = self:get_text()
   local is_empty = not string.is_non_empty_string_array(ent)
@@ -269,7 +270,7 @@ function UserInputController:keypressed(k)
   local function selection()
     local en = not self.disable_selection
     if en and Key.shift() then
-      input:hold_selection()
+      input:hold_selection(false)
     end
   end
 
@@ -359,6 +360,10 @@ end
 --   mouse   --
 ---------------
 
+--- @param x integer
+--- @param y integer
+--- @return integer c
+--- @return integer l
 function UserInputController:_translate_to_input_grid(x, y)
   local cfg = self.model.cfg
   local h = cfg.view.h
@@ -371,6 +376,10 @@ function UserInputController:_translate_to_input_grid(x, y)
   return char, line
 end
 
+--- @param x integer
+--- @param y integer
+--- @param btn integer
+--- @param handler function
 function UserInputController:_handle_mouse(x, y, btn, handler)
   if btn == 1 then
     local im = self.model
@@ -382,6 +391,9 @@ function UserInputController:_handle_mouse(x, y, btn, handler)
   end
 end
 
+--- @param x integer
+--- @param y integer
+--- @param btn integer
 function UserInputController:mousepressed(x, y, btn)
   local im = self.model
   self:_handle_mouse(x, y, btn, function(l, c)
@@ -389,6 +401,9 @@ function UserInputController:mousepressed(x, y, btn)
   end)
 end
 
+--- @param x integer
+--- @param y integer
+--- @param btn integer
 function UserInputController:mousereleased(x, y, btn)
   local im = self.model
   self:_handle_mouse(x, y, btn, function(l, c)
@@ -397,6 +412,10 @@ function UserInputController:mousereleased(x, y, btn)
   im:release_selection()
 end
 
+--- @param x integer
+--- @param y integer
+--- @param dx integer
+--- @param dy integer
 function UserInputController:mousemoved(x, y, dx, dy)
   local im = self.model
   self:_handle_mouse(x, y, 1, function(l, c)
