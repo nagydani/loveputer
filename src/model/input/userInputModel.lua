@@ -151,6 +151,18 @@ end
 --- @param ln integer
 function UserInputModel:_drop_text_line(ln)
   self:get_text():remove(ln)
+  self:text_change()
+end
+
+--- @param ln integer?
+function UserInputModel:delete_line(ln)
+  local n = self:get_n_text_lines()
+  if n == 1 then
+    self:clear_input()
+  else
+    local l = ln or self:get_cursor_y()
+    self:_drop_text_line(l)
+  end
 end
 
 --- @param text string

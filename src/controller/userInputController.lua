@@ -191,6 +191,11 @@ function UserInputController:keypressed(k)
     if k == "delete" then
       input:delete()
     end
+    if Key.ctrl() then
+      if k == "y" then
+        input:delete_line()
+      end
+    end
   end
   local function vertical()
     if k == "up" then
