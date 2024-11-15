@@ -287,6 +287,7 @@ local function handle_error(msg)
   end
 
   -- open a window if needed
+  --- @diagnostic disable-next-line: undefined-field
   if not love.graphics.isCreated() or not love.window.isOpen() then
     local success, status = pcall(love.window.setMode, 800, 600)
     if not success or not status then
@@ -340,11 +341,11 @@ local function handle_error(msg)
   local c_clear    = { 0.0, 0.0, 0.0, 0.0 }
 
   -- sanitize utf-8
-  local sanitizedmsg = {}
+  local sanitized  = {}
   for char in msg:gmatch(utf8.charpattern) do
-    table.insert(sanitizedmsg, char)
+    table.insert(sanitized, char)
   end
-  sanitizedmsg = table.concat(sanitizedmsg)
+  local sanitizedmsg = table.concat(sanitized)
   local invalid_utf8 = sanitizedmsg ~= msg
   msg = sanitizedmsg
 
@@ -355,7 +356,7 @@ local function handle_error(msg)
 
   -- stack view
   local current_stack_index = 1
-  local hovered_stack_index = false
+  local hovered_stack_index = nil
   local mouse_over_stack = false
   local stack_max_scroll = 0
   local stack_scroll = 0
@@ -545,7 +546,7 @@ local function handle_error(msg)
     local stack_top_y = y
     y = y - round(stack_scroll_smooth * font_height)
     local last_hovered_stack_index = hovered_stack_index
-    hovered_stack_index = false
+    hovered_stack_index = nil
     for i, frame in ipairs(stack_info) do
       local light_color = c_mid
       local dark_color = c_dark
@@ -695,25 +696,35 @@ end
 local errhand = love.errhand
 
 function love.errhand(msg)
-  local success, result = pcall(handle_error, msg)
+  local fullmsg = function(r)
+    return tostring(msg) ..
+        '\n\nerror during error handling: ' .. tostring(r)
+  end
+  --- @type boolean
+  local success
+  --- @type any
+  local result
+  success, result = pcall(handle_error, msg)
   if not success then
-    return errhand(tostring(msg) .. '\n\nerror during error handling: ' .. tostring(result))
+    return errhand(fullmsg(result))
   end
 
   local loop = result
   local failed = false
 
   return function()
-    if failed then
-      return loop()
-    else
-      success, result = pcall(loop)
-      if not success then
-        failed = true
-        loop = errhand(tostring(msg) .. '\n\nerror during error handling: ' .. tostring(result))
+    if type(loop) == "function" then
+      if failed then
         return loop()
+      else
+        success, result = pcall(loop)
+        if not success then
+          failed = true
+          loop = errhand(fullmsg(result))
+          return loop()
+        end
+        return result
       end
-      return result
     end
   end
 end
