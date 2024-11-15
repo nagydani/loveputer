@@ -61,8 +61,8 @@ a project must be selected first.
 | Insert selected content into input                                | <kbd>Shift</kbd>+<kbd>Esc</kbd>               |
 | Scroll to start                                                   | <kbd>Ctrl</kbd>+<kbd>PageUp</kbd>             |
 | Scroll to end                                                     | <kbd>Ctrl</kbd>+<kbd>PageDown</kbd>           |
-| Scroll up by one line                                             | <kbd>Ctrl</kbd>+<kbd>PageUp</kbd>             |
-| Scroll down by one line                                           | <kbd>Ctrl</kbd>+<kbd>PageDown</kbd>           |
+| Scroll up by one line                                             | <kbd>Shift</kbd>+<kbd>PageUp</kbd>            |
+| Scroll down by one line                                           | <kbd>Shift</kbd>+<kbd>PageDown</kbd>          |
 | Move selection to start                                           | <kbd>Ctrl</kbd>+<kbd>Home</kbd>               |
 | Move selecion to end                                              | <kbd>Ctrl</kbd>+<kbd>End</kbd>                |
 | Wipe input                                                        | <kbd>Ctrl</kbd>+<kbd>W</kbd>                  |
