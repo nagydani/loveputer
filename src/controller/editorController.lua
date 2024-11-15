@@ -20,8 +20,15 @@ end
 --- @field view EditorView?
 ---
 --- @field open function
+--- @field get_state function
+--- @field set_state function
+--- @field save_state function
+--- @field restore_state function
+--- @field get_clipboard function
+--- @field set_clipboard function
 --- @field close function
 --- @field get_active_buffer function
+--- @field get_input function
 --- @field update_status function
 --- @field textinput function
 --- @field keypressed function
@@ -157,10 +164,12 @@ function EditorController:textinput(t)
   end
 end
 
+--- @return InputDTO
 function EditorController:get_input()
   return self.input:get_input()
 end
 
+--- @param buf BufferModel
 function EditorController:save(buf)
   local ok, err = buf:save()
   if not ok then Log.error("can't save: ", err) end
