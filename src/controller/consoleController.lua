@@ -301,8 +301,11 @@ function ConsoleController.prepare_project_env(cc)
   project_env.G               = love.graphics
 
   --- @param msg string?
-  project_env.stop            = function(msg)
+  project_env.pause           = function(msg)
     cc:suspend_run(msg)
+  end
+  project_env.stop            = function()
+    cc:stop_project_run()
   end
 
   project_env.continue        = function()
