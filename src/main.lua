@@ -119,6 +119,7 @@ local config_view = function(sizedebug)
     lines = lines,
     input_max = input_max,
     show_append_hl = false,
+    show_debug_timer = false,
 
     labelfont = font_labels,
     lfh = font_labels:getHeight(),
