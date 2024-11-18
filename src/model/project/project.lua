@@ -218,6 +218,9 @@ function ProjectService:open(name)
   return false, p_err
 end
 
+--- @return boolean open
+--- @return boolean create
+--- @return string? err
 function ProjectService:opreate(name)
   local ook, _ = self:open(name)
   if ook then
@@ -228,7 +231,7 @@ function ProjectService:opreate(name)
       self:open(name)
       return false, cok
     else
-      return false, c_err
+      return false, false, c_err
     end
   end
 end
