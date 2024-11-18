@@ -8,6 +8,7 @@ local get_user_input = function()
 end
 --- @type boolean
 local user_update
+--- @type boolean
 local user_draw
 
 local _supported = {
@@ -50,17 +51,29 @@ local set_handlers = function(userlove)
   end
 end
 
+--- @class Handlers
+--- @field update function?
+--- @field draw function?
+--- @field keypressed function?
+--- @field keyreleased function?
+--- @field textinput function?
+--- @field mousemoved function?
+--- @field mousepressed function?
+--- @field mousereleased function?
+
 --- @class Controller
+--- @field _defaults Handlers
+--- @field _userhandler Handlers
+--- public interface
 --- @field set_love_draw function
 --- @field setup_callback_handlers function
 --- @field set_default_handlers function
 --- @field save_user_handlers function
---- @field clear_handlers function
+--- @field clear_user_handlers function
+--- @field restore_user_handlers function
 --- @field has_user_update function
 Controller = {
-  --- @type table
   _defaults = {},
-  --- @type table
   _userhandlers = {},
 
   ----------------
