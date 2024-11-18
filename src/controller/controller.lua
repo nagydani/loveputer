@@ -21,6 +21,41 @@ local _supported = {
   'mousereleased',
 }
 
+local _C
+
+--- @param msg string
+local function user_error_handler(msg)
+  local parts = string.split(msg, ':')
+  if #parts > 2 then
+    local path       = parts[1]
+    local ln         = parts[2]
+    local err        = string.trim(parts[3])
+    local path_parts = string.split(path, '/')
+    local filename   = path_parts[#path_parts]
+    msg              = string.format('%s:%s: %s', filename, ln, err)
+  end
+  local user_msg = 'Execution error at ' .. msg
+  _C:suspend_run(user_msg)
+  print(user_msg)
+end
+
+--- @param f function
+--- @param ...   any
+--- @return boolean success
+--- @return any result
+--- @return any ...
+local function wrap(f, ...)
+  return xpcall(f, user_error_handler, ...)
+end
+
+--- @param f function
+--- @return function
+local function error_wrapper(f)
+  return function(...)
+    return wrap(f, ...)
+  end
+end
+
 --- @param userlove table
 local set_handlers = function(userlove)
   --- @param key string
@@ -28,7 +63,8 @@ local set_handlers = function(userlove)
     local orig = Controller._defaults[key]
     local new = userlove[key]
     if orig and new and orig ~= new then
-      love[key] = new
+      --- @type function
+      love[key] = error_wrapper(new)
     end
   end
 
@@ -176,7 +212,9 @@ Controller = {
       local ui = get_user_input()
       if ldr ~= ddr or ui then
         local function draw()
-          if ldr then ldr() end
+          if ldr then
+            wrap(ldr)
+          end
           local user_input = get_user_input()
           if user_input then
             user_input.V:draw(user_input.C:get_input())
@@ -190,7 +228,7 @@ Controller = {
       local uup = Controller._userhandlers.update
       if user_update and uup
       then
-        uup(dt)
+        wrap(uup, dt)
       end
       Controller.snapshot()
     end
@@ -225,6 +263,10 @@ Controller = {
   ----------------
   ---  public  ---
   ----------------
+  --- @param C ConsoleController
+  init = function(C)
+    _C = C
+  end,
   --- @param C ConsoleController
   --- @param CV ConsoleView
   set_default_handlers = function(C, CV)

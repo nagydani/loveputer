@@ -250,6 +250,7 @@ function love.load(args)
   local CV = ConsoleView(baseconf, CC)
   CC:set_view(CV)
 
+  Controller.init(CC)
   Controller.setup_callback_handlers(CC)
   Controller.set_default_handlers(CC, CV)
 
