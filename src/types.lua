@@ -32,6 +32,7 @@
 --- @field lines integer
 --- @field input_max integer
 --- @field show_append_hl boolean
+--- @field show_debug_timer boolean
 --- @field labelfont love.Font
 --- @field lfh integer -- font height
 --- @field lfw integer -- font width

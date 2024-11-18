@@ -23,6 +23,8 @@ require("util.debug")
 --- @field custom_status CustomStatus?
 --- methods
 --- @field new function
+--- @field get_label fun(self): string?
+--- @field init_visible function
 --- @field add_text fun(self, string)
 --- @field set_text fun(self, string, boolean)
 --- @field line_feed fun(self)
@@ -31,6 +33,7 @@ require("util.debug")
 --- @field get_n_text_lines fun(self): integer
 --- @field get_wrapped_text fun(self): WrappedText
 --- @field get_wrapped_error fun(self): string[]?
+--- @field swap_lines function
 UserInputModel = class.create()
 
 

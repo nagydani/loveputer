@@ -80,11 +80,12 @@ local function run_user_code(f, cc, project_path)
   local old_path = package.path
   local ok, call_err
   if project_path then
-    package.path = string.format('%s;%s/?.lua', package.path, project_path)
+    package.path =
+        string.format('%s;%s/?.lua', package.path, project_path)
     env = cc.project_env
   end
   ok, call_err = pcall(f)
-  if project_path then -- user project exec
+  if project_path and ok then -- user project exec
     Controller.set_user_handlers(env['love'])
   end
   package.path = old_path
@@ -136,7 +137,8 @@ function ConsoleController:run_project(name)
   if love.state.app_state == 'inspect' or
       love.state.app_state == 'running'
   then
-    self.interpreter:set_error("There's already a project running!", true)
+    self.interpreter:set_error(
+      "There's already a project running!", true)
     return
   end
   local P            = self.model.projects
@@ -299,8 +301,11 @@ function ConsoleController.prepare_project_env(cc)
   project_env.G               = love.graphics
 
   --- @param msg string?
-  project_env.stop            = function(msg)
+  project_env.pause           = function(msg)
     cc:suspend_run(msg)
+  end
+  project_env.stop            = function()
+    cc:stop_project_run()
   end
 
   project_env.continue        = function()
@@ -414,7 +419,7 @@ function ConsoleController:evaluate_input()
           inter:set_error(err, true)
         end
       else
-        -- this means that metalua failed to catch some invalid code
+        -- this means that metalua failed to catch invalid code
         Log.error('Load error:', LANG.get_call_error(load_err))
         inter:set_error(load_err, true)
       end
@@ -642,12 +647,6 @@ function ConsoleController:keypressed(k)
           terminal_test()
           return
         end
-      end
-    end
-    -- Ctrl and Shift held
-    if Key.ctrl() and Key.shift() then
-      if k == "r" then
-        self:reset()
       end
     end
   end

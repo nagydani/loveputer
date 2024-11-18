@@ -15,6 +15,7 @@
     "continue",
     // luautils
     "prequire",
+    "error_test",
     // end of array
     ""
   ],

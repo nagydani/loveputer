@@ -30,6 +30,8 @@ dev:
 	@{{MON}} --exec '{{LOVE}} src' -e 'lua'
 dev-atest:
 	@{{MON}} --exec 'clear; {{LOVE}} src --autotest' -e 'lua'
+dev-atest-dbg:
+	@DEBUG=1 just dev-atest
 dev-autotest: dev-atest
 
 dev-dtest:

@@ -9,6 +9,11 @@ end
 
 local t = {
   prequire = prequire,
+  error_test = function()
+    if love and love.DEBUG then
+      error('error injection test')
+    end
+  end
 }
 
 for k, v in pairs(t) do

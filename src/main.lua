@@ -119,6 +119,7 @@ local config_view = function(sizedebug)
     lines = lines,
     input_max = input_max,
     show_append_hl = false,
+    show_debug_timer = false,
 
     labelfont = font_labels,
     lfh = font_labels:getHeight(),
@@ -249,6 +250,7 @@ function love.load(args)
   local CV = ConsoleView(baseconf, CC)
   CC:set_view(CV)
 
+  Controller.init(CC)
   Controller.setup_callback_handlers(CC)
   Controller.set_default_handlers(CC, CV)
 
