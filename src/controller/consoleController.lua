@@ -649,12 +649,6 @@ function ConsoleController:keypressed(k)
         end
       end
     end
-    -- Ctrl and Shift held
-    if Key.ctrl() and Key.shift() then
-      if k == "r" then
-        self:reset()
-      end
-    end
   end
 end
 

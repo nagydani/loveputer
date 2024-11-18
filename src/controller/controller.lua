@@ -332,6 +332,9 @@ Controller = {
               C:finish_edit()
             end
           end
+          if k == "r" then
+            C:reset()
+          end
         end
       end
       if k == 'f9' then
