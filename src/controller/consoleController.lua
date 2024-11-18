@@ -85,7 +85,7 @@ local function run_user_code(f, cc, project_path)
     env = cc.project_env
   end
   ok, call_err = pcall(f)
-  if project_path then -- user project exec
+  if project_path and ok then -- user project exec
     Controller.set_user_handlers(env['love'])
   end
   package.path = old_path
