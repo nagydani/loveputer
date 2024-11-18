@@ -3,7 +3,6 @@ require("controller.interpreterController")
 require("controller.editorController")
 
 local class = require('util.class')
-require("util.lua")
 require("util.testTerminal")
 require("util.key")
 local LANG = require("util.eval")
@@ -193,6 +192,22 @@ function ConsoleController.prepare_env(cc)
   --- @param name string
   prepared.project          = function(name)
     local open, create, err = P:opreate(name)
+    local ok = open or create
+    if ok then
+      local project_loader = function(mn)
+        local errmsg = ""
+        local fn = mn .. '.lua'
+        local rok, content = P.current:readfile(fn)
+        if rok then
+          return assert(loadstring(string.unlines(content)))
+        else
+          errmsg = string.format(
+            "\n\tno file %s (project loader)", fn)
+        end
+        return errmsg
+      end
+      table.insert(package.loaders, 1, project_loader)
+    end
     if open then
       print('Project ' .. name .. ' opened')
     elseif create then
