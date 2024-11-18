@@ -117,6 +117,7 @@
 -- DEALINGS IN THE SOFTWARE.
 
 local utf8 = require("utf8")
+local FS = require("util.filesystem")
 
 local print_stack_variables_to_terminal = false
 local stack_limit = 20
@@ -397,7 +398,7 @@ local function handle_error(msg)
     local filename = frame.source
     if filename then
       pcall(function()
-        source_lines = get_lines(love.filesystem.read(filename))
+        source_lines = get_lines(FS.combined_read(filename))
       end)
     end
   end

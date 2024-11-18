@@ -132,12 +132,25 @@ if love then
   end
 
   --- @param path string
+  --- @param vfs boolean?
   --- @return string?
-  function FS.read(path)
-    local lines = FS.lines(path)
-    if string.is_non_empty_string_array(lines) then
-      return string.unlines(lines)
+  function FS.read(path, vfs)
+    local lines
+    if vfs then
+      local contents = LFS.read(path)
+      return contents
+    else
+      lines = FS.lines(path)
+      if string.is_non_empty_string_array(lines) then
+        return string.unlines(lines)
+      end
     end
+  end
+
+  --- @param path string
+  --- @return string?
+  function FS.combined_read(path)
+    return FS.read(path, true) or FS.read(path)
   end
 
   --- @param path string
