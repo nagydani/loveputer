@@ -91,18 +91,14 @@ local function run_user_code(f, cc, project_path)
   local env = cc:get_base_env()
 
   G.setCanvas(cc:get_canvas())
-  local old_path = package.path
   local ok, call_err
   if project_path then
-    package.path =
-        string.format('%s;%s/?.lua', package.path, project_path)
     env = cc.project_env
   end
   ok, call_err = pcall(f)
   if project_path and ok then -- user project exec
     Controller.set_user_handlers(env['love'])
   end
-  package.path = old_path
   output:restore_main()
   G.setCanvas()
   if not ok then
@@ -207,23 +203,35 @@ function ConsoleController.prepare_env(cc)
   end
 
   --- @param name string
-  prepared.project          = function(name)
+  local open_project        = function(name)
     local open, create, err = P:opreate(name)
     local ok = open or create
     if ok then
-      local project_loader = function(mn)
-        local errmsg = ""
-        local fn = mn .. '.lua'
-        local rok, content = P.current:readfile(fn)
-        if rok then
-          return assert(loadstring(string.unlines(content)))
+      local project_loader = (function()
+        local cached = cc.loaders[name]
+        if cached then
+          return cached
         else
-          errmsg = string.format(
-            "\n\tno file %s (project loader)", fn)
+          local loader = function(mn)
+            local errmsg = ""
+            local fn = mn .. '.lua'
+            local rok, content = P.current:readfile(fn)
+            if rok then
+              return assert(loadstring(string.unlines(content)))
+            else
+              errmsg = string.format(
+                "\n\tno file %s (project loader)", fn)
+            end
+            return errmsg
+          end
+          cc:cache_loader(name, loader)
+          return loader
         end
-        return errmsg
+      end)()
+      if not table.is_member(package.loaders, project_loader)
+      then
+        table.insert(package.loaders, 1, project_loader)
       end
-      table.insert(package.loaders, 1, project_loader)
     end
     if open then
       print('Project ' .. name .. ' opened')
@@ -232,7 +240,9 @@ function ConsoleController.prepare_env(cc)
     else
       print(err)
     end
+    return ok
   end
+  prepared.project          = open_project
 
   prepared.close_project    = function()
     close_project(cc)
@@ -308,7 +318,15 @@ function ConsoleController.prepare_env(cc)
   end
 
   prepared.run_project      = function(name)
-    cc:run_project(name)
+    local ok
+    if P.current then
+      ok = true
+    else
+      ok = open_project(name)
+    end
+    if ok then
+      cc:run_project(name)
+    end
   end
 
   prepared.run              = prepared.run_project
@@ -527,13 +545,20 @@ function ConsoleController:suspend_run(msg)
   Controller.set_default_handlers(self, self.view)
 end
 
+--- @return boolean success
 function ConsoleController:close_project()
   local P = self.model.projects
-  P:close()
+  local name = P.current.name
+  local ok = P:close()
+  local lf = self:get_loader(name)
+  if lf then
+    table.delete_by_value(package.loaders, lf)
+  end
   self:_reset_executor_env()
   self.model.output:clear_canvas()
   View.clear_snapshot()
   love.state.app_state = 'ready'
+  return ok
 end
 
 function ConsoleController:stop_project_run()
