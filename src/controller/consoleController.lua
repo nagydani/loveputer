@@ -532,6 +532,7 @@ function ConsoleController:close_project()
   P:close()
   self:_reset_executor_env()
   self.model.output:clear_canvas()
+  View.clear_snapshot()
   love.state.app_state = 'ready'
 end
 
@@ -546,10 +547,10 @@ function ConsoleController:stop_project_run()
 end
 
 function ConsoleController:quit_project()
-  self.model.output:reset()
-  self.interpreter:reset()
   self:stop_project_run()
   self:close_project()
+  self.model.output:reset()
+  self.interpreter:reset()
 end
 
 --- @param name string
