@@ -93,7 +93,7 @@ local function run_user_code(f, cc, project_path)
   G.setCanvas(cc:get_canvas())
   local ok, call_err
   if project_path then
-    env = cc.project_env
+    env = cc:get_project_env()
   end
   ok, call_err = pcall(f)
   if project_path and ok then -- user project exec
@@ -153,22 +153,30 @@ function ConsoleController:run_project(name)
       "There's already a project running!", true)
     return
   end
-  local P            = self.model.projects
-  local runner_env   = self:get_project_env()
-  local f, err, path = P:run(name, runner_env)
-  if f then
-    local n = name or P.current.name or 'project'
-    Log.info('Running \'' .. n .. '\'')
-    local ok, run_err = run_user_code(f, self, path)
-    if ok then
-      if Controller.has_user_update() then
-        love.state.app_state = 'running'
+  local P = self.model.projects
+  local ok
+  if P.current then
+    ok = true
+  else
+    ok = self:open_project(name)
+  end
+  if ok then
+    local runner_env   = self:get_project_env()
+    local f, err, path = P:run(name, runner_env)
+    if f then
+      local n = name or P.current.name or 'project'
+      Log.info('Running \'' .. n .. '\'')
+      local ok, run_err = run_user_code(f, self, path)
+      if ok then
+        if Controller.has_user_update() then
+          love.state.app_state = 'running'
+        end
+      else
+        print('Error: ', run_err)
       end
     else
-      print('Error: ', run_err)
+      print(err)
     end
-  else
-    print(err)
   end
 end
 
@@ -204,44 +212,9 @@ function ConsoleController.prepare_env(cc)
 
   --- @param name string
   local open_project        = function(name)
-    local open, create, err = P:opreate(name)
-    local ok = open or create
-    if ok then
-      local project_loader = (function()
-        local cached = cc.loaders[name]
-        if cached then
-          return cached
-        else
-          local loader = function(mn)
-            local errmsg = ""
-            local fn = mn .. '.lua'
-            local rok, content = P.current:readfile(fn)
-            if rok then
-              return assert(loadstring(string.unlines(content)))
-            else
-              errmsg = string.format(
-                "\n\tno file %s (project loader)", fn)
-            end
-            return errmsg
-          end
-          cc:cache_loader(name, loader)
-          return loader
-        end
-      end)()
-      if not table.is_member(package.loaders, project_loader)
-      then
-        table.insert(package.loaders, 1, project_loader)
-      end
-    end
-    if open then
-      print('Project ' .. name .. ' opened')
-    elseif create then
-      print('Project ' .. name .. ' created')
-    else
-      print(err)
-    end
-    return ok
+    return cc:open_project(name)
   end
+
   prepared.project          = open_project
 
   prepared.close_project    = function()
@@ -318,15 +291,7 @@ function ConsoleController.prepare_env(cc)
   end
 
   prepared.run_project      = function(name)
-    local ok
-    if P.current then
-      ok = true
-    else
-      ok = open_project(name)
-    end
-    if ok then
-      cc:run_project(name)
-    end
+    cc:run_project(name)
   end
 
   prepared.run              = prepared.run_project
@@ -543,6 +508,48 @@ function ConsoleController:suspend_run(msg)
 
   Controller.save_user_handlers(runner_env['love'])
   Controller.set_default_handlers(self, self.view)
+end
+
+--- @return boolean success
+function ConsoleController:open_project(name)
+  local P = self.model.projects
+  local open, create, err = P:opreate(name)
+  local ok = open or create
+  if ok then
+    local project_loader = (function()
+      local cached = self.loaders[name]
+      if cached then
+        return cached
+      else
+        local loader = function(mn)
+          local errmsg = ""
+          local fn = mn .. '.lua'
+          local rok, content = P.current:readfile(fn)
+          if rok then
+            return assert(loadstring(string.unlines(content)))
+          else
+            errmsg = string.format(
+              "\n\tno file %s (project loader)", fn)
+          end
+          return errmsg
+        end
+        self:cache_loader(name, loader)
+        return loader
+      end
+    end)()
+    if not table.is_member(package.loaders, project_loader)
+    then
+      table.insert(package.loaders, 1, project_loader)
+    end
+  end
+  if open then
+    print('Project ' .. name .. ' opened')
+  elseif create then
+    print('Project ' .. name .. ' created')
+  else
+    print(err)
+  end
+  return ok
 end
 
 --- @return boolean success
