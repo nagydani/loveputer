@@ -15,6 +15,7 @@ require("util.table")
 --- @field pre_env LuaEnv
 --- @field base_env LuaEnv
 --- @field project_env LuaEnv
+--- @field loaders function[]
 --- @field input InputController
 --- @field interpreter InterpreterController
 --- @field editor EditorController
@@ -49,6 +50,8 @@ function ConsoleController.new(M)
     -- subject to change, for example when switching projects
     project_env = {},
 
+    loaders     = {},
+
     view        = nil,
 
     cfg         = config
@@ -63,6 +66,18 @@ end
 --- @param V ConsoleView
 function ConsoleController:set_view(V)
   self.view = V
+end
+
+--- @param name string
+--- @param f function
+function ConsoleController:cache_loader(name, f)
+  self.loaders[name] = f
+end
+
+--- @param name string
+--- @return function?
+function ConsoleController:get_loader(name)
+  return self.loaders[name]
 end
 
 --- @param f function
@@ -102,6 +117,8 @@ local function close_project(cc)
   local ok = cc:close_project()
   if ok then
     print('Project closed')
+  else
+    Log.err('error in closing')
   end
 end
 
