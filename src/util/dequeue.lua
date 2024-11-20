@@ -248,3 +248,21 @@ end
 function Dequeue:is_empty()
   return self:length() == 0
 end
+
+--- Move element at i[ndex] to n[ew ]pos
+--- @param i integer
+--- @param npos integer
+--- @return boolean success
+--- @return string? err
+function Dequeue:move(i, npos)
+  local iok, ierr = self:is_valid(i, false)
+  if not iok then return false, ierr end
+  local nok, nerr = self:is_valid(npos, false)
+  if not nok then return false, nerr end
+
+  if i == npos then return true end
+
+  local _, e = self:pop_at(i)
+  table.insert(self, npos, e)
+  return true
+end
