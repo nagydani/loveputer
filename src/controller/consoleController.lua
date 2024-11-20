@@ -548,18 +548,7 @@ function ConsoleController:open_project(name)
       if cached then
         return cached
       else
-        local loader = function(mn)
-          local errmsg = ""
-          local fn = mn .. '.lua'
-          local rok, content = P.current:readfile(fn)
-          if rok then
-            return assert(loadstring(string.unlines(content)))
-          else
-            errmsg = string.format(
-              "\n\tno file %s (project loader)", fn)
-          end
-          return errmsg
-        end
+        local loader = P.current:get_loader()
         self:cache_loader(name, loader)
         return loader
       end
