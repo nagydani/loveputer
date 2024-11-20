@@ -771,7 +771,7 @@ end
 
 function ConsoleController:autotest()
   --- @diagnostic disable-next-line undefined-global
-  local autotest = prequire('tests/autotest')
+  local autotest = prequire('tests.autotest')
   if autotest then
     autotest(self)
   end
