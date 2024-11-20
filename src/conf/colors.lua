@@ -40,8 +40,10 @@ local syntax_i = {
 --- @field fg RGB
 --- @field fg2 RGB?
 --- @field indicator RGB
+--- @field special RGB
 
 local indicator = Color[Color.cyan + Color.bright]
+local special = Color[Color.cyan]
 --- @class Colors
 --- @field border RGB
 --- @field debug RGB
@@ -61,7 +63,7 @@ return {
     bg = Color[Color.white],
     highlight = Color[Color.white + Color.bright],
     highlight_loaded = Color[Color.yellow + Color.bright],
-    highlight_special = Color[Color.cyan],
+    highlight_special = special,
   },
   input = {
     console = {
@@ -93,22 +95,26 @@ return {
       fg = Color[Color.white + Color.bright],
       bg = Color[Color.black],
       indicator = indicator,
+      special = special,
     },
     user = {
       bg = Color[Color.blue],
       fg = Color[Color.white],
       indicator = indicator,
+      special = special,
     },
     inspect = {
       bg = Color[Color.red],
       fg = Color[Color.black],
       indicator = indicator,
+      special = special,
     },
     editor = {
       fg = Color[Color.white + Color.bright],
       fg2 = Color[Color.yellow + Color.bright],
       bg = Color[Color.blue],
       indicator = indicator,
+      special = special,
     },
   },
 }
