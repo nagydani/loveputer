@@ -271,7 +271,7 @@ function EditorController:_normal_mode_keys(k)
   --- @param warp boolean?
   local function move_sel(dir, by, warp)
     if input:has_error() then return end
-    local m = self:get_active_buffer():move_selection(dir, by, warp)
+    local m = buf:move_selection(dir, by, warp)
     if m then
       self.view.buffer:follow_selection()
       self:update_status()
@@ -351,7 +351,6 @@ function EditorController:_normal_mode_keys(k)
 
   --- @param add boolean?
   local function load_selection(add)
-    local buf = self:get_active_buffer()
     local t = buf:get_selected_text()
     if string.is_non_empty(t) then
       buf:set_loaded()
