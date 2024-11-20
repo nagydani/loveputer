@@ -180,11 +180,34 @@ function ConsoleController:run_project(name)
   end
 end
 
+_G.o_require = _G.require
+--- @param cc ConsoleController
+--- @param name string
+local function project_require(cc, name)
+  local P = cc.model.projects
+  local fn = name .. '.lua'
+  local open = P.current
+  if open then
+    local chunk = open:load_file(fn)
+    if chunk then
+      setfenv(chunk, cc:get_project_env())
+      chunk()
+    end
+    --- TODO: is it desirable to allow out-of-project require?
+    -- else
+    -- _require(name)
+  end
+end
+
 function ConsoleController.prepare_env(cc)
   local prepared            = cc.main_env
   prepared.G                = love.graphics
 
   local P                   = cc.model.projects
+
+  prepared.require          = function(name)
+    return project_require(cc, name)
+  end
 
   --- @param f function
   local check_open_pr       = function(f, ...)
@@ -314,6 +337,10 @@ function ConsoleController.prepare_project_env(cc)
   ---@type table
   local project_env           = cc:get_pre_env_c()
   project_env.G               = love.graphics
+
+  project_env.require         = function(name)
+    return project_require(cc, name)
+  end
 
   --- @param msg string?
   project_env.pause           = function(msg)

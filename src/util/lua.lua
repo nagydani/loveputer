@@ -1,3 +1,5 @@
+local require = _G.o_require or _G.require
+
 --- Require `name`.lua if exists
 --- @param name string
 local function prequire(name)
