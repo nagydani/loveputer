@@ -1,3 +1,4 @@
+require("util.lua")
 require("util.string")
 require("util.filesystem")
 local class = require('util.class')
@@ -95,7 +96,7 @@ function Project:load_file(filename)
   local rok, content = self:readfile(filename)
   if rok then
     local code = string.unlines(content)
-    return loadstring(code)
+    return codeload(code)
   end
 end
 
@@ -314,13 +315,9 @@ function ProjectService:run(name, env)
   if p_path then
     self:open(name or self.current.name)
 
-    local codeload = function()
-      local f = self.current:load_file(ProjectService.MAIN)
-      if not f then return end
-      setfenv(f, env)
-      return f
-    end
-    local content = codeload()
+    local _, lines = self.current:readfile(ProjectService.MAIN)
+    local code = string.unlines(lines)
+    local content = codeload(code, env)
     return content, nil, p_path
   end
   return nil, err

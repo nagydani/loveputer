@@ -15,6 +15,7 @@
     "continue",
     // luautils
     "prequire",
+    "codeload",
     "error_test",
     // end of array
     ""
