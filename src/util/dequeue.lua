@@ -158,12 +158,24 @@ end
 --- @param add boolean
 --- @param f function
 --- @return boolean
---- @return string? errmsg
+--- @return string|any err_or_result
 function Dequeue:_checked(i, add, f)
   local ok, err = self:is_valid(i, add)
 
-  if ok then f() end
+  if ok then return true, f() end
   return ok, err
+end
+
+--- Insert element at index
+--- @param i integer
+--- @return boolean
+--- @return string|any err_or_result
+function Dequeue:pop_at(i)
+  return self:_checked(i, false, function()
+    local e = self:get(i)
+    table.remove(self, i)
+    return e
+  end)
 end
 
 --- Insert element at index
