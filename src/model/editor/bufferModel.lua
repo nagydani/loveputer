@@ -74,11 +74,14 @@ end
 --- @field get_selected_text function
 --- @field delete_selected_text function
 --- @field replace_selected_text function
---- @field render_content fun(self): string[]
+--- @field get_text_content function
 BufferModel = class.create(new)
 
 function BufferModel:rechunk()
-  --- TODO!
+  if self.content_type ~= 'lua' then return end
+  local content = self:get_text_content()
+  local _, blocks = self.chunker(content)
+  self.content = blocks
 end
 
 function BufferModel:save()

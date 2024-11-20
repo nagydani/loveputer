@@ -275,6 +275,7 @@ function EditorController:_reorg(save)
   if save then
     local target = buf:get_selection()
     buf:move(moved, target)
+    buf:rechunk()
     self:save(buf)
     self.view:refresh()
   else
@@ -567,8 +568,10 @@ function EditorController:keypressed(k)
   end
 
   if love.debug then
+    local buf = self:get_active_buffer()
+    local bufview = self.view.buffer
     if k == 'f5' then
-      local bufview = self.view.buffer
+      if Key.ctrl() then buf:rechunk() end
       bufview:refresh()
     end
   end
