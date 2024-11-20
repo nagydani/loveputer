@@ -75,16 +75,29 @@ function EditorController:open(name, content, save)
   self:set_state()
 end
 
+--- @param m EditorMode
+--- @return boolean
+local function is_normal(m)
+  return m == 'edit'
+end
+
 --- @param mode EditorMode
 function EditorController:set_mode(mode)
-  Log.info('--' .. string.upper(mode) .. '--')
-  --- TODO FSM
-  self.mode = mode
+  Log.info('-- ' .. string.upper(mode) .. ' --')
+  local current = self.mode
+  if is_normal(current) then
+    self.mode = mode
+  else
+    --- currently in a special mode, only return is allowed
+    if is_normal(mode) then
+      self.mode = mode
+    end
+  end
 end
 
 --- @return boolean
 function EditorController:is_normal_mode()
-  return self.mode == 'edit'
+  return is_normal(self.mode)
 end
 
 --- @param clipboard string
