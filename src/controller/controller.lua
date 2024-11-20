@@ -349,9 +349,11 @@ Controller = {
             C:edit()
           end
         elseif love.state.app_state == 'editor' then
-          local ed_state = C:finish_edit()
-          love.state.editor = ed_state
-          C:run_project()
+          if C.editor:is_normal_mode() then
+            local ed_state = C:finish_edit()
+            love.state.editor = ed_state
+            C:run_project()
+          end
         end
       end
 
