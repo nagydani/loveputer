@@ -41,6 +41,7 @@ local syntax_i = {
 --- @field fg2 RGB?
 --- @field indicator RGB
 
+local indicator = Color[Color.cyan + Color.bright]
 --- @class Colors
 --- @field border RGB
 --- @field debug RGB
@@ -91,23 +92,23 @@ return {
     console = {
       fg = Color[Color.white + Color.bright],
       bg = Color[Color.black],
-      indicator = Color[Color.cyan + Color.bright],
+      indicator = indicator,
     },
     user = {
       bg = Color[Color.blue],
       fg = Color[Color.white],
-      indicator = Color[Color.cyan + Color.bright],
+      indicator = indicator,
     },
     inspect = {
       bg = Color[Color.red],
       fg = Color[Color.black],
-      indicator = Color[Color.cyan + Color.bright],
+      indicator = indicator,
     },
     editor = {
       fg = Color[Color.white + Color.bright],
       fg2 = Color[Color.yellow + Color.bright],
       bg = Color[Color.blue],
-      indicator = Color[Color.cyan + Color.bright],
+      indicator = indicator,
     },
   },
 }
