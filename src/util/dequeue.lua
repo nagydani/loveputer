@@ -80,6 +80,23 @@ function Dequeue:get_type()
   return self:type()
 end
 
+--- @param i integer
+--- @param add boolean
+--- @return boolean
+--- @return string? errmsg
+function Dequeue:is_valid(i, add)
+  if i < 1 then return false, 'Index out of bounds (lower)' end
+  local l = self:length()
+  local u = (function()
+    if add then
+      return l + 1
+    end
+    return l
+  end)()
+  if i > u then return false, 'Index out of bounds (higher)' end
+  return true
+end
+
 --- Insert element at the start, reorganizing the array
 --- @param v any
 function Dequeue:push_front(v)
@@ -135,20 +152,35 @@ function Dequeue:pop_back()
   return e
 end
 
+--- @private
+--- @param i integer
+--- @param add boolean
+--- @param f function
+--- @return boolean
+--- @return string? errmsg
+function Dequeue:_checked(i, add, f)
+  local ok, err = self:is_valid(i, add)
+
+  if ok then f() end
+  return ok, err
+end
+
 --- Insert element at index
 --- @param v any
 --- @param i integer
 function Dequeue:insert(v, i)
-  -- TODO: bounds check
-  table.insert(self, i, v)
+  self:_checked(i, true, function()
+    table.insert(self, i, v)
+  end)
 end
 
 --- Update element at index
 --- @param v any
 --- @param i integer
 function Dequeue:update(v, i)
-  -- TODO: bounds check
-  self[i] = v
+  self:_checked(i, false, function()
+    self[i] = v
+  end)
 end
 
 --- Get element at index
