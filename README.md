@@ -70,6 +70,13 @@ a project must be selected first.
 | Wipe input                                                        | <kbd>Ctrl</kbd>+<kbd>W</kbd>                  |
 | Duplicate current line                                            | <kbd>Ctrl</kbd>+<kbd>D</kbd>                  |
 | Stop editor                                                       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _move mode_                  |
+| Switch to moving ("pick up" selection)                            | <kbd>Ctrl</kbd>+<kbd>M</kbd>                  |
+| Move selection                                                    | <kbd>⇧</kbd>/<kbd>⇩</kbd>                     |
+| Move selection to start                                           | <kbd>Ctrl</kbd>+<kbd>Home</kbd>               |
+| Move selecion to end                                              | <kbd>Ctrl</kbd>+<kbd>End</kbd>                |
+| Cancel moving                                                     | <kbd>Esc</kbd>                                |
+| Move line/block to selection and return to normal mode            | <kbd>Enter ⏎</kbd>                            |
 
 ### Projects
 
@@ -155,5 +162,13 @@ Happy with the modifications now, we can quit by pressing
 <kbd>Ctrl-Shift-Q</kbd>
 
 ![quit](./doc/interface/quit_editor.apng)
+
+#### Moving
+
+Select the block you want to move and press <kbd>Ctrl-M</kbd>.
+Move the highlight with <kbd>⇧</kbd>/<kbd>⇩</kbd> and hit
+<kbd>Enter ⏎</kbd> when you found it's new home.
+
+![move2](./doc/interface/move.apng)
 
 [löve2d]: https://love2d.org
