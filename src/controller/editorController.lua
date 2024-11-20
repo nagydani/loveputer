@@ -11,13 +11,19 @@ local function new(M)
     input = UserInputController(M.input, nil, true),
     model = M,
     view = nil,
+    mode = 'edit',
   }
 end
+
+--- @alias EditorMode
+--- | 'edit' --- default
+--- | 'reorder'
 
 --- @class EditorController
 --- @field model EditorModel
 --- @field input UserInputController
 --- @field view EditorView?
+--- @field mode EditorMode
 ---
 --- @field open function
 --- @field get_state function
