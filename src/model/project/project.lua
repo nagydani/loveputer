@@ -90,6 +90,14 @@ function Project:readfile(name)
   end
 end
 
+--- @return function? chunk
+function Project:load_file(filename)
+  local rok, content = self:readfile(filename)
+  if rok then
+    local code = string.unlines(content)
+    return loadstring(code)
+  end
+end
 --- @param name string
 --- @param data string
 --- @return boolean success
