@@ -85,6 +85,7 @@ end
 --- @return boolean
 --- @return string? errmsg
 function Dequeue:is_valid(i, add)
+  if not i then return false, 'undefined' end
   if i < 1 then return false, 'Index out of bounds (lower)' end
   local l = self:length()
   local u = (function()
