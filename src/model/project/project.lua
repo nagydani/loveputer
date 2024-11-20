@@ -98,6 +98,23 @@ function Project:load_file(filename)
     return loadstring(code)
   end
 end
+
+--- @return function
+function Project:get_loader()
+  --- @param modname string
+  --- @return unknown|string
+  return function(modname)
+    local fn = modname .. '.lua'
+    local f = self:load_file(fn)
+    if f then
+      return assert(f)
+    else
+      return string.format(
+        "\n\tno file %s (project loader)", fn)
+    end
+  end
+end
+
 --- @param name string
 --- @param data string
 --- @return boolean success
