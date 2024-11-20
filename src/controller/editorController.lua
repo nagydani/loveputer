@@ -32,6 +32,8 @@ end
 --- @field restore_state function
 --- @field get_clipboard function
 --- @field set_clipboard function
+--- @field set_mode function
+--- @field is_normal_mode function
 --- @field close function
 --- @field get_active_buffer function
 --- @field get_input function
@@ -73,9 +75,16 @@ function EditorController:open(name, content, save)
   self:set_state()
 end
 
---- @return EditorState
-function EditorController:get_state()
-  return self.state
+--- @param mode EditorMode
+function EditorController:set_mode(mode)
+  Log.info('--' .. string.upper(mode) .. '--')
+  --- TODO FSM
+  self.mode = mode
+end
+
+--- @return boolean
+function EditorController:is_normal_mode()
+  return self.mode == 'edit'
 end
 
 --- @param clipboard string
@@ -94,6 +103,11 @@ function EditorController:set_state(clipboard)
     buffer = self.view.buffer:get_state(),
   }
   if clipboard then self:set_clipboard(clipboard) end
+end
+
+--- @return EditorState
+function EditorController:get_state()
+  return self.state
 end
 
 function EditorController:save_state()
