@@ -246,8 +246,17 @@ function EditorController:_handle_submit(go)
   end
 end
 
+--- @private
 --- @param k string
-function EditorController:keypressed(k)
+function EditorController:_reorg_mode_keys(k)
+  if Key.is_enter(k) then
+    self:set_mode('edit')
+  end
+end
+
+--- @private
+--- @param k string
+function EditorController:_normal_mode_keys(k)
   local input          = self.input
   local is_empty       = input:is_empty()
   local at_limit_start = input:is_at_limit('up')
@@ -469,6 +478,23 @@ function EditorController:keypressed(k)
 
   if passthrough then
     input:keypressed(k)
+  end
+end
+
+--- @param k string
+function EditorController:keypressed(k)
+  local mode = self.mode
+
+  if Key.ctrl() then
+    if k == "m" then
+      self:set_mode('reorder')
+    end
+  end
+
+  if mode == 'reorder' then
+    self:_reorg_mode_keys(k)
+  else
+    self:_normal_mode_keys(k)
   end
 
   if love.debug then
