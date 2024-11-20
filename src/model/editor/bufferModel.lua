@@ -77,6 +77,10 @@ end
 --- @field render_content fun(self): string[]
 BufferModel = class.create(new)
 
+function BufferModel:rechunk()
+  --- TODO!
+end
+
 function BufferModel:save()
   return self.save_file(self:get_text_content())
 end
@@ -326,6 +330,15 @@ function BufferModel:insert_newline(i)
     end
   else
     self.content:insert('', bln)
+  end
+end
+
+--- @param i integer
+--- @param npos integer
+function BufferModel:move(i, npos)
+  self.content:move(i, npos)
+  if self.content_type == 'lua' then
+    self:rechunk()
   end
 end
 

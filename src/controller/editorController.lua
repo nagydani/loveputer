@@ -23,6 +23,7 @@ end
 --- @field model EditorModel
 --- @field input UserInputController
 --- @field view EditorView?
+--- @field state EditorState?
 --- @field mode EditorMode
 ---
 --- @field open function
@@ -83,9 +84,16 @@ end
 
 --- @param mode EditorMode
 function EditorController:set_mode(mode)
-  Log.info('-- ' .. string.upper(mode) .. ' --')
+  local set_reorg = function()
+    self:save_state()
+  end
+
   local current = self.mode
+  Log.info('-- ' .. string.upper(mode) .. ' --')
   if is_normal(current) then
+    if mode == 'reorder' then
+      set_reorg()
+    end
     self.mode = mode
   else
     --- currently in a special mode, only return is allowed
@@ -113,10 +121,19 @@ end
 
 --- @param clipboard string?
 function EditorController:set_state(clipboard)
-  self.state = {
-    buffer = self.view.buffer:get_state(),
-  }
-  if clipboard then self:set_clipboard(clipboard) end
+  local buf_view_state = self.view.buffer:get_state()
+  local buf = self:get_active_buffer()
+  if self.state then
+    self.state.buffer = buf_view_state
+    self.state.moved = buf:get_selection()
+    if clipboard then self:set_clipboard(clipboard) end
+  else
+    self.state = {
+      buffer = buf_view_state,
+      clipboard = clipboard,
+      moved = buf:get_selection()
+    }
+  end
 end
 
 --- @return EditorState
@@ -138,7 +155,7 @@ function EditorController:restore_state(state)
     self.view.buffer:scroll_to(off)
     local clip = state.clipboard
     if string.is_non_empty_string(clip) then
-      love.system.setClipboardText(clip)
+      love.system.setClipboardText(clip or '')
     end
   end
 end
@@ -249,11 +266,62 @@ function EditorController:_handle_submit(go)
 end
 
 --- @private
+--- @param save boolean
+function EditorController:_reorg(save)
+  local moved = self.state.moved
+  if not moved then return end
+
+  local buf = self:get_active_buffer()
+  if save then
+    local target = buf:get_selection()
+    buf:move(moved, target)
+    self:save(buf)
+    self.view:refresh()
+  else
+    buf:set_selection(moved)
+    self:restore_state(self:get_state())
+  end
+
+  self:set_mode('edit')
+end
+
+--- @private
 --- @param k string
 function EditorController:_reorg_mode_keys(k)
-  if Key.is_enter(k) then
-    self:set_mode('edit')
+  local buf = self:get_active_buffer()
+
+  if k == 'escape' then
+    self:_reorg(false)
   end
+  if Key.is_enter(k) then
+    self:_reorg(true)
+  end
+
+  local function move_sel(dir, by, warp)
+    local m = buf:move_selection(dir, by, warp)
+    if m then
+      self.view.buffer:follow_selection()
+      self:update_status()
+    end
+  end
+
+  local function navigate()
+    -- move selection
+    if k == "up" then
+      move_sel('up')
+    end
+    if k == "down" then
+      move_sel('down')
+    end
+    if k == "home" then
+      move_sel('up', nil, true)
+    end
+    if k == "end" then
+      move_sel('down', nil, true)
+    end
+  end
+
+  navigate()
 end
 
 --- @private

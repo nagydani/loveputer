@@ -110,7 +110,8 @@
 --- @field offset integer
 --- @class EditorState table
 --- @field buffer BufferState
---- @field clipboard string
+--- @field clipboard string?
+--- @field moved integer?
 
 --- @class LoveState table
 --- @field testing boolean
