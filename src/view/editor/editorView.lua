@@ -28,7 +28,8 @@ EditorView = class.create(new)
 
 function EditorView:draw()
   local ctrl = self.controller
-  self.buffer:draw(ctrl:get_active_buffer())
+  local spec = not ctrl:is_normal_mode()
+  self.buffer:draw(spec)
 
   local input = self.controller:get_input()
   self.input:draw(input)

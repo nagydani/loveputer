@@ -228,7 +228,8 @@ function BufferView:follow_selection()
   end
 end
 
-function BufferView:draw()
+--- @param special boolean
+function BufferView:draw(special)
   local G = love.graphics
   local cf_colors = self.cfg.colors
   local colors = cf_colors.editor
@@ -257,10 +258,14 @@ function BufferView:draw()
 
     local highlight_line = function(ln)
       if not ln then return end
-      if ls then
-        G.setColor(colors.highlight_loaded)
+      if special then
+        G.setColor(colors.highlight_special)
       else
-        G.setColor(colors.highlight)
+        if ls then
+          G.setColor(colors.highlight_loaded)
+        else
+          G.setColor(colors.highlight)
+        end
       end
       local l_y = (ln - 1) * fh
       G.rectangle('fill', 0, l_y, width, fh)
