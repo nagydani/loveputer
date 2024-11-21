@@ -140,6 +140,10 @@ function BufferView:refresh(moved)
       self.content:wrap(t)
     end
     if self.content_type == 'lua' then
+      local vsc = self.content
+      local blocks = vsc.blocks
+      blocks:move(moved, sel)
+      vsc:recalc_range()
     end
   end
 
