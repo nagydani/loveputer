@@ -104,7 +104,7 @@ function BufferModel:get_text_content()
   then
     return self.content
   end
-  return {}
+  return Dequeue.typed('string')
 end
 
 --- Returns number of lines/blocks

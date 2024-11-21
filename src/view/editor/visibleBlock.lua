@@ -3,14 +3,14 @@ require("util.string")
 local class = require('util.class')
 
 --- @param w integer
---- @param lines str
+--- @param lines Dequeue<string>
 --- @param pos Range
 --- @return VisibleBlock
 local function new(w, lines, hl, pos, apos)
-  local ls = (function()
+  local ls = Dequeue((function()
     if type(lines) == 'string' then return { lines } end
     return lines
-  end)()
+  end)())
 
   local wrapped_text = WrappedText(w, ls)
   local wrapped_highlight = {}

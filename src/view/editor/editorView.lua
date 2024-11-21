@@ -31,7 +31,7 @@ function EditorView:draw()
   local spec = not ctrl:is_normal_mode()
   self.buffer:draw(spec)
 
-  local input = self.controller:get_input()
+  local input = ctrl:get_input()
   self.input:draw(input)
 end
 
