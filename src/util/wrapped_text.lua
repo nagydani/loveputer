@@ -26,6 +26,7 @@ require("util.string")
 
 --- @class WrappedText
 --- @field text Dequeue<string>
+--- @field orig Dequeue<string>
 --- @field wrap_w integer
 --- @field wrap_forward WrapForward
 --- @field wrap_reverse WrapReverse
@@ -55,7 +56,8 @@ function WrappedText:_init(w, text)
   if type(w) ~= "number" or w < 1 then
     error('invalid wrap length')
   end
-  self.text = {}
+  self.text = Dequeue.typed('string')
+  self.orig = Dequeue.typed('string')
   self.wrap_w = w
   self.wrap_forward = {}
   self.wrap_reverse = {}
@@ -63,6 +65,7 @@ function WrappedText:_init(w, text)
   self.n_breaks = 0
   if text then
     self:wrap(text)
+    self.orig = text
   end
 end
 
@@ -104,6 +107,7 @@ function WrappedText:wrap(text)
         table.insert(display, tl)
       end
     end
+    self.orig = text
   end
   self.text = display
   self.wrap_forward = wrap_forward
