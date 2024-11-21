@@ -169,6 +169,7 @@ Select the block you want to move and press <kbd>Ctrl-M</kbd>.
 Move the highlight with <kbd>⇧</kbd>/<kbd>⇩</kbd> and hit
 <kbd>Enter ⏎</kbd> when you found it's new home.
 
-![move2](./doc/interface/move.apng)
+![move1](./doc/interface/move_line.apng)
+![move2](./doc/interface/move_block.apng)
 
 [löve2d]: https://love2d.org
