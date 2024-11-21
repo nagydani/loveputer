@@ -301,6 +301,7 @@ function EditorController:_reorg_mode_keys(k)
   local function move_sel(dir, by, warp)
     local m = buf:move_selection(dir, by, warp, true)
     if m then
+      self.view:refresh(self.state.moved)
       self.view.buffer:follow_selection()
       self:update_status()
     end

@@ -120,20 +120,36 @@ function BufferView:get_state()
   }
 end
 
-function BufferView:refresh()
+--- @param moved integer?
+function BufferView:refresh(moved)
   if not self.content then
     error('no buffer is open')
   end
-  ---@diagnostic disable-next-line: param-type-mismatch
-  self.content:wrap(self.buffer:get_text_content())
+  local text = self.buffer:get_text_content()
+  --- @diagnostic disable-next-line: param-type-mismatch
+  self.content:wrap(text)
+  if self.content_type == 'lua' then
+    self.content:load_blocks(self.buffer.content)
+  end
+
+  if moved then
+    local sel = self.buffer:get_selection()
+    if self.content_type == 'plain' then
+      --- TODO refactor WrappedText to use a Dequeue<string>
+      local t = Dequeue(text)
+      t:move(moved, sel)
+      --- @diagnostic disable-next-line: param-type-mismatch
+      self.content:wrap(t:items())
+    end
+    if self.content_type == 'lua' then
+    end
+  end
+
   local clen = self.content:get_content_length()
   local off = self.offset
   local si = 1 + off
   local ei = math.min(self.LINES, clen + 1) + off
   self:_update_visible(Range(si, ei))
-  if self.content_type == 'lua' then
-    self.content:load_blocks(self.buffer.content)
-  end
 end
 
 -------------------

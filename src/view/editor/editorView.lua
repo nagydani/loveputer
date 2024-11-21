@@ -35,6 +35,7 @@ function EditorView:draw()
   self.input:draw(input)
 end
 
-function EditorView:refresh()
-  self.buffer:refresh()
+--- @param moved integer?
+function EditorView:refresh(moved)
+  self.buffer:refresh(moved)
 end
