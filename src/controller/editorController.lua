@@ -277,11 +277,11 @@ function EditorController:_reorg(save)
     buf:move(moved, target)
     buf:rechunk()
     self:save(buf)
-    self.view:refresh()
   else
     buf:set_selection(moved)
     self:restore_state(self:get_state())
   end
+  self.view:refresh()
 
   self:set_mode('edit')
 end
