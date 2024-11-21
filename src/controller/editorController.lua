@@ -279,9 +279,14 @@ function EditorController:_move_sel(dir, by, warp, moved)
   local buf = self:get_active_buffer()
   if self.input:has_error() then return end
 
-  local m = buf:move_selection(dir, by, warp)
+  --- @type boolean
+  local mv = (function()
+    if moved then return true end
+    return false
+  end)()
+  local m = buf:move_selection(dir, by, warp, mv)
   if m then
-    if moved then self.view:refresh(moved) end
+    if mv then self.view:refresh(moved) end
     self.view.buffer:follow_selection()
     self:update_status()
   end
@@ -336,10 +341,10 @@ function EditorController:_reorg_mode_keys(k)
       self:_move_sel('down', nil, nil, self.state.moved)
     end
     if k == "home" then
-      self:_move_sel('up', nil, true)
+      self:_move_sel('up', nil, true, self.state.moved)
     end
     if k == "end" then
-      self:_move_sel('down', nil, true)
+      self:_move_sel('down', nil, true, self.state.moved)
     end
     -- scroll
     if Key.shift()
