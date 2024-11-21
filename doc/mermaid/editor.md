@@ -34,6 +34,10 @@ class More {
   up: bool
   down: bool
 }
+```
+
+```mermaid
+classDiagram
 
 class VisibleBlock {
   wrapped: WrappedText
@@ -41,10 +45,6 @@ class VisibleBlock {
   pos: Range
   app_pos: Range
 }
-```
-
-```mermaid
-classDiagram
 
 class WrappedText {
   text: string[]
@@ -73,8 +73,7 @@ class VisibleContent {
 
 class VisibleStructuredContent {
   text: string[]
-  blocks: Block[]
-  visible_blocks: Block[]
+  blocks: VisibleBlock[]
   reverse_map: ReverseMap
 
   range: Range?
@@ -92,6 +91,11 @@ class VisibleStructuredContent {
 WrappedText <|-- VisibleContent
 WrappedText *-- VisibleStructuredContent
 %% BufferModel --o BufferView
+
+```
+
+```mermaid
+classDiagram
 
 class BufferModel {
   name: string
@@ -179,9 +183,11 @@ EditorController->>EditorController: update_status()
 sequenceDiagram
 
 participant Controller
+participant BufferModel
 participant EditorController
 participant InputModel
-participant BufferModel
+participant EditorView
+participant BufferView
 
 Controller->>EditorController: keypressed(k)
 activate EditorController
@@ -191,8 +197,10 @@ EditorController->>InputModel: get_text()
 InputModel->>EditorController: text
 
 EditorController->>BufferModel: replace_selected_text(text)
+BufferModel->>EditorController: insert: bool, inserted: int
 EditorController->>InputModel: clear()
-EditorController->>BufferView: refresh()
+EditorController->>EditorView: refresh()
+EditorView->>BufferView: refresh()
 
 
 deactivate EditorController
