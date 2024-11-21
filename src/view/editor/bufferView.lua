@@ -4,6 +4,7 @@ require("view.editor.visibleStructuredContent")
 local class = require("util.class")
 require("util.scrollable")
 require("util.table")
+local B = require("util.block")
 
 local function new(cfg)
   local l = cfg.lines
@@ -126,7 +127,6 @@ function BufferView:refresh(moved)
     error('no buffer is open')
   end
   local text = self.buffer:get_text_content()
-  --- @diagnostic disable-next-line: param-type-mismatch
   self.content:wrap(text)
   if self.content_type == 'lua' then
     self.content:load_blocks(self.buffer.content)
@@ -135,11 +135,9 @@ function BufferView:refresh(moved)
   if moved then
     local sel = self.buffer:get_selection()
     if self.content_type == 'plain' then
-      --- TODO refactor WrappedText to use a Dequeue<string>
       local t = Dequeue(text)
       t:move(moved, sel)
-      --- @diagnostic disable-next-line: param-type-mismatch
-      self.content:wrap(t:items())
+      self.content:wrap(t)
     end
     if self.content_type == 'lua' then
     end
