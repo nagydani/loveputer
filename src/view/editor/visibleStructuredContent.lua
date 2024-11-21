@@ -17,6 +17,7 @@ require("util.range")
 --- @field get_range fun(self): Range
 --- @field move_range fun(self, integer): integer
 --- @field load_blocks fun(self, blocks: Block[])
+--- @field recalc_range function
 --- @field get_visible fun(self): string[]
 --- @field get_visible_blocks fun(self): VisibleBlock[]
 --- @field get_content_length fun(self): integer
@@ -93,6 +94,18 @@ function VisibleStructuredContent:load_blocks(blocks)
   self:_init()
   self.reverse_map = revmap
   self.blocks = visible_blocks
+end
+
+function VisibleStructuredContent:recalc_range()
+  local ln, aln = 1, 1
+  for _, v in ipairs(self.blocks) do
+    local l = #(v.wrapped.orig)
+    local al = #(v.wrapped.text)
+    v.pos = Range(ln, ln + l - 1)
+    v.app_pos = Range(aln, aln + al - 1)
+    ln = ln + l
+    aln = aln + al
+  end
 end
 
 --- @private
