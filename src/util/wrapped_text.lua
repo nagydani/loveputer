@@ -1,4 +1,5 @@
 local class = require('util.class')
+require("util.dequeue")
 require("util.string")
 
 --- Example text: {
@@ -24,7 +25,7 @@ require("util.string")
 --- (i.e. offset from the original line number)
 
 --- @class WrappedText
---- @field text string[]
+--- @field text Dequeue<string>
 --- @field wrap_w integer
 --- @field wrap_forward WrapForward
 --- @field wrap_reverse WrapReverse
@@ -38,7 +39,7 @@ require("util.string")
 WrappedText = class.create()
 
 --- @param w integer
---- @param text string[]?
+--- @param text Dequeue<string>?
 --- @return WrappedText
 function WrappedText.new(w, text)
   local self = setmetatable({}, WrappedText)
@@ -49,7 +50,7 @@ end
 
 --- @protected
 --- @param w integer
---- @param text string[]?
+--- @param text Dequeue<string>?
 function WrappedText:_init(w, text)
   if type(w) ~= "number" or w < 1 then
     error('invalid wrap length')
@@ -65,10 +66,10 @@ function WrappedText:_init(w, text)
   end
 end
 
---- @param text string[]
+--- @param text Dequeue<string>
 function WrappedText:wrap(text)
   local w = self.wrap_w
-  local display = {}
+  local display = Dequeue.typed('string')
   local wrap_forward = {}
   local wrap_reverse = {}
   local wrap_rank = {}
@@ -111,7 +112,7 @@ function WrappedText:wrap(text)
   self.n_breaks = breaks
 end
 
---- @return string[]
+--- @return Dequeue<string>
 function WrappedText:get_text()
   return self.text
 end
