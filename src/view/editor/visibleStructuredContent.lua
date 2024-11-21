@@ -8,9 +8,9 @@ require("util.range")
 
 --- @class VisibleStructuredContent: WrappedText
 --- @field overscroll_max integer
---- @field overscroll integer
+--- @field size_max integer
 --- @field range Range?
---- @field blocks VisibleBlock[]
+--- @field blocks Dequeue<VisibleBlock>
 --- @field reverse_map ReverseMap
 ---
 --- @field set_range fun(self, Range)
@@ -18,7 +18,7 @@ require("util.range")
 --- @field move_range fun(self, integer): integer
 --- @field load_blocks fun(self, blocks: Block[])
 --- @field get_visible fun(self): string[]
---- @field get_visible_blocks fun(self): Block[]
+--- @field get_visible_blocks fun(self): VisibleBlock[]
 --- @field get_content_length fun(self): integer
 --- @field get_block_pos fun(self, integer): Range?
 --- @field get_block_app_pos fun(self, integer): Range?
@@ -38,6 +38,8 @@ setmetatable(VisibleStructuredContent, {
 --- @param w integer
 --- @param blocks Block[]
 --- @param highlighter fun(c: string[]): SyntaxColoring
+--- @param overscroll integer
+--- @param size_max integer
 --- @return VisibleStructuredContent
 function VisibleStructuredContent.new(w, blocks, highlighter,
                                       overscroll, size_max)
@@ -144,13 +146,11 @@ function VisibleStructuredContent:move_range(by)
   return 0
 end
 
---- @return string[]
 function VisibleStructuredContent:get_visible()
   local si, ei = self.range.start, self.range.fin
   return table.slice(self.text, si, ei)
 end
 
---- @return VisibleBlock[]
 function VisibleStructuredContent:get_visible_blocks()
   local si = self.wrap_reverse[self.range.start]
   local ei = self.wrap_reverse[self.range.fin]

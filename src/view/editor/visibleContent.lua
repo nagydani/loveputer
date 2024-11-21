@@ -8,11 +8,15 @@ require("util.range")
 --- @field overscroll_max integer
 --- @field overscroll integer
 ---
+--- @field get_default_range fun(self): Range
+--- @field check_range fun(self)
+--- @field wrap fun(self, text: Dequeue<string>)
 --- @field set_range fun(self, Range)
 --- @field get_range fun(self): Range
+--- @field set_default_range fun(self)
 --- @field move_range fun(self, integer): integer
---- @field get_visible fun(self): string[]
 --- @field get_content_length fun(self): integer
+--- @field get_visible fun(self): Dequeue<string>
 --- @field get_more fun(self): More
 --- @field to_end fun(self)
 VisibleContent = {}
@@ -44,7 +48,6 @@ function VisibleContent.new(w, fulltext, overscroll, size_max)
   return self
 end
 
---- @return Range
 function VisibleContent:get_default_range()
   local L = math.min(self.size_max, self:get_content_length())
   return Range(1, L)
@@ -95,18 +98,15 @@ function VisibleContent:_init()
   self:_update_overscroll()
 end
 
---- @param text string[]
 function VisibleContent:wrap(text)
   WrappedText.wrap(self, text)
   self:_update_meta()
 end
 
---- @return Range
 function VisibleContent:get_range()
   return self.range
 end
 
---- @param r Range
 function VisibleContent:set_range(r)
   if r then
     self.offset = r.start - 1
@@ -119,8 +119,6 @@ function VisibleContent:set_default_range()
   self.offset = 0
 end
 
---- @param by integer
---- @return integer n
 function VisibleContent:move_range(by)
   if type(by) == "number" then
     local r = self.range
@@ -134,18 +132,15 @@ function VisibleContent:move_range(by)
   return 0
 end
 
---- @return string[]
 function VisibleContent:get_visible()
   local si, ei = self.range.start, self.range.fin
   return table.slice(self.text, si, ei)
 end
 
---- @return integer
 function VisibleContent:get_content_length()
   return self:get_text_length()
 end
 
---- @return More
 function VisibleContent:get_more()
   local vrange = self:get_range()
   local vlen = self:get_content_length()

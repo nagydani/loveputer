@@ -6,7 +6,6 @@ require('util.range')
 require('util.string')
 require('util.dequeue')
 
---- @alias Block Empty|Chunk
 --- @alias Content Dequeue<string>|Dequeue<Block>
 
 --- @alias Chunker fun(s: string[], s: boolean?): Dequeue<Block>
@@ -15,7 +14,7 @@ require('util.dequeue')
 
 
 --- @param name string
---- @param content string[]
+--- @param content Dequeue<string>
 --- @param save function
 --- @param chunker Chunker?
 --- @param highlighter Highlighter?
@@ -74,7 +73,7 @@ end
 --- @field get_selected_text function
 --- @field delete_selected_text function
 --- @field replace_selected_text function
---- @field get_text_content function
+--- @field get_text_content fun(self): Dequeue<string>
 BufferModel = class.create(new)
 
 function BufferModel:rechunk()

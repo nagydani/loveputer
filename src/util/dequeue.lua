@@ -1,12 +1,16 @@
 local class = require('util.class')
 
---- @class Dequeue<T>: { [integer]: T }
+---@diagnostic disable-next-line: duplicate-doc-alias
+---@alias Dequeue<integer, T> Dequeue|{[integer]: T}
+
+--- @class Dequeue
 --- @field new function
 --- @field push_front function
 --- @field prepend function
 --- @field push_back function
 --- @field append function
 --- @field push function
+--- @field pop_at function
 --- @field insert function
 --- @field update function
 --- @field get function
@@ -15,6 +19,7 @@ local class = require('util.class')
 --- @field items function
 --- @field length function
 --- @field is_empty function
+--- @field move function
 Dequeue = class.create()
 
 local tags = {}

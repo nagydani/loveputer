@@ -1,6 +1,8 @@
 local class = require('util.class')
 require("util.range")
 
+--- @alias Block Empty|Chunk
+
 --- @class Empty
 --- @field tag 'empty'
 --- @field pos Range
