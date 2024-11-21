@@ -231,6 +231,7 @@ end
 ---  keyboard handlers  ---
 ---------------------------
 
+--- @private
 --- @param go fun(nt: string[]|Block[])
 function EditorController:_handle_submit(go)
   local inter = self.input
@@ -269,6 +270,7 @@ function EditorController:_handle_submit(go)
   end
 end
 
+--- @private
 --- @param dir VerticalDir
 --- @param by integer?
 --- @param warp boolean?
@@ -283,6 +285,15 @@ function EditorController:_move_sel(dir, by, warp, moved)
     self.view.buffer:follow_selection()
     self:update_status()
   end
+end
+
+--- @private
+--- @param dir VerticalDir
+--- @param warp boolean?
+--- @param by integer?
+function EditorController:_scroll(dir, warp, by)
+  self.view.buffer:scroll(dir, by, warp)
+  self:update_status()
 end
 
 --- @private
@@ -329,6 +340,15 @@ function EditorController:_reorg_mode_keys(k)
     end
     if k == "end" then
       self:_move_sel('down', nil, true)
+    end
+    -- scroll
+    if Key.shift()
+        and k == "pageup" then
+      self:_scroll('up', false, 1)
+    end
+    if Key.shift()
+        and k == "pagedown" then
+      self:_scroll('down', false, 1)
     end
   end
 
@@ -409,14 +429,6 @@ function EditorController:_normal_mode_keys(k)
   end
 
   paste_k()
-
-  --- @param dir VerticalDir
-  --- @param warp boolean?
-  --- @param by integer?
-  local function scroll(dir, warp, by)
-    self.view.buffer:scroll(dir, by, warp)
-    self:update_status()
-  end
 
   --- @param add boolean?
   local function load_selection(add)
@@ -516,19 +528,19 @@ function EditorController:_normal_mode_keys(k)
     -- scroll
     if not Key.shift()
         and k == "pageup" then
-      scroll('up', Key.ctrl())
+      self:_scroll('up', Key.ctrl())
     end
     if not Key.shift()
         and k == "pagedown" then
-      scroll('down', Key.ctrl())
+      self:_scroll('down', Key.ctrl())
     end
     if Key.shift()
         and k == "pageup" then
-      scroll('up', false, 1)
+      self:_scroll('up', false, 1)
     end
     if Key.shift()
         and k == "pagedown" then
-      scroll('down', false, 1)
+      self:_scroll('down', false, 1)
     end
   end
   local function clear()
