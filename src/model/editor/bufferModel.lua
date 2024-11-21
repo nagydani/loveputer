@@ -94,31 +94,18 @@ function BufferModel:get_content()
 end
 
 --- Return the buffer content as a string array
---- @return string[]
 function BufferModel:get_text_content()
+  --- TODO require
+  require = _G.o_require or _G.require
+  local B = require('util.block')
   if self.content_type == 'lua'
   then
-    return self:_render_blocks(self.content)
+    return B.render_blocks(self.content)
   elseif self.content_type == 'plain'
   then
     return self.content
   end
   return {}
-end
-
---- Convert Blocks to string array
---- @return string[]
-function BufferModel:_render_blocks(blocks)
-  local ret = Dequeue.typed('string')
-  for _, v in ipairs(blocks) do
-    if v:is_empty() then
-      ret:append('')
-    else
-      ret:append_all(v.lines)
-    end
-  end
-  ret:append('')
-  return ret
 end
 
 --- Returns number of lines/blocks
