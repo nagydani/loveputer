@@ -5,6 +5,7 @@ local class = require('util.class')
 
 --- @class Dequeue
 --- @field new function
+--- @field repr fun(self, indent: boolean): string
 --- @field push_front function
 --- @field prepend function
 --- @field push_back function
@@ -65,11 +66,11 @@ function Dequeue.typed(tag, values)
 end
 
 --- Return a string representation
---- @return string
 function Dequeue:repr()
-  local res = '['
+  local res = '[\n'
+  local dent = '  '
   for i, v in ipairs(self) do
-    res = res .. i .. ': ' .. tostring(v) .. ',\n'
+    res = res .. dent .. i .. ': ' .. tostring(v) .. ',\n'
   end
   res = res .. ']'
   return res
