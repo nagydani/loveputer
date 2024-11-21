@@ -130,9 +130,14 @@ end
 --- @param dir VerticalDir
 --- @param by integer
 --- @param warp boolean?
+--- @param move boolean?
 --- @return boolean moved
-function BufferModel:move_selection(dir, by, warp)
-  local last = self:get_content_length() + 1
+function BufferModel:move_selection(dir, by, warp, move)
+  local l = self:get_content_length()
+  local last = (function()
+    if move then return l end
+    return l + 1
+  end)()
   if warp then
     if dir == 'up' then
       self.selection = 1
