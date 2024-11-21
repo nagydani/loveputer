@@ -227,6 +227,10 @@ function EditorController:save(buf)
   if not ok then Log.error("can't save: ", err) end
 end
 
+---------------------------
+---  keyboard handlers  ---
+---------------------------
+
 --- @param go fun(nt: string[]|Block[])
 function EditorController:_handle_submit(go)
   local inter = self.input
@@ -265,6 +269,22 @@ function EditorController:_handle_submit(go)
   end
 end
 
+--- @param dir VerticalDir
+--- @param by integer?
+--- @param warp boolean?
+--- @param moved integer?
+function EditorController:_move_sel(dir, by, warp, moved)
+  local buf = self:get_active_buffer()
+  if self.input:has_error() then return end
+
+  local m = buf:move_selection(dir, by, warp)
+  if m then
+    if moved then self.view:refresh(moved) end
+    self.view.buffer:follow_selection()
+    self:update_status()
+  end
+end
+
 --- @private
 --- @param save boolean
 function EditorController:_reorg(save)
@@ -289,8 +309,6 @@ end
 --- @private
 --- @param k string
 function EditorController:_reorg_mode_keys(k)
-  local buf = self:get_active_buffer()
-
   if k == 'escape' then
     self:_reorg(false)
   end
@@ -298,28 +316,19 @@ function EditorController:_reorg_mode_keys(k)
     self:_reorg(true)
   end
 
-  local function move_sel(dir, by, warp)
-    local m = buf:move_selection(dir, by, warp, true)
-    if m then
-      self.view:refresh(self.state.moved)
-      self.view.buffer:follow_selection()
-      self:update_status()
-    end
-  end
-
   local function navigate()
     -- move selection
     if k == "up" then
-      move_sel('up')
+      self:_move_sel('up', nil, nil, self.state.moved)
     end
     if k == "down" then
-      move_sel('down')
+      self:_move_sel('down', nil, nil, self.state.moved)
     end
     if k == "home" then
-      move_sel('up', nil, true)
+      self:_move_sel('up', nil, true)
     end
     if k == "end" then
-      move_sel('down', nil, true)
+      self:_move_sel('down', nil, true)
     end
   end
 
@@ -337,18 +346,6 @@ function EditorController:_normal_mode_keys(k)
   local block_input    = function() passthrough = false end
   --- @type BufferModel
   local buf            = self:get_active_buffer()
-
-  --- @param dir VerticalDir
-  --- @param by integer?
-  --- @param warp boolean?
-  local function move_sel(dir, by, warp)
-    if input:has_error() then return end
-    local m = buf:move_selection(dir, by, warp)
-    if m then
-      self.view.buffer:follow_selection()
-      self:update_status()
-    end
-  end
 
   local function newline()
     if not Key.ctrl() and Key.shift() and Key.is_enter(k) then
@@ -452,7 +449,7 @@ function EditorController:_normal_mode_keys(k)
             self:save(buf)
             input:clear()
             self.view:refresh()
-            move_sel('down', n)
+            self:_move_sel('down', n)
             load_selection()
             self:update_status()
           else
@@ -492,26 +489,26 @@ function EditorController:_normal_mode_keys(k)
     -- move selection
     if Key.ctrl() then
       if k == "up" then
-        move_sel('up')
+        self:_move_sel('up')
         block_input()
       end
       if k == "down" then
-        move_sel('down')
+        self:_move_sel('down')
         block_input()
       end
       if k == "home" then
-        move_sel('up', nil, true)
+        self:_move_sel('up', nil, true)
       end
       if k == "end" then
-        move_sel('down', nil, true)
+        self:_move_sel('down', nil, true)
       end
     else
       if k == "up" and at_limit_start then
-        move_sel('up')
+        self:_move_sel('up')
         block_input()
       end
       if k == "down" and at_limit_end then
-        move_sel('down')
+        self:_move_sel('down')
         block_input()
       end
     end
