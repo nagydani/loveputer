@@ -122,8 +122,10 @@ package-js-dir DT:
   WEB={{DT}}
   unset C
   [[ $WEB =~ "-c" ]] && C='-c'
-  love.js $C ./src $WEB \
+  pushd web &> /dev/null
+  npx love.js $C ../src ../$WEB \
     --title "{{PRODUCT_NAME}}" --memory 67108864
+  popd &> /dev/null
   test -f $WEB/{{FAVI}} || \
     cp -f res/"{{PRODUCT_NAME_SC}}".ico $WEB/{{FAVI}}
   mkdir -p $WEB/doc
