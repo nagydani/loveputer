@@ -138,6 +138,10 @@ jobs:
         with:
           name: ${{ env.LOVE_JS }}
           path: ${{ env.ARTIFACT_FOLDER }}
+      - name: Scan host key
+        run: mkdir -p ~/.ssh && ssh-keyscan -H $STAGING >> ~/.ssh/known_hosts
+        env:
+          STAGING: ${{ secrets.STAGING }}
 
   build-android:
     runs-on: ubuntu-latest
