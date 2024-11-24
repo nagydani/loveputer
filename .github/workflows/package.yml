@@ -126,6 +126,9 @@ jobs:
       - name: upload
         uses: actions/upload-artifact@v4
         with:
+          name: ${{ env.OUTPUT_FOLDER }}/${{ env.LOVE_JS }}
+          path: ${{ env.ARTIFACT_FOLDER }}
+        with:
           name: ${{ env.LOVE_JS }}
           path: ${{ env.OUTPUT_FOLDER }}/${{ env.ARTIFACT_FOLDER }}
 
