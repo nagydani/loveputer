@@ -15,7 +15,7 @@ env:
   LOVE_APK_NAME: ${{ vars.PRODUCT_NAME }}-release.apk
   LOVE_APPIMAGE: ${{ vars.PRODUCT_NAME_ANSI }}.AppImage
   LOVE_DEB: ${{ vars.PRODUCT_NAME_ANSI }}.deb
-  LOVE_JS: ${{ vars.PRODUCT_NAME }}.web.zip
+  LOVE_JS: ${{ vars.PRODUCT_NAME }}-web.zip
 
 jobs:
   run-busted:
@@ -123,11 +123,11 @@ jobs:
         run: |
           just setup-web-dev
           just package-web
-      # - name: upload
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: ${{ env.LOVE_JS }}
-      #     path: ${{ env.ARTIFACT_FOLDER }}
+      - name: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.LOVE_JS }}
+          path: ${{ env.OUTPUT_FOLDER }}/${{ env.ARTIFACT_FOLDER }}
 
   build-android:
     runs-on: ubuntu-latest
