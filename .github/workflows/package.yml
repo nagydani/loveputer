@@ -121,7 +121,8 @@ jobs:
           name: ${{ env.LOVE_ARTIFACT_NAME }}
       - name: Build web package
         run: |
-          ls -llha
+          just setup-web-dev
+          just package-web
       # - name: upload
       #   uses: actions/upload-artifact@v4
       #   with:
