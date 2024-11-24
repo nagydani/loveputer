@@ -138,25 +138,34 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.LOVE_JS }}
-      - name: Scan host key
+      - name: Setup ssh
         env:
-          PACKAGE: ${{ env.LOVE_JS }}
           STAGING: ${{ secrets.STAGING }}
           PORT: ${{ secrets.SSH_PORT }}
+          USER: ${{ secrets.STAGING_USER }}
           SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo $PACKAGE $STAGING $PORT
+          umask 077
           cat > ~/.ssh/config << EOF
           Host staging
             Hostname $STAGING
             Port $PORT
+            User $USER
+            UserKnownHostsFile /dev/null
+            StrictHostKeyChecking no
             IdentityFile ~/.ssh/deploy.key
           EOF
           echo "$SSH_KEY" > ~/.ssh/deploy.key
-          ssh-keyscan -H $STAGING | tee ~/.ssh/known_hosts
-          export CP='ssh -o StrictHostKeyChecking=no'
-          # rsync -n -e $CP $PACKAGE $STAGING:
+          ssh-keyscan -H $STAGING || true >> ~/.ssh/known_hosts
+      - name: Deploy package
+        env:
+          PACKAGE: ${{ env.LOVE_JS }}
+          STAGING: ${{ secrets.STAGING }}
+          TDIR: public
+        run: |
+          rsync $PACKAGE staging:
+          ssh staging "7z -y -o$TDIR x $PACKAGE"
 
   build-android:
     runs-on: ubuntu-latest
