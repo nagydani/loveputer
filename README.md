@@ -48,6 +48,7 @@ a project must be selected first.
 | Jump to line end                                                  | <kbd>Alt</kbd>+<kbd>End</kbd>                 |
 | Insert newline                                                    | <kbd>Shift</kbd>+<kbd>Enter ⏎</kbd>           |
 | Delete current line                                               | <kbd>Ctrl</kbd>+<kbd>Y</kbd>                  |
+| Duplicate current line                                            | <kbd>Ctrl</kbd>+<kbd>D</kbd>                  |
 | Evaluate input                                                    | <kbd>Enter ⏎</kbd>                            |
 | **Editor**                                                        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _same as Input, except for:_ |
@@ -59,6 +60,7 @@ a project must be selected first.
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _additionally_               |
 | Delete selected block                                             | <kbd>Ctrl</kbd>+<kbd>Delete</kbd>             |
 | Delete selected block (if input is empty)                         | <kbd>Ctrl</kbd>+<kbd>Y</kbd>                  |
+| Wipe input                                                        | <kbd>Ctrl</kbd>+<kbd>W</kbd>                  |
 | Load selected content to input (discards previous content)        | <kbd>Esc</kbd>                                |
 | Insert selected content into input                                | <kbd>Shift</kbd>+<kbd>Esc</kbd>               |
 | Scroll to start                                                   | <kbd>Ctrl</kbd>+<kbd>PageUp</kbd>             |
@@ -67,8 +69,6 @@ a project must be selected first.
 | Scroll down by one line                                           | <kbd>Shift</kbd>+<kbd>PageDown</kbd>          |
 | Move selection to start                                           | <kbd>Ctrl</kbd>+<kbd>Home</kbd>               |
 | Move selecion to end                                              | <kbd>Ctrl</kbd>+<kbd>End</kbd>                |
-| Wipe input                                                        | <kbd>Ctrl</kbd>+<kbd>W</kbd>                  |
-| Duplicate current line                                            | <kbd>Ctrl</kbd>+<kbd>D</kbd>                  |
 | Stop editor                                                       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _move mode_                  |
 | Switch to moving ("pick up" selection)                            | <kbd>Ctrl</kbd>+<kbd>M</kbd>                  |
