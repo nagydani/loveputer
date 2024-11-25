@@ -104,6 +104,7 @@ one-allt:
 one-size:
   @{{LOVE}} src --size
 
+VERSION := `git describe --long --always`
 
 package: version
   @7z a {{DIST}}/game.love ./src/* > /dev/null
@@ -117,7 +118,6 @@ package-web: package-js
   @echo packaged:
   @ls -lh {{DIST}}/{{PRODUCT_NAME}}-web.zip
 
-VERSION := `git describe --long --always`
 
 package-js-dir DT: version
   #!/usr/bin/env -S bash
