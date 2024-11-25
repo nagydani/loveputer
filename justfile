@@ -117,7 +117,9 @@ package-web: package-js
   @echo packaged:
   @ls -lh {{DIST}}/{{PRODUCT_NAME}}-web.zip
 
-package-js-dir DT:
+VERSION := `git describe --long`
+
+package-js-dir DT: version
   #!/usr/bin/env -S bash
   WEB={{DT}}
   unset C
@@ -133,10 +135,13 @@ package-js-dir DT:
   cd web
   node render_md.js
   rm ../$WEB/theme/bg.png
-  cp index.html ../$WEB
-  cat head.html \
-      ../{{DIST}}/_readme.html \
-      tail.html > ../$WEB/readme.html
+  # cp index.html ../$WEB
+  sed -e 's/%%VERSION%%/{{VERSION}}/' index.html \
+      > ../$WEB/index.html
+  cat head.html ../{{DIST}}/_readme.html \
+      >  ../$WEB/readme.html
+  sed -e 's/%%VERSION%%/{{VERSION}}/' tail.html \
+      >> ../$WEB/readme.html
   cp love.css ../$WEB/theme/
 
 package-js: (package-js-dir WEBDIST)
@@ -156,4 +161,4 @@ setup-hooks:
   chmod +x $HDIR/pre-commit
 
 version:
-  git describe --long | tee src/ver.txt
+  @echo {{VERSION}} | tee src/ver.txt

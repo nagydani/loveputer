@@ -54,9 +54,11 @@ img {
 .container {
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Center vertically */
+  justify-content: center;
+  /* Center vertically */
   /* align-items: center; Center horizontally */
-  flex-grow: 1; /* Allow this section to grow */
+  flex-grow: 1;
+  /* Allow this section to grow */
 }
 
 .center {
@@ -78,6 +80,7 @@ code {
   background-color: rgb(56, 56, 78);
   font-family: monospace;
 }
+
 li code {
   background-color: rgb(36, 36, 36);
   color: rgb(205, 205, 235);
@@ -107,12 +110,15 @@ kbd {
 thead {
   padding-bottom: 5px;
 }
+
 th {
   border-bottom: 2px dotted gray;
 }
+
 tr {
   border-bottom: 2px dotted gray;
 }
+
 td {
   padding: 5px 0px;
   border-bottom: 1px dotted gray;
@@ -137,6 +143,12 @@ a:hover {
 
 div {
   padding-bottom: 5px;
+}
+
+.versioninfo {
+  float: right;
+  font-size: smaller;
+  color: rgb(48, 98, 104);
 }
 
 /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
