@@ -117,7 +117,7 @@ package-web: package-js
   @echo packaged:
   @ls -lh {{DIST}}/{{PRODUCT_NAME}}-web.zip
 
-VERSION := `git describe --long`
+VERSION := `git describe --long --always`
 
 package-js-dir DT: version
   #!/usr/bin/env -S bash
