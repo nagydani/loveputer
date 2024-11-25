@@ -105,7 +105,7 @@ one-size:
   @{{LOVE}} src --size
 
 
-package:
+package: version
   @7z a {{DIST}}/game.love ./src/* > /dev/null
   @echo packaged:
   @ls -lh {{DIST}}/game.love
@@ -154,3 +154,6 @@ setup-hooks:
   just ut_all
   EOF
   chmod +x $HDIR/pre-commit
+
+version:
+  git describe --long | tee src/ver.txt

@@ -322,6 +322,11 @@ function ConsoleController.prepare_env(cc)
   prepared.eval             = LANG.eval
   prepared.print_eval       = LANG.print_eval
 
+  prepared.appver           = function()
+    local ver = FS.read('ver.txt', true)
+    if ver then print(ver) end
+  end
+
   prepared.quit             = function()
     love.event.quit()
   end
