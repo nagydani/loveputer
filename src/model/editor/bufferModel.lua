@@ -211,6 +211,15 @@ end
 ---   modify   ---
 ------------------
 
+--- @param rechunk boolean?
+function BufferModel:_text_change(rechunk)
+  if self.content_type == 'lua' then
+    if rechunk then
+      self:rechunk()
+    end
+  end
+end
+
 function BufferModel:delete_selected_text()
   local sel = self.selection
   if self.content_type == 'lua' then
@@ -227,6 +236,7 @@ function BufferModel:delete_selected_text()
   else
     self.content:remove(sel)
   end
+  self:_text_change()
 end
 
 --- @param t string[]|Block[]
@@ -279,6 +289,7 @@ function BufferModel:replace_selected_text(t)
       end
     end
 
+    self:_text_change()
     return true, n
   else
     local sel = self.selection
@@ -287,6 +298,7 @@ function BufferModel:replace_selected_text(t)
     if #t == 1 then
       self.content[ti] = t[1]
       if ti > clen then
+        self:_text_change()
         return true, 1
       end
     else
@@ -294,6 +306,7 @@ function BufferModel:replace_selected_text(t)
       for i = #t, 1, -1 do
         self.content:insert(t[i], ti)
       end
+      self:_text_change()
       return true, #t
     end
     return false
@@ -317,6 +330,7 @@ function BufferModel:insert_newline(i)
 
     local ln = self:get_selection_start_line()
     self.content:insert(Empty(ln), bln)
+    self:_text_change()
     for j = bln + 1, self:get_content_length() do
       local b = self.content[j]
       local r = b.pos
@@ -324,6 +338,7 @@ function BufferModel:insert_newline(i)
     end
   else
     self.content:insert('', bln)
+    self:_text_change()
   end
 end
 
@@ -331,9 +346,7 @@ end
 --- @param npos integer
 function BufferModel:move(i, npos)
   self.content:move(i, npos)
-  if self.content_type == 'lua' then
-    self:rechunk()
-  end
+  self:_text_change(true)
 end
 
 ------------------
