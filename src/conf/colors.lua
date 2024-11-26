@@ -24,6 +24,7 @@ local syntax_i = {
 --- @field highlight RGB
 --- @field highlight_loaded RGB
 --- @field highlight_special RGB
+--- @field results BaseColors
 
 --- @class InputColors
 --- @field console BaseColors
@@ -64,6 +65,10 @@ return {
     highlight = Color[Color.white + Color.bright],
     highlight_loaded = Color[Color.yellow + Color.bright],
     highlight_special = special,
+    results = {
+      fg = Color[Color.black],
+      bg = Color[Color.white],
+    },
   },
   input = {
     console = {
