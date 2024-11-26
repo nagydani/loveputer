@@ -16,6 +16,6 @@ local class = require('util.class')
 --- @param cfg Config
 Search = class.create(function(cfg)
   return {
-    input = UserInputModel(cfg),
+    input = UserInputModel(cfg, nil, false, 'search'),
   }
 end)
