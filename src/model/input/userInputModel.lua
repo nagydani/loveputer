@@ -356,6 +356,8 @@ end
 --- @return Highlight?
 function UserInputModel:highlight()
   local ev = self.evaluator
+  if not ev then return end
+
   local p = ev.parser
   if p and p.highlighter then
     local text = self:get_text()
