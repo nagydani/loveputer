@@ -18,6 +18,11 @@ unit_test:
   @{{MON}} --exec 'echo -en "\n\n\n\n------------- BUSTED -------------\n"; busted tests' -e 'lua'
 unit_test_tag TAG:
   @{{MON}} -e lua --exec 'echo -en "\n\n\n\n------------- BUSTED -------------\n" ; busted tests --tags {{TAG}}'
+unit_test_ast:
+  @SHOW_AST=1 just unit_test_tag ast
+unit_test_parser:
+  @PARSER_DEBUG=1 just unit_test_tag parser
+
 # run unit tests of this tag once
 ut TAG:
   @busted tests --tags {{TAG}}
