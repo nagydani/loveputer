@@ -12,10 +12,20 @@
 --- @field loc BufferLocation
 -- --- @field type? Type
 
---- @alias DefBlockMap { [blocknum]: token_id[]}
+--- @alias DefBlockMap { [blocknum]: token_id[] }
 -- --- @alias DefBlock token_id[][]
 
 --- TODO: come up with a better name
 --- @class SemanticDB
 --- @field definitions Definition[]
 --- @field defmap DefBlockMap
+
+--- @param ast AST
+--- @return SemanticDB
+local function analyze(ast)
+  return {}
+end
+
+return {
+  analyze = analyze
+}

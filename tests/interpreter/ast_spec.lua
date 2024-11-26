@@ -113,4 +113,6 @@ describe('parser #ast', function()
       end)
     end
   end)
+
+  ---
 end)

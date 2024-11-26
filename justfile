@@ -22,6 +22,8 @@ unit_test_ast:
   @SHOW_AST=1 just unit_test_tag ast
 unit_test_parser:
   @PARSER_DEBUG=1 just unit_test_tag parser
+unit_test_analyzer:
+  @ANA_DEBUG=1 just unit_test_tag analyzer
 
 # run unit tests of this tag once
 ut TAG:
