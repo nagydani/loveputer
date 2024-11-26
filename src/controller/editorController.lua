@@ -363,6 +363,12 @@ function EditorController:_reorg_mode_keys(k)
   navigate()
 end
 
+function EditorController:_search_mode_keys(k)
+  if k == 'escape' then
+    self:set_mode('edit')
+  end
+end
+
 --- @private
 --- @param k string
 function EditorController:_normal_mode_keys(k)
@@ -577,10 +583,15 @@ function EditorController:keypressed(k)
     if k == "m" then
       self:set_mode('reorder')
     end
+    if k == "f" then
+      self:set_mode('search')
+    end
   end
 
   if mode == 'reorder' then
     self:_reorg_mode_keys(k)
+  elseif mode == 'search' then
+    self:_search_mode_keys(k)
   else
     self:_normal_mode_keys(k)
   end
