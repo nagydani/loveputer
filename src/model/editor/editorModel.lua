@@ -8,12 +8,13 @@ local class = require('util.class')
 --- @class EditorModel
 --- @field input UserInputModel
 --- @field buffer BufferModel?
+--- @field search Search
 --- @field cfg Config
 EditorModel = class.create(function(cfg)
   return {
     input = UserInputModel(cfg),
     buffer = nil,
-    search = Search(),
+    search = Search(cfg),
     cfg = cfg,
   }
 end)

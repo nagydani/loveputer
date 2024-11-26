@@ -10,7 +10,9 @@ local function new(M)
   return {
     input = UserInputController(M.input, nil, true),
     model = M,
-    search = SearchController(),
+    search = SearchController(
+      UserInputController(M.search.input, nil, false)
+    ),
     view = nil,
     mode = 'edit',
   }

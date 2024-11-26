@@ -13,6 +13,9 @@ local class = require('util.class')
 --- @field resultset Result[]
 --- @field selection integer
 
-Search = class.create(function()
-  return {}
+--- @param cfg Config
+Search = class.create(function(cfg)
+  return {
+    input = UserInputModel(cfg),
+  }
 end)

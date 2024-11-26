@@ -14,7 +14,7 @@ local function new(cfg, ctrl)
     controller = ctrl,
     input = UserInputView(cfg, ctrl.input),
     buffer = BufferView(cfg),
-    search = SearchView(),
+    search = SearchView(cfg, ctrl.search),
   }
   --- hook the view in the controller
   ctrl.view = ev
@@ -33,14 +33,13 @@ function EditorView:draw()
   local ctrl = self.controller
   local mode = ctrl:get_mode()
   if mode == 'search' then
-    self.search:draw()
+    self.search:draw(ctrl.search:get_input())
   else
     local spec = mode == 'reorder'
     self.buffer:draw(spec)
+    local input = ctrl:get_input()
+    self.input:draw(input)
   end
-
-  local input = ctrl:get_input()
-  self.input:draw(input)
 end
 
 --- @param moved integer?
