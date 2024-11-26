@@ -21,8 +21,7 @@ local function new(cfg, ctrl)
   return ev
 end
 
---- @class EditorView
---- @field cfg ViewConfig
+--- @class EditorView : ViewBase
 --- @field controller EditorController
 --- @field input UserInputView
 --- @field buffer BufferView

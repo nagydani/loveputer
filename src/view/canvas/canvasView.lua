@@ -6,10 +6,8 @@ require("util.view")
 
 local G = love.graphics
 
---- @class CanvasView
---- @field cfg Config
+--- @class CanvasView : ViewBase
 --- @field bg BGView
---- @field draw function
 CanvasView = class.create(function(cfg)
   return {
     cfg = cfg,
@@ -27,7 +25,6 @@ function CanvasView:draw(
 )
   local cfg = self.cfg
   local test = cfg.drawtest
-  local vcfg = cfg.view
 
   G.reset()
   G.push('all')
@@ -52,8 +49,8 @@ function CanvasView:draw(
     G.setBlendMode('alpha', 'alphamultiply') -- default
     for i = 0, love.test_grid_y - 1 do
       for j = 0, love.test_grid_x - 1 do
-        local off_x = vcfg.debugwidth * vcfg.fw
-        local off_y = vcfg.debugheight * vcfg.fh
+        local off_x = cfg.debugwidth * cfg.fw
+        local off_y = cfg.debugheight * cfg.fh
         local dx = j * off_x
         local dy = i * off_y
         G.reset()
@@ -75,7 +72,7 @@ function CanvasView:draw(
 
           G.setBlendMode('alpha') -- default
           G.setColor(1, 1, 1, 1)
-          G.setFont(vcfg.labelfont)
+          G.setFont(cfg.labelfont)
 
           -- G.print(index .. ' ' .. b.name)
           G.print(b.name)

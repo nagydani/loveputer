@@ -7,8 +7,7 @@ local new = function(cfg)
   }
 end
 
---- @class ResultsView
---- @field cfg ViewConfig
+--- @class ResultsView : ViewBase
 ResultsView = class.create(new)
 
 function ResultsView:draw()

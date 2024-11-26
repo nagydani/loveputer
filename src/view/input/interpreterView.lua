@@ -12,8 +12,7 @@ local new = function(cfg, ctrl)
   }
 end
 
---- @class InterpreterView
---- @field cfg ViewConfig
+--- @class InterpreterView : ViewBase
 --- @field controller InterpreterController
 --- @field input InputView
 InterpreterView = class.create(new)

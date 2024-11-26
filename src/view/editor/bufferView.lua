@@ -23,9 +23,7 @@ local function new(cfg)
   }
 end
 
---- @class BufferView
---- @field cfg ViewConfig
----
+--- @class BufferView : ViewBase
 --- @field content VisibleContent|VisibleStructuredContent
 --- @field content_type ContentType
 --- @field buffer BufferModel
@@ -38,7 +36,6 @@ end
 ---
 --- @field open function
 --- @field refresh function
---- @field draw function
 BufferView = class.create(new)
 
 --- @private

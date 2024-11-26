@@ -202,6 +202,7 @@ function love.load(args)
   local autotest, drawtest, sizedebug = argparse(args)
 
   local viewconf = config_view(sizedebug)
+  viewconf.drawtest = drawtest
 
   setup_android(viewconf)
 
@@ -235,7 +236,6 @@ function love.load(args)
     view = viewconf,
     editor = editorconf,
     autotest = autotest,
-    drawtest = drawtest,
     sizedebug = sizedebug,
   }
 

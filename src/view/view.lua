@@ -30,3 +30,7 @@ View = {
     canvas_snapshot = nil
   end,
 }
+
+--- @class ViewBase
+--- @field cfg ViewConfig
+--- @field draw function

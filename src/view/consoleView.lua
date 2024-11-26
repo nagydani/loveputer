@@ -15,7 +15,7 @@ local G = love.graphics
 local function new(cfg, ctrl)
   return {
     title = TitleView,
-    canvas = CanvasView(cfg),
+    canvas = CanvasView(cfg.view),
     interpreter = InterpreterView(cfg.view, ctrl.interpreter),
     editor = EditorView(cfg.view, ctrl.editor),
     controller = ctrl,

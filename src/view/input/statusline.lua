@@ -1,7 +1,6 @@
 local class = require("util.class")
 
---- @class Statusline
---- @field cfg ViewConfig
+--- @class Statusline : ViewBase
 Statusline = class.create(function(cfg)
   return { cfg = cfg }
 end)
