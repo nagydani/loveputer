@@ -106,7 +106,8 @@ describe('parser #ast', function()
             end)
           else
             Log.warn('syntax error in input #' .. i)
-            Log.error(r:gsub('\\n', '\n'))
+            local err = string.gsub(r.msg, '\\n', '\n')
+            Log.error(err)
           end
         end
       end)

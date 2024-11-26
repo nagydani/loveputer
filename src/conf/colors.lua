@@ -33,8 +33,8 @@ local syntax_i = {
 --- @field cursor RGB
 --- @field error RGB  -- TODO pair these
 --- @field error_bg RGB  -- TODO pair these
---- @field syntax_i table
---- @field syntax table
+--- @field syntax_i table<string, integer>
+--- @field syntax table<string, RGB>
 
 --- @class StatuslineColors
 --- @field bg RGB

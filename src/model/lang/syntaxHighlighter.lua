@@ -12,11 +12,10 @@ local types = {
 }
 
 local tokenHL = {
+  --- @return integer?
   colorize = function(t)
     local type = types[t]
-    if not type then
-      return c.console.fg
-    else
+    if type then
       return colors[t]
     end
   end,
