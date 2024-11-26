@@ -366,7 +366,10 @@ end
 function EditorController:_search_mode_keys(k)
   if k == 'escape' then
     self:set_mode('edit')
+    return
   end
+
+  self.search:keypressed(k)
 end
 
 --- @private
