@@ -210,14 +210,18 @@ end
 
 --- @param t string
 function EditorController:textinput(t)
-  local input = self.model.input
-  if input:has_error() then
-    input:clear_error()
-  else
-    if Key.ctrl() and Key.shift() then
-      return
+  if self.mode == 'edit' then
+    local input = self.model.input
+    if input:has_error() then
+      input:clear_error()
+    else
+      if Key.ctrl() and Key.shift() then
+        return
+      end
+      self.input:textinput(t)
     end
-    self.input:textinput(t)
+  elseif self.mode == 'search' then
+    self.search:textinput(t)
   end
 end
 
