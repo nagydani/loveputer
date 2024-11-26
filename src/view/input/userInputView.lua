@@ -25,7 +25,7 @@ end
 UserInputView = class.create(new)
 
 --- @param input InputDTO
---- @param time number
+--- @param time number?
 function UserInputView:draw_input(input, time)
   local G = love.graphics
 
@@ -179,6 +179,7 @@ function UserInputView:draw_input(input, time)
 end
 
 --- @param input InputDTO
+--- @param time number?
 function UserInputView:draw(input, time)
   local err_text = input.wrapped_error or {}
   local isError = string.is_non_empty_string_array(err_text)

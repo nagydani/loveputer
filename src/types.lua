@@ -12,8 +12,8 @@
 ---| 'down'
 
 ---@alias InputType
----| '"lua"'
----| '"text"'
+---| 'lua'
+---| 'text'
 
 ---@alias ContentType
 ---| 'plain'

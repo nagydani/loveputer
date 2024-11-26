@@ -45,7 +45,6 @@ function Statusline:draw(status, nLines, time)
   --- @param m More?
   --- @return string
   local function morelabel(m)
-    local l = ''
     if not m then return '' end
 
     if m.up and not m.down then
