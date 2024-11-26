@@ -1,6 +1,7 @@
 require("view.input.interpreterView")
 require("view.input.userInputView")
 require("view.editor.bufferView")
+require("view.editor.search.searchView")
 
 require("util.string")
 local class = require('util.class')
@@ -13,6 +14,7 @@ local function new(cfg, ctrl)
     controller = ctrl,
     input = UserInputView(cfg, ctrl.input),
     buffer = BufferView(cfg),
+    search = SearchView(),
   }
   --- hook the view in the controller
   ctrl.view = ev
@@ -24,12 +26,18 @@ end
 --- @field controller EditorController
 --- @field input UserInputView
 --- @field buffer BufferView
+--- @field search SearchView
 EditorView = class.create(new)
 
 function EditorView:draw()
   local ctrl = self.controller
-  local spec = not ctrl:is_normal_mode()
-  self.buffer:draw(spec)
+  local mode = ctrl:get_mode()
+  if mode == 'search' then
+    self.search:draw()
+  else
+    local spec = mode == 'reorder'
+    self.buffer:draw(spec)
+  end
 
   local input = ctrl:get_input()
   self.input:draw(input)

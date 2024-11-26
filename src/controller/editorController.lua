@@ -1,6 +1,6 @@
 require("model.interpreter.eval.evaluator")
-require("controller.inputController")
 require("controller.userInputController")
+require("controller.searchController")
 require("view.input.customStatus")
 
 local class = require('util.class')
@@ -10,6 +10,7 @@ local function new(M)
   return {
     input = UserInputController(M.input, nil, true),
     model = M,
+    search = SearchController(),
     view = nil,
     mode = 'edit',
   }
@@ -23,6 +24,7 @@ end
 --- @class EditorController
 --- @field model EditorModel
 --- @field input UserInputController
+--- @field search SearchController
 --- @field view EditorView?
 --- @field state EditorState?
 --- @field mode EditorMode
@@ -35,7 +37,7 @@ end
 --- @field get_clipboard function
 --- @field set_clipboard function
 --- @field set_mode function
---- @field is_normal_mode function
+--- @field get_mode function
 --- @field close function
 --- @field get_active_buffer function
 --- @field get_input function
@@ -105,9 +107,9 @@ function EditorController:set_mode(mode)
   self:update_status()
 end
 
---- @return boolean
-function EditorController:is_normal_mode()
-  return is_normal(self.mode)
+--- @return EditorMode
+function EditorController:get_mode()
+  return self.mode
 end
 
 --- @param clipboard string

@@ -5,3 +5,6 @@ require('view.editor.search.resultsView')
 SearchView = class.create(function()
   return {}
 end)
+
+function SearchView:draw()
+end
