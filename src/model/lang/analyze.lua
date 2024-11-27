@@ -110,9 +110,7 @@ local function definition_extractor(node)
       local rhs = node[2]
 
       local name = ''
-      if tag == 'Pair' then
-        name = lhs[1]
-      elseif tag == 'Set'
+      if tag == 'Set'
           and lhs[1].tag == "Index"
           and rhs[1].tag == "Function"
           and rhs[1][1][1] and rhs[1][1][1][1] == "self"
@@ -127,6 +125,9 @@ local function definition_extractor(node)
           and is_idx_stack(lhs[1])
       then
         name = get_idx_stack(lhs[1]) or ''
+      elseif tag == 'Pair' then
+        if tag == 'Table' then return end
+        name = lhs[1]
       else
         --- @type token[]?
         local lhss = table.odds(node)
@@ -134,10 +135,13 @@ local function definition_extractor(node)
         ---@diagnostic disable-next-line: param-type-mismatch
         for _, v in ipairs(lhss) do
           for _, w in ipairs(v) do
-            table.insert(rets, {
-              name = get_lhs_name(w) or '',
-              line = get_line_number(w)
-            })
+            local n = get_lhs_name(w)
+            if type(n) == 'string' then
+              table.insert(rets, {
+                name = n,
+                line = get_line_number(w)
+              })
+            end
           end
         end
         return rets

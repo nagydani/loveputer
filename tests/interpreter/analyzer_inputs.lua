@@ -95,8 +95,34 @@ local simple = {
   }, {
     { name = 'M:draw', line = 1, }
   }),
+
+local sierpinski = [[function sierpinski(depth)
+  lines = { '*' }
+  for i = 2, depth + 1 do
+    sp = string.rep(' ', 2 ^ (i - 2))
+    tmp = {} -- comment
+    for idx, line in ipairs(lines) do
+      tmp[idx] = sp .. line .. sp
+      tmp[idx + #lines] = line .. ' ' .. line
+    end
+    lines = tmp
+  end
+  return table.concat(lines, '\n')
+end
+
+print(sierpinski(4))]]
+
+local full = {
+  prep(sierpinski, {
+    { name = 'sierpinski', line = 1, },
+    { name = 'lines',      line = 2, },
+    { name = 'sp',         line = 4, },
+    { name = 'tmp',        line = 5, },
+    { name = 'lines',      line = 10, },
+  }),
 }
 
 return {
-  { 'simple', simple }
+  { 'simple', simple },
+  { 'full',   full },
 }
