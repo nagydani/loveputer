@@ -156,7 +156,6 @@ local function analyze(ast)
   local t = table.flatten(
     Tree.preorder(ast, definition_extractor)
   )
-  Log.info(Debug.terse_ast(t, true, 'lua'))
   return { assignments = t }
 end
 

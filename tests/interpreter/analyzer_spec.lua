@@ -70,7 +70,8 @@ describe('analyzer #analyzer', function()
               local seen_comments = {}
               for _, v in ipairs(r) do
                 if show_ast then
-                  local fn = string.format('%s_input_%d', tag, i)
+                  local fn =
+                      string.format('%s_input_%d', tag, i)
 
                   local skip_lineinfo = true
                   local tree = Debug.terse_ast(r, skip_lineinfo)
@@ -78,7 +79,11 @@ describe('analyzer #analyzer', function()
                     string.unlines(input),
                     tree
                   )
-                  Debug.write_tempfile(f, 'json5', fn)
+                  local wres, werr =
+                      Debug.write_tempfile(f, 'json5', fn)
+                  if not wres then
+                    Log.warn("no write", werr)
+                  end
                 end
 
                 local ct, _ = do_code(v, seen_comments)
@@ -87,10 +92,10 @@ describe('analyzer #analyzer', function()
                 end
               end
 
+              ---@diagnostic disable-next-line: param-type-mismatch
               local semDB = analyzer.analyze(r)
               it('matches ' .. i, function()
-                assert.is_true(parser.parse(output))
-                assert.same({}, semDB)
+                assert.same(output, semDB.assignments)
               end)
             else
               Log.warn('syntax error in input #' .. i)
