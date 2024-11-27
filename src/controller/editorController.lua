@@ -8,7 +8,7 @@ local class = require('util.class')
 --- @param M EditorModel
 local function new(M)
   return {
-    input = UserInputController(M.input),
+    input = UserInputController(M.input, nil, true),
     model = M,
     view = nil,
   }
@@ -164,8 +164,8 @@ end
 --- @param k string
 function EditorController:keypressed(k)
   local inter = self.input
-
-  local vmove = inter:keypressed(k)
+  --- @type BufferModel
+  local buf = self:get_active_buffer()
 
   --- @param dir VerticalDir
   --- @param by integer?
@@ -179,6 +179,16 @@ function EditorController:keypressed(k)
     end
   end
 
+  if not Key.ctrl() and Key.shift() and Key.is_enter(k) then
+    if inter:is_empty() then
+      buf:insert_newline()
+      self.view:refresh()
+      return
+    end
+  end
+
+  local vmove = inter:keypressed(k)
+
   --- @param dir VerticalDir
   --- @param warp boolean?
   --- @param by integer?
@@ -191,11 +201,18 @@ function EditorController:keypressed(k)
   local function load_selection(add)
     local buf = self:get_active_buffer()
     local t = buf:get_selected_text()
-    buf:set_loaded()
+    if string.is_non_empty(t) then
+      buf:set_loaded()
+    else
+      buf:clear_loaded()
+    end
     if add then
+      local c = inter:get_cursor_info().cursor
       inter:add_text(t)
+      inter:set_cursor(c)
     else
       inter:set_text(t)
+      inter:jump_home()
     end
   end
 
@@ -203,11 +220,10 @@ function EditorController:keypressed(k)
   --- handlers
   local function submit()
     if not Key.ctrl() and not Key.shift() and Key.is_enter(k) then
-      local buf = self:get_active_buffer()
       local bufv = self.view.buffer
       local function go(newtext)
         if bufv:is_selection_visible() then
-          if buf:loaded_is_sel() then
+          if buf:loaded_is_sel(true) then
             local _, n = buf:replace_selected_text(newtext)
             buf:clear_loaded()
             self:save(buf)
@@ -243,7 +259,6 @@ function EditorController:keypressed(k)
   local function delete()
     if Key.ctrl() and
         (k == "delete" or k == "y") then
-      local buf = self:get_active_buffer()
       buf:delete_selected_text()
       self:save(buf)
       self.view:refresh()
@@ -284,11 +299,18 @@ function EditorController:keypressed(k)
       scroll('down', false, 1)
     end
   end
+  local function clear()
+    if Key.ctrl() and k == "w" then
+      buf:clear_loaded()
+      inter:clear()
+    end
+  end
 
   submit()
   load()
   delete()
   navigate()
+  clear()
 
   if love.debug then
     if k == 'f5' then

@@ -86,6 +86,7 @@ function BufferModel:get_content()
   return self.content
 end
 
+--- Return the buffer content as a string array
 --- @return string[]
 function BufferModel:get_text_content()
   if self.content_type == 'lua'
@@ -98,19 +99,22 @@ function BufferModel:get_text_content()
   return {}
 end
 
+--- Convert Blocks to string array
 --- @return string[]
 function BufferModel:_render_blocks(blocks)
   local ret = Dequeue.typed('string')
   for _, v in ipairs(blocks) do
-    if v.tag == 'chunk' then
-      ret:append_all(v.lines)
-    elseif v.tag == 'empty' then
+    if v:is_empty() then
       ret:append('')
+    else
+      ret:append_all(v.lines)
     end
   end
+  ret:append('')
   return ret
 end
 
+--- Returns number of lines/blocks
 --- @return integer
 function BufferModel:get_content_length()
   return #(self.content) or 0
@@ -151,6 +155,7 @@ function BufferModel:move_selection(dir, by, warp)
   return false
 end
 
+--- Get index of selected line/block
 --- @return integer
 function BufferModel:get_selection()
   return self.selection
@@ -169,6 +174,7 @@ function BufferModel:_get_selected_block()
   return self.content[sel]
 end
 
+--- Get the line number of selection first line
 --- @return integer
 function BufferModel:get_selection_start_line()
   if self.content_type == 'lua' then
@@ -181,6 +187,7 @@ function BufferModel:get_selection_start_line()
   return self.selection
 end
 
+--- Return the selection as string array
 --- @return string[]
 function BufferModel:get_selected_text()
   local sel = self.selection
@@ -196,6 +203,10 @@ function BufferModel:get_selected_text()
     return self.content[sel] or {}
   end
 end
+
+------------------
+---   modify   ---
+------------------
 
 function BufferModel:delete_selected_text()
   local sel = self.selection
@@ -286,6 +297,38 @@ function BufferModel:replace_selected_text(t)
   end
 end
 
+--- Insert a new line or empty block _before_ the selection
+--- @param i integer?
+function BufferModel:insert_newline(i)
+  --- block or line number
+  local bln = i or self:get_selection()
+  if self.content_type == 'lua' then
+    local sb = self.content[bln]
+    if not sb then return end
+    local prev_b = self.content[bln - 1]
+    -- disallow consecutive empties
+    local prev_empty = prev_b and prev_b:is_empty()
+    local sel_empty = sb:is_empty()
+    local cons = prev_empty or sel_empty
+    if cons then return end
+
+    local ln = self:get_selection_start_line()
+    self.content:insert(Empty(ln), bln)
+    for j = bln + 1, self:get_content_length() do
+      local b = self.content[j]
+      local r = b.pos
+      b.pos = r:translate(1)
+    end
+  else
+    self.content:insert('', bln)
+  end
+end
+
+------------------
+---   loaded   ---
+------------------
+
+--- Record index of selection loaded into input
 --- @param i integer?
 function BufferModel:set_loaded(i)
   local n = i or self:get_selection()
@@ -296,14 +339,20 @@ function BufferModel:clear_loaded()
   self.loaded = nil
 end
 
-function BufferModel:loaded_is_sel()
+--- Check whether the current selection is the same as the one
+--- loaded previously. The default value if nothing is loaded
+--- is use-case dependent, so it's supplied via parameter.
+--- @param default boolean
+--- @return boolean
+function BufferModel:loaded_is_sel(default)
+  --- only check if there is in fact something to compare to
   if not self.loaded then
-    --- only check if there is in fact something to compare to
-    return true
+    return default
   end
   return self.loaded == self.selection
 end
 
+--- Change selection to previously loaded
 function BufferModel:select_loaded()
   local l = self.loaded
   if l then

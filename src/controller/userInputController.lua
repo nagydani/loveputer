@@ -1,18 +1,21 @@
 local class = require('util.class')
 require("util.key")
+require("util.string")
 
 --- @param model InputModel
 --- @param result function?
-local new = function(model, result)
+local new = function(model, result, disable_selection)
   return {
     model = model,
     result = result,
+    disable_selection = disable_selection,
   }
 end
 
 --- @class UserInputController
 --- @field model UserInputModel
 --- @field result function
+--- @field disable_selection boolean
 UserInputController = class.create(new)
 
 ---------------
@@ -32,6 +35,12 @@ end
 --- @param t str
 function UserInputController:set_text(t)
   self.model:set_text(t)
+end
+
+function UserInputController:is_empty()
+  local ent = self:get_text()
+  local is_empty = not string.is_non_empty_string_array(ent)
+  return is_empty
 end
 
 ----------------
@@ -68,6 +77,11 @@ function UserInputController:get_cursor_info()
   return self.model:get_cursor_info()
 end
 
+--- @param cursor Cursor
+function UserInputController:set_cursor(cursor)
+  return self.model:set_cursor(cursor)
+end
+
 -----------
 -- error --
 -----------
@@ -98,6 +112,10 @@ end
 
 function UserInputController:cancel()
   self.model:handle(false)
+end
+
+function UserInputController:jump_home()
+  self.model:jump_home()
 end
 
 ----------------------
@@ -191,6 +209,14 @@ function UserInputController:keypressed(k)
       end
     end
   end
+  local function modify()
+    if Key.ctrl() then
+      if k == 'd' then
+        local line = input:get_current_line()
+        input:insert_text_line(line)
+      end
+    end
+  end
   local function copypaste()
     if Key.ctrl() then
       if k == "v" then
@@ -213,7 +239,8 @@ function UserInputController:keypressed(k)
     end
   end
   local function selection()
-    if Key.shift() then
+    local en = not self.disable_selection
+    if en and Key.shift() then
       input:hold_selection()
     end
   end
@@ -245,6 +272,7 @@ function UserInputController:keypressed(k)
     horizontal()
     vertical() -- sets return
     newline()
+    modify()
 
     copypaste()
     selection()

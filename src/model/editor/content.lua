@@ -11,6 +11,10 @@ Empty = class.create(function(ln)
   }
 end)
 
+function Empty:is_empty()
+  return true
+end
+
 function Empty:__tostring()
   return string.format('L%d: <empty>', self.pos.start)
 end
@@ -36,6 +40,10 @@ function Chunk.new(lines, pos)
   }, Chunk)
 
   return self
+end
+
+function Chunk:is_empty()
+  return false
 end
 
 function Chunk:__tostring()

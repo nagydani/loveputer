@@ -76,6 +76,17 @@ string.is_non_empty_string_array = function(sa)
   end
 end
 
+--- @param s str?
+--- @param no_trim boolean?
+string.is_non_empty = function(s, no_trim)
+  if type(s) == 'table' then
+    return string.is_non_empty_string_array(s)
+  elseif type(s) == 'string' then
+    return string.is_non_empty_string(s, no_trim)
+  end
+  return false
+end
+
 --- @param s string
 --- @return integer
 string.ulen = function(s)

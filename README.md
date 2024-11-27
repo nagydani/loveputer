@@ -30,10 +30,12 @@ a project must be selected first.
 | Command                                                           | Keymap                                        |
 | :---------------------------------------------------------------- | :-------------------------------------------- |
 | Clear terminal                                                    | <kbd>Ctrl</kbd>+<kbd>L</kbd>                  |
-| Quit project                                                      | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Q</kbd> |
+| Stop project                                                      | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> |
+| Quit project (stop and close)                                     | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Q</kbd> |
 | Reset application to initial state                                | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> |
 | Exit application                                                  | <kbd>Ctrl</kbd>+<kbd>Esc</kbd>                |
-| Pause application                                                 | <kbd>Ctrl</kbd>+<kbd>Pause</kbd>              |
+| Pause project                                                     | <kbd>Ctrl</kbd>+<kbd>Pause</kbd>              |
+| Toggle edit/run                                                   | <kbd>F9</kbd>                                 |
 | **Input**                                                         |
 | Move cursor horizontally                                          | <kbd>⇦</kbd><kbd>⇨</kbd>                      |
 | Move cursor vertically                                            | <kbd>⇧</kbd><kbd>⇩</kbd>                      |
@@ -63,7 +65,9 @@ a project must be selected first.
 | Scroll down by one line                                           | <kbd>Ctrl</kbd>+<kbd>PageDown</kbd>           |
 | Move selection to start                                           | <kbd>Ctrl</kbd>+<kbd>Home</kbd>               |
 | Move selecion to end                                              | <kbd>Ctrl</kbd>+<kbd>End</kbd>                |
-| Quit editor (save work)                                           | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Q</kbd> |
+| Wipe input                                                        | <kbd>Ctrl</kbd>+<kbd>W</kbd>                  |
+| Duplicate current line                                            | <kbd>Ctrl</kbd>+<kbd>D</kbd>                  |
+| Stop editor                                                       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> |
 
 ### Projects
 

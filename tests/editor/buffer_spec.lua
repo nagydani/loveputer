@@ -81,7 +81,25 @@ print(sierpinski(4))]])
 
   describe('modifications', function()
     describe('plaintext', function()
-      it('', function()
+      local turtle_doc = {
+        '',
+        'Turtle graphics game inspired the LOGO family of languages.',
+      }
+      local buffer = BufferModel('README', turtle_doc)
+      it('insert newline', function()
+        assert.same(#turtle_doc + 1, buffer:get_selection())
+        local qed = 'qed.'
+        buffer:replace_selected_text({ qed })
+        assert.same(#turtle_doc + 1, buffer:get_selection())
+        assert.same(qed, buffer:get_selected_text())
+        buffer:insert_newline()
+        local new = {
+          '',
+          'Turtle graphics game inspired the LOGO family of languages.',
+          '',
+          qed,
+        }
+        assert.same(new, buffer:get_text_content())
       end)
     end)
 
@@ -154,6 +172,7 @@ print(sierpinski(4))]])
         '    debugColor = Color.red',
         '  end',
         'end',
+        '',
       }
       local text = turtle
 
@@ -182,6 +201,36 @@ print(sierpinski(4))]])
         assert.same(n_blocks - 2, delbuf:get_content_length())
         assert.same(1, delbuf:get_selection())
         assert.same({ text[3] }, delbuf:get_selected_text())
+      end)
+
+      it('insert empty', function()
+        local embuf = table.clone(buffer)
+        embuf:move_selection('up', nil, true)
+        assert.same(1, embuf:get_selection())
+        embuf:insert_newline()
+        assert.same('', embuf:get_text_content()[1])
+        embuf:move_selection('down', 2)
+        assert.same(3, embuf:get_selection())
+        assert.same({ 'width, height = G.getDimensions()' }, embuf:get_selected_text())
+
+        local res = {
+          '',
+          '--- @diagnostic disable',
+          '',
+          'width, height = G.getDimensions()',
+          'midx = width / 2',
+        }
+        assert.same(3, embuf:get_selection())
+        embuf:insert_newline()
+        assert.same(3, embuf:get_selection())
+        assert.same(res, table.take(embuf:get_text_content(), 5))
+        --- no consecutive empties
+        embuf:insert_newline()
+        assert.same(res, table.take(embuf:get_text_content(), 5))
+        embuf:move_selection('down')
+        assert.same({ 'width, height = G.getDimensions()' }, embuf:get_selected_text())
+        embuf:insert_newline()
+        assert.same(res, table.take(embuf:get_text_content(), 5))
       end)
 
       it('replacing single line with empty', function()
