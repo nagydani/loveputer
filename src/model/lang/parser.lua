@@ -17,7 +17,7 @@ require("util.dequeue")
 --- @field prepend_newline boolean
 
 --- type representing metalua AST
---- @alias AST token[]
+--- @class AST : token[]
 
 --- @alias ParseResult AST|EvalError
 
