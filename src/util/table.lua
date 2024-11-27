@@ -167,6 +167,22 @@ function table.is_array(self)
 end
 
 --- @param self table
+--- @return table?
+function table.odds(self)
+  if not self or not type(self) == "table" then
+    return
+  end
+  local ret = {}
+  for i, v in ipairs(self) do
+    local rem = i % 2
+    if rem == 1 then
+      table.insert(ret, v)
+    end
+  end
+  return ret
+end
+
+--- @param self table
 --- @param t string
 --- @return boolean
 function table.is_instance(self, t)
