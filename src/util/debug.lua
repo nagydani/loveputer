@@ -230,10 +230,12 @@ Debug = {
   --- @alias dumpstyle
   --- | 'lua'
   --- | 'json5'
-  --- @param ast token[]
+  --- @param ast token[]?
   --- @param skip_lineinfo boolean?
   --- @param style dumpstyle?
+  --- @return string
   terse_ast = function(ast, skip_lineinfo, style)
+    if type(ast) ~= 'table' then return '' end
     local style = style or 'json5'
 
     --- @param t table?
@@ -319,13 +321,15 @@ Debug = {
       return res
     end
 
-    local om = {}
-    -- local om = { 'source' }
+    local om = {
+      source = true,
+    }
     if skip_lineinfo then
       om.lineinfo = true
     end
     local res = terse(ast, om, style, nil, nil)
-    return string.gsub(res, ', ?$', '')
+    local str = string.gsub(res, ', ?$', '')
+    return str
   end,
 
   --- @param o any
