@@ -167,6 +167,27 @@ function table.is_array(self)
 end
 
 --- @param self table
+--- @param depth integer?
+--- @return table?
+function table.flatten(self, depth)
+  if not self or not type(self) == "table" then
+    return
+  end
+  local d = depth or 1
+  local ret = {}
+  if d == 1 then
+    for _, v in pairs(self) do
+      for _, w in pairs(v) do
+        table.insert(ret, w)
+      end
+    end
+  else
+    --- TODO?
+  end
+  return ret
+end
+
+--- @param self table
 --- @return table?
 function table.odds(self)
   if not self or not type(self) == "table" then

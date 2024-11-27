@@ -25,6 +25,48 @@ describe('table utils #table', function()
     end)
   end)
 
+  describe('flatten', function()
+    it('one deep', function()
+      assert.same({}, table.flatten({}))
+
+      local d1 = {
+        {
+          { name = 'x', line = 1, },
+        },
+        {
+          { name = 'w',  line = 4, },
+          { name = 'ww', line = 4, },
+        },
+      }
+      local r1 = {
+        { name = 'x',  line = 1, },
+        { name = 'w',  line = 4, },
+        { name = 'ww', line = 4, },
+      }
+      assert.same(r1, table.flatten(d1))
+
+      local d2 = {
+        {
+          {
+            { name = 'x', line = 1, },
+          },
+        },
+        {
+          { name = 'w',  line = 4, },
+          { name = 'ww', line = 4, },
+        },
+      }
+      local r2 = {
+        {
+          { name = 'x', line = 1, },
+        },
+        { name = 'w',  line = 4, },
+        { name = 'ww', line = 4, },
+      }
+      assert.same(r2, table.flatten(d2))
+    end)
+  end)
+
   describe('is_member', function()
     it('determines if table contains element', function()
       assert.is_false(table.is_member({}, 1))
