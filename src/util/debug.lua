@@ -395,10 +395,18 @@ Debug = {
         string.is_non_empty_string(fixname)
         and fixname .. (ext and '.' .. ext or '')
         or create_temp()
+    local mok, merr = FS.mkdirp('./.debug')
+    if not mok then
+      return false, merr
+    end
     local path = FS.join_path('./.debug', name)
 
     local data = string.unlines(content)
-    FS.write(path, data)
+    local ok, err = FS.write(path, data)
+    if not ok then
+      return false, err
+    end
+    return ok
   end,
 }
 
