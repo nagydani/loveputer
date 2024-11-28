@@ -151,6 +151,7 @@ function table.slice(self, first, last, step)
   return sliced
 end
 
+--- Determine if the table is an array, i.e. not used as a hash
 --- @param self table
 --- @return boolean is_array
 function table.is_array(self)
@@ -166,6 +167,7 @@ function table.is_array(self)
   return is_array
 end
 
+--- Flatten tables of tables
 --- @param self table
 --- @param depth integer?
 --- @return table?
@@ -187,6 +189,7 @@ function table.flatten(self, depth)
   return ret
 end
 
+--- Return odd-indexed elements
 --- @param self table
 --- @return table?
 function table.odds(self)
@@ -203,6 +206,7 @@ function table.odds(self)
   return ret
 end
 
+--- Try to determine the 'type' of the object
 --- @param self table
 --- @param t string
 --- @return boolean
@@ -242,6 +246,8 @@ function table.delete_by_value(self, e)
   return false
 end
 
+--- Return first n elements.
+--- TODO refactor to use slice()
 --- @param self table
 --- @param n integer
 --- @return table
