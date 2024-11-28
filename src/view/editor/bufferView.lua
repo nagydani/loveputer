@@ -44,31 +44,6 @@ function BufferView:_update_visible(r)
   self.content:set_range(r)
 end
 
---- @private
---- @return integer[][]
---- @return boolean loaded_is_sel
-function BufferView:_get_wrapped_selection()
-  local sel = self.buffer:get_selection()
-  local cont = self.content
-  local ret = {}
-  if self.content_type == 'lua'
-  then
-    --- @type Range?
-    local br = cont:get_block_pos(sel)
-    if br then
-      for _, l in ipairs(br:enumerate()) do
-        table.insert(ret, self.content.wrap_forward[l])
-      end
-    end
-  elseif self.content_type == 'plain'
-  then
-    ret[1] = self.content.wrap_forward[sel]
-  end
-
-  local ls = self.buffer:loaded_is_sel(false)
-  return ret, ls
-end
-
 --- @param buffer BufferModel
 function BufferView:open(buffer)
   local L = self.LINES
@@ -106,6 +81,31 @@ function BufferView:open(buffer)
   local ir = self:_get_end_range()
   self:_update_visible(ir)
   if off > 0 then self:scroll('down', 1) end
+end
+
+--- @private
+--- @return integer[][]
+--- @return boolean loaded_is_sel
+function BufferView:_get_wrapped_selection()
+  local sel = self.buffer:get_selection()
+  local cont = self.content
+  local ret = {}
+  if self.content_type == 'lua'
+  then
+    --- @type Range?
+    local br = cont:get_block_pos(sel)
+    if br then
+      for _, l in ipairs(br:enumerate()) do
+        table.insert(ret, self.content.wrap_forward[l])
+      end
+    end
+  elseif self.content_type == 'plain'
+  then
+    ret[1] = self.content.wrap_forward[sel]
+  end
+
+  local ls = self.buffer:loaded_is_sel(false)
+  return ret, ls
 end
 
 --- @return BufferState
