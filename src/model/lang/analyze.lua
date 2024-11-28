@@ -89,7 +89,7 @@ end
 --- @param node AST
 --- @return table?
 local function definition_extractor(node)
-  local deftags = { 'Local', 'Localrec', 'Set', 'Pair' }
+  local deftags = { 'Local', 'Localrec', 'Set', 'Table' }
 
   local function get_line_number(n)
     local li = n.lineinfo
@@ -110,7 +110,10 @@ local function definition_extractor(node)
       local rhs = node[2]
 
       local name = ''
-      if tag == 'Set'
+      if tag == 'Table' then
+        --- TODO traverse Pairs
+        return
+      elseif tag == 'Set'
           and lhs[1].tag == "Index"
           and rhs[1].tag == "Function"
           and rhs[1][1][1] and rhs[1][1][1][1] == "self"
@@ -125,9 +128,6 @@ local function definition_extractor(node)
           and is_idx_stack(lhs[1])
       then
         name = get_idx_stack(lhs[1]) or ''
-      elseif tag == 'Pair' then
-        if tag == 'Table' then return end
-        name = lhs[1]
       else
         --- @type token[]?
         local lhss = table.odds(node)

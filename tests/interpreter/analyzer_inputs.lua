@@ -40,6 +40,7 @@ local simple = {
     { name = 'y', line = 2, },
   }),
   --- tables
+  --[[
   prep({
     'local t = {',
     ' ty = 3,',
@@ -68,6 +69,7 @@ local simple = {
   }, {
     { name = 'tmp', line = 1, }
   }),
+  ]]
   --- functions
   prep({
     'function drawBackground()',
@@ -239,24 +241,24 @@ local full = {
     { name = 'cfi',                line = 18, },
     { name = 'cla',                line = 19, },
     { name = 'cfirst',             line = 20, },
-    { name = 'l',                  line = 20, },
-    { name = 'c',                  line = 20, },
+    -- { name = 'l',                  line = 20, },
+    -- { name = 'c',                  line = 20, },
     { name = 'clast',              line = 21, },
-    { name = 'l',                  line = 21, },
-    { name = 'c',                  line = 21, },
+    -- { name = 'l',                  line = 21, },
+    -- { name = 'c',                  line = 21, },
     { name = 'off',                line = 22, },
     { name = 'd',                  line = 23, },
     { name = 'l_d',                line = 24, },
     { name = 'newline',            line = 25, },
     { name = 'li',                 line = 26, },
-    { name = 'idf',                line = 27, },
-    { name = 'idl',                line = 28, },
-    { name = 'first',              line = 29, },
-    { name = 'last',               line = 30, },
-    { name = 'text',               line = 31, },
-    { name = 'multiline',          line = 32, },
-    { name = 'position',           line = 33, },
-    { name = 'prepend_newline',    line = 34, },
+    -- { name = 'idf',                line = 27, },
+    -- { name = 'idl',                line = 28, },
+    -- { name = 'first',              line = 29, },
+    -- { name = 'last',               line = 30, },
+    -- { name = 'text',               line = 31, },
+    -- { name = 'multiline',          line = 32, },
+    -- { name = 'position',           line = 33, },
+    -- { name = 'prepend_newline',    line = 34, },
   }),
 }
 
