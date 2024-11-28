@@ -12,11 +12,7 @@ require('util.tree')
 --- @field line integer
 --- @field type? AssignmentType
 
---- @alias DefBlockMap { [blocknum]: token_id[] }
--- --- @alias DefBlock token_id[][]
-
---- TODO: come up with a better name
---- @class SemanticDB
+--- @class SemanticInfo
 --- @field assignments Assignment[]
 
 local keywords_list = {
@@ -164,7 +160,7 @@ local function definition_extractor(node)
 end
 
 --- @param ast AST
---- @return SemanticDB
+--- @return SemanticInfo
 local function analyze(ast)
   local t = table.flatten(
     Tree.preorder(ast, definition_extractor)

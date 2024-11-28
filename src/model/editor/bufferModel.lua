@@ -63,7 +63,7 @@ end
 --- @field selection integer
 --- @field loaded integer?
 --- @field readonly boolean
---- @field semantic SemanticDB?
+--- @field semantic BufferSemanticInfo?
 ---
 --- @field chunker Chunker
 --- @field highlighter Highlighter
