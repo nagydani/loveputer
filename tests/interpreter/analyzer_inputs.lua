@@ -25,19 +25,19 @@ local simple = {
     'x = 3',
     'w, ww = 10, 11',
   }, {
-    { name = 'x',  line = 1, },
-    { name = 'y',  line = 2, },
-    { name = 'x',  line = 3, },
-    { name = 'w',  line = 4, },
-    { name = 'ww', line = 4, },
+    { line = 1, name = 'x',  type = 'global', },
+    { line = 2, name = 'y',  type = 'global', },
+    { line = 3, name = 'x',  type = 'global', },
+    { line = 4, name = 'w',  type = 'global', },
+    { line = 4, name = 'ww', type = 'global', },
   }),
   prep({
     'local l = 1',
     'local x, y = 2, 3',
   }, {
-    { name = 'l', line = 1 },
-    { name = 'x', line = 2, },
-    { name = 'y', line = 2, },
+    { line = 1, name = 'l', type = 'local', },
+    { line = 2, name = 'x', type = 'local', },
+    { line = 2, name = 'y', type = 'local', },
   }),
   --- tables
   --[[
@@ -75,33 +75,33 @@ local simple = {
     'function drawBackground()',
     'end',
   }, {
-    { name = 'drawBackground', line = 1, }
+    { line = 1, name = 'drawBackground', type = 'function', },
   }),
   prep({
     'function love.draw()',
     '  draw()',
     'end',
   }, {
-    { name = 'love.draw', line = 1, }
+    { line = 1, name = 'love.draw', type = 'function', },
   }),
   prep({
     'function love.handlers.keypressed()',
     'end',
   }, {
-    { name = 'love.handlers.keypressed', line = 1, }
+    { line = 1, name = 'love.handlers.keypressed', type = 'function', },
   }),
   prep({
     'local function drawBody()',
     'end',
   }, {
-    { name = 'drawBody', line = 1, }
+    { name = 'drawBody', line = 1, type = 'function' }
   }),
   --- methods
   prep({
     'function M:draw()',
     'end',
   }, {
-    { name = 'M:draw', line = 1, }
+    { name = 'M:draw', line = 1, type = 'method' }
   }),
 }
 
@@ -209,56 +209,44 @@ end
 
 local full = {
   prep(sierpinski, {
-    { name = 'sierpinski', line = 1, },
-    { name = 'lines',      line = 2, },
-    { name = 'sp',         line = 4, },
-    { name = 'tmp',        line = 5, },
-    { name = 'lines',      line = 10, },
+    { line = 1,  name = 'sierpinski', type = 'function', },
+    { line = 2,  name = 'lines',      type = 'global', },
+    { line = 4,  name = 'sp',         type = 'global', },
+    { line = 5,  name = 'tmp',        type = 'global', },
+    { line = 10, name = 'lines',      type = 'global', },
   }),
   prep(clock, {
-    { name = 'love.draw',        line = 1, },
-    { name = 'love.update',      line = 5, },
-    { name = 't',                line = 6, },
-    { name = 's',                line = 7, },
-    { name = 's',                line = 8, },
-    { name = 'cycle',            line = 11, },
-    { name = 'love.keyreleased', line = 16, },
-    { name = 'bg_color',         line = 19, },
-    { name = 'color',            line = 21, },
+    { line = 1,  name = 'love.draw',        type = 'function', },
+    { line = 5,  name = 'love.update',      type = 'function', },
+    { line = 6,  name = 't',                type = 'global', },
+    { line = 7,  name = 's',                type = 'global', },
+    { line = 8,  name = 's',                type = 'global', },
+    { line = 11, name = 'cycle',            type = 'function', },
+    { line = 16, name = 'love.keyreleased', type = 'function', },
+    { line = 19, name = 'bg_color',         type = 'global', },
+    { line = 21, name = 'color',            type = 'global', },
   }),
   prep(meta, {
-    { name = 'M:extract_comments', line = 3, },
-    { name = 'lfi',                line = 4, },
-    { name = 'lla',                line = 5, },
-    { name = 'comments',           line = 6, },
-    { name = 'add_comment',        line = 10, },
-    { name = 'idf',                line = 11, },
-    { name = 'idl',                line = 12, },
-    { name = 'present',            line = 13, },
-    { name = 'comment_text',       line = 15, },
-    { name = 'len',                line = 16, },
-    { name = 'n_l',                line = 17, },
-    { name = 'cfi',                line = 18, },
-    { name = 'cla',                line = 19, },
-    { name = 'cfirst',             line = 20, },
-    -- { name = 'l',                  line = 20, },
-    -- { name = 'c',                  line = 20, },
-    { name = 'clast',              line = 21, },
-    -- { name = 'l',                  line = 21, },
-    -- { name = 'c',                  line = 21, },
-    { name = 'off',                line = 22, },
-    { name = 'd',                  line = 23, },
-    { name = 'l_d',                line = 24, },
-    { name = 'newline',            line = 25, },
-    { name = 'li',                 line = 26, },
-    -- { name = 'idf',                line = 27, },
-    -- { name = 'idl',                line = 28, },
-    -- { name = 'first',              line = 29, },
-    -- { name = 'last',               line = 30, },
-    -- { name = 'text',               line = 31, },
-    -- { name = 'multiline',          line = 32, },
-    -- { name = 'position',           line = 33, },
-    -- { name = 'prepend_newline',    line = 34, },
+    { line = 3,  name = 'M:extract_comments', type = 'method', },
+    { line = 4,  name = 'lfi',                type = 'local', },
+    { line = 5,  name = 'lla',                type = 'local', },
+    { line = 6,  name = 'comments',           type = 'local', },
+    { line = 10, name = 'add_comment',        type = 'function', },
+    { line = 11, name = 'idf',                type = 'local', },
+    { line = 12, name = 'idl',                type = 'local', },
+    { line = 13, name = 'present',            type = 'local', },
+    { line = 15, name = 'comment_text',       type = 'local', },
+    { line = 16, name = 'len',                type = 'local', },
+    { line = 17, name = 'n_l',                type = 'local', },
+    { line = 18, name = 'cfi',                type = 'local', },
+    { line = 19, name = 'cla',                type = 'local', },
+    { line = 20, name = 'cfirst',             type = 'local', },
+    { line = 21, name = 'clast',              type = 'local', },
+    { line = 22, name = 'off',                type = 'local', },
+    { line = 23, name = 'd',                  type = 'local', },
+    { line = 24, name = 'l_d',                type = 'local', },
+    { line = 25, name = 'newline',            type = 'local', },
+    { line = 26, name = 'li',                 type = 'local', },
   }),
 }
 

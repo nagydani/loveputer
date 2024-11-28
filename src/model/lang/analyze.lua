@@ -1,21 +1,16 @@
 require('util.tree')
 
---- @alias token_id string
---- @alias blocknum integer
-
---- @class BufferLocation
---- @field block blocknum
---- @field line integer
---- @field lineinfo? lineinfo
+--- @alias AssignmentType
+--- | 'function'
+--- | 'method'
+--- | 'local'
+--- | 'global'
+--- | 'field'
 
 --- @class Assignment
 --- @field name string
 --- @field line integer
-
---- @class Definition: Assignment
---- @field id token_id
---- @field loc BufferLocation
--- --- @field type? Type
+--- @field type? AssignmentType
 
 --- @alias DefBlockMap { [blocknum]: token_id[] }
 -- --- @alias DefBlock token_id[][]
@@ -104,13 +99,15 @@ local function definition_extractor(node)
     local tag = node.tag
     if table.is_member(deftags, tag) then
       local ret = {}
-      -- ret.tag = tag
 
       local lhs = node[1]
       local rhs = node[2]
 
       local name = ''
+      --- @type AssignmentType
+      local atype
       if tag == 'Table' then
+        atype = 'field'
         --- TODO traverse Pairs
         return
       elseif tag == 'Set'
@@ -120,6 +117,7 @@ local function definition_extractor(node)
           and is_idx_stack(lhs[1][1])
           and is_ident(lhs[1][2][1])
       then
+        atype = 'method'
         local class = lhs[1][1][1]
         local method = lhs[1][2][1]
         name = class .. ':' .. method
@@ -127,11 +125,20 @@ local function definition_extractor(node)
           and rhs[1].tag == "Function"
           and is_idx_stack(lhs[1])
       then
+        atype = 'function'
         name = get_idx_stack(lhs[1]) or ''
       else
         --- @type token[]?
         local lhss = table.odds(node)
         local rets = {}
+        local at
+        if tag == 'Local' then
+          at = 'local'
+        elseif tag == 'Localrec' then
+          at = 'function'
+        elseif tag == 'Set' then
+          at = 'global'
+        end
         ---@diagnostic disable-next-line: param-type-mismatch
         for _, v in ipairs(lhss) do
           for _, w in ipairs(v) do
@@ -139,7 +146,8 @@ local function definition_extractor(node)
             if type(n) == 'string' then
               table.insert(rets, {
                 name = n,
-                line = get_line_number(w)
+                line = get_line_number(w),
+                type = at,
               })
             end
           end
@@ -149,6 +157,7 @@ local function definition_extractor(node)
 
       ret.name = name
       ret.line = node.lineinfo.first.line
+      ret.type = atype
       return { ret }
     end
   end
