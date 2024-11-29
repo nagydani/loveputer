@@ -119,16 +119,20 @@ function Search:narrow(input)
   self.resultset = res
 
   --- update selection
-  local prev = function(r)
-    return r.idx == selected.idx
-  end
-  local newsel = table.find_by(res, prev)
-  if newsel then
-    self.selection = newsel
-  else
-    local rl = #(self.resultset)
-    if csel > rl then
-      self.selection = rl
+  if selected then
+    local prev = function(r)
+      return r.idx == selected.idx
     end
+    local newsel = table.find_by(res, prev)
+    if newsel then
+      self.selection = newsel
+    else
+      local rl = #(self.resultset)
+      if csel > rl and rl > 0 then
+        self.selection = rl
+      end
+    end
+  else
+    self.selection = 1
   end
 end
