@@ -258,3 +258,15 @@ function table.take(self, n)
   end
   return ret
 end
+
+--- Apply f to all elements of the table (returns new table)
+--- @param self table
+--- @param f function
+--- @return table
+function table.map(self, f)
+  local ret = {}
+  for k, v in pairs(self) do
+    ret[k] = f(v)
+  end
+  return ret
+end
