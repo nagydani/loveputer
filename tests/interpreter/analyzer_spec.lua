@@ -44,10 +44,6 @@ describe('analyzer #analyzer', function()
       end
       io.write(term.reset)
     end
-    if show_ast then
-      -- Log.info(parser.pprint(v, { hide_lineinfo = false }))
-      -- Log.debug(Debug.terse_hash(v, nil, nil, true))
-    end
     return code, seen_comments
   end
 
@@ -65,7 +61,12 @@ describe('analyzer #analyzer', function()
             local result = {}
             if ok then
               if analyzer_debug or show_ast then
-                print(string.rep('=', 80))
+                print(
+                  string.format("%s %s %s",
+                    string.rep('=', 20),
+                    tag .. ' ' .. i,
+                    string.rep('=', 20)
+                  ))
               end
               local seen_comments = {}
               for _, v in ipairs(r) do
