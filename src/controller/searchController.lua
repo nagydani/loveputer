@@ -56,7 +56,7 @@ function SearchController:_move_sel(dir, by, warp)
 end
 
 --- @param k string
---- @return integer? jump
+--- @return table? jump
 function SearchController:keypressed(k)
   local function navigate()
     -- move selection
@@ -92,8 +92,7 @@ function SearchController:keypressed(k)
   if Key.is_enter(k) then
     local sel = self.model.selection
     local r = self.model.resultset[sel].r
-    local ln = r.line
-    return ln
+    return r
   end
 end
 

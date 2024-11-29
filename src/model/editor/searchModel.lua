@@ -48,6 +48,7 @@ end
 function Search:clear()
   self.searchset = {}
   self.resultset = {}
+  self.selection = 1
 end
 
 --- @return table[]
