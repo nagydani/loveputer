@@ -3,11 +3,14 @@ local class = require('util.class')
 --- @param cfg ViewConfig
 local new = function(cfg)
   return {
-    cfg = cfg
+    cfg = cfg,
+    offset = 0,
   }
 end
 
 --- @class ResultsView : ViewBase
+--- @field cfg ViewConfig
+--- @field offset integer
 ResultsView = class.create(new)
 
 --- @param results ResultsDTO
@@ -24,12 +27,36 @@ function ResultsView:draw(results)
   end
 
   local draw_results = function()
+    local getLabel = function(t)
+      if t == 'function' then
+        return "☰"
+      elseif t == 'method' then
+        return "☰"
+      elseif t == 'local' then
+        return "◊"
+      elseif t == 'global' then
+        return "⭘"
+      elseif t == 'field' then
+        return ""
+      end
+    end
     G.push('all')
-    G.setColor(colors.results.fg)
     G.setFont(self.cfg.font)
-    for i, v in ipairs(results.results) do
-      local ln = i
-      G.print(v.r.name, 15, (ln - 1) * fh)
+    if not results.results
+        or #(results.results) == 0 then
+      G.setColor(Color.with_alpha(colors.results.fg, 0.5))
+      G.print("No results", 25, 0)
+    else
+      for i, v in ipairs(results.results) do
+        local ln = i
+        local lh = (ln - 1) * fh
+        local t = v.r.type
+        local label = getLabel(t)
+        G.setColor(Color.with_alpha(colors.results.fg, 0.5))
+        G.print(label, 2, lh + 2)
+        G.setColor(colors.results.fg)
+        G.print(v.r.name, 25, lh)
+      end
     end
     G.pop()
   end
