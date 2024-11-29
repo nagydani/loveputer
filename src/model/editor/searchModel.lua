@@ -1,4 +1,5 @@
 local class = require('util.class')
+require('util.table')
 
 --- @alias itemid integer
 
@@ -115,10 +116,15 @@ function Search:narrow(input)
     end
   end
   self.resultset = res
-  if filter then
-    -- find current
-    -- if present, select
-    -- if not, just adjust for length
+
+  --- update selection
+  local prev = function(r)
+    return r.idx == selected.idx
+  end
+  local newsel = table.find_by(res, prev)
+  if newsel then
+    self.selection = newsel
+  else
     local rl = #(self.resultset)
     if csel > rl then
       self.selection = rl
