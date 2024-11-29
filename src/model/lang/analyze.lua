@@ -80,7 +80,7 @@ end
 --- @param node AST
 --- @return table?
 local function definition_extractor(node)
-  local deftags = { 'Local', 'Localrec', 'Set', 'Table' }
+  local deftags = { 'Local', 'Localrec', 'Set' }
 
   local function get_line_number(n)
     local li = n.lineinfo
@@ -102,11 +102,7 @@ local function definition_extractor(node)
       local name = ''
       --- @type AssignmentType
       local atype
-      if tag == 'Table' then
-        atype = 'field'
-        --- TODO traverse Pairs
-        return
-      elseif tag == 'Set'
+      if tag == 'Set'
           and lhs[1].tag == "Index"
           and rhs[1].tag == "Function"
           and rhs[1][1][1] and rhs[1][1][1][1] == "self"
@@ -123,6 +119,37 @@ local function definition_extractor(node)
       then
         atype = 'function'
         name = get_idx_stack(lhs[1]) or ''
+      elseif rhs[1].tag == 'Table'
+      then
+        local at
+        if tag == 'Local' then
+          at = 'local'
+        elseif tag == 'Set' then
+          at = 'global'
+        end
+        local tname = lhs[1][1]
+        name = tname
+        local rets = {
+          {
+            name = tname,
+            line = get_line_number(lhs),
+            type = at,
+          }
+        }
+        for _, v in ipairs(rhs) do
+          for _, w in ipairs(v) do
+            if type(w) == 'table' and
+                type(w[1]) == 'table' and w[1][1] then
+              local n = w[1][1]
+              table.insert(rets, {
+                name = tname .. '.' .. n,
+                line = get_line_number(w),
+                type = 'field',
+              })
+            end
+          end
+          return rets
+        end
       else
         --- @type token[]?
         local lhss = table.odds(node)

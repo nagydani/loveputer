@@ -17,6 +17,35 @@ local prep = function(s, defs)
   return { orig, defs }
 end
 
+local table1 = prep({
+  'local t = {',
+  ' ty = 3,',
+  '}',
+  't2 = {',
+  ' w1 = 1,',
+  ' w2 = 2,',
+  '}',
+  'a = {',
+  ' 1,',
+  ' z = 2,',
+  ' 3,',
+  '}',
+}, {
+  { name = 't',     line = 1,  type = 'local' },
+  { name = 't.ty',  line = 2,  type = 'field' },
+  { name = 't2',    line = 4,  type = 'global' },
+  { name = 't2.w1', line = 5,  type = 'field' },
+  { name = 't2.w2', line = 6,  type = 'field' },
+  { name = 'a',     line = 8,  type = 'global' },
+  { name = 'a.z',   line = 10, type = 'field' },
+})
+local table2 = prep({
+  'tmp = {}',
+  'tmp[1] = 2',
+}, {
+  { name = 'tmp', line = 1, type = 'global' }
+})
+
 local simple = {
   --- sets
   prep({
@@ -40,36 +69,8 @@ local simple = {
     { line = 2, name = 'y', type = 'local', },
   }),
   --- tables
-  --[[
-  prep({
-    'local t = {',
-    ' ty = 3,',
-    '}',
-    't2 = {',
-    ' w1 = 1,',
-    ' w2 = 2,',
-    '}',
-    'a = {',
-    ' 1,',
-    ' z = 2,',
-    ' 3,',
-    '}',
-  }, {
-    { name = 't',  line = 1, },
-    { name = 'ty', line = 2, },
-    { name = 't2', line = 4, },
-    { name = 'w1', line = 5, },
-    { name = 'w2', line = 6, },
-    { name = 'a',  line = 8, },
-    { name = 'z',  line = 10, },
-  }),
-  prep({
-    'tmp = {}',
-    'tmp[1] = 2',
-  }, {
-    { name = 'tmp', line = 1, }
-  }),
-  ]]
+  table1,
+  -- table2,
   --- functions
   prep({
     'function drawBackground()',
@@ -241,12 +242,24 @@ local full = {
     { line = 18, name = 'cfi',                type = 'local', },
     { line = 19, name = 'cla',                type = 'local', },
     { line = 20, name = 'cfirst',             type = 'local', },
+    { line = 20, name = 'cfirst.l',           type = 'field', },
+    { line = 20, name = 'cfirst.c',           type = 'field', },
     { line = 21, name = 'clast',              type = 'local', },
+    { line = 21, name = 'clast.l',            type = 'field', },
+    { line = 21, name = 'clast.c',            type = 'field', },
     { line = 22, name = 'off',                type = 'local', },
     { line = 23, name = 'd',                  type = 'local', },
     { line = 24, name = 'l_d',                type = 'local', },
     { line = 25, name = 'newline',            type = 'local', },
     { line = 26, name = 'li',                 type = 'local', },
+    { line = 27, name = 'li.idf',             type = 'field', },
+    { line = 28, name = 'li.idl',             type = 'field', },
+    { line = 29, name = 'li.first',           type = 'field', },
+    { line = 30, name = 'li.last',            type = 'field', },
+    { line = 31, name = 'li.text',            type = 'field', },
+    { line = 32, name = 'li.multiline',       type = 'field', },
+    { line = 33, name = 'li.position',        type = 'field', },
+    { line = 34, name = 'li.prepend_newline', type = 'field', },
   }),
 }
 
