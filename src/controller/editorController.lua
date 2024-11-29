@@ -382,6 +382,7 @@ end
 function EditorController:_search_mode_keys(k)
   if k == 'escape' then
     self:set_mode('edit')
+    self.search:clear()
     return
   end
 
@@ -389,6 +390,7 @@ function EditorController:_search_mode_keys(k)
   if jump then
     self.view.buffer:scroll_to_line(jump - 1)
     self:set_mode('edit')
+    self.search:clear()
   end
 end
 

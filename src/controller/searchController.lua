@@ -33,6 +33,16 @@ function SearchController:get_input()
   return self.input:get_input()
 end
 
+function SearchController:clear()
+  self.model.input:clear_input()
+  self.model:clear()
+end
+
+function SearchController:update_results()
+  local kws = self.input:get_text()[1]
+  self.model:narrow(kws)
+end
+
 ---------------------------
 ---  keyboard handlers  ---
 ---------------------------
@@ -64,8 +74,20 @@ function SearchController:keypressed(k)
     end
 
   end
+  local function removers()
+    local input = self.model.input
+    if k == "backspace" then
+      input:backspace()
+      self:update_results()
+    end
+    if k == "delete" then
+      input:delete()
+      self:update_results()
+    end
+  end
 
   navigate()
+  removers()
   if Key.is_enter(k) then
     local sel = self.model.selection
     local r = self.model.resultset[sel].r
@@ -77,4 +99,5 @@ end
 --- @param t string
 function SearchController:textinput(t)
   self.input:add_text(t)
+  self:update_results()
 end

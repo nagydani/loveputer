@@ -14,8 +14,10 @@ local class = require('util.class')
 --- @field selection integer?
 ---
 --- @field load function
+--- @field clear function
 --- @field get_results function
 --- @field move_selection function
+--- @field narrow function
 
 --- @param cfg Config
 Search = class.create(function(cfg)
@@ -40,6 +42,11 @@ function Search:load(items)
     end
     self.selection = 1
   end
+end
+
+function Search:clear()
+  self.searchset = {}
+  self.resultset = {}
 end
 
 --- @return table[]
@@ -77,4 +84,44 @@ function Search:move_selection(dir, by, warp)
     end
   end
   return false
+end
+
+--- @param input string
+function Search:narrow(input)
+  local csel = self.selection
+  local selected = self.resultset[csel]
+  self.resultset = nil
+  local res = {}
+  local filter = string.ulen(input) > 0
+
+  local function match(val)
+    local kw
+    if string.is_lower(input) then
+      kw = string.lower(val)
+    else
+      kw = val
+    end
+    return string.matches(kw, input)
+  end
+
+  for i, v in ipairs(self.searchset) do
+    if not filter
+        or match(v.name)
+    then
+      table.insert(res, {
+        idx = i,
+        r = v,
+      })
+    end
+  end
+  self.resultset = res
+  if filter then
+    -- find current
+    -- if present, select
+    -- if not, just adjust for length
+    local rl = #(self.resultset)
+    if csel > rl then
+      self.selection = rl
+    end
+  end
 end
