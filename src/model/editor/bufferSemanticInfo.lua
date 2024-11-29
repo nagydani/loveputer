@@ -1,18 +1,9 @@
 require('util.table')
 
--- @class BufferLocation
--- @field line integer
--- @field lineinfo? lineinfo
+--- @alias blocknum integer
 
 --- @class Definition: Assignment
 --- @field block blocknum
--- @field loc BufferLocation
-
---- @alias token_id string
---- @alias blocknum integer
---- @alias DefBlockMap { [blocknum]: token_id[] }
--- --- @alias DefBlock token_id[][]
-
 
 --- @class BufferSemanticInfo
 --- @field definitions Definition[]
