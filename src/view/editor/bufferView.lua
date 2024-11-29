@@ -195,6 +195,12 @@ function BufferView:scroll_to(off)
   self:scroll('down', off)
 end
 
+--- @param ln integer
+function BufferView:scroll_to_line(ln)
+  local off = self.content.wrap_forward[ln][1]
+  self:scroll_to(off)
+end
+
 --- @return boolean
 --- @return VerticalDir?
 --- @return number? diff

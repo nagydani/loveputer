@@ -6,6 +6,7 @@ require("view.input.userInputView")
 --- @param ctrl SearchController
 local function new(cfg, ctrl)
   return {
+    controller = ctrl,
     results = ResultsView(cfg),
     input = UserInputView(cfg, ctrl.input)
   }
@@ -19,6 +20,8 @@ SearchView = class.create(new)
 
 --- @param input InputDTO
 function SearchView:draw(input)
-  self.results:draw()
+  local ctrl = self.controller
+  local rs = ctrl:get_results()
+  self.results:draw(rs)
   self.input:draw(input)
 end

@@ -1,4 +1,6 @@
 require("model.editor.content")
+local analyzer = require("model.lang.analyze")
+local bsi = require("model.editor.bufferSemanticInfo")
 
 local class = require('util.class')
 require('util.table')
@@ -6,6 +8,7 @@ require('util.range')
 require('util.string')
 require('util.dequeue')
 
+--- Todo: convert to class, store revmap
 --- @alias Content Dequeue<string>|Dequeue<Block>
 
 --- @alias Chunker fun(s: string[], s: boolean?): Dequeue<Block>
@@ -22,24 +25,43 @@ require('util.dequeue')
 --- @return BufferModel?
 local function new(name, content, save,
                    chunker, highlighter, printer)
-  local _content, sel, ct
+  local _content, sel, ct, semantic
+  local revmap = {}
   local readonly = false
 
-  if type(chunker) == "function" then
+  local function plaintext()
+    ct = 'plain'
+    _content = Dequeue(content, 'string')
+    sel = #_content + 1
+  end
+  --- only passing this around so the linter shuts up about nil
+  --- @param chk function
+  local function luacontent(chk)
     ct = 'lua'
-    local ok, blocks = chunker(content)
+    local ok, blocks, ast = chk(content)
     if ok then
       local len = #blocks
       sel = len + 1
+      local ana = analyzer.analyze(ast)
+      for bi, v in ipairs(blocks) do
+        if (v.pos) then
+          for _, l in ipairs(v.pos:enumerate()) do
+            revmap[l] = bi
+          end
+        end
+      end
+      semantic = bsi.convert(ana, revmap)
     else
       readonly = true
       sel = 1
     end
     _content = blocks
+  end
+
+  if type(chunker) == "function" then
+    luacontent(chunker)
   else
-    ct = 'plain'
-    _content = Dequeue(content, 'string')
-    sel = #_content + 1
+    plaintext()
   end
 
   return {
@@ -50,6 +72,7 @@ local function new(name, content, save,
     chunker = chunker,
     highlighter = highlighter,
     printer = printer,
+    semantic = semantic,
     selection = sel,
     readonly = readonly
   }

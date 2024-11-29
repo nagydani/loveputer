@@ -130,3 +130,7 @@
 --- @field once integer
 
 --- @class LuaEnv : table
+
+--- @class ResultsDTO table
+--- @field results table[]
+--- @field selection integer

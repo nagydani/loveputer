@@ -10,7 +10,7 @@ require('util.tree')
 --- @class Assignment
 --- @field name string
 --- @field line integer
---- @field type? AssignmentType
+--- @field type AssignmentType
 
 --- @class SemanticInfo
 --- @field assignments Assignment[]

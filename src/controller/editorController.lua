@@ -11,6 +11,7 @@ local function new(M)
     input = UserInputController(M.input, nil, false),
     model = M,
     search = SearchController(
+      M.search,
       UserInputController(M.search.input, nil, false)
     ),
     view = nil,
@@ -92,12 +93,21 @@ function EditorController:set_mode(mode)
   local set_reorg = function()
     self:save_state()
   end
+  local init_search = function()
+    self:save_state()
+    local buf = self:get_active_buffer()
+    local ds = buf.semantic.definitions
+    self.search:load(ds)
+  end
 
   local current = self.mode
   Log.info('-- ' .. string.upper(mode) .. ' --')
   if is_normal(current) then
     if mode == 'reorder' then
       set_reorg()
+    end
+    if mode == 'search' then
+      init_search()
     end
     self.mode = mode
   else
@@ -375,7 +385,11 @@ function EditorController:_search_mode_keys(k)
     return
   end
 
-  self.search:keypressed(k)
+  local jump = self.search:keypressed(k)
+  if jump then
+    self.view.buffer:scroll_to_line(jump - 1)
+    self:set_mode('edit')
+  end
 end
 
 --- @private
