@@ -38,7 +38,7 @@ function ResultsView:draw(results)
       elseif t == 'global' then
         return "⭘"
       elseif t == 'field' then
-        return ""
+        return "┇"
       end
     end
     G.push('all')
@@ -60,7 +60,6 @@ function ResultsView:draw(results)
     end
     G.pop()
   end
-
 
   local draw_selection = function()
     local highlight_line = function(ln)
