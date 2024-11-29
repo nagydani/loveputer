@@ -76,7 +76,11 @@ a project must be selected first.
 | Move selection to start                                           | <kbd>Ctrl</kbd>+<kbd>Home</kbd>               |
 | Move selecion to end                                              | <kbd>Ctrl</kbd>+<kbd>End</kbd>                |
 | Cancel moving                                                     | <kbd>Esc</kbd>                                |
-| Move line/block to selection and return to normal mode            | <kbd>Enter ⏎</kbd>                            |
+| Move line/block to selection and return to normal mode            | <kbd>Enter ⏎</kbd>                            |  | <kbd>Ctrl</kbd>+<kbd>End</kbd> |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _search mode_                |
+| Search definitions                                                | <kbd>Ctrl</kbd>+<kbd>F</kbd>                  |
+| Exit search                                                       | <kbd>Esc</kbd>                                |
+| Jump to selected definition                                       | <kbd>Enter ⏎</kbd>                            |
 
 ### Projects
 
@@ -171,5 +175,17 @@ Move the highlight with <kbd>⇧</kbd>/<kbd>⇩</kbd> and hit
 
 ![move1](./doc/interface/move_line.apng)
 ![move2](./doc/interface/move_block.apng)
+
+#### Searching
+
+Definitions can be searched with <kbd>Ctrl-F</kbd>. Pressing
+this combination switches to search mode, in which the
+definitions are listed, and there's a highlight, which can be
+moved as usual. Hitting <kbd>Enter ⏎</kbd> returns to editing,
+highlighting the selected definition. To exit search mode
+without moving, press <kbd>Esc</kbd>.
+
+![search](./doc/interface/search.apng)
+
 
 [löve2d]: https://love2d.org
