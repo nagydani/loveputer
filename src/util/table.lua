@@ -246,6 +246,28 @@ function table.delete_by_value(self, e)
   return false
 end
 
+--- Find index of 'e' if present. Returns first instance
+--- @param self table
+--- @param e any
+--- @return integer?
+function table.find(self, e)
+  if not self or not e then return end
+  for i, v in pairs(self) do
+    if v == e then return i end
+  end
+end
+
+--- Find first element that the predicate holds for
+--- @param self table
+--- @param pred function
+--- @return integer?
+function table.find_by(self, pred)
+  if not self or not pred then return end
+  for i, v in pairs(self) do
+    if pred(v) then return i end
+  end
+end
+
 --- Return first n elements.
 --- TODO refactor to use slice()
 --- @param self table

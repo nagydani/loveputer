@@ -67,6 +67,31 @@ describe('table utils #table', function()
     end)
   end)
 
+  describe('find', function()
+    it('by value', function()
+      assert.equal(3, table.find(t2, 'c'))
+      assert.is_nil(table.find(t1, 15))
+      assert.is_nil(table.find(t2, 'd'))
+      assert.equal('key', table.find(t4, 'asd'))
+    end)
+    it('by predicate', function()
+      local gto = function(x) return x > 1 end
+      local isbool = function(b) return type(b) == "boolean" end
+      assert.equal(2, table.find_by(t1, gto))
+      assert.is_nil(table.find(t1, isbool))
+
+      local tt = {
+        { i = 1, val = 'a' },
+        { i = 2, val = 'b' },
+        { i = 3, val = 'c' },
+      }
+      local function idx(i)
+        return function(v) return v.i == i end
+      end
+      assert.equal(3, table.find_by(tt, idx(3)))
+    end)
+  end)
+
   describe('is_member', function()
     it('determines if table contains element', function()
       assert.is_false(table.is_member({}, 1))

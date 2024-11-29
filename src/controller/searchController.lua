@@ -88,6 +88,7 @@ function SearchController:keypressed(k)
 
   navigate()
   removers()
+
   if Key.is_enter(k) then
     local sel = self.model.selection
     local r = self.model.resultset[sel].r
