@@ -18,6 +18,7 @@ function ResultsView:draw(results)
   local colors = self.cfg.colors.editor
   local fh = self.cfg.fh * 1.032 -- magic constant
   local width, height = G.getDimensions()
+  local has_results = (results.results and #(results.results) > 0)
 
   local draw_background = function()
     G.push('all')
@@ -42,8 +43,7 @@ function ResultsView:draw(results)
     end
     G.push('all')
     G.setFont(self.cfg.font)
-    if not results.results
-        or #(results.results) == 0 then
+    if not has_results then
       G.setColor(Color.with_alpha(colors.results.fg, 0.5))
       G.print("No results", 25, 0)
     else
@@ -76,6 +76,8 @@ function ResultsView:draw(results)
   end
 
   draw_background()
-  draw_selection()
+  if has_results then
+    draw_selection()
+  end
   draw_results()
 end
