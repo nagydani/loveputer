@@ -8,17 +8,18 @@ require("util.range")
 
 --- @class VisibleStructuredContent: WrappedText
 --- @field overscroll_max integer
---- @field overscroll integer
+--- @field size_max integer
 --- @field range Range?
---- @field blocks VisibleBlock[]
+--- @field blocks Dequeue<VisibleBlock>
 --- @field reverse_map ReverseMap
 ---
 --- @field set_range fun(self, Range)
 --- @field get_range fun(self): Range
 --- @field move_range fun(self, integer): integer
 --- @field load_blocks fun(self, blocks: Block[])
+--- @field recalc_range function
 --- @field get_visible fun(self): string[]
---- @field get_visible_blocks fun(self): Block[]
+--- @field get_visible_blocks fun(self): VisibleBlock[]
 --- @field get_content_length fun(self): integer
 --- @field get_block_pos fun(self, integer): Range?
 --- @field get_block_app_pos fun(self, integer): Range?
@@ -38,6 +39,8 @@ setmetatable(VisibleStructuredContent, {
 --- @param w integer
 --- @param blocks Block[]
 --- @param highlighter fun(c: string[]): SyntaxColoring
+--- @param overscroll integer
+--- @param size_max integer
 --- @return VisibleStructuredContent
 function VisibleStructuredContent.new(w, blocks, highlighter,
                                       overscroll, size_max)
@@ -93,6 +96,18 @@ function VisibleStructuredContent:load_blocks(blocks)
   self.blocks = visible_blocks
 end
 
+function VisibleStructuredContent:recalc_range()
+  local ln, aln = 1, 1
+  for _, v in ipairs(self.blocks) do
+    local l = #(v.wrapped.orig)
+    local al = #(v.wrapped.text)
+    v.pos = Range(ln, ln + l - 1)
+    v.app_pos = Range(aln, aln + al - 1)
+    ln = ln + l
+    aln = aln + al
+  end
+end
+
 --- @private
 function VisibleStructuredContent:_update_meta()
   local rev = self.wrap_reverse
@@ -144,13 +159,11 @@ function VisibleStructuredContent:move_range(by)
   return 0
 end
 
---- @return string[]
 function VisibleStructuredContent:get_visible()
   local si, ei = self.range.start, self.range.fin
   return table.slice(self.text, si, ei)
 end
 
---- @return VisibleBlock[]
 function VisibleStructuredContent:get_visible_blocks()
   local si = self.wrap_reverse[self.range.start]
   local ei = self.wrap_reverse[self.range.fin]

@@ -124,15 +124,23 @@ function Statusline:draw(status, nLines, time)
         G.print(more_i, s_mi, start_text.y - 3)
 
         G.setColor(colors.fg)
+        if custom.mode == 'reorder'
+            and custom.content_type == 'plain' then
+          G.setColor(colors.special)
+        end
         --- block line range / line
         G.setFont(self.cfg.font)
         G.print(t_blp, sxl, start_text.y)
+        G.setColor(colors.fg)
         --- block number
         if custom.content_type == 'lua' then
           local bpw = G.getFont():getWidth(t_bbp)
           local sxb = sxl - bpw
           if sel == lim then
             G.setColor(colors.indicator)
+          end
+          if custom.mode == 'reorder' then
+            G.setColor(colors.special)
           end
           G.print(t_bbp, sxb, start_text.y)
         end

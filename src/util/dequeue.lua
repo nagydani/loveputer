@@ -1,12 +1,17 @@
 local class = require('util.class')
 
---- @class Dequeue<T>: { [integer]: T }
+---@diagnostic disable-next-line: duplicate-doc-alias
+---@alias Dequeue<integer, T> Dequeue|{[integer]: T}
+
+--- @class Dequeue
 --- @field new function
+--- @field repr fun(self, indent: boolean): string
 --- @field push_front function
 --- @field prepend function
 --- @field push_back function
 --- @field append function
 --- @field push function
+--- @field pop_at function
 --- @field insert function
 --- @field update function
 --- @field get function
@@ -15,6 +20,7 @@ local class = require('util.class')
 --- @field items function
 --- @field length function
 --- @field is_empty function
+--- @field move function
 Dequeue = class.create()
 
 local tags = {}
@@ -60,11 +66,11 @@ function Dequeue.typed(tag, values)
 end
 
 --- Return a string representation
---- @return string
 function Dequeue:repr()
-  local res = '['
+  local res = '[\n'
+  local dent = '  '
   for i, v in ipairs(self) do
-    res = res .. i .. ': ' .. tostring(v) .. ',\n'
+    res = res .. dent .. i .. ': ' .. tostring(v) .. ',\n'
   end
   res = res .. ']'
   return res
@@ -78,6 +84,24 @@ end
 
 function Dequeue:get_type()
   return self:type()
+end
+
+--- @param i integer
+--- @param add boolean
+--- @return boolean
+--- @return string? errmsg
+function Dequeue:is_valid(i, add)
+  if not i then return false, 'undefined' end
+  if i < 1 then return false, 'Index out of bounds (lower)' end
+  local l = self:length()
+  local u = (function()
+    if add then
+      return l + 1
+    end
+    return l
+  end)()
+  if i > u then return false, 'Index out of bounds (higher)' end
+  return true
 end
 
 --- Insert element at the start, reorganizing the array
@@ -135,20 +159,47 @@ function Dequeue:pop_back()
   return e
 end
 
+--- @private
+--- @param i integer
+--- @param add boolean
+--- @param f function
+--- @return boolean
+--- @return string|any err_or_result
+function Dequeue:_checked(i, add, f)
+  local ok, err = self:is_valid(i, add)
+
+  if ok then return true, f() end
+  return ok, err
+end
+
+--- Insert element at index
+--- @param i integer
+--- @return boolean
+--- @return string|any err_or_result
+function Dequeue:pop_at(i)
+  return self:_checked(i, false, function()
+    local e = self:get(i)
+    table.remove(self, i)
+    return e
+  end)
+end
+
 --- Insert element at index
 --- @param v any
 --- @param i integer
 function Dequeue:insert(v, i)
-  -- TODO: bounds check
-  table.insert(self, i, v)
+  self:_checked(i, true, function()
+    table.insert(self, i, v)
+  end)
 end
 
 --- Update element at index
 --- @param v any
 --- @param i integer
 function Dequeue:update(v, i)
-  -- TODO: bounds check
-  self[i] = v
+  self:_checked(i, false, function()
+    self[i] = v
+  end)
 end
 
 --- Get element at index
@@ -202,4 +253,22 @@ end
 --- @return boolean
 function Dequeue:is_empty()
   return self:length() == 0
+end
+
+--- Move element at i[ndex] to n[ew ]pos
+--- @param i integer
+--- @param npos integer
+--- @return boolean success
+--- @return string? err
+function Dequeue:move(i, npos)
+  local iok, ierr = self:is_valid(i, false)
+  if not iok then return false, ierr end
+  local nok, nerr = self:is_valid(npos, false)
+  if not nok then return false, nerr end
+
+  if i == npos then return true end
+
+  local _, e = self:pop_at(i)
+  table.insert(self, npos, e)
+  return true
 end

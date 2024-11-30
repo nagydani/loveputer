@@ -32,6 +32,7 @@
 --- @field lines integer
 --- @field input_max integer
 --- @field show_append_hl boolean
+--- @field show_debug_timer boolean
 --- @field labelfont love.Font
 --- @field lfh integer -- font height
 --- @field lfw integer -- font width
@@ -94,14 +95,23 @@
 --- @field V UserInputView
 --- @field C UserInputController
 
----@alias AppState
----| 'starting'
----| 'title'
----| 'ready'
----| 'project_open'
----| 'editor'
----| 'running'
----| 'inspect'
+--- @alias AppState
+--- | 'starting'
+--- | 'title'
+--- | 'ready'
+--- | 'project_open'
+--- | 'editor'
+--- | 'running'
+--- | 'inspect'
+
+--- @class BufferState table
+--- @field filename string
+--- @field selection integer
+--- @field offset integer
+--- @class EditorState table
+--- @field buffer BufferState
+--- @field clipboard string?
+--- @field moved integer?
 
 --- @class LoveState table
 --- @field testing boolean
@@ -109,7 +119,7 @@
 --- @field user_input UserInput?
 --- @field app_state AppState
 --- @field prev_state AppState?
---- @field edited_file string?
+--- @field editor EditorState?
 
 --- @class LoveDebug table
 --- @field show_snapshot boolean

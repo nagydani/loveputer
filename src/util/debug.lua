@@ -1,8 +1,8 @@
 --- @diagnostic disable: redefined-local
 
+require("util.filesystem")
 require("util.string")
 require("util.table")
-require("util.filesystem")
 local tc = require("util.termcolor")
 local OS = require("util.os")
 
@@ -436,6 +436,7 @@ end
 
 --- @param s string
 local function hash(s)
+  local require = _G.o_require or _G.require
   local bit = require('bit')
   -- http://www.cs.yorku.ca/~oz/hash.html
 

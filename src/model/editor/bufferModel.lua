@@ -6,7 +6,6 @@ require('util.range')
 require('util.string')
 require('util.dequeue')
 
---- @alias Block Empty|Chunk
 --- @alias Content Dequeue<string>|Dequeue<Block>
 
 --- @alias Chunker fun(s: string[], s: boolean?): Dequeue<Block>
@@ -15,7 +14,7 @@ require('util.dequeue')
 
 
 --- @param name string
---- @param content string[]
+--- @param content Dequeue<string>
 --- @param save function
 --- @param chunker Chunker?
 --- @param highlighter Highlighter?
@@ -74,8 +73,15 @@ end
 --- @field get_selected_text function
 --- @field delete_selected_text function
 --- @field replace_selected_text function
---- @field render_content fun(self): string[]
+--- @field get_text_content fun(self): Dequeue<string>
 BufferModel = class.create(new)
+
+function BufferModel:rechunk()
+  if self.content_type ~= 'lua' then return end
+  local content = self:get_text_content()
+  local _, blocks = self.chunker(content)
+  self.content = blocks
+end
 
 function BufferModel:save()
   return self.save_file(self:get_text_content())
@@ -87,31 +93,18 @@ function BufferModel:get_content()
 end
 
 --- Return the buffer content as a string array
---- @return string[]
 function BufferModel:get_text_content()
+  --- TODO require
+  require = _G.o_require or _G.require
+  local B = require('util.block')
   if self.content_type == 'lua'
   then
-    return self:_render_blocks(self.content)
+    return B.render_blocks(self.content)
   elseif self.content_type == 'plain'
   then
     return self.content
   end
-  return {}
-end
-
---- Convert Blocks to string array
---- @return string[]
-function BufferModel:_render_blocks(blocks)
-  local ret = Dequeue.typed('string')
-  for _, v in ipairs(blocks) do
-    if v:is_empty() then
-      ret:append('')
-    else
-      ret:append_all(v.lines)
-    end
-  end
-  ret:append('')
-  return ret
+  return Dequeue.typed('string')
 end
 
 --- Returns number of lines/blocks
@@ -123,9 +116,14 @@ end
 --- @param dir VerticalDir
 --- @param by integer
 --- @param warp boolean?
+--- @param move boolean?
 --- @return boolean moved
-function BufferModel:move_selection(dir, by, warp)
-  local last = self:get_content_length() + 1
+function BufferModel:move_selection(dir, by, warp, move)
+  local l = self:get_content_length()
+  local last = (function()
+    if move then return l end
+    return l + 1
+  end)()
   if warp then
     if dir == 'up' then
       self.selection = 1
@@ -153,6 +151,11 @@ function BufferModel:move_selection(dir, by, warp)
     end
   end
   return false
+end
+
+--- @param sel integer
+function BufferModel:set_selection(sel)
+  self.selection = sel
 end
 
 --- Get index of selected line/block
@@ -321,6 +324,15 @@ function BufferModel:insert_newline(i)
     end
   else
     self.content:insert('', bln)
+  end
+end
+
+--- @param i integer
+--- @param npos integer
+function BufferModel:move(i, npos)
+  self.content:move(i, npos)
+  if self.content_type == 'lua' then
+    self:rechunk()
   end
 end
 

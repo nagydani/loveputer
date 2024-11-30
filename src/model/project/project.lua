@@ -1,3 +1,4 @@
+require("util.lua")
 require("util.string")
 require("util.filesystem")
 local class = require('util.class')
@@ -87,6 +88,31 @@ function Project:readfile(name)
     return false, messages.file_does_not_exist(name)
   else
     return true, FS.lines(fp)
+  end
+end
+
+--- @return function? chunk
+function Project:load_file(filename)
+  local rok, content = self:readfile(filename)
+  if rok then
+    local code = string.unlines(content)
+    return codeload(code)
+  end
+end
+
+--- @return function
+function Project:get_loader()
+  --- @param modname string
+  --- @return unknown|string
+  return function(modname)
+    local fn = modname .. '.lua'
+    local f = self:load_file(fn)
+    if f then
+      return assert(f)
+    else
+      return string.format(
+        "\n\tno file %s (project loader)", fn)
+    end
   end
 end
 
@@ -218,6 +244,9 @@ function ProjectService:open(name)
   return false, p_err
 end
 
+--- @return boolean open
+--- @return boolean create
+--- @return string? err
 function ProjectService:opreate(name)
   local ook, _ = self:open(name)
   if ook then
@@ -228,7 +257,7 @@ function ProjectService:opreate(name)
       self:open(name)
       return false, cok
     else
-      return false, c_err
+      return false, false, c_err
     end
   end
 end
@@ -284,21 +313,11 @@ function ProjectService:run(name, env)
     p_path, err = is_project(ProjectService.path, name)
   end
   if p_path then
-    local main = FS.join_path(p_path, ProjectService.MAIN)
     self:open(name or self.current.name)
 
-    local codeload = function()
-      if _G.web then
-        local code = FS.read(main)
-        if not code then return end
-        local f = loadstring(code)
-        if not f then return end
-        setfenv(f, env)
-        return f
-      end
-      return loadfile(main, 't', env)
-    end
-    local content = codeload()
+    local _, lines = self.current:readfile(ProjectService.MAIN)
+    local code = string.unlines(lines)
+    local content = codeload(code, env)
     return content, nil, p_path
   end
   return nil, err

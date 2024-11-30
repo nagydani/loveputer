@@ -128,6 +128,65 @@ describe("input model spec #input", function()
     end)
   end)
 
+  describe('swaps lines', function()
+    local model = UserInputModel(mockConf, luaEval)
+    local test_t = {
+      'function x()',
+      '  y = 2',
+      '  z = 3',
+      'end',
+    }
+    model:set_text(test_t)
+    it('init', function()
+      assert.same(test_t, model:get_text())
+      model:jump_home()
+      local cl, cc = model:_get_cursor_pos()
+      assert.same(1, cl)
+      assert.same(1, cc)
+      model:cursor_vertical_move('down')
+      cl, cc = model:_get_cursor_pos()
+      assert.same(2, cl)
+      assert.same(1, cc)
+      model:swap_lines(3)
+      local after = {
+        'function x()',
+        '  z = 3',
+        '  y = 2',
+        'end',
+      }
+      assert.same(after, model:get_text())
+      cl, cc = model:_get_cursor_pos()
+      assert.same(3, cl)
+      assert.same(1, cc)
+      model:swap_lines(2, 3)
+      assert.same(test_t, model:get_text())
+    end)
+  end)
+
+  describe('reports', function()
+    it('whether cursor is at limit lines', function()
+      local model = UserInputModel(mockConf, luaEval)
+      assert.is_true(model:is_at_limit())
+      assert.is_true(model:is_at_limit('up'))
+      assert.is_true(model:is_at_limit('down'))
+      model:line_feed()
+      assert.is_true(model:is_at_limit())
+      assert.is_false(model:is_at_limit('up'))
+      assert.is_true(model:is_at_limit('down'))
+      model:line_feed()
+      assert.is_true(model:is_at_limit())
+      assert.is_false(model:is_at_limit('up'))
+      assert.is_true(model:is_at_limit('down'))
+      model:cursor_vertical_move('up')
+      assert.is_false(model:is_at_limit())
+      assert.is_false(model:is_at_limit('up'))
+      assert.is_false(model:is_at_limit('down'))
+      model:cursor_vertical_move('up')
+      assert.is_true(model:is_at_limit())
+      assert.is_true(model:is_at_limit('up'))
+      assert.is_false(model:is_at_limit('down'))
+    end)
+  end)
 
   -----------------
   --   UTF-8     --

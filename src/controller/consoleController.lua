@@ -3,7 +3,6 @@ require("controller.interpreterController")
 require("controller.editorController")
 
 local class = require('util.class')
-require("util.lua")
 require("util.testTerminal")
 require("util.key")
 local LANG = require("util.eval")
@@ -16,6 +15,7 @@ require("util.table")
 --- @field pre_env LuaEnv
 --- @field base_env LuaEnv
 --- @field project_env LuaEnv
+--- @field loaders function[]
 --- @field input InputController
 --- @field interpreter InterpreterController
 --- @field editor EditorController
@@ -50,6 +50,8 @@ function ConsoleController.new(M)
     -- subject to change, for example when switching projects
     project_env = {},
 
+    loaders     = {},
+
     view        = nil,
 
     cfg         = config
@@ -66,6 +68,18 @@ function ConsoleController:set_view(V)
   self.view = V
 end
 
+--- @param name string
+--- @param f function
+function ConsoleController:cache_loader(name, f)
+  self.loaders[name] = f
+end
+
+--- @param name string
+--- @return function?
+function ConsoleController:get_loader(name)
+  return self.loaders[name]
+end
+
 --- @param f function
 --- @param cc ConsoleController
 --- @param project_path string?
@@ -77,17 +91,14 @@ local function run_user_code(f, cc, project_path)
   local env = cc:get_base_env()
 
   G.setCanvas(cc:get_canvas())
-  local old_path = package.path
   local ok, call_err
   if project_path then
-    package.path = string.format('%s;%s/?.lua', package.path, project_path)
-    env = cc.project_env
+    env = cc:get_project_env()
   end
   ok, call_err = pcall(f)
-  if project_path then -- user project exec
+  if project_path and ok then -- user project exec
     Controller.set_user_handlers(env['love'])
   end
-  package.path = old_path
   output:restore_main()
   G.setCanvas()
   if not ok then
@@ -102,6 +113,8 @@ local function close_project(cc)
   local ok = cc:close_project()
   if ok then
     print('Project closed')
+  else
+    Log.err('error in closing')
   end
 end
 
@@ -136,25 +149,53 @@ function ConsoleController:run_project(name)
   if love.state.app_state == 'inspect' or
       love.state.app_state == 'running'
   then
-    self.interpreter:set_error("There's already a project running!", true)
+    self.interpreter:set_error(
+      "There's already a project running!", true)
     return
   end
-  local P            = self.model.projects
-  local runner_env   = self:get_project_env()
-  local f, err, path = P:run(name, runner_env)
-  if f then
-    local n = name or P.current.name or 'project'
-    Log.info('Running \'' .. n .. '\'')
-    local ok, run_err = run_user_code(f, self, path)
-    if ok then
-      if Controller.has_user_update() then
-        love.state.app_state = 'running'
+  local P = self.model.projects
+  local ok
+  if P.current then
+    ok = true
+  else
+    ok = self:open_project(name)
+  end
+  if ok then
+    local runner_env   = self:get_project_env()
+    local f, err, path = P:run(name, runner_env)
+    if f then
+      local n = name or P.current.name or 'project'
+      Log.info('Running \'' .. n .. '\'')
+      local ok, run_err = run_user_code(f, self, path)
+      if ok then
+        if Controller.has_user_update() then
+          love.state.app_state = 'running'
+        end
+      else
+        print('Error: ', run_err)
       end
     else
-      print('Error: ', run_err)
+      print(err)
     end
-  else
-    print(err)
+  end
+end
+
+_G.o_require = _G.require
+--- @param cc ConsoleController
+--- @param name string
+local function project_require(cc, name)
+  local P = cc.model.projects
+  local fn = name .. '.lua'
+  local open = P.current
+  if open then
+    local chunk = open:load_file(fn)
+    if chunk then
+      setfenv(chunk, cc:get_project_env())
+      chunk()
+    end
+    --- TODO: is it desirable to allow out-of-project require?
+    -- else
+    -- _require(name)
   end
 end
 
@@ -163,6 +204,10 @@ function ConsoleController.prepare_env(cc)
   prepared.G                = love.graphics
 
   local P                   = cc.model.projects
+
+  prepared.require          = function(name)
+    return project_require(cc, name)
+  end
 
   --- @param f function
   local check_open_pr       = function(f, ...)
@@ -189,16 +234,11 @@ function ConsoleController.prepare_env(cc)
   end
 
   --- @param name string
-  prepared.project          = function(name)
-    local open, create, err = P:opreate(name)
-    if open then
-      print('Project ' .. name .. ' opened')
-    elseif create then
-      print('Project ' .. name .. ' created')
-    else
-      print(err)
-    end
+  local open_project        = function(name)
+    return cc:open_project(name)
   end
+
+  prepared.project          = open_project
 
   prepared.close_project    = function()
     close_project(cc)
@@ -298,9 +338,16 @@ function ConsoleController.prepare_project_env(cc)
   local project_env           = cc:get_pre_env_c()
   project_env.G               = love.graphics
 
+  project_env.require         = function(name)
+    return project_require(cc, name)
+  end
+
   --- @param msg string?
-  project_env.stop            = function(msg)
+  project_env.pause           = function(msg)
     cc:suspend_run(msg)
+  end
+  project_env.stop            = function()
+    cc:stop_project_run()
   end
 
   project_env.continue        = function()
@@ -397,24 +444,14 @@ function ConsoleController:evaluate_input()
         end
         return self:get_console_env()
       end)()
-      local codeload = function()
-        if _G.web then
-          local f = loadstring(code)
-          if f then
-            setfenv(f, run_env)
-            return f
-          end
-        end
-        return load(code, '', 't', run_env)
-      end
-      local f, load_err = codeload()
+      local f, load_err = codeload(code, run_env)
       if f then
         local _, err = run_user_code(f, self)
         if err then
           inter:set_error(err, true)
         end
       else
-        -- this means that metalua failed to catch some invalid code
+        -- this means that metalua failed to catch invalid code
         Log.error('Load error:', LANG.get_call_error(load_err))
         inter:set_error(load_err, true)
       end
@@ -473,7 +510,6 @@ end
 
 --- @param msg string?
 function ConsoleController:suspend_run(msg)
-  -- local base_env   = self:get_base_env()
   local runner_env = self:get_project_env()
   if love.state.app_state ~= 'running' then
     return
@@ -490,12 +526,51 @@ function ConsoleController:suspend_run(msg)
   Controller.set_default_handlers(self, self.view)
 end
 
+--- @return boolean success
+function ConsoleController:open_project(name)
+  local P = self.model.projects
+  local open, create, err = P:opreate(name)
+  local ok = open or create
+  if ok then
+    local project_loader = (function()
+      local cached = self.loaders[name]
+      if cached then
+        return cached
+      else
+        local loader = P.current:get_loader()
+        self:cache_loader(name, loader)
+        return loader
+      end
+    end)()
+    if not table.is_member(package.loaders, project_loader)
+    then
+      table.insert(package.loaders, 1, project_loader)
+    end
+  end
+  if open then
+    print('Project ' .. name .. ' opened')
+  elseif create then
+    print('Project ' .. name .. ' created')
+  else
+    print(err)
+  end
+  return ok
+end
+
+--- @return boolean success
 function ConsoleController:close_project()
   local P = self.model.projects
-  P:close()
+  local name = P.current.name
+  local ok = P:close()
+  local lf = self:get_loader(name)
+  if lf then
+    table.delete_by_value(package.loaders, lf)
+  end
   self:_reset_executor_env()
   self.model.output:clear_canvas()
+  View.clear_snapshot()
   love.state.app_state = 'ready'
+  return ok
 end
 
 function ConsoleController:stop_project_run()
@@ -509,21 +584,27 @@ function ConsoleController:stop_project_run()
 end
 
 function ConsoleController:quit_project()
-  self.model.output:reset()
-  self.interpreter:reset()
   self:stop_project_run()
   self:close_project()
+  self.model.output:reset()
+  self.interpreter:reset()
 end
 
 --- @param name string
-function ConsoleController:edit(name)
+--- @param state EditorState
+function ConsoleController:edit(name, state)
   if love.state.app_state == 'running' then return end
 
-  local PS       = self.model.projects
-  local p        = PS.current
-  local filename = name or ProjectService.MAIN
-  local fpath    = p:get_path(filename)
-  local ex       = FS.exists(fpath)
+  local PS = self.model.projects
+  local p  = PS.current
+  local filename
+  if state and state.buffer then
+    filename = state.buffer.filename
+  else
+    filename = name or ProjectService.MAIN
+  end
+  local fpath = p:get_path(filename)
+  local ex    = FS.exists(fpath)
   local text
   if ex then
     text = self:_readfile(filename)
@@ -534,16 +615,18 @@ function ConsoleController:edit(name)
     return self:_writefile(filename, newcontent)
   end
   self.editor:open(filename, text, save)
+  self.editor:restore_state(state)
 end
 
---- @return string? filename
+--- @return EditorState?
 function ConsoleController:finish_edit()
+  self.editor:save_state()
   local name, newcontent = self.editor:close()
   local ok, err = self:_writefile(name, newcontent)
   if ok then
     love.state.app_state = love.state.prev_state
     love.state.prev_state = nil
-    return name
+    return self.editor:get_state()
   else
     print(err)
   end
@@ -636,12 +719,6 @@ function ConsoleController:keypressed(k)
         end
       end
     end
-    -- Ctrl and Shift held
-    if Key.ctrl() and Key.shift() then
-      if k == "r" then
-        self:reset()
-      end
-    end
   end
 end
 
@@ -699,7 +776,7 @@ end
 
 function ConsoleController:autotest()
   --- @diagnostic disable-next-line undefined-global
-  local autotest = prequire('tests/autotest')
+  local autotest = prequire('tests.autotest')
   if autotest then
     autotest(self)
   end

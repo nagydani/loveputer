@@ -420,6 +420,7 @@ return function(lib)
         end
 
         if single or not has_lines then
+          --- @diagnostic disable-next-line: param-type-mismatch
           local single_comment = ast_extract_comments(r, {}, wrap)
           get_comments(single_comment, 'first')
         end

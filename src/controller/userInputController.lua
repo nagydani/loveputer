@@ -37,10 +37,17 @@ function UserInputController:set_text(t)
   self.model:set_text(t)
 end
 
+--- @return boolean
 function UserInputController:is_empty()
   local ent = self:get_text()
   local is_empty = not string.is_non_empty_string_array(ent)
   return is_empty
+end
+
+--- @param dir VerticalDir?
+--- @return boolean
+function UserInputController:is_at_limit(dir)
+  return self.model:is_at_limit(dir)
 end
 
 ----------------
@@ -150,12 +157,30 @@ function UserInputController:keypressed(k)
     input:clear_selection()
   end
   local function copy()
-    local t = input:get_selected_text()
-    love.system.setClipboardText(string.unlines(t))
+    local t = string.unlines(input:get_selected_text())
+    if string.is_non_empty_string(t) then
+      love.system.setClipboardText(t)
+    end
   end
   local function cut()
-    local t = input:pop_selected_text()
-    love.system.setClipboardText(string.unlines(t))
+    local t = string.unlines(
+      input:pop_selected_text() or { '' }
+    )
+    if string.is_non_empty_string(t) then
+      love.system.setClipboardText(t)
+    end
+  end
+  --- @param dir VerticalDir
+  local function swap_line(dir)
+    local cl = input:get_cursor_y()
+    --- this looks reversed because the cursor is already moved
+    --- by the time we are here, so we are swapping the previous
+    --- line with the current, not the current with the next
+    local pl = (function()
+      if dir == 'up' then return cl + 1 end
+      if dir == 'down' then return cl - 1 end
+    end)()
+    if pl then input:swap_lines(cl, pl) end
   end
 
   -- action categories
@@ -166,6 +191,11 @@ function UserInputController:keypressed(k)
     if k == "delete" then
       input:delete()
     end
+    if Key.ctrl() then
+      if k == "y" then
+        input:delete_line()
+      end
+    end
   end
   local function vertical()
     if k == "up" then
@@ -175,6 +205,14 @@ function UserInputController:keypressed(k)
     if k == "down" then
       local l = input:cursor_vertical_move('down')
       ret = l
+    end
+    if Key.alt() then
+      if k == "up" then
+        swap_line('up')
+      end
+      if k == "down" then
+        swap_line('down')
+      end
     end
   end
   local function horizontal()
@@ -241,7 +279,7 @@ function UserInputController:keypressed(k)
   local function selection()
     local en = not self.disable_selection
     if en and Key.shift() then
-      input:hold_selection()
+      input:hold_selection(false)
     end
   end
 
@@ -331,6 +369,10 @@ end
 --   mouse   --
 ---------------
 
+--- @param x integer
+--- @param y integer
+--- @return integer c
+--- @return integer l
 function UserInputController:_translate_to_input_grid(x, y)
   local cfg = self.model.cfg
   local h = cfg.view.h
@@ -343,6 +385,10 @@ function UserInputController:_translate_to_input_grid(x, y)
   return char, line
 end
 
+--- @param x integer
+--- @param y integer
+--- @param btn integer
+--- @param handler function
 function UserInputController:_handle_mouse(x, y, btn, handler)
   if btn == 1 then
     local im = self.model
@@ -354,6 +400,9 @@ function UserInputController:_handle_mouse(x, y, btn, handler)
   end
 end
 
+--- @param x integer
+--- @param y integer
+--- @param btn integer
 function UserInputController:mousepressed(x, y, btn)
   local im = self.model
   self:_handle_mouse(x, y, btn, function(l, c)
@@ -361,6 +410,9 @@ function UserInputController:mousepressed(x, y, btn)
   end)
 end
 
+--- @param x integer
+--- @param y integer
+--- @param btn integer
 function UserInputController:mousereleased(x, y, btn)
   local im = self.model
   self:_handle_mouse(x, y, btn, function(l, c)
@@ -369,6 +421,10 @@ function UserInputController:mousereleased(x, y, btn)
   im:release_selection()
 end
 
+--- @param x integer
+--- @param y integer
+--- @param dx integer?
+--- @param dy integer?
 function UserInputController:mousemoved(x, y, dx, dy)
   local im = self.model
   self:_handle_mouse(x, y, 1, function(l, c)

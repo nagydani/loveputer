@@ -130,9 +130,11 @@ function InputModel:_set_text_line(text, ln, keep_cursor)
   if type(text) == 'string' then
     local ent = self:get_text()
     if ent then
-      ent:update(text, ln)
-      if not keep_cursor then
-        self:_update_cursor(true)
+      local l = self:get_n_text_lines()
+      if ln > l then
+        ent:append(text)
+      else
+        ent:update(text, ln)
       end
     elseif type(text) == 'table' and ln == 1 then
       self.entered = InputText(text)

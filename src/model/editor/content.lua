@@ -1,5 +1,8 @@
 local class = require('util.class')
+require("util.dequeue")
 require("util.range")
+
+--- @alias Block Empty|Chunk
 
 --- @class Empty
 --- @field tag 'empty'
@@ -21,7 +24,7 @@ end
 
 --- @class Chunk
 --- @field tag 'chunk'
---- @field lines string[]
+--- @field lines Dequeue<string>
 --- @field hl SyntaxColoring
 --- @field pos Range
 Chunk = class.create()
@@ -35,7 +38,7 @@ function Chunk.new(lines, pos)
   end)()
   local self = setmetatable({
     tag = 'chunk',
-    lines = ls,
+    lines = Dequeue(ls),
     pos = pos,
   }, Chunk)
 

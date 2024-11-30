@@ -8,6 +8,7 @@ local get_user_input = function()
 end
 --- @type boolean
 local user_update
+--- @type boolean
 local user_draw
 
 local _supported = {
@@ -20,6 +21,41 @@ local _supported = {
   'mousereleased',
 }
 
+local _C
+
+--- @param msg string
+local function user_error_handler(msg)
+  local parts = string.split(msg, ':')
+  if #parts > 2 then
+    local path       = parts[1]
+    local ln         = parts[2]
+    local err        = string.trim(parts[3])
+    local path_parts = string.split(path, '/')
+    local filename   = path_parts[#path_parts]
+    msg              = string.format('%s:%s: %s', filename, ln, err)
+  end
+  local user_msg = 'Execution error at ' .. msg
+  _C:suspend_run(user_msg)
+  print(user_msg)
+end
+
+--- @param f function
+--- @param ...   any
+--- @return boolean success
+--- @return any result
+--- @return any ...
+local function wrap(f, ...)
+  return xpcall(f, user_error_handler, ...)
+end
+
+--- @param f function
+--- @return function
+local function error_wrapper(f)
+  return function(...)
+    return wrap(f, ...)
+  end
+end
+
 --- @param userlove table
 local set_handlers = function(userlove)
   --- @param key string
@@ -27,7 +63,8 @@ local set_handlers = function(userlove)
     local orig = Controller._defaults[key]
     local new = userlove[key]
     if orig and new and orig ~= new then
-      love[key] = new
+      --- @type function
+      love[key] = error_wrapper(new)
     end
   end
 
@@ -50,10 +87,29 @@ local set_handlers = function(userlove)
   end
 end
 
+--- @class Handlers
+--- @field update function?
+--- @field draw function?
+--- @field keypressed function?
+--- @field keyreleased function?
+--- @field textinput function?
+--- @field mousemoved function?
+--- @field mousepressed function?
+--- @field mousereleased function?
+
+--- @class Controller
+--- @field _defaults Handlers
+--- @field _userhandler Handlers
+--- public interface
+--- @field set_love_draw function
+--- @field setup_callback_handlers function
+--- @field set_default_handlers function
+--- @field save_user_handlers function
+--- @field clear_user_handlers function
+--- @field restore_user_handlers function
+--- @field has_user_update function
 Controller = {
-  --- @type table
   _defaults = {},
-  --- @type table
   _userhandlers = {},
 
   ----------------
@@ -156,7 +212,9 @@ Controller = {
       local ui = get_user_input()
       if ldr ~= ddr or ui then
         local function draw()
-          if ldr then ldr() end
+          if ldr then
+            wrap(ldr)
+          end
           local user_input = get_user_input()
           if user_input then
             user_input.V:draw(user_input.C:get_input())
@@ -170,7 +228,7 @@ Controller = {
       local uup = Controller._userhandlers.update
       if user_update and uup
       then
-        uup(dt)
+        wrap(uup, dt)
       end
       Controller.snapshot()
     end
@@ -180,8 +238,6 @@ Controller = {
     end
     love.update = update
   end,
-
-
 
   ---------------
   --    draw   --
@@ -197,11 +253,20 @@ Controller = {
     View.prev_draw = love.draw
     View.main_draw = love.draw
   end,
-  ---------------
-  --  setters  --
-  ---------------
 
+  snapshot = function()
+    if user_draw then
+      View.snap_canvas()
+    end
+  end,
 
+  ----------------
+  ---  public  ---
+  ----------------
+  --- @param C ConsoleController
+  init = function(C)
+    _C = C
+  end,
   --- @param C ConsoleController
   --- @param CV ConsoleView
   set_default_handlers = function(C, CV)
@@ -267,17 +332,28 @@ Controller = {
               C:finish_edit()
             end
           end
+          if k == "r" then
+            C:reset()
+          end
         end
       end
       if k == 'f9' then
-        if love.state.app_state == 'running' then
+        if love.state.app_state == 'running'
+            or love.state.app_state == 'inspect'
+        then
           C:stop_project_run()
-          local fn = love.state.edited_file
-          C:edit(fn)
+          local st = love.state.editor
+          if st then
+            C:edit(st.buffer.filename, st)
+          else
+            C:edit()
+          end
         elseif love.state.app_state == 'editor' then
-          local filename = C:finish_edit()
-          love.state.edited_file = filename
-          C:run_project()
+          if C.editor:is_normal_mode() then
+            local ed_state = C:finish_edit()
+            love.state.editor = ed_state
+            C:run_project()
+          end
         end
       end
 
@@ -381,11 +457,5 @@ Controller = {
   clear_user_handlers = function()
     Controller._userhandlers = {}
     View.clear_snapshot()
-  end,
-
-  snapshot = function()
-    if user_draw then
-      View.snap_canvas()
-    end
   end,
 }

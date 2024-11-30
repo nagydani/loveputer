@@ -190,6 +190,22 @@ function table.is_member(self, e)
 end
 
 --- @param self table
+--- @param e any
+--- @return boolean
+function table.delete_by_value(self, e)
+  if not self or not e then return false end
+  local i = -1
+  for j, v in pairs(self) do
+    if v == e then i = j end
+  end
+  if i > 0 then
+    table.remove(self, i)
+    return true
+  end
+  return false
+end
+
+--- @param self table
 --- @param n integer
 --- @return table
 function table.take(self, n)

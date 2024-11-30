@@ -4,6 +4,7 @@ require("view.editor.visibleStructuredContent")
 local class = require("util.class")
 require("util.scrollable")
 require("util.table")
+local B = require("util.block")
 
 local function new(cfg)
   local l = cfg.lines
@@ -110,20 +111,47 @@ function BufferView:open(buffer)
   if off > 0 then self:scroll('down', 1) end
 end
 
-function BufferView:refresh()
+--- @return BufferState
+function BufferView:get_state()
+  local buf = self.buffer
+  return {
+    filename = buf.name,
+    selection = buf.selection,
+    offset = self.offset,
+  }
+end
+
+--- @param moved integer?
+function BufferView:refresh(moved)
   if not self.content then
     error('no buffer is open')
   end
-  ---@diagnostic disable-next-line: param-type-mismatch
-  self.content:wrap(self.buffer:get_text_content())
+  local text = self.buffer:get_text_content()
+  self.content:wrap(text)
+  if self.content_type == 'lua' then
+    self.content:load_blocks(self.buffer.content)
+  end
+
+  if moved then
+    local sel = self.buffer:get_selection()
+    if self.content_type == 'plain' then
+      local t = Dequeue(text)
+      t:move(moved, sel)
+      self.content:wrap(t)
+    end
+    if self.content_type == 'lua' then
+      local vsc = self.content
+      local blocks = vsc.blocks
+      blocks:move(moved, sel)
+      vsc:recalc_range()
+    end
+  end
+
   local clen = self.content:get_content_length()
   local off = self.offset
   local si = 1 + off
   local ei = math.min(self.LINES, clen + 1) + off
   self:_update_visible(Range(si, ei))
-  if self.content_type == 'lua' then
-    self.content:load_blocks(self.buffer.content)
-  end
 end
 
 -------------------
@@ -162,6 +190,12 @@ function BufferView:scroll(dir, by, warp)
   end)()
   local o = self.content:move_range(n)
   self.offset = self.offset + o
+end
+
+--- @param off integer
+function BufferView:scroll_to(off)
+  self:scroll('up', nil, true)
+  self:scroll('down', off)
 end
 
 --- @return boolean
@@ -212,7 +246,8 @@ function BufferView:follow_selection()
   end
 end
 
-function BufferView:draw()
+--- @param special boolean
+function BufferView:draw(special)
   local G = love.graphics
   local cf_colors = self.cfg.colors
   local colors = cf_colors.editor
@@ -241,10 +276,14 @@ function BufferView:draw()
 
     local highlight_line = function(ln)
       if not ln then return end
-      if ls then
-        G.setColor(colors.highlight_loaded)
+      if special then
+        G.setColor(colors.highlight_special)
       else
-        G.setColor(colors.highlight)
+        if ls then
+          G.setColor(colors.highlight_loaded)
+        else
+          G.setColor(colors.highlight)
+        end
       end
       local l_y = (ln - 1) * fh
       G.rectangle('fill', 0, l_y, width, fh)
