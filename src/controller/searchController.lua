@@ -24,7 +24,7 @@ function SearchController:get_results()
   local res = self.model:get_results()
   return {
     results = res,
-    selection = self.model.selection,
+    selection = self.model:get_selection(true),
   }
 end
 
@@ -52,7 +52,19 @@ end
 --- @param by integer?
 --- @param warp boolean?
 function SearchController:_move_sel(dir, by, warp)
-  self.model:move_selection(dir, by, warp)
+  local m = self.model:move_selection(dir, by, warp)
+  if m then
+    self.model:follow_selection()
+  end
+end
+
+--- @private
+--- @param dir VerticalDir
+--- @param warp boolean?
+--- @param by integer?
+function SearchController:_scroll(dir, warp, by)
+  self.model:scroll(dir, by, warp)
+  -- self:update_status() -- TODO: show more arrows
 end
 
 --- @param k string
@@ -73,6 +85,23 @@ function SearchController:keypressed(k)
       self:_move_sel('down', nil, true)
     end
 
+    -- scroll
+    if not Key.shift()
+        and k == "pageup" then
+      self:_scroll('up', Key.ctrl())
+    end
+    if not Key.shift()
+        and k == "pagedown" then
+      self:_scroll('down', Key.ctrl())
+    end
+    if Key.shift()
+        and k == "pageup" then
+      self:_scroll('up', false, 1)
+    end
+    if Key.shift()
+        and k == "pagedown" then
+      self:_scroll('down', false, 1)
+    end
   end
   local function removers()
     local input = self.model.input

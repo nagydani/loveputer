@@ -4,13 +4,11 @@ local class = require('util.class')
 local new = function(cfg)
   return {
     cfg = cfg,
-    offset = 0,
   }
 end
 
 --- @class ResultsView : ViewBase
 --- @field cfg ViewConfig
---- @field offset integer
 ResultsView = class.create(new)
 
 --- @param results ResultsDTO
@@ -69,9 +67,8 @@ function ResultsView:draw(results)
       local l_y = (ln - 1) * fh
       G.rectangle('fill', 0, l_y, width, fh)
     end
-    local off = self.offset or 0
     local v = results.selection
-    highlight_line(v - off)
+    highlight_line(v)
   end
 
   draw_background()

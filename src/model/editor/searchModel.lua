@@ -1,5 +1,6 @@
 local class = require('util.class')
 require('util.table')
+require('util.scrollableContent')
 
 --- @alias itemid integer
 
@@ -18,14 +19,19 @@ require('util.table')
 --- @field clear function
 --- @field get_results function
 --- @field move_selection function
+--- @field get_selection function
 --- @field narrow function
+--- @field scroll function
+--- @field follow_selection function
 
 --- @param cfg Config
 Search = class.create(function(cfg)
+  local l = cfg.view.lines
   return {
     input = UserInputModel(cfg, nil, false, 'search'),
     searchset = {},
     resultset = {},
+    visible = ScrollableContent(0, 1, l)
   }
 end)
 
@@ -42,6 +48,7 @@ function Search:load(items)
       end
     end
     self.selection = 1
+    self.visible:update(#items)
   end
 end
 
@@ -53,7 +60,8 @@ end
 
 --- @return table[]
 function Search:get_results()
-  return self.resultset
+  local rs = self.resultset
+  return self.visible:get_visible(rs)
 end
 
 --- @param dir VerticalDir
@@ -64,9 +72,11 @@ function Search:move_selection(dir, by, warp)
   if warp then
     if dir == 'up' then
       self.selection = 1
+      return true
     end
     if dir == 'down' then
       self.selection = l
+      return true
     end
     return false
   end
@@ -86,6 +96,16 @@ function Search:move_selection(dir, by, warp)
     end
   end
   return false
+end
+
+--- @param visible boolean
+--- @return integer
+function Search:get_selection(visible)
+  local s = self.selection
+  if visible then
+    s = s - self.visible.offset
+  end
+  return s
 end
 
 --- @param input string
@@ -117,6 +137,7 @@ function Search:narrow(input)
     end
   end
   self.resultset = res
+  self.visible:update(#res)
 
   --- update selection
   if selected then
@@ -135,4 +156,43 @@ function Search:narrow(input)
   else
     self.selection = 1
   end
+end
+
+--- @param dir VerticalDir
+--- @param by integer?
+--- @param warp boolean?
+function Search:scroll(dir, by, warp)
+  self.visible:scroll(dir, by, warp)
+end
+
+function Search:follow_selection()
+  local v, dir, d = self:is_selection_visible()
+  if not v then
+    if dir and d then self:scroll(dir, d) end
+  end
+end
+
+--- @return boolean
+--- @return VerticalDir?
+--- @return number? diff
+function Search:is_selection_visible()
+  local sel = self.selection
+
+  local r = self.visible:get_range()
+  if r:inc(sel) then return true end
+
+  local dir = (function()
+    if r.start > sel then return 'up' end
+    if r.fin < sel then return 'down' end
+  end)()
+  local d = (function()
+    if dir == 'up' then
+      return r.start - sel
+    elseif dir == 'down' then
+      local off = self.visible.size_max - 1
+      return sel - r.fin + off
+    end
+  end)()
+
+  return false, dir, d
 end
