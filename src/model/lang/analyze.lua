@@ -109,6 +109,7 @@ local function definition_extractor(node)
           and is_idx_stack(lhs[1][1])
           and is_ident(lhs[1][2][1])
       then
+        --- block 1
         atype = 'method'
         local class = lhs[1][1][1]
         local method = lhs[1][2][1]
@@ -117,9 +118,11 @@ local function definition_extractor(node)
           and rhs[1].tag == "Function"
           and is_idx_stack(lhs[1])
       then
+        --- block 2
         atype = 'function'
         name = get_idx_stack(lhs[1]) or ''
-      elseif rhs[1].tag == 'Table'
+      elseif type(rhs[1]) == "table"
+          and rhs[1].tag == 'Table'
       then
         local at
         if tag == 'Local' then
