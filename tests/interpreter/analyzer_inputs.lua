@@ -208,6 +208,92 @@ function M:extract_comments(node)
 end
 ]]
 
+local fullclock = [[
+--- @diagnostic disable: duplicate-set-field,lowercase-global
+width, height = G.getDimensions()
+midx = width / 2
+midy = height / 2
+
+local m = 60
+local h = m * m
+midnight = 24 * m * h
+
+local H, M, S, t
+function setTime()
+  H = os.date("%H")
+  M = os.date("%M")
+  S = os.date("%S")
+  t = S + m * M + h * H
+end
+
+setTime()
+s = 0
+
+math.randomseed(os.time())
+color = math.random(7)
+bg_color = math.random(7)
+font = G.newFont(72)
+
+local function pad(i)
+  return string.format("%02d", i)
+end
+
+function getTimestamp()
+  local hours_f = pad(math.floor(s / h))
+  local minutes_f = pad(math.fmod(math.floor(s / m), m))
+
+  local hours = s >= h and hours_f or '00'
+  local minutes = s >= m and minutes_f or '00'
+  local seconds = pad(math.floor(math.fmod(s, m)))
+  return string.format('%s:%s:%s', hours, minutes, seconds)
+end
+
+function love.draw()
+  G.setColor(Color[color + Color.bright])
+  G.setBackgroundColor(Color[bg_color])
+  G.setFont(font)
+
+  local text = getTimestamp()
+  local l = string.len(text)
+  local off_x = l * font:getWidth(' ')
+  local off_y = font:getHeight() / 2
+  G.print(text, midx - off_x, midy - off_y, 0, 1, 1)
+end
+
+function love.update(dt)
+  t = t + dt
+  s = math.floor(t)
+  if s > midnight then s = 0 end
+end
+
+function cycle(c)
+  if c > 7 then return 1 end
+  return c + 1
+end
+
+local function shift()
+  return love.keyboard.isDown("lshift", "rshift")
+end
+local function color_cycle(k)
+  if k == "space" then
+    if shift() then
+      bg_color = cycle(bg_color)
+    else
+      color = cycle(color)
+    end
+  end
+end
+function love.keyreleased(k)
+  color_cycle(k)
+  if k == "r" and shift() then
+    setTime()
+  end
+  if k == "s" then
+    stop("STOP THE CLOCKS!")
+  end
+end
+]]
+
 local full = {
   prep(sierpinski, {
     { line = 1,  name = 'sierpinski', type = 'function', },
@@ -260,6 +346,50 @@ local full = {
     { line = 32, name = 'li.multiline',       type = 'field', },
     { line = 33, name = 'li.position',        type = 'field', },
     { line = 34, name = 'li.prepend_newline', type = 'field', },
+  }),
+  prep(fullclock, {
+    { line = 2,  name = 'width',            type = 'global', },
+    { line = 2,  name = 'height',           type = 'global', },
+    { line = 3,  name = 'midx',             type = 'global', },
+    { line = 4,  name = 'midy',             type = 'global', },
+    { line = 6,  name = 'm',                type = 'local', },
+    { line = 7,  name = 'h',                type = 'local', },
+    { line = 8,  name = 'midnight',         type = 'global', },
+    { line = 11, name = 'H',                type = 'local', },
+    { line = 11, name = 'M',                type = 'local', },
+    { line = 11, name = 'S',                type = 'local', },
+    { line = 11, name = 't',                type = 'local', },
+    { line = 12, name = 'setTime',          type = 'function', },
+    { line = 13, name = 'H',                type = 'global', },
+    { line = 14, name = 'M',                type = 'global', },
+    { line = 15, name = 'S',                type = 'global', },
+    { line = 16, name = 't',                type = 'global', },
+    { line = 20, name = 's',                type = 'global', },
+    { line = 23, name = 'color',            type = 'global', },
+    { line = 24, name = 'bg_color',         type = 'global', },
+    { line = 25, name = 'font',             type = 'global', },
+    { line = 27, name = 'pad',              type = 'function', },
+    { line = 31, name = 'getTimestamp',     type = 'function', },
+    { line = 32, name = 'hours_f',          type = 'local', },
+    { line = 33, name = 'minutes_f',        type = 'local', },
+    { line = 35, name = 'hours',            type = 'local', },
+    { line = 36, name = 'minutes',          type = 'local', },
+    { line = 37, name = 'seconds',          type = 'local', },
+    { line = 41, name = 'love.draw',        type = 'function', },
+    { line = 46, name = 'text',             type = 'local', },
+    { line = 47, name = 'l',                type = 'local', },
+    { line = 48, name = 'off_x',            type = 'local', },
+    { line = 49, name = 'off_y',            type = 'local', },
+    { line = 53, name = 'love.update',      type = 'function', },
+    { line = 54, name = 't',                type = 'global', },
+    { line = 55, name = 's',                type = 'global', },
+    { line = 56, name = 's',                type = 'global', },
+    { line = 59, name = 'cycle',            type = 'function', },
+    { line = 64, name = 'shift',            type = 'function', },
+    { line = 67, name = 'color_cycle',      type = 'function', },
+    { line = 70, name = 'bg_color',         type = 'global', },
+    { line = 72, name = 'color',            type = 'global', },
+    { line = 76, name = 'love.keyreleased', type = 'function', },
   }),
 }
 
