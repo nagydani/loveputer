@@ -154,8 +154,6 @@ local function definition_extractor(node)
           return rets
         end
       else
-        --- @type token[]?
-        local lhss = table.odds(node)
         local rets = {}
         local at
         if tag == 'Local' then
@@ -165,17 +163,14 @@ local function definition_extractor(node)
         elseif tag == 'Set' then
           at = 'global'
         end
-        ---@diagnostic disable-next-line: param-type-mismatch
-        for _, v in ipairs(lhss) do
-          for _, w in ipairs(v) do
-            local n = get_lhs_name(w)
-            if type(n) == 'string' then
-              table.insert(rets, {
-                name = n,
-                line = get_line_number(w),
-                type = at,
-              })
-            end
+        for _, w in ipairs(lhs) do
+          local n = get_lhs_name(w)
+          if type(n) == 'string' then
+            table.insert(rets, {
+              name = n,
+              line = get_line_number(w),
+              type = at,
+            })
           end
         end
         return rets
@@ -192,10 +187,10 @@ end
 --- @param ast AST
 --- @return SemanticInfo
 local function analyze(ast)
-  local t = table.flatten(
+  local sets = table.flatten(
     Tree.preorder(ast, definition_extractor)
   )
-  return { assignments = t }
+  return { assignments = sets }
 end
 
 return {
