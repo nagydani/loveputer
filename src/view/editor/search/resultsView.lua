@@ -30,15 +30,15 @@ function ResultsView:draw(results)
   local draw_results = function()
     local getLabel = function(t)
       if t == 'function' then
-        return "☰"
+        return ""
       elseif t == 'method' then
-        return "☰"
+        return ""
       elseif t == 'local' then
-        return "◊"
+        return ""
       elseif t == 'global' then
-        return "⭘"
+        return ""
       elseif t == 'field' then
-        return "┇"
+        return ""
       end
     end
     G.push('all')
