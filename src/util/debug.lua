@@ -500,7 +500,8 @@ Log = {
   debug = function(...)
     local args = { ... }
     local ts = string.format("%.3f ", os.clock())
-    local s = annot(ts .. 'DEBUG ', Color.blue, args)
+    local s = annot(ts .. 'DEBUG ',
+      (Color.black + Color.bright), args)
     printer(s)
   end,
 
