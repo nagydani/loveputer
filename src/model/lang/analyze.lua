@@ -155,21 +155,26 @@ local function definition_extractor(node)
         end
       else
         local rets = {}
-        local at
+        local at, is_local, dec_only
         if tag == 'Local' then
           at = 'local'
+          is_local = true
         elseif tag == 'Localrec' then
           at = 'function'
         elseif tag == 'Set' then
           at = 'global'
         end
-        for _, w in ipairs(lhs) do
+        for i, w in ipairs(lhs) do
           local n = get_lhs_name(w)
+          if is_local and not rhs[i] then
+            dec_only = true
+          end
           if type(n) == 'string' then
             table.insert(rets, {
               name = n,
               line = get_line_number(w),
               type = at,
+              undefined = dec_only,
             })
           end
         end
@@ -177,7 +182,7 @@ local function definition_extractor(node)
       end
 
       ret.name = name
-      ret.line = node.lineinfo.first.line
+      ret.line = get_line_number(node)
       ret.type = atype
       return { ret }
     end
@@ -190,7 +195,14 @@ local function analyze(ast)
   local sets = table.flatten(
     Tree.preorder(ast, definition_extractor)
   )
-  return { assignments = sets }
+  local assignments = {}
+  for _, v in ipairs(sets or {}) do
+    if not v.undefined
+    then
+      table.insert(assignments, v)
+    end
+  end
+  return { assignments = assignments }
 end
 
 return {
