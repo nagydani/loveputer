@@ -36,8 +36,10 @@ function EditorView:draw()
   else
     local spec = mode == 'reorder'
     self.buffer:draw(spec)
-    local input = ctrl:get_input()
-    self.input:draw(input)
+    if ViewUtils.conditional_draw('show_input') then
+      local input = ctrl:get_input()
+      self.input:draw(input)
+    end
   end
 end
 

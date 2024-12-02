@@ -23,5 +23,7 @@ function SearchView:draw(input)
   local ctrl = self.controller
   local rs = ctrl:get_results()
   self.results:draw(rs)
-  self.input:draw(input)
+  if ViewUtils.conditional_draw('show_input') then
+    self.input:draw(input)
+  end
 end
