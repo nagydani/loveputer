@@ -4,8 +4,9 @@ require("view.editor.visibleStructuredContent")
 local class = require("util.class")
 require("util.scrollable")
 require("util.table")
-local B = require("util.block")
+-- local B = require("util.block")
 
+--- @param cfg ViewConfig
 local function new(cfg)
   local l = cfg.lines
 

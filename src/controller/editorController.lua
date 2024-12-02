@@ -57,6 +57,7 @@ function EditorController:open(name, content, save)
   local w = self.model.cfg.view.drawableChars
   local is_lua = string.match(name, '.lua$')
   local ch, hl, pp
+
   if is_lua then
     self.input:set_eval(LuaEditorEval)
     local luaEval = LuaEval()

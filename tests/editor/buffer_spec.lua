@@ -3,6 +3,7 @@ local parser = require('model.lang.parser')()
 
 require('util.table')
 
+
 describe('Buffer #editor', function()
   local w = 64
   local chunker = function(t, single)

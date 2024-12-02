@@ -31,6 +31,8 @@ setmetatable(VisibleContent, {
 
 --- @param w integer
 --- @param fulltext string[]
+--- @param overscroll integer
+--- @param size_max integer
 --- @return VisibleContent
 function VisibleContent.new(w, fulltext, overscroll, size_max)
   --- @type VisibleContent
