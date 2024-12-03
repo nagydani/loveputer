@@ -111,7 +111,7 @@ one-allt:
 one-size:
   @{{LOVE}} src --size
 
-VERSION := `git describe --long --always`
+VERSION := `git describe --tags --long --always`
 
 package: version
   @7z a {{DIST}}/game.love ./src/* > /dev/null
