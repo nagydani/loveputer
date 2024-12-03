@@ -189,6 +189,14 @@ local function definition_extractor(node)
   end
 end
 
+--- @return function
+local function defmatch(name)
+  --- @return boolean
+  return function(c)
+    return c.name == name
+  end
+end
+
 --- @param ast AST
 --- @return SemanticInfo
 local function analyze(ast)
@@ -196,15 +204,29 @@ local function analyze(ast)
     Tree.preorder(ast, definition_extractor)
   )
   local assignments = {}
+  local candidates = {}
   for _, v in ipairs(sets or {}) do
     if not v.undefined
     then
-      table.insert(assignments, v)
+      local ci = table.find_by(candidates, defmatch(v.name))
+      local c = candidates[ci]
+      if c then
+        local a = {
+          name = v.name,
+          line = v.line,
+          type = c.type,
+        }
+        table.insert(assignments, a)
+      else
+        table.insert(assignments, v)
+      end
+    else
+      table.insert(candidates, v)
     end
   end
   return { assignments = assignments }
 end
 
 return {
-  analyze = analyze
+  analyze = analyze,
 }
