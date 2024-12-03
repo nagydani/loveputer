@@ -327,7 +327,11 @@ Debug = {
     if skip_lineinfo then
       om.lineinfo = true
     end
-    local res = terse(ast, om, style, nil, nil)
+    local pre = ''
+    if style == 'lua' then
+      pre = 'local t = '
+    end
+    local res = pre .. terse(ast, om, style, nil, nil)
     local str = string.gsub(res, ', ?$', '')
     return str
   end,
