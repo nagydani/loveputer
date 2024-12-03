@@ -266,7 +266,7 @@ jobs:
         run: |
           cd ${{ env.ARTIFACT_FOLDER }}
           sha256sum * > SHA256SUMS.txt
-      - uses: sigstore/gh-action-sigstore-python@v2.1.1
+      - uses: sigstore/gh-action-sigstore-python@v3.0.0
         with:
           inputs: ${{ env.ARTIFACT_FOLDER }}/*
       - name: control
