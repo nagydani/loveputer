@@ -13,7 +13,6 @@ require("util.debug")
 --- @field oneshot boolean
 --- @field entered InputText
 --- @field evaluator Evaluator
---- @field label string
 --- @field cursor Cursor
 --- @field wrapped_text WrappedText
 --- @field error string[]?
@@ -21,6 +20,7 @@ require("util.debug")
 --- @field selection InputSelection
 --- @field cfg Config
 --- @field custom_status CustomStatus?
+--- @field custom_label string?
 --- methods
 --- @field new function
 --- @field get_label fun(self): string?
@@ -40,7 +40,8 @@ UserInputModel = class.create()
 --- @param cfg Config
 --- @param eval Evaluator
 --- @param oneshot boolean?
-function UserInputModel.new(cfg, eval, oneshot)
+--- @param custom_label string?
+function UserInputModel.new(cfg, eval, oneshot, custom_label)
   local w = cfg.view.drawableChars
   local self = setmetatable({
     oneshot = oneshot,
@@ -50,6 +51,7 @@ function UserInputModel.new(cfg, eval, oneshot)
     wrapped_text = WrappedText(w),
     selection = InputSelection(),
     custom_status = nil,
+    custom_label = custom_label,
 
     cfg = cfg,
   }, UserInputModel)
@@ -61,6 +63,9 @@ end
 
 --- @return string?
 function UserInputModel:get_label()
+  local cl = self.custom_label
+  if cl then return cl end
+
   local eval = self.evaluator
   if eval and eval.label then return eval.label end
 end
@@ -351,6 +356,8 @@ end
 --- @return Highlight?
 function UserInputModel:highlight()
   local ev = self.evaluator
+  if not ev then return end
+
   local p = ev.parser
   if p and p.highlighter then
     local text = self:get_text()
@@ -661,7 +668,7 @@ end
 --- @return Status
 function UserInputModel:get_status()
   return {
-    label = self.label,
+    label = self:get_label(),
     cursor = self.cursor,
     n_lines = self:get_n_text_lines(),
     custom = self.custom_status,

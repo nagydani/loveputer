@@ -12,8 +12,8 @@
 ---| 'down'
 
 ---@alias InputType
----| '"lua"'
----| '"text"'
+---| 'lua'
+---| 'text'
 
 ---@alias ContentType
 ---| 'plain'
@@ -45,11 +45,11 @@
 --- @field debugwidth integer
 --- @field drawableWidth number
 --- @field drawableChars integer
+--- @field drawtest boolean
 
 --- @class Config table
 --- @field view ViewConfig
 --- @field autotest boolean
---- @field drawtest boolean
 --- @field sizedebug boolean
 
 --- @alias More {up: boolean, down: boolean}
@@ -108,6 +108,7 @@
 --- @field filename string
 --- @field selection integer
 --- @field offset integer
+
 --- @class EditorState table
 --- @field buffer BufferState
 --- @field clipboard string?
@@ -129,3 +130,7 @@
 --- @field once integer
 
 --- @class LuaEnv : table
+
+--- @class ResultsDTO table
+--- @field results table[]
+--- @field selection integer

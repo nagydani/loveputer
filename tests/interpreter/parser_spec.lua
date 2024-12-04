@@ -35,7 +35,8 @@ describe('parse #parser', function()
       if parser_debug then
         if not ok then
           print(tag, string.join(input.code, '⏎ '))
-          local error = l .. ':' .. c .. ' | ' .. err
+          local error = string.format("%s:%s | %s",
+            l or '', c or '', err or '')
           if string.is_non_empty_string(err) then
             term.print_c(Color.red, error)
           end
@@ -47,16 +48,18 @@ describe('parse #parser', function()
                 local ll = string.ulen(line)
                 for ch = 1, ll do
                   if ch <= c then
-                    term.print_c(Color.white, string.usub(line, ch, ch), true)
+                    term.print_c(Color.white,
+                      string.usub(line, ch, ch), true)
                   else
-                    term.print_c(Color.magenta, string.usub(line, ch, ch), true)
+                    term.print_c(Color.magenta,
+                      string.usub(line, ch, ch), true)
                   end
                 end
                 print()
                 for _ = 1, c do io.write(' ') end
               end
               term.print_c(Color.red, '^')
-            elseif ln > l then
+            elseif l and ln > l then
               term.print_c(Color.magenta, line)
             else
               term.print_c(Color.white, line)

@@ -1,4 +1,6 @@
 require("model.editor.content")
+local analyzer = require("model.lang.analyze")
+local bsi = require("model.editor.bufferSemanticInfo")
 
 local class = require('util.class')
 require('util.table')
@@ -6,6 +8,7 @@ require('util.range')
 require('util.string')
 require('util.dequeue')
 
+--- Todo: convert to class, store revmap
 --- @alias Content Dequeue<string>|Dequeue<Block>
 
 --- @alias Chunker fun(s: string[], s: boolean?): Dequeue<Block>
@@ -22,24 +25,43 @@ require('util.dequeue')
 --- @return BufferModel?
 local function new(name, content, save,
                    chunker, highlighter, printer)
-  local _content, sel, ct
+  local _content, sel, ct, semantic
+  local revmap = {}
   local readonly = false
 
-  if type(chunker) == "function" then
+  local function plaintext()
+    ct = 'plain'
+    _content = Dequeue(content, 'string')
+    sel = #_content + 1
+  end
+  --- only passing this around so the linter shuts up about nil
+  --- @param chk function
+  local function luacontent(chk)
     ct = 'lua'
-    local ok, blocks = chunker(content)
+    local ok, blocks, ast = chk(content)
     if ok then
       local len = #blocks
       sel = len + 1
+      local ana = analyzer.analyze(ast)
+      for bi, v in ipairs(blocks) do
+        if (v.pos) then
+          for _, l in ipairs(v.pos:enumerate()) do
+            revmap[l] = bi
+          end
+        end
+      end
+      semantic = bsi.convert(ana, revmap)
     else
       readonly = true
       sel = 1
     end
     _content = blocks
+  end
+
+  if type(chunker) == "function" then
+    luacontent(chunker)
   else
-    ct = 'plain'
-    _content = Dequeue(content, 'string')
-    sel = #_content + 1
+    plaintext()
   end
 
   return {
@@ -50,6 +72,7 @@ local function new(name, content, save,
     chunker = chunker,
     highlighter = highlighter,
     printer = printer,
+    semantic = semantic,
     selection = sel,
     readonly = readonly
   }
@@ -63,7 +86,7 @@ end
 --- @field selection integer
 --- @field loaded integer?
 --- @field readonly boolean
---- @field revmap table
+--- @field semantic BufferSemanticInfo?
 ---
 --- @field chunker Chunker
 --- @field highlighter Highlighter
@@ -211,6 +234,15 @@ end
 ---   modify   ---
 ------------------
 
+--- @param rechunk boolean?
+function BufferModel:_text_change(rechunk)
+  if self.content_type == 'lua' then
+    if rechunk then
+      self:rechunk()
+    end
+  end
+end
+
 function BufferModel:delete_selected_text()
   local sel = self.selection
   if self.content_type == 'lua' then
@@ -227,6 +259,7 @@ function BufferModel:delete_selected_text()
   else
     self.content:remove(sel)
   end
+  self:_text_change()
 end
 
 --- @param t string[]|Block[]
@@ -279,6 +312,7 @@ function BufferModel:replace_selected_text(t)
       end
     end
 
+    self:_text_change()
     return true, n
   else
     local sel = self.selection
@@ -287,6 +321,7 @@ function BufferModel:replace_selected_text(t)
     if #t == 1 then
       self.content[ti] = t[1]
       if ti > clen then
+        self:_text_change()
         return true, 1
       end
     else
@@ -294,6 +329,7 @@ function BufferModel:replace_selected_text(t)
       for i = #t, 1, -1 do
         self.content:insert(t[i], ti)
       end
+      self:_text_change()
       return true, #t
     end
     return false
@@ -317,6 +353,7 @@ function BufferModel:insert_newline(i)
 
     local ln = self:get_selection_start_line()
     self.content:insert(Empty(ln), bln)
+    self:_text_change()
     for j = bln + 1, self:get_content_length() do
       local b = self.content[j]
       local r = b.pos
@@ -324,6 +361,7 @@ function BufferModel:insert_newline(i)
     end
   else
     self.content:insert('', bln)
+    self:_text_change()
   end
 end
 
@@ -331,9 +369,7 @@ end
 --- @param npos integer
 function BufferModel:move(i, npos)
   self.content:move(i, npos)
-  if self.content_type == 'lua' then
-    self:rechunk()
-  end
+  self:_text_change(true)
 end
 
 ------------------

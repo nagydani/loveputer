@@ -36,6 +36,12 @@
       "Log.debug(Debug.text_table($0))",
     ]
   },
+  "dump ast": {
+    "prefix": "dumpa",
+    "body": [
+      "Log.debug(Debug.terse_ast($0, true))",
+    ]
+  },
   "dump table keys": {
     "prefix": "dumptk",
     "body": [

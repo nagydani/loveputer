@@ -1,28 +1,22 @@
 local class = require("util.class")
 
---- @class BGView
---- @field cfg Config
+--- @class BGView : ViewBase
 BGView = class.create(function(cfg)
   return { cfg = cfg }
 end)
 
 function BGView:draw(drawable_height)
-  --- @type ViewConfig
-  local vcfg = self.cfg.view
-  local colors = vcfg.colors
-  local b = vcfg.border
-  local FAC = vcfg.FAC
-  local w = vcfg.w
-  local fh = vcfg.fh
+  local cfg = self.cfg
+  local w = cfg.w
+  local fh = cfg.fh
 
   G.push('all')
-  G.setColor(colors.border)
 
   -- background in case input is not visible
   G.rectangle("fill",
-    b,
-    b + drawable_height - 2 * FAC,
-    w - b,
+    0,
+    drawable_height - 2,
+    w,
     fh * 2 + 2
   )
   G.pop()

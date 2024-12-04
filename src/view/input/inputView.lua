@@ -16,12 +16,10 @@ local function new(cfg, ctrl)
   }
 end
 
---- @class InputView
---- @field cfg ViewConfig
+--- @class InputView : ViewBase
 --- @field controller InputController
 --- @field statusline table
 --- @field oneshot boolean
---- @field draw function
 InputView = class.create(new)
 
 

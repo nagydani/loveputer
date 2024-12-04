@@ -1,6 +1,6 @@
 require("model.interpreter.eval.evaluator")
-require("controller.inputController")
 require("controller.userInputController")
+require("controller.searchController")
 require("view.input.customStatus")
 
 local class = require('util.class')
@@ -8,8 +8,12 @@ local class = require('util.class')
 --- @param M EditorModel
 local function new(M)
   return {
-    input = UserInputController(M.input, nil, true),
+    input = UserInputController(M.input, nil, false),
     model = M,
+    search = SearchController(
+      M.search,
+      UserInputController(M.search.input, nil, false)
+    ),
     view = nil,
     mode = 'edit',
   }
@@ -18,10 +22,12 @@ end
 --- @alias EditorMode
 --- | 'edit' --- default
 --- | 'reorder'
+--- | 'search'
 
 --- @class EditorController
 --- @field model EditorModel
 --- @field input UserInputController
+--- @field search SearchController
 --- @field view EditorView?
 --- @field state EditorState?
 --- @field mode EditorMode
@@ -34,7 +40,7 @@ end
 --- @field get_clipboard function
 --- @field set_clipboard function
 --- @field set_mode function
---- @field is_normal_mode function
+--- @field get_mode function
 --- @field close function
 --- @field get_active_buffer function
 --- @field get_input function
@@ -51,6 +57,7 @@ function EditorController:open(name, content, save)
   local w = self.model.cfg.view.drawableChars
   local is_lua = string.match(name, '.lua$')
   local ch, hl, pp
+
   if is_lua then
     self.input:set_eval(LuaEditorEval)
     local luaEval = LuaEval()
@@ -87,12 +94,21 @@ function EditorController:set_mode(mode)
   local set_reorg = function()
     self:save_state()
   end
+  local init_search = function()
+    self:save_state()
+    local buf = self:get_active_buffer()
+    local ds = buf.semantic.definitions
+    self.search:load(ds)
+  end
 
   local current = self.mode
   Log.info('-- ' .. string.upper(mode) .. ' --')
   if is_normal(current) then
     if mode == 'reorder' then
       set_reorg()
+    end
+    if mode == 'search' then
+      init_search()
     end
     self.mode = mode
   else
@@ -104,9 +120,9 @@ function EditorController:set_mode(mode)
   self:update_status()
 end
 
---- @return boolean
-function EditorController:is_normal_mode()
-  return is_normal(self.mode)
+--- @return EditorMode
+function EditorController:get_mode()
+  return self.mode
 end
 
 --- @param clipboard string
@@ -205,14 +221,18 @@ end
 
 --- @param t string
 function EditorController:textinput(t)
-  local input = self.model.input
-  if input:has_error() then
-    input:clear_error()
-  else
-    if Key.ctrl() and Key.shift() then
-      return
+  if self.mode == 'edit' then
+    local input = self.model.input
+    if input:has_error() then
+      input:clear_error()
+    else
+      if Key.ctrl() and Key.shift() then
+        return
+      end
+      self.input:textinput(t)
     end
-    self.input:textinput(t)
+  elseif self.mode == 'search' then
+    self.search:textinput(t)
   end
 end
 
@@ -358,6 +378,25 @@ function EditorController:_reorg_mode_keys(k)
   end
 
   navigate()
+end
+
+function EditorController:_search_mode_keys(k)
+  if k == 'escape' then
+    self:set_mode('edit')
+    self.search:clear()
+    return
+  end
+
+  local jump = self.search:keypressed(k)
+  if jump then
+    local buf = self:get_active_buffer()
+    local bn = jump.block
+    local ln = jump.line - 1
+    buf:set_selection(bn)
+    self.view.buffer:scroll_to_line(ln)
+    self:set_mode('edit')
+    self.search:clear()
+  end
 end
 
 --- @private
@@ -574,10 +613,15 @@ function EditorController:keypressed(k)
     if k == "m" then
       self:set_mode('reorder')
     end
+    if k == "f" then
+      self:set_mode('search')
+    end
   end
 
   if mode == 'reorder' then
     self:_reorg_mode_keys(k)
+  elseif mode == 'search' then
+    self:_search_mode_keys(k)
   else
     self:_normal_mode_keys(k)
   end

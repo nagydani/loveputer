@@ -230,10 +230,12 @@ Debug = {
   --- @alias dumpstyle
   --- | 'lua'
   --- | 'json5'
-  --- @param ast token[]
+  --- @param ast token[]?
   --- @param skip_lineinfo boolean?
   --- @param style dumpstyle?
+  --- @return string
   terse_ast = function(ast, skip_lineinfo, style)
+    if type(ast) ~= 'table' then return '' end
     local style = style or 'json5'
 
     --- @param t table?
@@ -319,13 +321,19 @@ Debug = {
       return res
     end
 
-    local om = {}
-    -- local om = { 'source' }
+    local om = {
+      source = true,
+    }
     if skip_lineinfo then
       om.lineinfo = true
     end
-    local res = terse(ast, om, style, nil, nil)
-    return string.gsub(res, ', ?$', '')
+    local pre = ''
+    if style == 'lua' then
+      pre = 'local t = '
+    end
+    local res = pre .. terse(ast, om, style, nil, nil)
+    local str = string.gsub(res, ', ?$', '')
+    return str
   end,
 
   --- @param o any
@@ -395,10 +403,18 @@ Debug = {
         string.is_non_empty_string(fixname)
         and fixname .. (ext and '.' .. ext or '')
         or create_temp()
+    local mok, merr = FS.mkdirp('./.debug')
+    if not mok then
+      return false, merr
+    end
     local path = FS.join_path('./.debug', name)
 
     local data = string.unlines(content)
-    FS.write(path, data)
+    local ok, err = FS.write(path, data)
+    if not ok then
+      return false, err
+    end
+    return ok
   end,
 }
 
@@ -488,7 +504,8 @@ Log = {
   debug = function(...)
     local args = { ... }
     local ts = string.format("%.3f ", os.clock())
-    local s = annot(ts .. 'DEBUG ', Color.blue, args)
+    local s = annot(ts .. 'DEBUG ',
+      (Color.black + Color.bright), args)
     printer(s)
   end,
 

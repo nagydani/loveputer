@@ -18,6 +18,13 @@ unit_test:
   @{{MON}} --exec 'echo -en "\n\n\n\n------------- BUSTED -------------\n"; busted tests' -e 'lua'
 unit_test_tag TAG:
   @{{MON}} -e lua --exec 'echo -en "\n\n\n\n------------- BUSTED -------------\n" ; busted tests --tags {{TAG}}'
+unit_test_ast:
+  @SHOW_AST=1 just unit_test_tag ast
+unit_test_parser:
+  @PARSER_DEBUG=1 just unit_test_tag parser
+unit_test_analyzer:
+  @ANA_DEBUG=1 just unit_test_tag analyzer
+
 # run unit tests of this tag once
 ut TAG:
   @busted tests --tags {{TAG}}
@@ -104,8 +111,9 @@ one-allt:
 one-size:
   @{{LOVE}} src --size
 
+VERSION := `git describe --tags --long --always`
 
-package:
+package: version
   @7z a {{DIST}}/game.love ./src/* > /dev/null
   @echo packaged:
   @ls -lh {{DIST}}/game.love
@@ -117,7 +125,8 @@ package-web: package-js
   @echo packaged:
   @ls -lh {{DIST}}/{{PRODUCT_NAME}}-web.zip
 
-package-js-dir DT:
+
+package-js-dir DT: version
   #!/usr/bin/env -S bash
   WEB={{DT}}
   unset C
@@ -133,10 +142,13 @@ package-js-dir DT:
   cd web
   node render_md.js
   rm ../$WEB/theme/bg.png
-  cp index.html ../$WEB
-  cat head.html \
-      ../{{DIST}}/_readme.html \
-      tail.html > ../$WEB/readme.html
+  # cp index.html ../$WEB
+  sed -e 's/%%VERSION%%/{{VERSION}}/' index.html \
+      > ../$WEB/index.html
+  cat head.html ../{{DIST}}/_readme.html \
+      >  ../$WEB/readme.html
+  sed -e 's/%%VERSION%%/{{VERSION}}/' tail.html \
+      >> ../$WEB/readme.html
   cp love.css ../$WEB/theme/
 
 package-js: (package-js-dir WEBDIST)
@@ -154,3 +166,6 @@ setup-hooks:
   just ut_all
   EOF
   chmod +x $HDIR/pre-commit
+
+version:
+  @echo {{VERSION}} | tee src/ver.txt

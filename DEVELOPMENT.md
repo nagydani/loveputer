@@ -12,6 +12,7 @@ The recommended way of installing these is with [LuaRocks]:
 ```sh
 luarocks --local --lua-version 5.1 install busted
 luarocks --local --lua-version 5.1 install luautf8
+luarocks --local --lua-version 5.1 install luafilesystem
 ```
 
 For information about installing [LÖVE2D] and [LuaRocks], visit

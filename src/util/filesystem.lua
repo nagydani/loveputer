@@ -48,7 +48,7 @@ FS.join_path = function(...)
   return FS.remove_dup_separators(raw)
 end
 
-if love then
+if love and not TESTING then
   local _fs
 
   LFS = love.filesystem
@@ -255,20 +255,57 @@ if love then
     return cp_ok, cp_err
   end
 else
+  local lfs = require("lfs")
   --- @param path string
   --- @param data string
   --- @return boolean success
   --- @return string? error
   function FS.write(path, data)
-    local f = io.open(path, 'w')
+    local f, oerr = io.open(path, 'w')
     if f then
       io.output(f)
-      io.write(data)
+      local _, err = io.write(data)
       io.close(f)
       io.output(io.stdout)
+      return true, err
+    end
+    return false, oerr
+  end
+
+  --- @param path string
+  --- @return boolean success
+  --- @return string? error
+  function FS.mkdir(path)
+    return lfs.mkdir(path)
+  end
+
+  --- @param path string
+  --- @return boolean success
+  --- @return string? error
+  function FS.mkdirp(path)
+    if FS.exists(path) then
+      local a = lfs.attributes(path, 'mode')
+      return a == 'directory'
+    end
+    return FS.mkdir(path)
+  end
+
+  --- @param path string
+  --- @return boolean exists
+  function FS.exists(path)
+    local f = io.open(path, 'r')
+    if f then
+      io.close(f)
       return true
     end
     return false
+  end
+
+  --- @param path string
+  --- @return boolean success
+  --- @return string? error
+  function FS.unlink(path)
+    return os.remove(path)
   end
 end
 

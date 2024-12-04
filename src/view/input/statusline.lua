@@ -1,7 +1,6 @@
 local class = require("util.class")
 
---- @class Statusline
---- @field cfg ViewConfig
+--- @class Statusline : ViewBase
 Statusline = class.create(function(cfg)
   return { cfg = cfg }
 end)
@@ -45,7 +44,6 @@ function Statusline:draw(status, nLines, time)
   --- @param m More?
   --- @return string
   local function morelabel(m)
-    local l = ''
     if not m then return '' end
 
     if m.up and not m.down then

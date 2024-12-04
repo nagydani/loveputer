@@ -5,7 +5,7 @@ local reset = '\27[0m'
 ---@param ci number
 ---@return string
 local to_control = function(ci)
-  if not ci or type(ci) ~= 'number' or ci < 0 or ci > 15 then
+  if type(ci) ~= 'number' or ci < 0 or ci > 15 then
     return reset
   end
   local bright = ''
@@ -13,7 +13,8 @@ local to_control = function(ci)
     bright = '1;'
   end
   local fg = {
-    [Color.black]                  = '38;5;238', -- a bit of cheating, so it's visible
+    -- a bit of cheating, so it's visible
+    [Color.black]                  = '38;5;238',
     [Color.red]                    = '31',
     [Color.green]                  = '32',
     [Color.yellow]                 = '33',
@@ -21,7 +22,7 @@ local to_control = function(ci)
     [Color.magenta]                = '35',
     [Color.cyan]                   = '36',
     [Color.white]                  = '37',
-    [Color.bright + Color.black]   = '90', -- a bit of cheating, so it's visible
+    [Color.bright + Color.black]   = '90',
     [Color.bright + Color.red]     = '91',
     [Color.bright + Color.green]   = '92',
     [Color.bright + Color.yellow]  = '93',
@@ -74,14 +75,21 @@ return {
     end
     return ret
   end,
-  ---@param ci number
+
+  ---@param ci number?
   ---@param s string
   ---@param part boolean?
   print_c = function(ci, s, part)
+    local output = (function()
+      if ci then
+        return colorize(ci, s, part)
+      end
+      return s
+    end)()
     if part then
-      io.write(colorize(ci, s, part))
+      io.write(output)
     else
-      print(colorize(ci, s, part))
+      print(output)
     end
   end
 }

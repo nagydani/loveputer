@@ -17,7 +17,7 @@ require("util.dequeue")
 --- @field prepend_newline boolean
 
 --- type representing metalua AST
---- @alias AST token[]
+--- @class AST : token[]
 
 --- @alias ParseResult AST|EvalError
 
@@ -111,7 +111,7 @@ return function(lib)
   end
 
   --- Read lexstream and determine highlighting
-  --- @param tokens table
+  --- @param tokens AST
   --- @return SyntaxColoring
   local syntax_hl = function(tokens)
     if not tokens then return {} end
@@ -322,6 +322,7 @@ return function(lib)
   --- @param single boolean
   --- @return boolean ok
   --- @return Block[]
+  --- @return AST|EvalError
   local chunker = function(text, w, single)
     require("model.editor.content")
     if string.is_non_empty_string_array(text) then
@@ -425,13 +426,13 @@ return function(lib)
           get_comments(single_comment, 'first')
         end
 
-        return true, ret
+        return true, ret, r
       else
         --- content is not valid lua
-        return false, Dequeue(text, 'string')
+        return false, Dequeue(text, 'string'), r
       end
     else
-      return true, Dequeue(Empty(1), 'block')
+      return true, Dequeue(Empty(1), 'block'), r
     end
   end
 

@@ -151,6 +151,7 @@ function table.slice(self, first, last, step)
   return sliced
 end
 
+--- Determine if the table is an array, i.e. not used as a hash
 --- @param self table
 --- @return boolean is_array
 function table.is_array(self)
@@ -166,6 +167,46 @@ function table.is_array(self)
   return is_array
 end
 
+--- Flatten tables of tables
+--- @param self table
+--- @param depth integer?
+--- @return table?
+function table.flatten(self, depth)
+  if not self or not type(self) == "table" then
+    return
+  end
+  local d = depth or 1
+  local ret = {}
+  if d == 1 then
+    for _, v in pairs(self) do
+      for _, w in pairs(v) do
+        table.insert(ret, w)
+      end
+    end
+  else
+    --- TODO?
+  end
+  return ret
+end
+
+--- Return odd-indexed elements
+--- @param self table
+--- @return table?
+function table.odds(self)
+  if not self or not type(self) == "table" then
+    return
+  end
+  local ret = {}
+  for i, v in ipairs(self) do
+    local rem = i % 2
+    if rem == 1 then
+      table.insert(ret, v)
+    end
+  end
+  return ret
+end
+
+--- Try to determine the 'type' of the object
 --- @param self table
 --- @param t string
 --- @return boolean
@@ -205,6 +246,30 @@ function table.delete_by_value(self, e)
   return false
 end
 
+--- Find index of 'e' if present. Returns first instance
+--- @param self table
+--- @param e any
+--- @return integer?
+function table.find(self, e)
+  if not self or not e then return end
+  for i, v in pairs(self) do
+    if v == e then return i end
+  end
+end
+
+--- Find first element that the predicate holds for
+--- @param self table
+--- @param pred function
+--- @return integer?
+function table.find_by(self, pred)
+  if not self or not pred then return end
+  for i, v in pairs(self) do
+    if pred(v) then return i end
+  end
+end
+
+--- Return first n elements.
+--- TODO refactor to use slice()
 --- @param self table
 --- @param n integer
 --- @return table
@@ -212,6 +277,18 @@ function table.take(self, n)
   local ret = {}
   for i = 1, n do
     ret[i] = self[i]
+  end
+  return ret
+end
+
+--- Apply f to all elements of the table (returns new table)
+--- @param self table
+--- @param f function
+--- @return table
+function table.map(self, f)
+  local ret = {}
+  for k, v in pairs(self) do
+    ret[k] = f(v)
   end
   return ret
 end

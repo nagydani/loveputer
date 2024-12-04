@@ -14,5 +14,6 @@ doc/parse
 *.odg#
 src/assets/*.xcf
 src/assets/shot*.png
+src/ver.txt
 host.lua
 local.just
